@@ -90,6 +90,16 @@ describe('serialize / deserialize', () => {
     delete base.milestones
     expect(deserialize(JSON.stringify(base))?.milestones).toEqual([])
   })
+
+  it('preserves recentEvents and defaults to empty when absent', () => {
+    const valid = { ...advancedState(), recentEvents: ['a', 'b', 'c'] }
+    expect(deserialize(serialize(valid))?.recentEvents).toEqual(['a', 'b', 'c'])
+
+    const base = JSON.parse(serialize(valid))
+    delete base.recentEvents
+    const restored = deserialize(JSON.stringify(base))
+    expect(restored?.recentEvents).toEqual([])
+  })
 })
 
 describe('saveGame / loadGame', () => {

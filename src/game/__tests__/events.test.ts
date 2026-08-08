@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ATTRIBUTE_CONFIG } from '../attributes'
-import { createInitialState, setAttribute } from '../state'
+import { createInitialState, setAttribute, markEventSeen } from '../state'
 import type { GameEvent, GameState } from '../types'
 import { DEFAULT_EVENT_POOL } from '../eventPool'
 import { applyOption, eventAvailable, selectEvent } from '../events'
@@ -122,6 +122,52 @@ describe('selectEvent', () => {
     expect(selectEvent(childhood, pool, () => 0.24)?.id).toBe('a')
     expect(selectEvent(childhood, pool, () => 0.25)?.id).toBe('b')
     expect(selectEvent(childhood, pool, () => 0.99)?.id).toBe('b')
+  })
+})
+
+describe('markEventSeen', () => {
+  it('prepends an id and trims to the window', () => {
+    const state = { ...createInitialState(), recentEvents: ['c', 'b'] }
+    const next = markEventSeen(state, 'a', 2)
+    expect(next.recentEvents).toEqual(['a', 'c'])
+  })
+
+  it('does not duplicate an id already in the window', () => {
+    const state = { ...createInitialState(), recentEvents: ['a', 'b'] }
+    expect(markEventSeen(state, 'b', 5).recentEvents).toEqual(['b', 'a'])
+  })
+})
+
+describe('selectEvent recent-event window', () => {
+  const pool: GameEvent[] = [
+    { id: 'a', stage: 'career', title: 'a', description: '', options: [] },
+    { id: 'b', stage: 'career', title: 'b', description: '', options: [] },
+    { id: 'c', stage: 'career', title: 'c', description: '', options: [] },
+  ]
+
+  it('avoids events seen recently when other candidates exist', () => {
+    const state = {
+      ...createInitialState(),
+      stage: 'career' as const,
+      recentEvents: ['a', 'b'],
+    }
+    // 'a' and 'b' excluded, only 'c' remains
+    expect(selectEvent(state, pool, () => 0)?.id).toBe('c')
+  })
+
+  it('falls back to all candidates when the window covers the whole pool', () => {
+    const state = {
+      ...createInitialState(),
+      stage: 'career' as const,
+      recentEvents: ['a', 'b', 'c'],
+    }
+    // all are recent, fall back to the full pool; random 0 picks 'a'
+    expect(selectEvent(state, pool, () => 0)?.id).toBe('a')
+  })
+
+  it('ignores the window when it is empty', () => {
+    const state = { ...createInitialState(), stage: 'career' as const }
+    expect(selectEvent(state, pool, () => 0.99)?.id).toBe('c')
   })
 })
 

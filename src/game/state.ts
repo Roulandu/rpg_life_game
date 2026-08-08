@@ -52,7 +52,17 @@ export function createInitialState(options: NewGameOptions = {}): GameState {
     wealth,
     milestones: [],
     difficulty,
+    recentEvents: [],
   }
+}
+
+export function markEventSeen(
+  state: GameState,
+  id: string,
+  window = 5,
+): GameState {
+  const next = [id, ...state.recentEvents.filter((e) => e !== id)]
+  return { ...state, recentEvents: next.slice(0, Math.max(0, window)) }
 }
 
 export function setAttribute(

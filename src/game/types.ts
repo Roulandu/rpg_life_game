@@ -21,6 +21,7 @@ export interface GameState {
   wealth: number
   milestones: string[]
   difficulty: Difficulty
+  recentEvents: string[]
 }
 
 export interface Effect {

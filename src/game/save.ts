@@ -52,6 +52,9 @@ function parseState(json: string): GameState | null {
       ? record.difficulty
       : 'normal'
 
+  const rawRecent = Array.isArray(record.recentEvents) ? record.recentEvents : []
+  const recentEvents = rawRecent.filter((r): r is string => typeof r === 'string')
+
   return {
     age,
     stage: getStage(age),
@@ -59,6 +62,7 @@ function parseState(json: string): GameState | null {
     wealth: Math.max(0, record.wealth),
     milestones,
     difficulty,
+    recentEvents,
   }
 }
 

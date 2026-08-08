@@ -48,10 +48,14 @@ export function selectEvent(
   pool: GameEvent[],
   random: RandomSource = Math.random,
 ): GameEvent | null {
-  const candidates = pool.filter(
+  const eligible = pool.filter(
     (event) => event.stage === state.stage && eventAvailable(state, event),
   )
-  if (candidates.length === 0) return null
+  if (eligible.length === 0) return null
+
+  const recent = state.recentEvents
+  const unseen = recent.length > 0 ? eligible.filter((e) => !recent.includes(e.id)) : eligible
+  const candidates = unseen.length > 0 ? unseen : eligible
 
   const total = candidates.reduce((sum, event) => sum + (event.weight ?? 1), 0)
   let cursor = random() * total
