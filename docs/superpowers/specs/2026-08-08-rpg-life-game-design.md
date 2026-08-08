@@ -54,12 +54,20 @@
 ## 当前状态
 
 - [x] 项目骨架：git 仓库、GitHub 远程、Vite + React + TS 脚手架、README、占位主页。
-- [ ] 角色属性系统
-- [ ] 回合制事件系统
-- [ ] 年龄成长与生涯系统
-- [ ] 存档 / 读档
-- [ ] 游戏 UI 完善
-- [ ] 测试
+- [x] 角色属性系统：属性定义、年龄成长与生命阶段、状态工厂与约束（纯逻辑 + vitest 单元测试）
+- [x] 回合制事件系统：事件/选项/效果定义、`applyOption` 效果计算、按生命阶段加权随机选择的 `selectEvent`（`weight` 字段）、默认事件池 `DEFAULT_EVENT_POOL`（20 个事件，含单元测试）
+- [x] 事件前置条件：`EventRequirement`（`requires` 字段，按属性下限/财富/里程碑解锁），`eventAvailable` 判定，`selectEvent` 据此过滤，事件池新增条件事件（名校橄榄枝、高端社交圈等，含单元测试）
+- [x] 更多结局与事件：新增结局 `celebrity`（声名显赫）、`recluse`（隐世智者），共 9 种；事件池扩充至 29 个（新增学乐器/做家务/学科竞赛/志愿者/跳槽/置业/环游世界/回忆录等，含新里程碑 volunteered/homeowner/memoir）
+- [x] 难度与开局选择：`Difficulty`（easy/normal/hard，`DIFFICULTY_CONFIG` 成长倍率与开局财富）、`STARTING_PROFILES` 六种出身、`createInitialState(options)` 烘焙初始属性/财富、`applyOption` 应用难度倍率、存档持久化 `difficulty`，`SetupPanel` 开局 UI
+- [x] 多周目统计与背景音乐：`runStats` 记录各结局达成次数（`RUN_STATS_KEY` 独立持久化，含单元测试）、`RunStatsPanel` 结局收集率展示；`music` 模块 Web Audio 合成循环旋律，`音乐开/关` 切换
+- [x] 年龄成长与生涯系统：`TERMINAL_AGE` 终局判定 `isLifeOver`、结局评估 `evaluateEnding`（事业有成/穷困潦倒/家庭美满/圆满充实/平淡人生，基于财富与属性，含单元测试）
+- [x] 结局多样性：`GameState.milestones` 里程碑系统，事件选项可写入里程碑（`Effect.milestones`），结局评估结合里程碑产生专属结局（创业传奇/学术人生），存档随之持久化
+- [x] 存档 / 读档：`serialize`/`deserialize`（结构校验、属性裁剪、阶段重算）、可注入存储接口 `SaveStorage`、`saveGame`/`loadGame`，读取失败返回 null（含单元测试）
+- [x] 游戏 UI 完善：`AttributePanel`（属性/年龄/阶段/财富）、`EventCard`（事件+选项）、`LogPanel`（人生回顾），`App` 打通可玩最小循环并接入 localStorage 存档
+- [x] UI 视觉美化：复古手账/怀旧风整体重设计（米黄纸张纹理、手写体、便签胶带卡片、印章式结局、纸感按钮与属性条）
+- [x] 音效/动画：Web Audio API 合成音效（`playChoose`/`playMilestone`/`playEnding`，自包含无需音频资源）；CSS 关键帧动画（卡片入场、日志淡入、结局弹出），并支持 `prefers-reduced-motion`
+- [x] 成就系统：`ACHIEVEMENTS` 定义（里程碑/属性/财富条件）、`achievementsFor`/`newlyUnlocked` 判定、独立持久化（`ACHIEVEMENTS_KEY`，跨存档），UI 成就图鉴 + 解锁 toast 与音效 `playAchievement`（含单元测试）
+- [x] 测试：属性、事件、存档核心逻辑单元测试（vitest，36 用例）
 
 ## 范围说明
 
