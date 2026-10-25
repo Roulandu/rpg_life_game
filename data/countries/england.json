@@ -1,0 +1,1054 @@
+{
+  "code": "ENG",
+  "nameZh": "英格兰",
+  "leagues": [
+    {
+      "id": "league:ENG:1",
+      "nameZh": "英伦超级联赛",
+      "tier": 1,
+      "promotionSlots": 0,
+      "relegationSlots": 3,
+      "reputation": 90
+    },
+    {
+      "id": "league:ENG:2",
+      "nameZh": "英伦冠军联赛",
+      "tier": 2,
+      "promotionSlots": 3,
+      "relegationSlots": 0,
+      "reputation": 62
+    }
+  ],
+  "clubs": [
+    {
+      "id": "club:ENG:1:01",
+      "city": "伦敦",
+      "nameZh": "伦敦雄鹰",
+      "nameEn": "London Eagles",
+      "tier": 1,
+      "reputation": 92,
+      "colors": {
+        "primary": "#c9f56b",
+        "secondary": "#12200b"
+      },
+      "style": "highPress",
+      "stadium": "伦敦竞技场"
+    },
+    {
+      "id": "club:ENG:1:02",
+      "city": "曼彻斯特",
+      "nameZh": "曼彻斯特红星",
+      "nameEn": "Manchester Red Star",
+      "tier": 1,
+      "reputation": 90,
+      "colors": {
+        "primary": "#ff7f7f",
+        "secondary": "#2a0b0b"
+      },
+      "style": "possession",
+      "stadium": "曼彻斯特码头球场"
+    },
+    {
+      "id": "club:ENG:1:03",
+      "city": "利物浦",
+      "nameZh": "利物浦港湾",
+      "nameEn": "Liverpool Harbour",
+      "tier": 1,
+      "reputation": 88,
+      "colors": {
+        "primary": "#5eead4",
+        "secondary": "#08211f"
+      },
+      "style": "highPress",
+      "stadium": "利物浦河谷球场"
+    },
+    {
+      "id": "club:ENG:1:04",
+      "city": "伦敦",
+      "nameZh": "伦敦星辰",
+      "nameEn": "London Stars",
+      "tier": 1,
+      "reputation": 86,
+      "colors": {
+        "primary": "#b8a1ff",
+        "secondary": "#16102b"
+      },
+      "style": "possession",
+      "stadium": "伦敦钢铁球场"
+    },
+    {
+      "id": "club:ENG:1:05",
+      "city": "纽卡斯尔",
+      "nameZh": "泰恩河矿工",
+      "nameEn": "Tyneside Miners",
+      "tier": 1,
+      "reputation": 84,
+      "colors": {
+        "primary": "#f4c95d",
+        "secondary": "#201703"
+      },
+      "style": "direct",
+      "stadium": "纽卡斯尔公园球场"
+    },
+    {
+      "id": "club:ENG:1:06",
+      "city": "伯明翰",
+      "nameZh": "伯明翰铁厂",
+      "nameEn": "Birmingham Ironworks",
+      "tier": 1,
+      "reputation": 82,
+      "colors": {
+        "primary": "#ff9f68",
+        "secondary": "#241006"
+      },
+      "style": "counter",
+      "stadium": "伯明翰竞技场"
+    },
+    {
+      "id": "club:ENG:1:07",
+      "city": "谢菲尔德",
+      "nameZh": "谢菲尔德钢城",
+      "nameEn": "Sheffield Steel",
+      "tier": 1,
+      "reputation": 80,
+      "colors": {
+        "primary": "#9bb7d4",
+        "secondary": "#101923"
+      },
+      "style": "counter",
+      "stadium": "谢菲尔德码头球场"
+    },
+    {
+      "id": "club:ENG:1:08",
+      "city": "利兹",
+      "nameZh": "利兹河谷",
+      "nameEn": "Leeds Valley",
+      "tier": 1,
+      "reputation": 78,
+      "colors": {
+        "primary": "#f2f2f2",
+        "secondary": "#1a1a1a"
+      },
+      "style": "highPress",
+      "stadium": "利兹河谷球场"
+    },
+    {
+      "id": "club:ENG:1:09",
+      "city": "布里斯托",
+      "nameZh": "布里斯托海盗",
+      "nameEn": "Bristol Corsairs",
+      "tier": 1,
+      "reputation": 76,
+      "colors": {
+        "primary": "#ff6b6b",
+        "secondary": "#220a0a"
+      },
+      "style": "direct",
+      "stadium": "布里斯托钢铁球场"
+    },
+    {
+      "id": "club:ENG:1:10",
+      "city": "诺丁汉",
+      "nameZh": "诺丁汉橡树",
+      "nameEn": "Nottingham Oaks",
+      "tier": 1,
+      "reputation": 75,
+      "colors": {
+        "primary": "#8fbf6a",
+        "secondary": "#13200e"
+      },
+      "style": "possession",
+      "stadium": "诺丁汉公园球场"
+    },
+    {
+      "id": "club:ENG:1:11",
+      "city": "莱斯特",
+      "nameZh": "莱斯特郡",
+      "nameEn": "Leicestershire",
+      "tier": 1,
+      "reputation": 74,
+      "colors": {
+        "primary": "#7aa7ff",
+        "secondary": "#0c1528"
+      },
+      "style": "counter",
+      "stadium": "莱斯特竞技场"
+    },
+    {
+      "id": "club:ENG:1:12",
+      "city": "布莱顿",
+      "nameZh": "南海岸浪潮",
+      "nameEn": "South Coast Wave",
+      "tier": 1,
+      "reputation": 73,
+      "colors": {
+        "primary": "#59d8ff",
+        "secondary": "#071c24"
+      },
+      "style": "possession",
+      "stadium": "布莱顿码头球场"
+    },
+    {
+      "id": "club:ENG:1:13",
+      "city": "南安普顿",
+      "nameZh": "南安普顿港",
+      "nameEn": "Southampton Port",
+      "tier": 1,
+      "reputation": 72,
+      "colors": {
+        "primary": "#ff8fab",
+        "secondary": "#260b13"
+      },
+      "style": "highPress",
+      "stadium": "南安普顿河谷球场"
+    },
+    {
+      "id": "club:ENG:1:14",
+      "city": "伍尔弗汉普顿",
+      "nameZh": "伍尔弗汉普顿",
+      "nameEn": "Wolverhampton",
+      "tier": 1,
+      "reputation": 71,
+      "colors": {
+        "primary": "#ffb347",
+        "secondary": "#241304"
+      },
+      "style": "counter",
+      "stadium": "伍尔弗汉普顿钢铁球场"
+    },
+    {
+      "id": "club:ENG:1:15",
+      "city": "考文垂",
+      "nameZh": "考文垂天空",
+      "nameEn": "Coventry Sky",
+      "tier": 1,
+      "reputation": 69,
+      "colors": {
+        "primary": "#8ad7ff",
+        "secondary": "#081d28"
+      },
+      "style": "direct",
+      "stadium": "考文垂公园球场"
+    },
+    {
+      "id": "club:ENG:1:16",
+      "city": "赫尔",
+      "nameZh": "赫尔码头",
+      "nameEn": "Hull Docks",
+      "tier": 1,
+      "reputation": 68,
+      "colors": {
+        "primary": "#ffd166",
+        "secondary": "#241c05"
+      },
+      "style": "counter",
+      "stadium": "赫尔竞技场"
+    },
+    {
+      "id": "club:ENG:1:17",
+      "city": "斯托克",
+      "nameZh": "斯托克郡",
+      "nameEn": "Staffordshire",
+      "tier": 1,
+      "reputation": 67,
+      "colors": {
+        "primary": "#d6d6d6",
+        "secondary": "#1b1b1b"
+      },
+      "style": "direct",
+      "stadium": "斯托克码头球场"
+    },
+    {
+      "id": "club:ENG:1:18",
+      "city": "德比",
+      "nameZh": "德比铁路",
+      "nameEn": "Derby Railway",
+      "tier": 1,
+      "reputation": 66,
+      "colors": {
+        "primary": "#c0e8ff",
+        "secondary": "#0b1d26"
+      },
+      "style": "counter",
+      "stadium": "德比河谷球场"
+    },
+    {
+      "id": "club:ENG:1:19",
+      "city": "诺里奇",
+      "nameZh": "诺里奇河谷",
+      "nameEn": "Norwich Valley",
+      "tier": 1,
+      "reputation": 65,
+      "colors": {
+        "primary": "#ffe066",
+        "secondary": "#241f05"
+      },
+      "style": "possession",
+      "stadium": "诺里奇钢铁球场"
+    },
+    {
+      "id": "club:ENG:1:20",
+      "city": "沃特福德",
+      "nameZh": "沃特福德大道",
+      "nameEn": "Watford Avenue",
+      "tier": 1,
+      "reputation": 64,
+      "colors": {
+        "primary": "#f7e26b",
+        "secondary": "#201c04"
+      },
+      "style": "direct",
+      "stadium": "沃特福德公园球场"
+    },
+    {
+      "id": "club:ENG:2:01",
+      "city": "伦敦",
+      "nameZh": "伦敦竞技",
+      "nameEn": "London Athletic",
+      "tier": 2,
+      "reputation": 62,
+      "colors": {
+        "primary": "#c9f56b",
+        "secondary": "#12200b"
+      },
+      "style": "possession",
+      "stadium": "伦敦竞技场"
+    },
+    {
+      "id": "club:ENG:2:02",
+      "city": "曼彻斯特",
+      "nameZh": "曼彻斯特城际",
+      "nameEn": "Manchester Intercity",
+      "tier": 2,
+      "reputation": 61,
+      "colors": {
+        "primary": "#72d6ff",
+        "secondary": "#071c26"
+      },
+      "style": "highPress",
+      "stadium": "曼彻斯特码头球场"
+    },
+    {
+      "id": "club:ENG:2:03",
+      "city": "利物浦",
+      "nameZh": "利物浦工人",
+      "nameEn": "Liverpool Workers",
+      "tier": 2,
+      "reputation": 60,
+      "colors": {
+        "primary": "#ff8a8a",
+        "secondary": "#260b0b"
+      },
+      "style": "direct",
+      "stadium": "利物浦河谷球场"
+    },
+    {
+      "id": "club:ENG:2:04",
+      "city": "伯明翰",
+      "nameZh": "伯明翰联",
+      "nameEn": "Birmingham United",
+      "tier": 2,
+      "reputation": 59,
+      "colors": {
+        "primary": "#9c8cff",
+        "secondary": "#130e2b"
+      },
+      "style": "counter",
+      "stadium": "伯明翰钢铁球场"
+    },
+    {
+      "id": "club:ENG:2:05",
+      "city": "利兹",
+      "nameZh": "利兹竞技",
+      "nameEn": "Leeds Athletic",
+      "tier": 2,
+      "reputation": 58,
+      "colors": {
+        "primary": "#e6e6e6",
+        "secondary": "#1b1b1b"
+      },
+      "style": "highPress",
+      "stadium": "利兹公园球场"
+    },
+    {
+      "id": "club:ENG:2:06",
+      "city": "纽卡斯尔",
+      "nameZh": "纽卡斯尔港口",
+      "nameEn": "Newcastle Ports",
+      "tier": 2,
+      "reputation": 57,
+      "colors": {
+        "primary": "#ffc46b",
+        "secondary": "#241704"
+      },
+      "style": "counter",
+      "stadium": "纽卡斯尔竞技场"
+    },
+    {
+      "id": "club:ENG:2:07",
+      "city": "谢菲尔德",
+      "nameZh": "谢菲尔德铁路",
+      "nameEn": "Sheffield Railway",
+      "tier": 2,
+      "reputation": 56,
+      "colors": {
+        "primary": "#8fb9ff",
+        "secondary": "#0a1526"
+      },
+      "style": "direct",
+      "stadium": "谢菲尔德码头球场"
+    },
+    {
+      "id": "club:ENG:2:08",
+      "city": "布里斯托",
+      "nameZh": "布里斯托竞技",
+      "nameEn": "Bristol Athletic",
+      "tier": 2,
+      "reputation": 55,
+      "colors": {
+        "primary": "#ff7f7f",
+        "secondary": "#240a0a"
+      },
+      "style": "highPress",
+      "stadium": "布里斯托河谷球场"
+    },
+    {
+      "id": "club:ENG:2:09",
+      "city": "诺丁汉",
+      "nameZh": "诺丁汉郡",
+      "nameEn": "Nottinghamshire",
+      "tier": 2,
+      "reputation": 54,
+      "colors": {
+        "primary": "#9ed18a",
+        "secondary": "#12200d"
+      },
+      "style": "possession",
+      "stadium": "诺丁汉钢铁球场"
+    },
+    {
+      "id": "club:ENG:2:10",
+      "city": "莱斯特",
+      "nameZh": "莱斯特竞技",
+      "nameEn": "Leicester Athletic",
+      "tier": 2,
+      "reputation": 53,
+      "colors": {
+        "primary": "#7aa7ff",
+        "secondary": "#0c1528"
+      },
+      "style": "counter",
+      "stadium": "莱斯特公园球场"
+    },
+    {
+      "id": "club:ENG:2:11",
+      "city": "布莱顿",
+      "nameZh": "布莱顿海滨",
+      "nameEn": "Brighton Seaside",
+      "tier": 2,
+      "reputation": 52,
+      "colors": {
+        "primary": "#5eead4",
+        "secondary": "#08211f"
+      },
+      "style": "possession",
+      "stadium": "布莱顿竞技场"
+    },
+    {
+      "id": "club:ENG:2:12",
+      "city": "南安普顿",
+      "nameZh": "南安普顿竞技",
+      "nameEn": "Southampton Athletic",
+      "tier": 2,
+      "reputation": 51,
+      "colors": {
+        "primary": "#ff9fb5",
+        "secondary": "#260d14"
+      },
+      "style": "direct",
+      "stadium": "南安普顿码头球场"
+    },
+    {
+      "id": "club:ENG:2:13",
+      "city": "伍尔弗汉普顿",
+      "nameZh": "伍尔弗汉普顿联",
+      "nameEn": "Wolverhampton United",
+      "tier": 2,
+      "reputation": 50,
+      "colors": {
+        "primary": "#ffb86b",
+        "secondary": "#241504"
+      },
+      "style": "counter",
+      "stadium": "伍尔弗汉普顿河谷球场"
+    },
+    {
+      "id": "club:ENG:2:14",
+      "city": "考文垂",
+      "nameZh": "考文垂竞技",
+      "nameEn": "Coventry Athletic",
+      "tier": 2,
+      "reputation": 49,
+      "colors": {
+        "primary": "#8ad7ff",
+        "secondary": "#081d28"
+      },
+      "style": "highPress",
+      "stadium": "考文垂钢铁球场"
+    },
+    {
+      "id": "club:ENG:2:15",
+      "city": "赫尔",
+      "nameZh": "赫尔港口",
+      "nameEn": "Hull Ports",
+      "tier": 2,
+      "reputation": 48,
+      "colors": {
+        "primary": "#ffd166",
+        "secondary": "#241c05"
+      },
+      "style": "direct",
+      "stadium": "赫尔公园球场"
+    },
+    {
+      "id": "club:ENG:2:16",
+      "city": "斯托克",
+      "nameZh": "斯托克竞技",
+      "nameEn": "Stoke Athletic",
+      "tier": 2,
+      "reputation": 47,
+      "colors": {
+        "primary": "#d6d6d6",
+        "secondary": "#1b1b1b"
+      },
+      "style": "counter",
+      "stadium": "斯托克竞技场"
+    },
+    {
+      "id": "club:ENG:2:17",
+      "city": "德比",
+      "nameZh": "德比竞技",
+      "nameEn": "Derby Athletic",
+      "tier": 2,
+      "reputation": 46,
+      "colors": {
+        "primary": "#c0e8ff",
+        "secondary": "#0b1d26"
+      },
+      "style": "possession",
+      "stadium": "德比码头球场"
+    },
+    {
+      "id": "club:ENG:2:18",
+      "city": "诺里奇",
+      "nameZh": "诺里奇竞技",
+      "nameEn": "Norwich Athletic",
+      "tier": 2,
+      "reputation": 45,
+      "colors": {
+        "primary": "#ffe066",
+        "secondary": "#241f05"
+      },
+      "style": "direct",
+      "stadium": "诺里奇河谷球场"
+    },
+    {
+      "id": "club:ENG:2:19",
+      "city": "沃特福德",
+      "nameZh": "沃特福德竞技",
+      "nameEn": "Watford Athletic",
+      "tier": 2,
+      "reputation": 44,
+      "colors": {
+        "primary": "#f7e26b",
+        "secondary": "#201c04"
+      },
+      "style": "highPress",
+      "stadium": "沃特福德钢铁球场"
+    },
+    {
+      "id": "club:ENG:2:20",
+      "city": "普雷斯顿",
+      "nameZh": "普雷斯顿工厂",
+      "nameEn": "Preston Works",
+      "tier": 2,
+      "reputation": 43,
+      "colors": {
+        "primary": "#b8c7d9",
+        "secondary": "#111820"
+      },
+      "style": "counter",
+      "stadium": "普雷斯顿公园球场"
+    }
+  ],
+  "namePools": {
+    "英格兰": {
+      "first": [
+        "James",
+        "Harry",
+        "Jack",
+        "Oliver",
+        "George",
+        "Charlie",
+        "Thomas",
+        "Lewis",
+        "Mason",
+        "Callum",
+        "Ethan",
+        "Reece",
+        "Aaron",
+        "Connor",
+        "Jordan",
+        "Liam",
+        "Noah",
+        "Samuel",
+        "Ben",
+        "Alfie",
+        "Ryan",
+        "Daniel",
+        "Luke",
+        "Adam",
+        "Nathan",
+        "Kieran",
+        "Scott",
+        "Josh",
+        "Elliot",
+        "Tyler",
+        "Marcus",
+        "Declan",
+        "Owen",
+        "Rhys",
+        "Finley",
+        "Harvey",
+        "Leo",
+        "Arthur",
+        "Freddie",
+        "Zach"
+      ],
+      "last": [
+        "Smith",
+        "Jones",
+        "Taylor",
+        "Brown",
+        "Wilson",
+        "Davies",
+        "Evans",
+        "Thomas",
+        "Roberts",
+        "Walker",
+        "Wright",
+        "Robinson",
+        "Thompson",
+        "White",
+        "Hughes",
+        "Edwards",
+        "Green",
+        "Hall",
+        "Wood",
+        "Harris",
+        "Clarke",
+        "Jackson",
+        "Turner",
+        "Hill",
+        "Moore",
+        "Clark",
+        "Cooper",
+        "Ward",
+        "Morris",
+        "Bell",
+        "Bailey",
+        "Foster",
+        "Gray",
+        "Marsh",
+        "Bennett",
+        "Carter",
+        "Fletcher",
+        "Gibson",
+        "Palmer",
+        "Reed"
+      ]
+    },
+    "中国": {
+      "first": [
+        "伟",
+        "强",
+        "磊",
+        "洋",
+        "勇",
+        "军",
+        "杰",
+        "涛",
+        "明",
+        "超",
+        "晨",
+        "宇",
+        "浩",
+        "睿",
+        "航",
+        "博",
+        "凯",
+        "宁",
+        "泽",
+        "帆"
+      ],
+      "last": [
+        "王",
+        "李",
+        "张",
+        "刘",
+        "陈",
+        "杨",
+        "赵",
+        "黄",
+        "周",
+        "吴",
+        "徐",
+        "孙",
+        "胡",
+        "朱",
+        "高",
+        "林",
+        "何",
+        "郭",
+        "马",
+        "罗"
+      ]
+    },
+    "日本": {
+      "first": [
+        "翔太",
+        "大辉",
+        "悠斗",
+        "阳翔",
+        "拓海",
+        "莲",
+        "飒太",
+        "健太",
+        "亮",
+        "直树",
+        "悠真",
+        "海斗",
+        "陆",
+        "苍",
+        "凑"
+      ],
+      "last": [
+        "佐藤",
+        "铃木",
+        "高桥",
+        "田中",
+        "伊藤",
+        "渡边",
+        "山本",
+        "中村",
+        "小林",
+        "加藤",
+        "山田",
+        "松本",
+        "井上",
+        "木村",
+        "林"
+      ]
+    },
+    "韩国": {
+      "first": [
+        "敏浩",
+        "智勋",
+        "俊瑞",
+        "宇彬",
+        "承贤",
+        "东健",
+        "泰允",
+        "志勋",
+        "贤宇",
+        "在民"
+      ],
+      "last": [
+        "金",
+        "李",
+        "朴",
+        "崔",
+        "郑",
+        "姜",
+        "赵",
+        "尹",
+        "张",
+        "林"
+      ]
+    },
+    "西班牙": {
+      "first": [
+        "Alejandro",
+        "Sergio",
+        "Pablo",
+        "Diego",
+        "Javier",
+        "Carlos",
+        "Marco",
+        "Adrian",
+        "Ivan",
+        "Ruben",
+        "Hugo",
+        "Mateo"
+      ],
+      "last": [
+        "Garcia",
+        "Rodriguez",
+        "Martinez",
+        "Lopez",
+        "Gonzalez",
+        "Perez",
+        "Sanchez",
+        "Ramirez",
+        "Torres",
+        "Flores",
+        "Navarro",
+        "Ortega"
+      ]
+    },
+    "法国": {
+      "first": [
+        "Antoine",
+        "Hugo",
+        "Lucas",
+        "Theo",
+        "Mathis",
+        "Nathan",
+        "Enzo",
+        "Louis",
+        "Jules",
+        "Adam",
+        "Maxime",
+        "Yanis"
+      ],
+      "last": [
+        "Martin",
+        "Bernard",
+        "Dubois",
+        "Thomas",
+        "Robert",
+        "Richard",
+        "Petit",
+        "Durand",
+        "Leroy",
+        "Moreau",
+        "Simon",
+        "Laurent"
+      ]
+    },
+    "德国": {
+      "first": [
+        "Leon",
+        "Paul",
+        "Finn",
+        "Jonas",
+        "Lukas",
+        "Felix",
+        "Max",
+        "Noah",
+        "Elias",
+        "Tim",
+        "Nico",
+        "Julian"
+      ],
+      "last": [
+        "Muller",
+        "Schmidt",
+        "Schneider",
+        "Fischer",
+        "Weber",
+        "Meyer",
+        "Wagner",
+        "Becker",
+        "Hoffmann",
+        "Schulz",
+        "Koch",
+        "Richter"
+      ]
+    },
+    "巴西": {
+      "first": [
+        "Gabriel",
+        "Lucas",
+        "Matheus",
+        "Rafael",
+        "Thiago",
+        "Bruno",
+        "Felipe",
+        "Caio",
+        "Vitor",
+        "Pedro",
+        "Joao",
+        "Diego"
+      ],
+      "last": [
+        "Silva",
+        "Santos",
+        "Oliveira",
+        "Souza",
+        "Lima",
+        "Pereira",
+        "Costa",
+        "Ferreira",
+        "Almeida",
+        "Ribeiro",
+        "Carvalho",
+        "Gomes"
+      ]
+    },
+    "阿根廷": {
+      "first": [
+        "Mateo",
+        "Santiago",
+        "Lautaro",
+        "Julian",
+        "Nicolas",
+        "Franco",
+        "Tomas",
+        "Agustin",
+        "Facundo",
+        "Bautista"
+      ],
+      "last": [
+        "Gonzalez",
+        "Rodriguez",
+        "Fernandez",
+        "Lopez",
+        "Martinez",
+        "Perez",
+        "Gomez",
+        "Diaz",
+        "Alvarez",
+        "Romero"
+      ]
+    },
+    "葡萄牙": {
+      "first": [
+        "Joao",
+        "Diogo",
+        "Rui",
+        "Tiago",
+        "Andre",
+        "Goncalo",
+        "Nuno",
+        "Miguel",
+        "Pedro",
+        "Rafael"
+      ],
+      "last": [
+        "Silva",
+        "Santos",
+        "Ferreira",
+        "Pereira",
+        "Oliveira",
+        "Costa",
+        "Rodrigues",
+        "Martins",
+        "Sousa",
+        "Fernandes"
+      ]
+    },
+    "荷兰": {
+      "first": [
+        "Daan",
+        "Sem",
+        "Luuk",
+        "Bram",
+        "Thijs",
+        "Jesse",
+        "Ruben",
+        "Mees",
+        "Sven",
+        "Noah"
+      ],
+      "last": [
+        "de Jong",
+        "van Dijk",
+        "Visser",
+        "Smit",
+        "Bakker",
+        "Meijer",
+        "de Boer",
+        "Mulder",
+        "de Groot",
+        "Bos"
+      ]
+    },
+    "尼日利亚": {
+      "first": [
+        "Chinedu",
+        "Emeka",
+        "Tunde",
+        "Kelechi",
+        "Samuel",
+        "Victor",
+        "Obi",
+        "Femi",
+        "Chidi",
+        "Ade"
+      ],
+      "last": [
+        "Okafor",
+        "Adeyemi",
+        "Okonkwo",
+        "Balogun",
+        "Eze",
+        "Obi",
+        "Adebayo",
+        "Nwosu",
+        "Ibrahim",
+        "Ogun"
+      ]
+    }
+  },
+  "nationalityWeights": [
+    {
+      "value": "英格兰",
+      "weight": 58
+    },
+    {
+      "value": "法国",
+      "weight": 7
+    },
+    {
+      "value": "西班牙",
+      "weight": 6
+    },
+    {
+      "value": "巴西",
+      "weight": 6
+    },
+    {
+      "value": "德国",
+      "weight": 5
+    },
+    {
+      "value": "葡萄牙",
+      "weight": 4
+    },
+    {
+      "value": "荷兰",
+      "weight": 4
+    },
+    {
+      "value": "阿根廷",
+      "weight": 3
+    },
+    {
+      "value": "中国",
+      "weight": 2
+    },
+    {
+      "value": "日本",
+      "weight": 2
+    },
+    {
+      "value": "韩国",
+      "weight": 1
+    },
+    {
+      "value": "尼日利亚",
+      "weight": 2
+    }
+  ]
+}

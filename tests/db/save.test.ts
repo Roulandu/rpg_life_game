@@ -1,0 +1,57 @@
+import { beforeEach, describe, expect, it } from 'vitest'
+import { db } from '../../src/db/db'
+import {
+  deleteSave,
+  exportWorld,
+  importWorld,
+  listSaves,
+  loadWorld,
+  saveWorld,
+} from '../../src/db/repository'
+import { generateWorld } from '../../src/world/generator'
+import { TEST_NOW, testOptions } from '../fixtures/career'
+
+describe('save persistence', () => {
+  beforeEach(async () => {
+    await db.saves.clear()
+    await db.meta.clear()
+  })
+
+  it('round-trips an exported save through JSON', () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    const imported = importWorld(exportWorld(world))
+    expect(imported).toEqual(world)
+    expect(imported.players[imported.playerId].name).toBe('测试球员')
+  })
+
+  it('rejects a corrupted checksum', () => {
+    const text = exportWorld(generateWorld(testOptions(), TEST_NOW))
+    const corrupted = text.replace(/"checksum": "[0-9a-f]+"/, '"checksum": "00000000"')
+    expect(() => importWorld(corrupted)).toThrow(/校验失败/)
+  })
+
+  it('rejects malformed JSON and newer save versions', () => {
+    expect(() => importWorld('{not json')).toThrow(/JSON/)
+    const text = exportWorld(generateWorld(testOptions(), TEST_NOW))
+    const parsed = JSON.parse(text) as { saveVersion: number }
+    parsed.saveVersion = 99
+    expect(() => importWorld(JSON.stringify(parsed))).toThrow(/更新版本/)
+  })
+
+  it('stores, lists, loads and deletes saves', async () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    await saveWorld(world, 'save:test')
+
+    const loaded = await loadWorld('save:test')
+    expect(loaded).toEqual(world)
+
+    const saves = await listSaves()
+    expect(saves).toHaveLength(1)
+    expect(saves[0].playerName).toBe('测试球员')
+    expect(saves[0].clubName).toBe('伯明翰联')
+
+    await deleteSave('save:test')
+    expect(await loadWorld('save:test')).toBeNull()
+    expect(await listSaves()).toHaveLength(0)
+  })
+})

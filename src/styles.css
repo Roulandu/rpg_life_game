@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pitch: #090c0a;
+  --color-pitch-2: #0d120e;
+  --color-card: #131a15;
+  --color-card-2: #18211b;
+  --color-line: #26352b;
+  --color-line-soft: #1c2820;
+  --color-text: #ecf4ed;
+  --color-muted: #8c9c90;
+  --color-dim: #607065;
+  --color-accent: #c9f56b;
+  --color-accent-strong: #b6f03a;
+  --color-accent-ink: #1a2507;
+  --color-teal: #5eead4;
+  --color-danger: #ff7f7f;
+  --color-gold: #ffd166;
+  --color-violet: #b8a1ff;
+  --font-sans: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --radius-card: 1.15rem;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-pitch);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100svh;
+    background:
+      radial-gradient(115% 80% at 50% -10%, rgba(201, 245, 107, 0.08), transparent 55%),
+      radial-gradient(90% 60% at 100% 100%, rgba(94, 234, 212, 0.05), transparent 50%),
+      var(--color-pitch);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  #root {
+    min-height: 100svh;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background: rgba(201, 245, 107, 0.3);
+  }
+}
+
+@layer components {
+  .app-shell {
+    @apply mx-auto min-h-svh w-full max-w-[480px] pb-24;
+  }
+
+  .page-pad {
+    @apply px-4 pt-5;
+  }
+
+  .card {
+    @apply rounded-[var(--radius-card)] border border-line bg-card/95 shadow-[0_10px_35px_rgba(0,0,0,0.16)];
+  }
+
+  .card-soft {
+    @apply rounded-2xl border border-line-soft bg-card-2/80;
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition;
+  }
+
+  .btn-primary {
+    @apply bg-accent text-accent-ink hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-45;
+  }
+
+  .btn-secondary {
+    @apply border border-line bg-card-2 text-text hover:border-accent/50 hover:bg-card;
+  }
+
+  .btn-ghost {
+    @apply text-muted hover:bg-card-2 hover:text-text;
+  }
+
+  .input {
+    @apply min-h-11 w-full rounded-xl border border-line bg-pitch-2 px-3 text-base text-text outline-none placeholder:text-dim focus:border-accent/60 focus:ring-2 focus:ring-accent/15;
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-medium tracking-wide text-muted;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-line bg-card-2 px-2.5 py-1 text-[11px] font-medium text-muted;
+  }
+
+  .section-title {
+    @apply text-[13px] font-semibold uppercase tracking-[0.16em] text-muted;
+  }
+
+  .stat-value {
+    @apply font-mono text-2xl font-semibold tabular-nums tracking-tight text-text;
+  }
+
+  .divider {
+    @apply h-px w-full bg-line-soft;
+  }
+
+  .safe-bottom {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-top {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none;
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "weights": [
+    {
+      "value": "英格兰",
+      "weight": 58
+    },
+    {
+      "value": "法国",
+      "weight": 7
+    },
+    {
+      "value": "西班牙",
+      "weight": 6
+    },
+    {
+      "value": "巴西",
+      "weight": 6
+    },
+    {
+      "value": "德国",
+      "weight": 5
+    },
+    {
+      "value": "葡萄牙",
+      "weight": 4
+    },
+    {
+      "value": "荷兰",
+      "weight": 4
+    },
+    {
+      "value": "阿根廷",
+      "weight": 3
+    },
+    {
+      "value": "中国",
+      "weight": 2
+    },
+    {
+      "value": "日本",
+      "weight": 2
+    },
+    {
+      "value": "韩国",
+      "weight": 1
+    },
+    {
+      "value": "尼日利亚",
+      "weight": 2
+    }
+  ]
+}
