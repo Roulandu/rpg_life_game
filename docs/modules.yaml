@@ -1,0 +1,186 @@
+version: 1
+
+# src 根目录下的组合根文件归属到 app
+rootModule: app
+rootFiles:
+  - src/main.tsx
+  - src/router.tsx
+
+# 内联平台判断/平台 API 直接调用；新代码必须走 src/platform 端口
+knownPlatformViolations:
+  - file: src/llm/transport.ts
+    pattern: capacitor-import
+    reason: 待迁移到 platform/ports 的 HttpTransport
+  - file: src/lib/json.ts
+    pattern: dom-file-export
+    reason: 浏览器文件下载待迁移到 FileExport 端口
+
+modules:
+  app:
+    path: src/app
+    publicEntry: null
+    allowedDeps: [ui, store, platform, domain, lib]
+    tests: []
+    docs: [docs/architecture/overview.md]
+    testImpact: exempt
+    platformCapabilities: [composition]
+    knownViolations: []
+
+  ui:
+    path: src/ui
+    publicEntry: null
+    allowedDeps: [store, domain, lib, platform]
+    tests: [tests/ui/**/*.test.tsx]
+    docs:
+      - docs/features/weekly-turn.md
+      - docs/features/matchday.md
+      - docs/features/gm-agent.md
+      - docs/features/saves.md
+    testImpact: via-module
+    platformCapabilities: [ui]
+    knownViolations:
+      - from: src/ui/gameHelpers.ts
+        to: engine
+        reason: 积分榜/派生数据查询待移入 store selector
+      - from: src/ui/screens/DashboardScreen.tsx
+        to: engine
+        reason: 页面直接计算联赛排名，待移入 selector
+      - from: src/ui/screens/ScheduleScreen.tsx
+        to: engine
+        reason: 赛程派生数据直接读 engine
+      - from: src/ui/screens/CreateCareerScreen.tsx
+        to: world
+        reason: 直接读取国家数据包，待通过 store/service
+      - from: src/ui/screens/ScheduleScreen.tsx
+        to: world
+        reason: 赛程派生数据直接读 world
+      - from: src/ui/screens/InboxScreen.tsx
+        to: llm
+        reason: 聊天调用直接 import llm，待通过 store
+      - from: src/ui/screens/SettingsScreen.tsx
+        to: llm
+        reason: LLM 连接测试直接 import llm，待通过 store
+
+  store:
+    path: src/store
+    publicEntry: null
+    allowedDeps: [engine, world, llm, db, platform, domain, lib]
+    tests: [tests/store/**/*.test.ts]
+    docs:
+      - docs/features/weekly-turn.md
+      - docs/features/saves.md
+      - docs/features/gm-agent.md
+    testImpact: strict
+    platformCapabilities: [session]
+    knownViolations: []
+
+  engine:
+    path: src/engine
+    publicEntry: null
+    allowedDeps: [domain, lib]
+    tests: [tests/engine/**/*.test.ts]
+    docs:
+      - docs/features/weekly-turn.md
+      - docs/features/matchday.md
+    testImpact: strict
+    platformCapabilities: [core]
+    knownViolations:
+      - from: src/engine/turn.ts
+        to: world
+        reason: computeClubStrength 待抽到 world 公共查询
+      - from: src/engine/match.ts
+        to: world
+        reason: 同上
+    knownCycles:
+      - [engine, world]
+
+  world:
+    path: src/world
+    publicEntry: null
+    allowedDeps: [domain, lib]
+    tests:
+      - tests/engine/world.test.ts
+      - tests/db/save.test.ts
+    docs: [docs/features/world-generation.md]
+    testImpact: strict
+    platformCapabilities: [core]
+    knownViolations:
+      - from: src/world/generator.ts
+        to: engine
+        reason: 生成器使用 engine/rng；待把随机数工具抽到 lib
+    knownCycles:
+      - [engine, world]
+
+  llm:
+    path: src/llm
+    publicEntry: null
+    allowedDeps: [domain, lib, platform]
+    tests: [tests/llm/**/*.test.ts]
+    docs: [docs/features/gm-agent.md]
+    testImpact: strict
+    platformCapabilities: [http, secure-storage]
+    knownViolations:
+      - from: src/llm/actions.ts
+        to: engine
+        reason: 直接应用效果，待改为返回提案由 store/engine 应用
+      - from: src/llm/prompt.ts
+        to: engine
+        reason: 提示词直接读 engine 积分榜，待通过只读快照
+
+  db:
+    path: src/db
+    publicEntry: null
+    allowedDeps: [domain, lib]
+    tests: [tests/db/**/*.test.ts]
+    docs:
+      - docs/features/saves.md
+      - docs/data-model.md
+    testImpact: strict
+    platformCapabilities: [persistence]
+    knownViolations:
+      - from: src/db/repository.ts
+        to: engine
+        reason: hashString 待从 engine/rng 抽到 lib
+
+  platform:
+    path: src/platform
+    publicEntry: null
+    allowedDeps: [lib]
+    tests: []
+    docs:
+      - docs/architecture/platform-strategy.md
+      - docs/features/saves.md
+    testImpact: exempt
+    platformCapabilities:
+      - secure-storage
+      - http
+      - file-export
+      - lifecycle
+      - persistence
+      - device-info
+    knownViolations:
+      - from: src/platform/keyStore.ts
+        to: db
+        reason: 密钥存储直接依赖 db，待改为端口注入
+
+  domain:
+    path: src/domain
+    publicEntry: null
+    allowedDeps: [lib]
+    tests: [tests/**/*.test.ts]
+    docs:
+      - docs/data-model.md
+      - docs/interfaces/engine-api.md
+    testImpact: strict
+    platformCapabilities: [core]
+    knownViolations: []
+
+  lib:
+    path: src/lib
+    publicEntry: null
+    allowedDeps: []
+    tests: [tests/**/*.test.ts]
+    docs: [docs/architecture/overview.md]
+    testImpact: strict
+    platformCapabilities: [core]
+    knownViolations: []

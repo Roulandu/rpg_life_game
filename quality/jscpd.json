@@ -1,0 +1,18 @@
+{
+  "minTokens": 70,
+  "minLines": 5,
+  "reporters": ["json"],
+  "output": "quality/.cache/jscpd",
+  "absolute": true,
+  "gitignore": true,
+  "threshold": 100,
+  "ignore": [
+    "**/*.md",
+    "**/*.json",
+    "**/quality/.cache/**",
+    "**/coverage/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/data/**"
+  ]
+}

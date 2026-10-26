@@ -10,13 +10,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
+
+      - name: Resolve quality base
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "QUALITY_BASE=origin/${{ github.base_ref }}" >> "$GITHUB_ENV"
+          else
+            echo "QUALITY_BASE=${{ github.event.before }}" >> "$GITHUB_ENV"
+          fi
+
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run validate:data
-      - run: npm test
+      - run: npm run docs:check
+      - run: npm run quality:tech-debt
+      - run: npm run quality:duplication
+      - run: npm run quality:boundaries
+      - run: npm run quality:test-impact
+      - run: npm run quality:doc-sync
+      - run: npm run test:coverage
+      - run: npm run quality:coverage
+      - run: npm run quality:anti-regression
+      - run: npm run quality:baseline
+      - run: npm run quality:commit-range
       - run: npm run build

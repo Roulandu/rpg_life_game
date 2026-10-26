@@ -1,0 +1,29 @@
+{
+  "plugins": ["typescript", "unicorn", "oxc"],
+  "categories": {
+    "correctness": "off"
+  },
+  "rules": {
+    "max-lines": ["warn", { "max": 300 }],
+    "max-lines-per-function": ["warn", { "max": 60, "skipBlankLines": true, "skipComments": true }],
+    "complexity": ["warn", { "max": 12 }],
+    "max-depth": ["warn", { "max": 4 }],
+    "max-params": ["warn", 5],
+    "max-nested-callbacks": ["warn", { "max": 3 }],
+    "max-statements": ["warn", 50]
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.ts", "tests/**/*.tsx"],
+      "rules": {
+        "max-lines": ["warn", { "max": 600 }],
+        "max-lines-per-function": ["warn", { "max": 100, "skipBlankLines": true, "skipComments": true }],
+        "complexity": ["warn", { "max": 20 }],
+        "max-depth": ["warn", { "max": 4 }],
+        "max-params": ["warn", 5],
+        "max-nested-callbacks": ["warn", { "max": 3 }],
+        "max-statements": ["warn", 80]
+      }
+    }
+  ]
+}

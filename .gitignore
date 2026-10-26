@@ -28,3 +28,6 @@ dist-ssr
 .playtest/
 coverage/
 *.tsbuildinfo
+
+# Quality tool cache
+quality/.cache/

@@ -1,0 +1,4 @@
+* text=auto
+
+# Git hooks 必须在 Windows 与 Linux 上保持一致的行尾
+.githooks/* text eol=lf

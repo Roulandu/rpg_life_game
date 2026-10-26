@@ -1,0 +1,586 @@
+{
+  "version": 1,
+  "tool": "oxlint",
+  "entities": {
+    "src/domain/types.ts": {
+      "metrics": {
+        "lines": {
+          "value": 454,
+          "max": 300
+        }
+      }
+    },
+    "src/engine/effects.ts::applyEffects": {
+      "metrics": {
+        "complexity": {
+          "value": 16,
+          "max": 12
+        }
+      }
+    },
+    "src/engine/events.ts": {
+      "metrics": {
+        "lines": {
+          "value": 472,
+          "max": 300
+        }
+      }
+    },
+    "src/engine/events.ts::buildEventDraft": {
+      "metrics": {
+        "complexity": {
+          "value": 17,
+          "max": 12
+        }
+      }
+    },
+    "src/engine/events.ts::buildEventDraft#2": {
+      "metrics": {
+        "functionLines": {
+          "value": 292,
+          "max": 60
+        }
+      }
+    },
+    "src/engine/events.ts::generateWeeklyEvent": {
+      "metrics": {
+        "complexity": {
+          "value": 15,
+          "max": 12
+        }
+      }
+    },
+    "src/engine/keyMoments.ts": {
+      "metrics": {
+        "lines": {
+          "value": 552,
+          "max": 300
+        }
+      }
+    },
+    "src/engine/keyMoments.ts::<anonymous>": {
+      "metrics": {
+        "params": {
+          "value": 7,
+          "max": 5
+        }
+      }
+    },
+    "src/engine/keyMoments.ts::optionsFor": {
+      "metrics": {
+        "functionLines": {
+          "value": 187,
+          "max": 60
+        }
+      }
+    },
+    "src/engine/keyMoments.ts::outcomeText": {
+      "metrics": {
+        "complexity": {
+          "value": 27,
+          "max": 12
+        }
+      }
+    },
+    "src/engine/keyMoments.ts::resolveKeyMoment": {
+      "metrics": {
+        "statements": {
+          "value": 55,
+          "max": 50
+        }
+      }
+    },
+    "src/engine/keyMoments.ts::resolveKeyMoment#2": {
+      "metrics": {
+        "complexity": {
+          "value": 38,
+          "max": 12
+        }
+      }
+    },
+    "src/engine/keyMoments.ts::resolveKeyMoment#3": {
+      "metrics": {
+        "functionLines": {
+          "value": 87,
+          "max": 60
+        }
+      }
+    },
+    "src/engine/leagueTable.ts::computeLeagueTable": {
+      "metrics": {
+        "functionLines": {
+          "value": 64,
+          "max": 60
+        }
+      }
+    },
+    "src/engine/match.ts": {
+      "metrics": {
+        "lines": {
+          "value": 548,
+          "max": 300
+        }
+      }
+    },
+    "src/engine/match.ts::<anonymous>": {
+      "metrics": {
+        "params": {
+          "value": 9,
+          "max": 5
+        }
+      }
+    },
+    "src/engine/match.ts::simulateUserFixture": {
+      "metrics": {
+        "statements": {
+          "value": 77,
+          "max": 50
+        }
+      }
+    },
+    "src/engine/match.ts::simulateUserFixture#2": {
+      "metrics": {
+        "complexity": {
+          "value": 52,
+          "max": 12
+        }
+      }
+    },
+    "src/engine/match.ts::simulateUserFixture#3": {
+      "metrics": {
+        "functionLines": {
+          "value": 208,
+          "max": 60
+        }
+      }
+    },
+    "src/engine/match.ts::updateUserAfterMatch": {
+      "metrics": {
+        "complexity": {
+          "value": 27,
+          "max": 12
+        }
+      }
+    },
+    "src/engine/match.ts::updateUserAfterMatch#2": {
+      "metrics": {
+        "functionLines": {
+          "value": 65,
+          "max": 60
+        }
+      }
+    },
+    "src/engine/training.ts::applyExtraAction": {
+      "metrics": {
+        "functionLines": {
+          "value": 75,
+          "max": 60
+        }
+      }
+    },
+    "src/engine/training.ts::applyTraining": {
+      "metrics": {
+        "complexity": {
+          "value": 24,
+          "max": 12
+        }
+      }
+    },
+    "src/engine/turn.ts": {
+      "metrics": {
+        "lines": {
+          "value": 377,
+          "max": 300
+        }
+      }
+    },
+    "src/engine/turn.ts::endSeason": {
+      "metrics": {
+        "statements": {
+          "value": 57,
+          "max": 50
+        }
+      }
+    },
+    "src/engine/turn.ts::endSeason#2": {
+      "metrics": {
+        "complexity": {
+          "value": 39,
+          "max": 12
+        }
+      }
+    },
+    "src/engine/turn.ts::endSeason#3": {
+      "metrics": {
+        "functionLines": {
+          "value": 145,
+          "max": 60
+        }
+      }
+    },
+    "src/llm/generate.ts::narrateWeek": {
+      "metrics": {
+        "complexity": {
+          "value": 16,
+          "max": 12
+        }
+      }
+    },
+    "src/llm/generate.ts::narrateWeek#2": {
+      "metrics": {
+        "functionLines": {
+          "value": 68,
+          "max": 60
+        }
+      }
+    },
+    "src/llm/prompt.ts::buildWeekSnapshot": {
+      "metrics": {
+        "complexity": {
+          "value": 22,
+          "max": 12
+        }
+      }
+    },
+    "src/llm/prompt.ts::buildWeekSnapshot#2": {
+      "metrics": {
+        "functionLines": {
+          "value": 67,
+          "max": 60
+        }
+      }
+    },
+    "src/llm/providers/openai.ts::parseToolResponse": {
+      "metrics": {
+        "complexity": {
+          "value": 23,
+          "max": 12
+        }
+      }
+    },
+    "src/store/gameStore.ts": {
+      "metrics": {
+        "lines": {
+          "value": 524,
+          "max": 300
+        }
+      }
+    },
+    "src/store/gameStore.ts::<anonymous>": {
+      "metrics": {
+        "functionLines": {
+          "value": 387,
+          "max": 60
+        }
+      }
+    },
+    "src/store/gameStore.ts::narrateTurn": {
+      "metrics": {
+        "complexity": {
+          "value": 22,
+          "max": 12
+        }
+      }
+    },
+    "src/store/gameStore.ts::sendChat": {
+      "metrics": {
+        "complexity": {
+          "value": 23,
+          "max": 12
+        }
+      }
+    },
+    "src/store/gameStore.ts::sendChat#2": {
+      "metrics": {
+        "functionLines": {
+          "value": 72,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/components/SeasonSummaryModal.tsx::SeasonSummaryModal": {
+      "metrics": {
+        "functionLines": {
+          "value": 73,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/components/WeekPlannerModal.tsx::WeekPlannerModal": {
+      "metrics": {
+        "functionLines": {
+          "value": 89,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/screens/CreateCareerScreen.tsx::CreateCareerScreen": {
+      "metrics": {
+        "functionLines": {
+          "value": 243,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/screens/DashboardScreen.tsx": {
+      "metrics": {
+        "lines": {
+          "value": 468,
+          "max": 300
+        }
+      }
+    },
+    "src/ui/screens/DashboardScreen.tsx::DashboardScreen": {
+      "metrics": {
+        "complexity": {
+          "value": 55,
+          "max": 12
+        }
+      }
+    },
+    "src/ui/screens/DashboardScreen.tsx::DashboardScreen#2": {
+      "metrics": {
+        "functionLines": {
+          "value": 387,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/screens/InboxScreen.tsx": {
+      "metrics": {
+        "lines": {
+          "value": 309,
+          "max": 300
+        }
+      }
+    },
+    "src/ui/screens/InboxScreen.tsx::InboxScreen": {
+      "metrics": {
+        "complexity": {
+          "value": 23,
+          "max": 12
+        }
+      }
+    },
+    "src/ui/screens/InboxScreen.tsx::InboxScreen#2": {
+      "metrics": {
+        "functionLines": {
+          "value": 268,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/screens/MatchdayScreen.tsx": {
+      "metrics": {
+        "lines": {
+          "value": 436,
+          "max": 300
+        }
+      }
+    },
+    "src/ui/screens/MatchdayScreen.tsx::MatchdayScreen": {
+      "metrics": {
+        "complexity": {
+          "value": 40,
+          "max": 12
+        }
+      }
+    },
+    "src/ui/screens/MatchdayScreen.tsx::MatchdayScreen#2": {
+      "metrics": {
+        "functionLines": {
+          "value": 376,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/screens/MoreScreen.tsx::MoreScreen": {
+      "metrics": {
+        "functionLines": {
+          "value": 121,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/screens/ProfileScreen.tsx::ProfileScreen": {
+      "metrics": {
+        "functionLines": {
+          "value": 145,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/screens/ScheduleScreen.tsx::<anonymous>": {
+      "metrics": {
+        "complexity": {
+          "value": 14,
+          "max": 12
+        }
+      }
+    },
+    "src/ui/screens/ScheduleScreen.tsx::ScheduleScreen": {
+      "metrics": {
+        "functionLines": {
+          "value": 155,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/screens/SettingsScreen.tsx": {
+      "metrics": {
+        "lines": {
+          "value": 487,
+          "max": 300
+        }
+      }
+    },
+    "src/ui/screens/SettingsScreen.tsx::SettingsScreen": {
+      "metrics": {
+        "complexity": {
+          "value": 36,
+          "max": 12
+        }
+      }
+    },
+    "src/ui/screens/SettingsScreen.tsx::SettingsScreen#2": {
+      "metrics": {
+        "functionLines": {
+          "value": 438,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/screens/TimelineScreen.tsx::TimelineScreen": {
+      "metrics": {
+        "functionLines": {
+          "value": 119,
+          "max": 60
+        }
+      }
+    },
+    "src/ui/screens/TitleScreen.tsx::TitleScreen": {
+      "metrics": {
+        "functionLines": {
+          "value": 144,
+          "max": 60
+        }
+      }
+    },
+    "src/world/generator.ts": {
+      "metrics": {
+        "lines": {
+          "value": 760,
+          "max": 300
+        }
+      }
+    },
+    "src/world/generator.ts::computeClubStrength": {
+      "metrics": {
+        "complexity": {
+          "value": 14,
+          "max": 12
+        }
+      }
+    },
+    "src/world/generator.ts::computeClubStrength#2": {
+      "metrics": {
+        "functionLines": {
+          "value": 80,
+          "max": 60
+        }
+      }
+    },
+    "src/world/generator.ts::createRelationships": {
+      "metrics": {
+        "functionLines": {
+          "value": 75,
+          "max": 60
+        }
+      }
+    },
+    "src/world/generator.ts::generateWorld": {
+      "metrics": {
+        "functionLines": {
+          "value": 66,
+          "max": 60
+        }
+      }
+    },
+    "src/world/generator.ts::makeAttributes": {
+      "metrics": {
+        "complexity": {
+          "value": 13,
+          "max": 12
+        }
+      }
+    },
+    "src/world/generator.ts::makeRoundRobin": {
+      "metrics": {
+        "complexity": {
+          "value": 13,
+          "max": 12
+        }
+      }
+    },
+    "src/world/generator.ts::makeUserPlayer": {
+      "metrics": {
+        "functionLines": {
+          "value": 64,
+          "max": 60
+        }
+      }
+    },
+    "tests/engine/keyMoments.test.ts::<anonymous>": {
+      "metrics": {
+        "functionLines": {
+          "value": 132,
+          "max": 100
+        },
+        "complexity": {
+          "value": 14,
+          "max": 20
+        }
+      }
+    },
+    "tests/engine/rng.test.ts::<anonymous>": {
+      "metrics": {
+        "functionLines": {
+          "value": 69,
+          "max": 100
+        }
+      }
+    },
+    "tests/engine/season.test.ts::<anonymous>": {
+      "metrics": {
+        "functionLines": {
+          "value": 98,
+          "max": 100
+        }
+      }
+    },
+    "tests/engine/world.test.ts::<anonymous>": {
+      "metrics": {
+        "functionLines": {
+          "value": 84,
+          "max": 100
+        }
+      }
+    },
+    "tests/llm/generate.test.ts::<anonymous>": {
+      "metrics": {
+        "functionLines": {
+          "value": 96,
+          "max": 100
+        }
+      }
+    },
+    "tests/llm/providers.test.ts::<anonymous>": {
+      "metrics": {
+        "functionLines": {
+          "value": 67,
+          "max": 100
+        }
+      }
+    }
+  }
+}

@@ -7,5 +7,19 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'json-summary'],
+      reportsDirectory: 'coverage',
+      include: ['src/**/*.ts', 'src/**/*.tsx'],
+      exclude: [
+        'src/main.tsx',
+        'src/router.tsx',
+        'src/vite-env.d.ts',
+        'src/**/*.d.ts',
+        'src/domain/types.ts',
+        'src/llm/types.ts',
+      ],
+    },
   },
 })
