@@ -41,7 +41,6 @@
 
 | 模块 | 文件 | 指向 | 原因 |
 |---|---|---|---|
-| `db` | `src/db/repository.ts` | `engine` | hashString 待从 engine/rng 抽到 lib |
 | `engine` | `src/engine/match.ts` | `world` | 同上 |
 | `engine` | `src/engine/turn.ts` | `world` | computeClubStrength 待抽到 world 公共查询 |
 | `llm` | `src/llm/actions.ts` | `engine` | 直接应用效果，待改为返回提案由 store/engine 应用 |
@@ -54,11 +53,10 @@
 | `ui` | `src/ui/screens/ScheduleScreen.tsx` | `engine` | 赛程派生数据直接读 engine |
 | `ui` | `src/ui/screens/ScheduleScreen.tsx` | `world` | 赛程派生数据直接读 world |
 | `ui` | `src/ui/screens/SettingsScreen.tsx` | `llm` | LLM 连接测试直接 import llm，待通过 store |
-| `world` | `src/world/generator.ts` | `engine` | 生成器使用 engine/rng；待把随机数工具抽到 lib |
 
 ## 已知循环
 
-- engine ↔ world
+无。
 
 ## 已知平台违规
 

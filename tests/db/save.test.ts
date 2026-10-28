@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { db } from '../../src/db/db'
 import {
+  buildEnvelope,
   deleteSave,
   exportWorld,
   importWorld,
@@ -8,6 +9,8 @@ import {
   loadWorld,
   saveWorld,
 } from '../../src/db/repository'
+import { canonicalStringify } from '../../src/lib/json'
+import { hashString } from '../../src/lib/rng'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
 
@@ -22,6 +25,13 @@ describe('save persistence', () => {
     const imported = importWorld(exportWorld(world))
     expect(imported).toEqual(world)
     expect(imported.players[imported.playerId].name).toBe('测试球员')
+  })
+
+  it('keeps the envelope checksum identical after hashString moved to lib', () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    const envelope = buildEnvelope(world)
+    expect(envelope.checksum).toBe(hashString(canonicalStringify(world)))
+    expect(envelope.checksum).toMatch(/^[0-9a-f]{8}$/)
   })
 
   it('rejects a corrupted checksum', () => {

@@ -20,7 +20,7 @@ import {
 import { computeLeagueTable } from './leagueTable'
 import { simulateWeekFixtures } from './match'
 import { retirementReason } from './retirement'
-import { createRng } from './rng'
+import { createRng } from '../lib/rng'
 import { applyExtraAction, applyTraining, recoverInjuries } from './training'
 
 export interface SeasonTransition {

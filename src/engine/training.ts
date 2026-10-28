@@ -6,7 +6,7 @@ import {
   round1,
 } from '../domain/attributes'
 import type { ExtraAction, TrainingFocus, WorldState } from '../domain/types'
-import { createRng } from './rng'
+import { createRng } from '../lib/rng'
 import { applyEffects } from './effects'
 
 export function recoverInjuries(world: WorldState): void {

@@ -6,7 +6,7 @@ import {
   hashState,
   mulberry32,
   stableStringify,
-} from '../../src/engine/rng'
+} from '../../src/lib/rng'
 
 describe('deterministic rng', () => {
   it('matches the golden mulberry32 sequence', () => {

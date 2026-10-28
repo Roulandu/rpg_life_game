@@ -7,7 +7,7 @@ import type {
   Player,
   WorldState,
 } from '../domain/types'
-import type { Rng } from './rng'
+import type { Rng } from '../lib/rng'
 import { adjustRelationship, getRelationshipByRole } from './relationships'
 
 interface KindContext {

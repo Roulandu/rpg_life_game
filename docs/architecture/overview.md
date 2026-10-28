@@ -66,7 +66,7 @@ flowchart LR
 | db | `src/db` | IndexedDB 存档、导入导出、校验和 | domain, lib |
 | platform | `src/platform` | 平台能力：安全存储、原生 HTTP 等 | lib |
 | domain | `src/domain` | 纯类型、属性公式、存档 schema | lib |
-| lib | `src/lib` | 无业务语义工具 | 无 |
+| lib | `src/lib` | 无业务语义工具；确定性随机数与哈希（`rng.ts`：createRng/hashString/hashState）、格式化、稳定序列化 | 无 |
 
 `src/main.tsx` 与 `src/router.tsx` 属于组合根，登记在 `docs/modules.yaml` 的 `rootFiles`，归属 `app`。
 
@@ -90,7 +90,7 @@ flowchart LR
 核心原则：
 
 - `domain` 与 `lib` 不依赖任何业务模块，保证可以跨平台、跨外壳复用。
-- `engine` 与 `world` 不依赖 UI、存储、网络；随机数只能通过 `createRng` 获得。
+- `engine` 与 `world` 不依赖 UI、存储、网络；随机数只能通过 `createRng` 获得。`createRng`/`hashString` 等确定性工具定义在 `src/lib/rng.ts`（原 `src/engine/rng.ts`），下沉到 `lib` 后 `world`、`db` 可直接复用，消除了 `world→engine`、`db→engine` 依赖与 `engine↔world` 循环。
 - `store` 是唯一允许同时编排 engine、world、llm、db、platform 的模块。
 - `ui` 只消费 store 状态与 selector，不直接调用引擎或 LLM。
 - `app` 是组合根，任何模块都不得反向依赖 `app`。
@@ -114,13 +114,14 @@ flowchart TD
   LLM --> DOMAIN
   DB --> DOMAIN
   DOMAIN --> LIB[lib]
+  ENGINE --> LIB
+  WORLD --> LIB
+  DB --> LIB
   UI -.违规.-> ENGINE
   UI -.违规.-> WORLD
   UI -.违规.-> LLM
   ENGINE -.违规.-> WORLD
-  WORLD -.违规.-> ENGINE
   LLM -.违规.-> ENGINE
-  DB -.违规.-> ENGINE
   PLATFORM -.违规.-> DB
 ```
 
@@ -130,12 +131,10 @@ flowchart TD
 | ui → world | `CreateCareerScreen`、`ScheduleScreen` | 直接读国家数据包与赛程 |
 | ui → llm | `InboxScreen`、`SettingsScreen` | 聊天与连接测试直接调用 llm，应经 store |
 | llm → engine | `actions.ts`、`prompt.ts` | 直接应用效果、直接读积分榜，目标改为提案 + 只读快照 |
-| engine → world | `turn.ts`、`match.ts` | 复用 `computeClubStrength`，待抽到 world 公共查询 |
-| world → engine | `generator.ts` | 复用 `rng`，待把随机数工具抽到 lib |
-| db → engine | `repository.ts` | 复用 `hashString`，待抽到 lib |
+| engine → world | `turn.ts`、`match.ts` | 复用 `computeClubStrength`，待抽到 domain 公共查询 |
 | platform → db | `keyStore.ts` | 密钥存储直接依赖 Dexie，目标改为端口注入 |
 
-`engine ↔ world` 是当前唯一已知循环。它被冻结，不允许扩大；长期方案是把 `rng` 与 `computeClubStrength` 的归属拆清。
+`rng`（`createRng`/`hashString`）已下沉到 `src/lib/rng.ts`，`world→engine`、`db→engine` 违规与 `engine↔world` 循环已消除。剩余的 `engine → world` 是单向违规，待把 `computeClubStrength`/`generateFixtures` 下沉到 `domain` 后清除。
 
 ## 关键流程
 

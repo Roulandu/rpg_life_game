@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { overall } from '../../src/domain/attributes'
-import { hashState } from '../../src/engine/rng'
+import { hashState } from '../../src/lib/rng'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
 

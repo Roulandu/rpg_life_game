@@ -91,8 +91,6 @@ modules:
       - from: src/engine/match.ts
         to: world
         reason: 同上
-    knownCycles:
-      - [engine, world]
 
   world:
     path: src/world
@@ -104,12 +102,7 @@ modules:
     docs: [docs/features/world-generation.md]
     testImpact: strict
     platformCapabilities: [core]
-    knownViolations:
-      - from: src/world/generator.ts
-        to: engine
-        reason: 生成器使用 engine/rng；待把随机数工具抽到 lib
-    knownCycles:
-      - [engine, world]
+    knownViolations: []
 
   llm:
     path: src/llm
@@ -137,10 +130,7 @@ modules:
       - docs/data-model.md
     testImpact: strict
     platformCapabilities: [persistence]
-    knownViolations:
-      - from: src/db/repository.ts
-        to: engine
-        reason: hashString 待从 engine/rng 抽到 lib
+    knownViolations: []
 
   platform:
     path: src/platform

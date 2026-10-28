@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { WeeklyPlan } from '../../src/domain/types'
-import { hashState } from '../../src/engine/rng'
+import { hashState } from '../../src/lib/rng'
 import { advanceWeek } from '../../src/engine/turn'
 import { ENGINE_VERSION, generateWorld } from '../../src/world/generator'
 import golden from '../../quality/golden/season-seed-42.json'

@@ -206,3 +206,4 @@ sequenceDiagram
 | 日期 | 变更 | 关联 |
 |---|---|---|
 | 2026-10-26 | 初版：自动保存、envelope、导入校验、IndexedDB 与 Key 分离 | ADR 0001 |
+| 2026-10-28 | hashString 下沉 `src/lib/rng.ts`，repository 校验和 import 路径调整，checksum 输出与导入校验行为不变 | 全量重构 P1 |

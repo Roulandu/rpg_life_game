@@ -3,7 +3,7 @@ import { join, relative } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const ROOT = join(process.cwd(), 'src')
-const GUARDED = ['engine', 'world']
+const GUARDED = ['engine', 'world', 'lib']
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {

@@ -5,7 +5,7 @@ import type {
   WeeklyPlan,
   WorldState,
 } from '../domain/types'
-import { createRng } from './rng'
+import { createRng } from '../lib/rng'
 import { applyEffects } from './effects'
 import { getRelationshipByRole } from './relationships'
 

@@ -7,7 +7,7 @@ import {
   saveEnvelopeSchema,
 } from '../domain/schema/save.schema'
 import type { SaveRecord, SaveSummary, WorldState } from '../domain/types'
-import { hashString } from '../engine/rng'
+import { hashString } from '../lib/rng'
 import { canonicalStringify, downloadTextFile } from '../lib/json'
 import { db } from './db'
 

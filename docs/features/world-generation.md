@@ -169,3 +169,4 @@ sequenceDiagram
 | 日期 | 变更 | 关联 |
 |---|---|---|
 | 2026-10-26 | 初版：世界规模、用户球员、赛程、关系、财务与确定性约束 | ADR 0001 |
+| 2026-10-28 | rng 工具下沉 `src/lib/rng.ts`，generator 的 createRng import 路径调整，生成行为与 golden 哈希不变 | 全量重构 P1 |

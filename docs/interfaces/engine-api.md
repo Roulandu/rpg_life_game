@@ -138,10 +138,12 @@ interface TurnResult {
 
 ## 随机数与哈希
 
+> 位置：`src/lib/rng.ts`（原 `src/engine/rng.ts`）。随机数与哈希是平台无关的纯函数，下沉到 `lib` 供 `engine`/`world`/`db` 共用，不再造成 `world→engine`、`db→engine` 依赖与 `engine↔world` 循环。
+
 | 函数 | 签名 | 用途 |
 |---|---|---|
 | `createRng` | `(seed, ...parts: (string \| number)[]) => Rng` | 按 seed + 域 + 参数创建独立随机流 |
-| `Rng.next/float/int/chance/pick/shuffle/weighted/normal/poisson` | 见 `src/engine/rng.ts` | 所有随机行为的唯一入口 |
+| `Rng.next/float/int/chance/pick/shuffle/weighted/normal/poisson` | 见 `src/lib/rng.ts` | 所有随机行为的唯一入口 |
 | `hashString` | `(input: string) => string` | 存档 checksum、golden 哈希 |
 | `stableStringify` | `(value) => string` | 稳定序列化 |
 | `hashState` | `(value) => string` | 状态哈希 |

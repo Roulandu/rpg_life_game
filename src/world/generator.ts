@@ -28,7 +28,7 @@ import type {
   SeasonStat,
   WorldState,
 } from '../domain/types'
-import { createRng, type Rng } from '../engine/rng'
+import { createRng, type Rng } from '../lib/rng'
 import {
   ENGLAND_CLUBS,
   ENGLAND_LEAGUES,

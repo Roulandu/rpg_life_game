@@ -7,7 +7,7 @@ import {
   hasPendingKeyMoments,
   resolveKeyMoment,
 } from '../../src/engine/keyMoments'
-import { hashState } from '../../src/engine/rng'
+import { hashState } from '../../src/lib/rng'
 import { advanceWeek } from '../../src/engine/turn'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
