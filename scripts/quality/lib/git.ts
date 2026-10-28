@@ -78,7 +78,13 @@ export function commitsSince(base: string): CommitInfo[] {
     .filter(Boolean)
   return shas.map((sha) => {
     const message = git(['show', '-s', '--format=%B', sha], true)
-    const files = git(['diff-tree', '--no-commit-id', '--name-only', '-r', sha], true)
+    // -M 检测重命名、--diff-filter=ACMR 排除删除路径，使本函数与 commit-msg 钩子
+    // 使用的 rename-aware 暂存 diff 一致：被删除/重命名掉的旧路径无法写进“修改范围”
+    // （钩子的存在性校验会拒绝不存在的路径），因此不应要求覆盖它们。
+    const files = git(
+      ['diff-tree', '--no-commit-id', '--name-only', '-r', '-M', '--diff-filter=ACMR', sha],
+      true,
+    )
       .split('\n')
       .map((line) => line.trim())
       .filter(Boolean)
