@@ -1,5 +1,5 @@
+import type { ChatActionProposal } from '../domain/chatAction'
 import type { Effect, WorldState } from '../domain/types'
-import { applyEffects } from '../engine/effects'
 
 export type ChatActionId = 'none' | 'talk_coach' | 'rest' | 'extra_training' | 'media_interview'
 
@@ -44,16 +44,14 @@ export function actionUsedThisWeek(world: WorldState): boolean {
   return world.aiAction?.season === world.season && world.aiAction.week === world.week
 }
 
-export function applyChatAction(world: WorldState, actionId: ChatActionId): string | null {
+export function resolveChatAction(world: WorldState, actionId: ChatActionId): ChatActionProposal | null {
   if (actionId === 'none') return null
   if (actionUsedThisWeek(world)) return null
 
   const action = CHAT_ACTIONS[actionId]
   if (!action) return null
 
-  applyEffects(world, action.effects, action.label)
-  world.aiAction = { season: world.season, week: world.week, actionId }
-  return action.label
+  return { actionId, label: action.label, effects: action.effects }
 }
 
 export function actionLabelFor(actionId: string | undefined): string | null {

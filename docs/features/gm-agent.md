@@ -70,7 +70,8 @@ sequenceDiagram
   UI->>S: sendChat(text)
   S->>G: generateChatReply
   G-->>S: replyZh + actionId
-  S->>S: applyChatAction（当前直接应用）
+  S->>S: resolveChatAction（llm 纯函数，返回提案）
+  S->>S: applyChatActionProposal（engine 施加效果并记录 aiAction）
   S->>DB: 持久化 aiChat 与 usage
 ```
 
@@ -128,9 +129,9 @@ sequenceDiagram
 - 价格表按模型名匹配，匹配不到使用保守默认值（输入 $1 / 百万 token，输出 $3 / 百万 token）。
 - 成本只做展示，不阻断调用。
 
-### 契约违规（已知）
+### 契约（提案化）
 
-`src/llm/actions.ts` 直接调用 `applyEffects`，违反“Agent 只返回提案”的目标契约，这条边登记在 `docs/modules.yaml` 的 `knownViolations`，新代码不得扩大。（`src/llm/prompt.ts` 原直接读 engine 积分榜的违规已随 `computeLeagueTable` 下沉 domain 而消除。）
+聊天动作已改为“Agent 只返回提案”：`src/llm/actions.ts` 的 `resolveChatAction` 是纯函数，仅根据当前世界与 `actionId` 返回 `ChatActionProposal`（类型定义在 `src/domain/chatAction.ts`），不修改任何游戏事实；实际的 `applyEffects` 与 `aiAction` 记录由 `src/engine/chatAction.ts` 的 `applyChatActionProposal` 完成，`store` 负责两步编排。llm→engine 违规已消除，`docs/modules.yaml` 中 llm 的 `knownViolations` 清零。（`src/llm/prompt.ts` 原直接读 engine 积分榜的违规已随 `computeLeagueTable` 下沉 domain 而消除。）
 
 ## 数据与接口
 
@@ -145,7 +146,7 @@ sequenceDiagram
 - `narrateWeek`、`generateChatReply`
 - `callStructuredTool`、`testLlmConnection`
 - `applyWeekNarrative`、`accumulateUsage`
-- `applyChatAction`、`actionUsedThisWeek`
+- `resolveChatAction`、`actionUsedThisWeek`、`applyChatActionProposal`
 - `loadApiKey`、`saveApiKey`、`clearApiKey`、`getLoadedApiKey`
 
 工具契约详见 [Agent 工具契约](../interfaces/agent-tools.md)。

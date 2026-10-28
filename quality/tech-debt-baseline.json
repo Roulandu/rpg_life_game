@@ -261,7 +261,7 @@
     "src/store/gameStore.ts::<anonymous>": {
       "metrics": {
         "functionLines": {
-          "value": 387,
+          "value": 386,
           "max": 60
         }
       }
@@ -285,7 +285,7 @@
     "src/store/gameStore.ts::sendChat#2": {
       "metrics": {
         "functionLines": {
-          "value": 72,
+          "value": 71,
           "max": 60
         }
       }

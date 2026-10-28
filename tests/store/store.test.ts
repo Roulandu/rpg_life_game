@@ -1,8 +1,26 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { db } from '../../src/db/db'
 import { listSaves } from '../../src/db/repository'
 import { useGameStore } from '../../src/store/gameStore'
 import { testOptions } from '../fixtures/career'
+
+vi.mock('../../src/platform/keyStore', async (importActual) => {
+  const actual = await importActual<typeof import('../../src/platform/keyStore')>()
+  return { ...actual, getLoadedApiKey: () => 'test-key' }
+})
+
+vi.mock('../../src/llm/generate', async (importActual) => {
+  const actual = await importActual<typeof import('../../src/llm/generate')>()
+  return {
+    ...actual,
+    generateChatReply: vi.fn(async () => ({
+      text: '教练点了点头。',
+      actionId: 'talk_coach' as const,
+      usage: { promptTokens: 10, completionTokens: 5 },
+      model: 'test-model',
+    })),
+  }
+})
 
 const INITIAL_STATE = {
   world: null,
@@ -53,5 +71,19 @@ describe('game store', () => {
     expect(useGameStore.getState().hydrated).toBe(true)
     expect(useGameStore.getState().saveId).toBe(saveId)
     expect(useGameStore.getState().world?.players[useGameStore.getState().world!.playerId].name).toBe('测试球员')
+  })
+
+  it('applies a resolved chat action proposal during sendChat', async () => {
+    await useGameStore.getState().createCareer(testOptions())
+    useGameStore.getState().updateSettings({ aiMode: 'llm' })
+
+    await useGameStore.getState().sendChat('教练，我想多聊聊。')
+
+    const world = useGameStore.getState().world
+    expect(world?.aiAction?.actionId).toBe('talk_coach')
+    const last = world?.aiChat?.[world.aiChat.length - 1]
+    expect(last?.role).toBe('assistant')
+    expect(last?.actionLabel).toBe('与教练谈话')
+    expect(useGameStore.getState().aiBusy).toBe(false)
   })
 })

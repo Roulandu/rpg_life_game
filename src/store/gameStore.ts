@@ -31,7 +31,8 @@ import {
   generateChatReply,
   narrateWeek,
 } from '../llm/generate'
-import { applyChatAction } from '../llm/actions'
+import { resolveChatAction } from '../llm/actions'
+import { applyChatActionProposal } from '../engine/chatAction'
 import { sanitizeText } from '../llm/schema'
 import { testLlmConnection, type ConnectionTestResult } from '../llm/client'
 import { describeLlmError } from '../llm/types'
@@ -461,10 +462,9 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         return
       }
       const next = structuredClone(current)
-      const actionLabel =
-        next.season === season && next.week === week
-          ? applyChatAction(next, reply.actionId) ?? undefined
-          : undefined
+      const proposal =
+        next.season === season && next.week === week ? resolveChatAction(next, reply.actionId) : null
+      const actionLabel = proposal ? applyChatActionProposal(next, proposal) : undefined
       next.aiChat = [
         ...(next.aiChat ?? []),
         {

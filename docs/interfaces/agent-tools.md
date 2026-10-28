@@ -96,7 +96,7 @@ JSON Schema（与 `src/llm/tools.ts` 一致）：
 - 模型只能选择 ID，不能指定数值。
 - 每周最多执行一次主动行动；`aiAction` 记录 `season + week + actionId`。
 - 对话本身不消耗回合，但行动效果会立即持久化。
-- 当前实现由 `src/llm/actions.ts` 直接调用 `applyEffects`，属于 `llm → engine` 已知违规；目标是把 `actionId` 作为提案返回给 store，由 store 调用 engine 应用。
+- `src/llm/actions.ts` 的 `resolveChatAction` 只把 `actionId` 解析为 `ChatActionProposal`（`src/domain/chatAction.ts`）返回给 store；`src/engine/chatAction.ts` 的 `applyChatActionProposal` 才调用 `applyEffects` 并写 `aiAction`。llm 不再直接改游戏事实。
 
 ## 提示词约束
 

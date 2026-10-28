@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateWorld } from '../../src/world/generator'
-import { applyChatAction, actionLabelFor, actionUsedThisWeek } from '../../src/llm/actions'
+import { resolveChatAction, actionLabelFor, actionUsedThisWeek } from '../../src/llm/actions'
 import { addUsage, estimateCostUsd } from '../../src/llm/cost'
 import { SUBMIT_ACTION_SCHEMA, SUBMIT_WEEK_SCHEMA, sanitizeText } from '../../src/llm/schema'
 import { TEST_NOW, testOptions } from '../fixtures/career'
@@ -45,33 +45,30 @@ describe('structured output schemas', () => {
 })
 
 describe('chat actions', () => {
-  it('applies a fixed effect once per week', () => {
+  it('resolves a proposal for a valid action and blocks repeats within the week', () => {
     const world = generateWorld(testOptions(), TEST_NOW)
-    const coach = Object.values(world.relationships).find((item) => item.role === 'coach')
-    const user = world.players[world.playerId]!
-    expect(coach).toBeTruthy()
+    const proposal = resolveChatAction(world, 'talk_coach')
 
-    const trustBefore = coach!.trust
-    const moraleBefore = user.morale
-    const label = applyChatAction(world, 'talk_coach')
+    expect(proposal).not.toBeNull()
+    expect(proposal?.actionId).toBe('talk_coach')
+    expect(proposal?.label).toBe('与教练谈话')
+    expect(proposal?.effects).toEqual([
+      { op: 'coachTrust', delta: 2 },
+      { op: 'morale', delta: 1 },
+    ])
 
-    expect(label).toBe('与教练谈话')
-    expect(coach!.trust).toBe(Math.min(100, trustBefore + 2))
-    expect(user.morale).toBe(Math.min(100, moraleBefore + 1))
+    world.aiAction = { season: world.season, week: world.week, actionId: 'talk_coach' }
     expect(actionUsedThisWeek(world)).toBe(true)
-
-    const afterFirst = coach!.trust
-    expect(applyChatAction(world, 'rest')).toBeNull()
-    expect(coach!.trust).toBe(afterFirst)
+    expect(resolveChatAction(world, 'rest')).toBeNull()
 
     world.week += 1
     expect(actionUsedThisWeek(world)).toBe(false)
-    expect(applyChatAction(world, 'rest')).toBe('休息调整')
+    expect(resolveChatAction(world, 'rest')?.label).toBe('休息调整')
   })
 
-  it('never applies effects for none and exposes labels', () => {
+  it('never resolves a proposal for none and exposes labels', () => {
     const world = generateWorld(testOptions(), TEST_NOW)
-    expect(applyChatAction(world, 'none')).toBeNull()
+    expect(resolveChatAction(world, 'none')).toBeNull()
     expect(world.aiAction).toBeUndefined()
     expect(actionLabelFor('extra_training')).toBe('主动加练')
     expect(actionLabelFor(undefined)).toBeNull()

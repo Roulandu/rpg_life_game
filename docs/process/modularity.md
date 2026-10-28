@@ -44,14 +44,12 @@ lib        -> (无)
 
 当前存在、已登记、冻结的边：
 
-- `engine -> world`：`src/engine/turn.ts`、`src/engine/match.ts`
-- `world -> engine`：`src/world/generator.ts`（与上一条构成循环）
-- `llm -> engine`：`src/llm/actions.ts`、`src/llm/prompt.ts`
-- `db -> engine`：`src/db/repository.ts`
-- `ui -> engine`：`src/ui/gameHelpers.ts`、`src/ui/screens/DashboardScreen.tsx`、`src/ui/screens/ScheduleScreen.tsx`
+- `ui -> engine`：`src/ui/screens/DashboardScreen.tsx`（关键回合查询，积分榜深引已下沉 domain 消除）
 - `ui -> world`：`src/ui/screens/CreateCareerScreen.tsx`、`src/ui/screens/ScheduleScreen.tsx`
 - `ui -> llm`：`src/ui/screens/InboxScreen.tsx`、`src/ui/screens/SettingsScreen.tsx`
 - `platform -> db`：`src/platform/keyStore.ts`
+
+已消除的边：`engine -> world`、`world -> engine`（`rng` 下沉 `src/lib`）、`llm -> engine`（`prompt` 积分榜下沉 domain、`actions` 提案化）、`db -> engine`（`rng` 下沉）、`ui -> engine` 的积分榜与 `gameHelpers` 深引。`engine↔world` 循环已断开，`knownCycles` 清零。
 
 规则：
 
@@ -84,7 +82,7 @@ lib        -> (无)
 - 输出：经过 Zod 校验的叙事文本或**提案**（如 `LlmAction`）。
 - 不得直接修改 store/WorldState，不得 import engine effects。
 - 提案由 store/engine 决定是否应用；应用前必须校验。
-- 当前 `llm/actions.ts` 直接 `applyEffects`、`llm/prompt.ts` import engine league table，属于冻结违规；新代码不得扩大。
+- `llm/actions.ts` 的 `resolveChatAction` 只返回 `ChatActionProposal`（`src/domain/chatAction.ts`），效果应用移到 `src/engine/chatAction.ts`，llm 不再 import engine effects；`llm/prompt.ts` 的积分榜已随 `computeLeagueTable` 下沉 domain。llm→engine 违规清零。
 
 ## 内容数据化
 

@@ -120,7 +120,6 @@ flowchart TD
   UI -.违规.-> ENGINE
   UI -.违规.-> WORLD
   UI -.违规.-> LLM
-  LLM -.违规.-> ENGINE
   PLATFORM -.违规.-> DB
 ```
 
@@ -129,10 +128,9 @@ flowchart TD
 | ui → engine | `DashboardScreen` | 直接调用 `hasPendingKeyMoments`，应移入 store selector（积分榜深引已下沉 domain 消除） |
 | ui → world | `CreateCareerScreen`、`ScheduleScreen` | 直接读国家数据包与赛程 |
 | ui → llm | `InboxScreen`、`SettingsScreen` | 聊天与连接测试直接调用 llm，应经 store |
-| llm → engine | `actions.ts` | 直接应用效果，目标改为返回提案由 store/engine 应用 |
 | platform → db | `keyStore.ts` | 密钥存储直接依赖 Dexie，目标改为端口注入 |
 
-`rng`（`createRng`/`hashString`）已下沉到 `src/lib/rng.ts`，`world→engine`、`db→engine` 违规与 `engine↔world` 循环已消除；`computeClubStrength`/`generateFixtures` 与 `computeLeagueTable` 已下沉到 `src/domain`，`engine→world` 违规与 `ui→engine`（积分榜）、`llm→engine`（prompt）深引随之清除，剩余 `ui→engine` 仅 `DashboardScreen` 的关键回合查询，`llm→engine` 仅 `actions.ts` 待提案化。
+`rng`（`createRng`/`hashString`）已下沉到 `src/lib/rng.ts`，`world→engine`、`db→engine` 违规与 `engine↔world` 循环已消除；`computeClubStrength`/`generateFixtures` 与 `computeLeagueTable` 已下沉到 `src/domain`，`engine→world` 违规与 `ui→engine`（积分榜）、`llm→engine`（prompt）深引随之清除；`llm/actions.ts` 已提案化，`resolveChatAction` 返回 `ChatActionProposal`（`src/domain/chatAction.ts`），效果应用移到 `src/engine/chatAction.ts`，`llm→engine` 违规清零。剩余 `ui→engine` 仅 `DashboardScreen` 的关键回合查询。
 
 ## 关键流程
 
@@ -188,7 +186,7 @@ flowchart TD
 - `store.narrateTurn` / `store.sendChat` 负责编排。
 - `llm/client.ts` 负责 Provider 适配、重试与错误分类。
 - `llm/schema.ts` 用 Zod 校验工具输出，`sanitizeText` 去控制字符、标签与 URL。
-- 当前 `llm/actions.ts` 会直接应用固定效果，属于已知违规；目标是由 store/engine 应用经过校验的提案。
+- `llm/actions.ts` 的 `resolveChatAction` 是纯函数，返回 `ChatActionProposal`；`engine/chatAction.ts` 的 `applyChatActionProposal` 施加效果并记录 `aiAction`，store 编排两步。
 
 ## 数据所有权
 

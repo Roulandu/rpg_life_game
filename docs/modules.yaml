@@ -100,10 +100,7 @@ modules:
     docs: [docs/features/gm-agent.md]
     testImpact: strict
     platformCapabilities: [http, secure-storage]
-    knownViolations:
-      - from: src/llm/actions.ts
-        to: engine
-        reason: 直接应用效果，待改为返回提案由 store/engine 应用
+    knownViolations: []
 
   db:
     path: src/db
