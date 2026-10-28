@@ -8,7 +8,7 @@ import type {
   Player,
   WorldState,
 } from '../domain/types'
-import { computeClubStrength } from '../world/generator'
+import { computeClubStrength } from '../domain/strength'
 import { generateKeyMoments } from './keyMoments'
 import { createRng, type Rng } from '../lib/rng'
 import { adjustRelationship, adjustRoleTrust, coachTrust, getRelationshipByRole } from './relationships'

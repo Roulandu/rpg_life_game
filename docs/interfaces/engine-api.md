@@ -51,8 +51,8 @@ interface TurnResult {
 | 函数 | 签名 | 行为 |
 |---|---|---|
 | `generateWorld` | `(options: CareerCreateOptions, now: string) => WorldState` | 生成联赛、俱乐部、阵容、用户球员、赛程、关系、财务、新闻与默认设置 |
-| `generateFixtures` | `(leagues, seed, season) => Record<Id, Fixture>` | 每个联赛生成双循环赛程，主客尽量均衡 |
-| `computeClubStrength` | `(club, players, options?) => ClubStrength` | 按 GK/DEF/MID/FWD 选最强 11 人计算攻防 |
+| `generateFixtures` | `(leagues, seed, season) => Record<Id, Fixture>` | 每个联赛生成双循环赛程，主客尽量均衡。位置：`src/domain/fixtures.ts`（原 `world/generator.ts`），供 `world` 与 `engine/turn` 共用 |
+| `computeClubStrength` | `(club, players, options?) => ClubStrength` | 按 GK/DEF/MID/FWD 选最强 11 人计算攻防。位置：`src/domain/strength.ts`（原 `world/generator.ts`），供 `world` 与 `engine/match`、`engine/turn` 共用 |
 | `getUserPlayer` | `(world) => Player` | 取用户球员，缺失时抛错 |
 | `getPlayerWorldClub` | `(world) => Club` | 取用户俱乐部 |
 | `getLeague` | `(world, leagueId) => League \| undefined` | 联赛查询 |

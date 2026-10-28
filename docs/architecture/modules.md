@@ -41,8 +41,6 @@
 
 | 模块 | 文件 | 指向 | 原因 |
 |---|---|---|---|
-| `engine` | `src/engine/match.ts` | `world` | 同上 |
-| `engine` | `src/engine/turn.ts` | `world` | computeClubStrength 待抽到 world 公共查询 |
 | `llm` | `src/llm/actions.ts` | `engine` | 直接应用效果，待改为返回提案由 store/engine 应用 |
 | `llm` | `src/llm/prompt.ts` | `engine` | 提示词直接读 engine 积分榜，待通过只读快照 |
 | `platform` | `src/platform/keyStore.ts` | `db` | 密钥存储直接依赖 db，待改为端口注入 |

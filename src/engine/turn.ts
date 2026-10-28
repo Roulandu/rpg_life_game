@@ -1,4 +1,6 @@
 import { clamp, overall, round1 } from '../domain/attributes'
+import { generateFixtures } from '../domain/fixtures'
+import { computeClubStrength } from '../domain/strength'
 import type {
   GameEvent,
   Id,
@@ -7,9 +9,7 @@ import type {
   SeasonStat,
   SeasonSummary,
   WeeklyPlan,
-  WorldState,
-} from '../domain/types'
-import { computeClubStrength, generateFixtures } from '../world/generator'
+  WorldState } from '../domain/types'
 import { expireEvents, generateWeeklyEvent } from './events'
 import {
   paySeasonBonuses,

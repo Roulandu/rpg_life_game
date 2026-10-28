@@ -84,13 +84,7 @@ modules:
       - docs/features/matchday.md
     testImpact: strict
     platformCapabilities: [core]
-    knownViolations:
-      - from: src/engine/turn.ts
-        to: world
-        reason: computeClubStrength 待抽到 world 公共查询
-      - from: src/engine/match.ts
-        to: world
-        reason: 同上
+    knownViolations: []
 
   world:
     path: src/world

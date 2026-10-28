@@ -469,24 +469,8 @@
     "src/world/generator.ts": {
       "metrics": {
         "lines": {
-          "value": 760,
+          "value": 576,
           "max": 300
-        }
-      }
-    },
-    "src/world/generator.ts::computeClubStrength": {
-      "metrics": {
-        "complexity": {
-          "value": 14,
-          "max": 12
-        }
-      }
-    },
-    "src/world/generator.ts::computeClubStrength#2": {
-      "metrics": {
-        "functionLines": {
-          "value": 80,
-          "max": 60
         }
       }
     },
@@ -507,14 +491,6 @@
       }
     },
     "src/world/generator.ts::makeAttributes": {
-      "metrics": {
-        "complexity": {
-          "value": 13,
-          "max": 12
-        }
-      }
-    },
-    "src/world/generator.ts::makeRoundRobin": {
       "metrics": {
         "complexity": {
           "value": 13,

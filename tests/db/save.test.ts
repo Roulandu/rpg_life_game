@@ -27,6 +27,17 @@ describe('save persistence', () => {
     expect(imported.players[imported.playerId].name).toBe('测试球员')
   })
 
+  it('persists finite club strength computed from domain', () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    for (const club of Object.values(world.clubs)) {
+      for (const value of Object.values(club.strength)) {
+        expect(Number.isFinite(value)).toBe(true)
+        expect(value).toBeGreaterThanOrEqual(20)
+        expect(value).toBeLessThanOrEqual(99)
+      }
+    }
+  })
+
   it('keeps the envelope checksum identical after hashString moved to lib', () => {
     const world = generateWorld(testOptions(), TEST_NOW)
     const envelope = buildEnvelope(world)

@@ -126,9 +126,9 @@ sequenceDiagram
 
 调用：
 
-- `generateWorld(options, now)`
-- `generateFixtures(leagues, seed, season)`
-- `computeClubStrength(club, players, options?)`
+- `generateWorld(options, now)`（`src/world/generator.ts`）
+- `generateFixtures(leagues, seed, season)`（`src/domain/fixtures.ts`）
+- `computeClubStrength(club, players, options?)`（`src/domain/strength.ts`）
 - `db.saveWorld`（由 store 调用）
 
 持久化影响：创建后立即写入 `saves` 表，并更新 `meta.lastSaveId`。
@@ -170,3 +170,4 @@ sequenceDiagram
 |---|---|---|
 | 2026-10-26 | 初版：世界规模、用户球员、赛程、关系、财务与确定性约束 | ADR 0001 |
 | 2026-10-28 | rng 工具下沉 `src/lib/rng.ts`，generator 的 createRng import 路径调整，生成行为与 golden 哈希不变 | 全量重构 P1 |
+| 2026-10-28 | `computeClubStrength` 下沉 `src/domain/strength.ts`、`generateFixtures`/`makeRoundRobin` 下沉 `src/domain/fixtures.ts`，斩断 engine→world 依赖并清洁超标函数；生成行为与 golden 哈希不变 | 全量重构 P1 |
