@@ -177,7 +177,8 @@ interface TurnResult {
 | `deleteSave` | `(id) => Promise<void>` | 删除并清理 `lastSaveId` |
 | `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON |
 | `importWorld` | `(text) => WorldState` | 校验并返回世界，不落库 |
-| `downloadWorld` | `(world) => void` | 触发浏览器下载 |
+
+`downloadWorld`（`(world) => void`，触发浏览器下载）已从 `db/repository` 迁到 `store/exportSave`，经 `platform/fileExport.downloadTextFile` 落地。
 
 ## 错误与兼容
 

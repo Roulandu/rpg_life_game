@@ -47,9 +47,8 @@ lib        -> (无)
 - `ui -> engine`：`src/ui/screens/DashboardScreen.tsx`（关键回合查询，积分榜深引已下沉 domain 消除）
 - `ui -> world`：`src/ui/screens/CreateCareerScreen.tsx`、`src/ui/screens/ScheduleScreen.tsx`
 - `ui -> llm`：`src/ui/screens/InboxScreen.tsx`、`src/ui/screens/SettingsScreen.tsx`
-- `platform -> db`：`src/platform/keyStore.ts`
 
-已消除的边：`engine -> world`、`world -> engine`（`rng` 下沉 `src/lib`）、`llm -> engine`（`prompt` 积分榜下沉 domain、`actions` 提案化）、`db -> engine`（`rng` 下沉）、`ui -> engine` 的积分榜与 `gameHelpers` 深引。`engine↔world` 循环已断开，`knownCycles` 清零。
+已消除的边：`engine -> world`、`world -> engine`（`rng` 下沉 `src/lib`）、`llm -> engine`（`prompt` 积分榜下沉 domain、`actions` 提案化）、`db -> engine`（`rng` 下沉）、`platform -> db`（`keyStore` 改为注入 `SecretStore` 端口）、`ui -> engine` 的积分榜与 `gameHelpers` 深引。`engine↔world` 循环已断开，`knownCycles` 清零；`capacitor-import`、`dom-file-export` 两处内联平台违规随 HTTP/文件下载迁入 `src/platform` 而消除，`knownPlatformViolations` 清零。
 
 规则：
 

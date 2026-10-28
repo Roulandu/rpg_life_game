@@ -8,7 +8,7 @@ import {
 } from '../domain/schema/save.schema'
 import type { SaveRecord, SaveSummary, WorldState } from '../domain/types'
 import { hashString } from '../lib/rng'
-import { canonicalStringify, downloadTextFile } from '../lib/json'
+import { canonicalStringify } from '../lib/json'
 import { db } from './db'
 
 const LAST_SAVE_KEY = 'lastSaveId'
@@ -122,10 +122,4 @@ export function importWorld(text: string): WorldState {
   }
 
   return world
-}
-
-export function downloadWorld(world: WorldState): void {
-  const user = world.players[world.playerId]
-  const safeName = (user?.name ?? 'career').replace(/[\\/:*?"<>|\s]+/g, '_')
-  downloadTextFile(exportWorld(world), `pitch-life-${safeName}-${world.season}-W${world.week}.json`)
 }

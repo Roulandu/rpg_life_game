@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom'
 import { ErrorBoundary } from './app/ErrorBoundary'
 import { isNativePlatform } from './platform/native'
 import { router } from './router'
+import './store/secretStore'
 import './styles.css'
 
 const container = document.getElementById('root')

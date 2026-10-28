@@ -120,7 +120,6 @@ flowchart TD
   UI -.违规.-> ENGINE
   UI -.违规.-> WORLD
   UI -.违规.-> LLM
-  PLATFORM -.违规.-> DB
 ```
 
 | 违规 | 位置 | 现状原因 |
@@ -128,9 +127,8 @@ flowchart TD
 | ui → engine | `DashboardScreen` | 直接调用 `hasPendingKeyMoments`，应移入 store selector（积分榜深引已下沉 domain 消除） |
 | ui → world | `CreateCareerScreen`、`ScheduleScreen` | 直接读国家数据包与赛程 |
 | ui → llm | `InboxScreen`、`SettingsScreen` | 聊天与连接测试直接调用 llm，应经 store |
-| platform → db | `keyStore.ts` | 密钥存储直接依赖 Dexie，目标改为端口注入 |
 
-`rng`（`createRng`/`hashString`）已下沉到 `src/lib/rng.ts`，`world→engine`、`db→engine` 违规与 `engine↔world` 循环已消除；`computeClubStrength`/`generateFixtures` 与 `computeLeagueTable` 已下沉到 `src/domain`，`engine→world` 违规与 `ui→engine`（积分榜）、`llm→engine`（prompt）深引随之清除；`llm/actions.ts` 已提案化，`resolveChatAction` 返回 `ChatActionProposal`（`src/domain/chatAction.ts`），效果应用移到 `src/engine/chatAction.ts`，`llm→engine` 违规清零。剩余 `ui→engine` 仅 `DashboardScreen` 的关键回合查询。
+`rng`（`createRng`/`hashString`）已下沉到 `src/lib/rng.ts`，`world→engine`、`db→engine` 违规与 `engine↔world` 循环已消除；`computeClubStrength`/`generateFixtures` 与 `computeLeagueTable` 已下沉到 `src/domain`，`engine→world` 违规与 `ui→engine`（积分榜）、`llm→engine`（prompt）深引随之清除；`llm/actions.ts` 已提案化，`resolveChatAction` 返回 `ChatActionProposal`（`src/domain/chatAction.ts`），效果应用移到 `src/engine/chatAction.ts`，`llm→engine` 违规清零。平台端口化后 `platform→db` 违规与两处内联平台违规（`capacitor-import`、`dom-file-export`）一并消除：`keyStore.ts` 改为注入 `SecretStore` 端口（实现见 `src/store/secretStore.ts`，组合根 `main.tsx` 装配），HTTP 迁到 `src/platform/http.ts`（`llm/transport.ts` 只做 `HttpError→LlmError` 映射），文件下载迁到 `src/platform/fileExport.ts`。剩余 `ui→engine` 仅 `DashboardScreen` 的关键回合查询。
 
 ## 关键流程
 
@@ -177,9 +175,9 @@ flowchart TD
 ### 存档、导出与导入
 
 - 运行时：`store.saveNow` → `db.saveWorld` → Dexie `saves` 表。
-- 导出：`db.buildEnvelope` 生成带 checksum 的 JSON，`lib.downloadTextFile` 触发浏览器下载。
+- 导出：`db.buildEnvelope` 生成带 checksum 的 JSON，`store/exportSave.downloadWorld` 组装文件名并经 `platform/fileExport.downloadTextFile` 触发浏览器下载。
 - 导入：`db.importWorld` 先过 Zod envelope + world 校验，再校验 checksum，拒绝更高 `saveVersion`。
-- 密钥：`platform/keyStore.ts` 在本机加密保存，不进入 `WorldState`。
+- 密钥：`platform/keyStore.ts` 在本机加密保存，不进入 `WorldState`；持久化经注入的 `SecretStore` 端口（`store/secretStore.ts` 用 `db.secrets` 实现）。
 
 ### Agent
 
@@ -203,10 +201,12 @@ flowchart TD
 当前平台差异以内联分支存在，已冻结：
 
 - `src/platform/native.ts`：判断 Capacitor 运行环境。
-- `src/platform/keyStore.ts`：Android SecureStorage / Web AES-GCM IndexedDB。
-- `src/llm/transport.ts`：浏览器 fetch / CapacitorHttp。
-- `src/main.tsx`：生产 Web 才注册 Service Worker。
-- `src/db/repository.ts`：DOM 下载导出文件。
+- `src/platform/keyStore.ts`：Android SecureStorage / Web AES-GCM，持久化经注入的 `SecretStore` 端口。
+- `src/platform/http.ts`：浏览器 fetch / CapacitorHttp 两个 `HttpPort` 实现，抛平台中立 `HttpError`。
+- `src/platform/fileExport.ts`：`downloadTextFile` 触发浏览器下载。
+- `src/llm/transport.ts`：选择 `HttpPort` 并把 `HttpError` 映射为 `LlmError`。
+- `src/main.tsx`：组合根，装配 `store/secretStore` 并仅在生产 Web 注册 Service Worker。
+- `src/store/exportSave.ts`：`downloadWorld` 组装文件名并调用 `platform/fileExport`。
 
 目标形态是 `src/platform/ports` + `web/capacitor/wechat` 适配器，选择逻辑只放在 `src/platform/index.ts`。详见 [多端策略](platform-strategy.md)。
 
@@ -230,3 +230,5 @@ flowchart TD
 |---|---|---|
 | 2026-10-26 | 初版：记录运行形态、模块矩阵、已知违规与关键流程 | ADR 0001 |
 | 2026-10-28 | rng 下沉 lib、strength/fixtures/leagueTable 下沉 domain，消除 world/db/ui→engine 与 engine→world 违规及 engine↔world 循环 | 全量重构 P1 |
+| 2026-10-29 | llm 聊天动作提案化（resolveChatAction/applyChatActionProposal），消除 llm→engine 红线 | 全量重构 P1 |
+| 2026-10-29 | 平台端口化：keyStore 注入 SecretStore、HTTP 迁 platform/http、文件下载迁 platform/fileExport，消除 platform→db 与两处内联平台违规 | 全量重构 P1 |

@@ -2,13 +2,13 @@ import { create } from 'zustand'
 import {
   createSaveId,
   deleteSave,
-  downloadWorld,
   getLastSaveId,
   importWorld,
   listSaves,
   loadWorld,
   saveWorld,
 } from '../db/repository'
+import { downloadWorld } from './exportSave'
 import type {
   AiChatMessage,
   CareerCreateOptions,

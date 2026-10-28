@@ -129,19 +129,22 @@ export interface DeviceInfo {
 
 ## 现状与违规
 
-当前内联平台分支（已冻结，不得增加）：
+已完成的端口化（不再是违规）：
+
+| 文件 | 现状 |
+|---|---|
+| `src/platform/keyStore.ts` | 原生 SecureStorage / Web AES-GCM / 会话兜底；持久化经注入的 `SecretStore` 端口，实现见 `src/store/secretStore.ts`，组合根 `src/main.tsx` 装配。`platform → db` 违规已消除。 |
+| `src/platform/http.ts` | 浏览器 fetch / CapacitorHttp 两个 `HttpPort` 实现，抛平台中立 `HttpError`；`src/llm/transport.ts` 只做选择与 `HttpError→LlmError` 映射。`capacitor-import` 内联违规已消除。 |
+| `src/platform/fileExport.ts` | `downloadTextFile` 触发浏览器下载；`src/store/exportSave.ts` 的 `downloadWorld` 组装文件名后调用。`dom-file-export` 内联违规已消除。 |
+
+剩余内联平台分支（已冻结，不得增加）：
 
 | 文件 | 现状 | 目标 |
 |---|---|---|
 | `src/platform/native.ts` | 通过 `window.Capacitor` 判断平台 | 收进 `DeviceInfo` 适配器 |
-| `src/platform/keyStore.ts` | 原生 SecureStorage / Web AES-GCM / 会话兜底 | 实现 `SecureKeyStore` 端口 |
-| `src/llm/transport.ts` | 浏览器 fetch / CapacitorHttp 二选一 | 注入 `HttpTransport` |
 | `src/main.tsx` | 生产 Web 才注册 Service Worker | 构建/生命周期适配器 |
-| `src/db/repository.ts` | DOM anchor 下载 | 注入 `FileExport` |
 | `src/ui/screens/SettingsScreen.tsx` | 直接 import llm 测试连接 | 经 store 调用 |
 | `src/ui/screens/InboxScreen.tsx` | 直接 import llm 聊天 | 经 store 调用 |
-
-`src/platform/keyStore.ts` 还直接依赖 `src/db`，登记为 `platform → db` 已知违规；目标是由上层注入持久化端口。
 
 ## 门禁
 

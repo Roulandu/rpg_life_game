@@ -7,13 +7,7 @@ rootFiles:
   - src/router.tsx
 
 # 内联平台判断/平台 API 直接调用；新代码必须走 src/platform 端口
-knownPlatformViolations:
-  - file: src/llm/transport.ts
-    pattern: capacitor-import
-    reason: 待迁移到 platform/ports 的 HttpTransport
-  - file: src/lib/json.ts
-    pattern: dom-file-export
-    reason: 浏览器文件下载待迁移到 FileExport 端口
+knownPlatformViolations: []
 
 modules:
   app:
@@ -130,10 +124,7 @@ modules:
       - lifecycle
       - persistence
       - device-info
-    knownViolations:
-      - from: src/platform/keyStore.ts
-        to: db
-        reason: 密钥存储直接依赖 db，待改为端口注入
+    knownViolations: []
 
   domain:
     path: src/domain

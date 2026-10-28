@@ -88,11 +88,11 @@ platform/index.ts                   ← 唯一选择和装配适配器的地方
 - 其他模块通过端口接口访问能力。
 - 新增平台判断必须放 `src/platform`，不能在 UI/store/engine 里散落。
 - 现有内联平台判断作为已知违规冻结：
-  - `src/llm/transport.ts`
-  - `src/platform/keyStore.ts`
+  - `src/platform/native.ts`
   - `src/main.tsx`
   - `src/ui/screens/SettingsScreen.tsx`
-  - `src/db/repository.ts`
+  - `src/ui/screens/InboxScreen.tsx`
+- 已迁入端口、不再冻结：`src/llm/transport.ts`（HTTP 迁 `src/platform/http.ts`）、`src/platform/keyStore.ts`（持久化改注入 `SecretStore`）、`src/db/repository.ts` 的文件下载（迁 `src/platform/fileExport.ts` + `src/store/exportSave.ts`）。
 
 `check:boundaries` 会检查新增违规。
 

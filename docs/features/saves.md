@@ -7,11 +7,17 @@ code:
   - src/db/repository.ts
   - src/domain/schema/save.schema.ts
   - src/store/gameStore.ts
+  - src/store/exportSave.ts
+  - src/store/secretStore.ts
   - src/platform/keyStore.ts
+  - src/platform/fileExport.ts
 tests:
   - tests/db/save.test.ts
+  - tests/db/repository.test.ts
   - tests/store/store.test.ts
-last_reviewed: 2026-10-26
+  - tests/store/exportSave.test.ts
+  - tests/store/secretStore.test.ts
+last_reviewed: 2026-10-29
 diagrams: [sequence]
 ---
 
@@ -152,8 +158,9 @@ sequenceDiagram
 
 - `saveWorld`、`loadWorld`、`listSaves`、`deleteSave`
 - `getLastSaveId`、`setLastSaveId`、`clearLastSaveId`
-- `buildEnvelope`、`exportWorld`、`importWorld`、`downloadWorld`
-- `loadApiKey`、`saveApiKey`、`clearApiKey`、`getLoadedApiKey`
+- `buildEnvelope`、`exportWorld`、`importWorld`（`db/repository`）
+- `downloadWorld`（`store/exportSave`，经 `platform/fileExport.downloadTextFile` 触发下载）
+- `loadApiKey`、`saveApiKey`、`clearApiKey`、`getLoadedApiKey`（`platform/keyStore`，持久化经注入的 `SecretStore` 端口）
 
 ## 失败与降级
 
