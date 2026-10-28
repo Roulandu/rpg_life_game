@@ -1,4 +1,4 @@
-import { computeLeagueTable } from '../engine/leagueTable'
+import { computeLeagueTable } from '../domain/leagueTable'
 import type { Fixture, Id, LeagueTableRow, WorldState } from '../domain/types'
 
 export type FormResult = 'W' | 'D' | 'L'

@@ -1,6 +1,6 @@
 import { POSITION_LABELS, overall } from '../domain/attributes'
 import type { AiChatMessage, GameEvent, MatchReport, WorldState } from '../domain/types'
-import { computeLeagueTable } from '../engine/leagueTable'
+import { computeLeagueTable } from '../domain/leagueTable'
 import { formatMoneyShort, formatRating, formatSeasonLabel } from '../lib/format'
 
 type Density = WorldState['settings']['narrativeDensity']

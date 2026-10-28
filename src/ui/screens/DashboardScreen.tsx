@@ -16,7 +16,7 @@ import {
 import { POSITION_LABELS, overall } from '../../domain/attributes'
 import { useGameStore } from '../../store/gameStore'
 import { hasPendingKeyMoments } from '../../engine/keyMoments'
-import { computeLeagueTable } from '../../engine/leagueTable'
+import { computeLeagueTable } from '../../domain/leagueTable'
 import { formatMoneyShort, formatSeasonLabel, formatWeekLabel } from '../../lib/format'
 import { Card, SectionTitle } from '../components/Card'
 import { StatBar } from '../components/StatBar'

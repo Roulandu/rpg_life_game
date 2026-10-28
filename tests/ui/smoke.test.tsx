@@ -44,5 +44,7 @@ describe('ui smoke tests', () => {
     expect(screen.getAllByText('伯明翰联').length).toBeGreaterThan(0)
     expect(screen.getAllByText(/测试球员/).length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: /安排并推进第 1 周/ })).toBeInTheDocument()
+    expect(screen.getByText('联赛排名')).toBeInTheDocument()
+    expect(screen.getByText('积分')).toBeInTheDocument()
   })
 })

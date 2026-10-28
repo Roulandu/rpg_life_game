@@ -42,13 +42,10 @@
 | 模块 | 文件 | 指向 | 原因 |
 |---|---|---|---|
 | `llm` | `src/llm/actions.ts` | `engine` | 直接应用效果，待改为返回提案由 store/engine 应用 |
-| `llm` | `src/llm/prompt.ts` | `engine` | 提示词直接读 engine 积分榜，待通过只读快照 |
 | `platform` | `src/platform/keyStore.ts` | `db` | 密钥存储直接依赖 db，待改为端口注入 |
-| `ui` | `src/ui/gameHelpers.ts` | `engine` | 积分榜/派生数据查询待移入 store selector |
 | `ui` | `src/ui/screens/CreateCareerScreen.tsx` | `world` | 直接读取国家数据包，待通过 store/service |
-| `ui` | `src/ui/screens/DashboardScreen.tsx` | `engine` | 页面直接计算联赛排名，待移入 selector |
+| `ui` | `src/ui/screens/DashboardScreen.tsx` | `engine` | 页面直接调用 hasPendingKeyMoments，待移入 selector（积分榜深引已随 leagueTable 下沉 domain 消除） |
 | `ui` | `src/ui/screens/InboxScreen.tsx` | `llm` | 聊天调用直接 import llm，待通过 store |
-| `ui` | `src/ui/screens/ScheduleScreen.tsx` | `engine` | 赛程派生数据直接读 engine |
 | `ui` | `src/ui/screens/ScheduleScreen.tsx` | `world` | 赛程派生数据直接读 world |
 | `ui` | `src/ui/screens/SettingsScreen.tsx` | `llm` | LLM 连接测试直接 import llm，待通过 store |
 

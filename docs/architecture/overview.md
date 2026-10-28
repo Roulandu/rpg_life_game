@@ -120,21 +120,19 @@ flowchart TD
   UI -.违规.-> ENGINE
   UI -.违规.-> WORLD
   UI -.违规.-> LLM
-  ENGINE -.违规.-> WORLD
   LLM -.违规.-> ENGINE
   PLATFORM -.违规.-> DB
 ```
 
 | 违规 | 位置 | 现状原因 |
 |---|---|---|
-| ui → engine | `gameHelpers.ts`、`DashboardScreen`、`ScheduleScreen` | 页面直接算积分榜/赛程派生数据，应移入 store selector |
+| ui → engine | `DashboardScreen` | 直接调用 `hasPendingKeyMoments`，应移入 store selector（积分榜深引已下沉 domain 消除） |
 | ui → world | `CreateCareerScreen`、`ScheduleScreen` | 直接读国家数据包与赛程 |
 | ui → llm | `InboxScreen`、`SettingsScreen` | 聊天与连接测试直接调用 llm，应经 store |
-| llm → engine | `actions.ts`、`prompt.ts` | 直接应用效果、直接读积分榜，目标改为提案 + 只读快照 |
-| engine → world | `turn.ts`、`match.ts` | 复用 `computeClubStrength`，待抽到 domain 公共查询 |
+| llm → engine | `actions.ts` | 直接应用效果，目标改为返回提案由 store/engine 应用 |
 | platform → db | `keyStore.ts` | 密钥存储直接依赖 Dexie，目标改为端口注入 |
 
-`rng`（`createRng`/`hashString`）已下沉到 `src/lib/rng.ts`，`world→engine`、`db→engine` 违规与 `engine↔world` 循环已消除。剩余的 `engine → world` 是单向违规，待把 `computeClubStrength`/`generateFixtures` 下沉到 `domain` 后清除。
+`rng`（`createRng`/`hashString`）已下沉到 `src/lib/rng.ts`，`world→engine`、`db→engine` 违规与 `engine↔world` 循环已消除；`computeClubStrength`/`generateFixtures` 与 `computeLeagueTable` 已下沉到 `src/domain`，`engine→world` 违规与 `ui→engine`（积分榜）、`llm→engine`（prompt）深引随之清除，剩余 `ui→engine` 仅 `DashboardScreen` 的关键回合查询，`llm→engine` 仅 `actions.ts` 待提案化。
 
 ## 关键流程
 
@@ -233,3 +231,4 @@ flowchart TD
 | 日期 | 变更 | 关联 |
 |---|---|---|
 | 2026-10-26 | 初版：记录运行形态、模块矩阵、已知违规与关键流程 | ADR 0001 |
+| 2026-10-28 | rng 下沉 lib、strength/fixtures/leagueTable 下沉 domain，消除 world/db/ui→engine 与 engine→world 违规及 engine↔world 循环 | 全量重构 P1 |

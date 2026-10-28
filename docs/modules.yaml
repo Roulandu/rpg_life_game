@@ -39,15 +39,9 @@ modules:
     testImpact: via-module
     platformCapabilities: [ui]
     knownViolations:
-      - from: src/ui/gameHelpers.ts
-        to: engine
-        reason: 积分榜/派生数据查询待移入 store selector
       - from: src/ui/screens/DashboardScreen.tsx
         to: engine
-        reason: 页面直接计算联赛排名，待移入 selector
-      - from: src/ui/screens/ScheduleScreen.tsx
-        to: engine
-        reason: 赛程派生数据直接读 engine
+        reason: 页面直接调用 hasPendingKeyMoments，待移入 selector（积分榜深引已随 leagueTable 下沉 domain 消除）
       - from: src/ui/screens/CreateCareerScreen.tsx
         to: world
         reason: 直接读取国家数据包，待通过 store/service
@@ -110,9 +104,6 @@ modules:
       - from: src/llm/actions.ts
         to: engine
         reason: 直接应用效果，待改为返回提案由 store/engine 应用
-      - from: src/llm/prompt.ts
-        to: engine
-        reason: 提示词直接读 engine 积分榜，待通过只读快照
 
   db:
     path: src/db

@@ -101,7 +101,7 @@
 - [ ] 升降级后正确重建下一赛季赛程与俱乐部层级。
 - [ ] 测试：多赛季层级稳定、升级/降级数量正确、无孤儿俱乐部、无重复 ID。
 
-**主要文件**：`src/engine/turn.ts`、`src/engine/leagueTable.ts`、`src/world/generator.ts`、`data/countries/*.json`。
+**主要文件**：`src/engine/turn.ts`、`src/domain/leagueTable.ts`、`src/world/generator.ts`、`data/countries/*.json`。
 
 **验收**：连续 5 个赛季后所有俱乐部仍在有效联赛；升降级与奖金新闻一致。
 

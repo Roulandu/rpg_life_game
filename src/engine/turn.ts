@@ -17,7 +17,7 @@ import {
   settleWeekFinance,
   updatePlayerValue,
 } from './finance'
-import { computeLeagueTable } from './leagueTable'
+import { computeLeagueTable } from '../domain/leagueTable'
 import { simulateWeekFixtures } from './match'
 import { retirementReason } from './retirement'
 import { createRng } from '../lib/rng'

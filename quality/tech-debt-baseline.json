@@ -106,14 +106,6 @@
         }
       }
     },
-    "src/engine/leagueTable.ts::computeLeagueTable": {
-      "metrics": {
-        "functionLines": {
-          "value": 64,
-          "max": 60
-        }
-      }
-    },
     "src/engine/match.ts": {
       "metrics": {
         "lines": {

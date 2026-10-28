@@ -5,11 +5,12 @@ modules: [engine, store, ui]
 code:
   - src/engine/match.ts
   - src/engine/keyMoments.ts
-  - src/engine/leagueTable.ts
+  - src/domain/leagueTable.ts
   - src/ui/screens/MatchdayScreen.tsx
 tests:
   - tests/engine/keyMoments.test.ts
   - tests/engine/season.test.ts
+  - tests/domain/leagueTable.test.ts
   - tests/ui/smoke.test.tsx
 diagrams: [sequence]
 last_reviewed: 2026-10-26
@@ -153,7 +154,7 @@ sequenceDiagram
 - `engine.resolveKeyMoment(world, momentId, optionId)`
 - `engine.autoResolveKeyMoments(world)`
 - `engine.finalizeMatchday(world)`
-- `engine.computeLeagueTable(world, leagueId, season)`
+- `domain.computeLeagueTable(world, leagueId, season)`
 
 ## 失败与降级
 
@@ -178,6 +179,7 @@ sequenceDiagram
 | 成功/失败结算、比分、评分、关系 | `tests/engine/keyMoments.test.ts` |
 | 自动处理与最终化 | `tests/engine/keyMoments.test.ts` |
 | 比赛模拟、出场判定、赛季统计 | `tests/engine/season.test.ts` |
+| 积分榜计算（下沉 domain） | `tests/domain/leagueTable.test.ts` |
 | 比赛页渲染与交互烟测 | `tests/ui/smoke.test.tsx` |
 | 未完成回合阻塞下一周 | `tests/store/store.test.ts` |
 
@@ -193,3 +195,4 @@ sequenceDiagram
 | 日期 | 变更 | 关联 |
 |---|---|---|
 | 2026-10-26 | 初版：出场、比分、关键回合、结算、最终化与失败降级 | ADR 0001 |
+| 2026-10-28 | 积分榜计算 `computeLeagueTable` 下沉至 `src/domain/leagueTable.ts`，斩断 engine→world 与 llm/ui→engine 深引 | 全量重构提交 3 |

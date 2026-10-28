@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { WeeklyPlan, WorldState } from '../../src/domain/types'
 import { resolveEvent } from '../../src/engine/events'
-import { computeLeagueTable } from '../../src/engine/leagueTable'
+import { computeLeagueTable } from '../../src/domain/leagueTable'
 import { hashState } from '../../src/lib/rng'
 import { advanceWeek } from '../../src/engine/turn'
 import { generateWorld } from '../../src/world/generator'

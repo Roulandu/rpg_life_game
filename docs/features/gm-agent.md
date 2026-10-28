@@ -130,7 +130,7 @@ sequenceDiagram
 
 ### 契约违规（已知）
 
-`src/llm/actions.ts` 直接调用 `applyEffects`，违反“Agent 只返回提案”的目标契约；`src/llm/prompt.ts` 直接读 engine 积分榜。这两条边登记在 `docs/modules.yaml` 的 `knownViolations`，新代码不得扩大。
+`src/llm/actions.ts` 直接调用 `applyEffects`，违反“Agent 只返回提案”的目标契约，这条边登记在 `docs/modules.yaml` 的 `knownViolations`，新代码不得扩大。（`src/llm/prompt.ts` 原直接读 engine 积分榜的违规已随 `computeLeagueTable` 下沉 domain 而消除。）
 
 ## 数据与接口
 
@@ -204,3 +204,4 @@ sequenceDiagram
 | 日期 | 变更 | 关联 |
 |---|---|---|
 | 2026-10-26 | 初版：模式、工具契约、校验、重试、行动、成本与降级 | ADR 0001 |
+| 2026-10-28 | `prompt.ts` 改从 `src/domain/leagueTable.ts` 读积分榜，消除 llm→engine 深引 | 全量重构提交 3 |

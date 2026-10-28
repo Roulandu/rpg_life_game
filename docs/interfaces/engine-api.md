@@ -128,6 +128,8 @@ interface TurnResult {
 
 ## 积分榜
 
+位于 `src/domain/leagueTable.ts`（domain 模块，只读纯计算）。
+
 | 函数 | 签名 | 行为 |
 |---|---|---|
 | `computeLeagueTable` | `(world, leagueId, season?) => LeagueTableRow[]` | 只统计已结束比赛；积分、净胜球、进球数排序 |
