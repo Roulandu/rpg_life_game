@@ -214,7 +214,7 @@ flowchart TD
 ## 架构演进
 
 - 决策背景与取舍见 [ADR 0001](../decisions/0001-governance-and-modular-monolith.md)。
-- 已完成拆分：`gameStore.ts`（切片化）→ `generator.ts` → `match.ts` / `keyMoments.ts`；下一步补公共 `index.ts`，把跨模块深引降为 0。
+- 已完成拆分：`gameStore.ts`（切片化）→ `generator.ts` → `match.ts` / `keyMoments.ts`；10 个模块均已建立显式 `index.ts` 公共入口，边界脚本新增深引/自引门禁，待 `publicEntry` 填入后自动生效。
 - 平台端口化与 iOS / 微信评估不在本轮实现，规则见 [多端策略](platform-strategy.md)。
 
 ## 变更记录
@@ -227,3 +227,4 @@ flowchart TD
 | 2026-10-29 | llm 聊天动作提案化（resolveChatAction/applyChatActionProposal），消除 llm→engine 红线 | 全量重构 P1 |
 | 2026-10-29 | 平台端口化：keyStore 注入 SecretStore、HTTP 迁 platform/http、文件下载迁 platform/fileExport，消除 platform→db 与两处内联平台违规 | 全量重构 P1 |
 | 2026-10-29 | Dashboard 拆为 `ui/screens/dashboard/*`（头部/本周状态/下一场/联赛迷你表/收件箱/新闻等），Matchday 拆为 `ui/screens/matchday/*`（比分卡/关键时刻/回顾/时间线），派生数据集中到 `dashboardData.ts`，页面结构与视觉不变 | 全量重构提交 11 |
+| 2026-10-29 | 10 个模块新增显式 `index.ts` 公共入口与每模块导出面测试；边界脚本支持 `publicEntry` 深引与模块内自引检查，当前入口未启用保持休眠 | 全量重构提交 13 |

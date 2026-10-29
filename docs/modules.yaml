@@ -14,7 +14,7 @@ modules:
     path: src/app
     publicEntry: null
     allowedDeps: [ui, store, platform, domain, lib]
-    tests: []
+    tests: [tests/app/**/*.test.tsx]
     docs: [docs/architecture/overview.md]
     testImpact: exempt
     platformCapabilities: [composition]
@@ -98,7 +98,7 @@ modules:
     path: src/platform
     publicEntry: null
     allowedDeps: [lib]
-    tests: []
+    tests: [tests/platform/**/*.test.ts]
     docs:
       - docs/architecture/platform-strategy.md
       - docs/features/saves.md

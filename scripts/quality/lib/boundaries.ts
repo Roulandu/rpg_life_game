@@ -32,9 +32,24 @@ export interface PlatformFinding {
   line: number
 }
 
+export interface DeepImport {
+  file: string
+  from: string
+  to: string
+  entry: string
+  target: string
+}
+
+export interface SelfBarrel {
+  file: string
+  module: string
+}
+
 export interface BoundaryReport {
   edges: ModuleEdge[]
   violations: BoundaryViolation[]
+  deepImports: DeepImport[]
+  selfBarrels: SelfBarrel[]
   cycles: Cycle[]
   platform: PlatformFinding[]
   resolvedKnown: { file: string; to: string }[]
@@ -125,6 +140,8 @@ export async function collectBoundaries(manifest: Manifest = loadManifest()): Pr
   const srcFiles = walk(resolve(repoRoot, 'src'))
   const edges: ModuleEdge[] = []
   const violations: BoundaryViolation[] = []
+  const deepImports: DeepImport[] = []
+  const selfBarrels: SelfBarrel[] = []
   const platform: PlatformFinding[] = []
   const usedKnown = new Set<string>()
 
@@ -140,9 +157,16 @@ export async function collectBoundaries(manifest: Manifest = loadManifest()): Pr
     for (const specifier of await importsOfFile(absolute)) {
       const targetFile = resolveSpecifier(absolute, specifier)
       if (!targetFile) continue
-      const to = moduleForFile(manifest, toPosix(targetFile).slice(repoRoot.length + 1))
-      if (!to || to === from) continue
+      const target = toPosix(targetFile).slice(repoRoot.length + 1)
+      const to = moduleForFile(manifest, target)
+      if (!to) continue
+      const entry = manifest.modules[to]?.publicEntry ?? null
+      if (to === from) {
+        if (entry && target === entry && file !== entry) selfBarrels.push({ file, module: from })
+        continue
+      }
       edges.push({ from, to, file })
+      if (entry && target !== entry) deepImports.push({ file, from, to, entry, target })
       if (definition.allowedDeps.includes(to)) continue
       const known = definition.knownViolations.find(
         (item) => item.from === file && item.to === to,
@@ -174,6 +198,8 @@ export async function collectBoundaries(manifest: Manifest = loadManifest()): Pr
   return {
     edges,
     violations: violations.sort((a, b) => a.file.localeCompare(b.file)),
+    deepImports: deepImports.sort((a, b) => a.file.localeCompare(b.file)),
+    selfBarrels: selfBarrels.sort((a, b) => a.file.localeCompare(b.file)),
     cycles,
     platform: newPlatform,
     resolvedKnown,

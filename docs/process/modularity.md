@@ -61,8 +61,9 @@ lib        -> (无)
 
 - 新模块必须有 `index.ts`，只 export 稳定 API。
 - 新代码跨模块引用只能 import 公共入口，禁止 `src/engine/match` 这类深引。
-- 现有模块暂不强制 barrel；`publicEntry: null` 表示尚未启用，边界脚本不检查深引。
-- 未来为 engine/world/llm/store 增加 barrel 后，把 `publicEntry` 填上，门禁自动收紧。
+- 10 个模块均已提供显式命名的 `index.ts`（不使用 `export *`，类型用 `export type`，barrel 内不做跨模块 re-export）。
+- 边界脚本已支持两类检查：目标模块 `publicEntry` 非 null 时，跨模块引用目标文件必须是入口（否则记 `跨模块深引`）；模块内文件 import 自家入口记 `模块内文件自引公共入口`。
+- 当前 `publicEntry: null` 仍表示门禁休眠；填入 `src/<mod>/index.ts` 后自动收紧，无需再改脚本。
 
 ## 新模块清单
 

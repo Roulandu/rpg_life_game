@@ -7,6 +7,12 @@ async function main(): Promise<void> {
   for (const violation of report.violations) {
     problems.push(`新增跨模块依赖：${violation.file}（${violation.from} → ${violation.to}）`)
   }
+  for (const item of report.deepImports) {
+    problems.push(`跨模块深引：${item.file} → ${item.target}（应使用 ${item.entry}）`)
+  }
+  for (const item of report.selfBarrels) {
+    problems.push(`模块内文件自引公共入口：${item.file}（${item.module}）`)
+  }
   for (const cycle of report.cycles) {
     problems.push(`新增模块循环依赖：${cycle.modules.join(' ↔ ')}`)
   }
