@@ -1,3 +1,4 @@
+import type { WorldState } from '../../domain'
 import { useGameStore } from '../../store'
 import { Card } from '../components/Card'
 import { nextFixtureOf, opponentOfClub } from '../gameHelpers'
@@ -7,6 +8,22 @@ import { MatchdayHeader } from './matchday/MatchdayHeader'
 import { NextFixtureLink } from './matchday/NextFixtureLink'
 import { useMomentActions } from './matchday/useMomentActions'
 
+function UpcomingFixture({
+  world,
+  clubId,
+  hidden,
+}: {
+  world: WorldState
+  clubId: string
+  hidden: boolean
+}) {
+  if (hidden) return null
+  const next = nextFixtureOf(world, clubId)
+  const opponent = next ? opponentOfClub(world, next, clubId) : null
+  if (!next || !opponent) return null
+  return <NextFixtureLink next={next} opponent={opponent} isHome={next.homeId === clubId} />
+}
+
 export function MatchdayScreen() {
   const world = useGameStore((state) => state.world)
   const { acting, choose, skip } = useMomentActions()
@@ -14,8 +31,6 @@ export function MatchdayScreen() {
 
   const match = world.lastMatch
   const club = world.clubs[world.clubId]
-  const next = nextFixtureOf(world, club.id)
-  const opponent = next ? opponentOfClub(world, next, club.id) : null
   const moments = match?.keyMoments ?? []
   const pending = moments.filter((moment) => !moment.outcome)
   const active = pending[0] ?? null
@@ -48,9 +63,7 @@ export function MatchdayScreen() {
         </Card>
       )}
 
-      {next && opponent ? (
-        <NextFixtureLink next={next} opponent={opponent} isHome={next.homeId === club.id} />
-      ) : null}
+      <UpcomingFixture world={world} clubId={club.id} hidden={active !== null} />
     </div>
   )
 }

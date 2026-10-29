@@ -73,3 +73,12 @@ describe('matchday screen', () => {
     expect(screen.getByText('下一场')).toBeInTheDocument()
   })
 })
+
+describe('matchday navigation guard', () => {
+  it('hides the next fixture link while a key moment is pending', () => {
+    useGameStore.setState({ world: worldWithKeyMoments(), hydrated: true })
+    renderMatchday()
+
+    expect(screen.queryByText('下一场')).not.toBeInTheDocument()
+  })
+})

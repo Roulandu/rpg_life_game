@@ -9,15 +9,25 @@ export function useMomentActions() {
   async function choose(momentId: string, optionId: string) {
     if (acting) return
     setActing(true)
-    await resolveKeyMoment(momentId, optionId)
-    setActing(false)
+    try {
+      await resolveKeyMoment(momentId, optionId)
+    } catch {
+      // store 已写入 error，这里只负责解除按钮锁定
+    } finally {
+      setActing(false)
+    }
   }
 
   async function skip() {
     if (acting) return
     setActing(true)
-    await skipKeyMoments()
-    setActing(false)
+    try {
+      await skipKeyMoments()
+    } catch {
+      // store 已写入 error，这里只负责解除按钮锁定
+    } finally {
+      setActing(false)
+    }
   }
 
   return { acting, choose, skip }
