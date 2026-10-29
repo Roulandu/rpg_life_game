@@ -58,6 +58,15 @@ describe('inbox screen', () => {
     expect(screen.getByLabelText('对 GM 说')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '发送' })).toBeDisabled()
   })
+
+  it('opens the chat tab directly from a query parameter', () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    world.settings.aiMode = 'llm'
+    useGameStore.setState({ world, hydrated: true, aiKeyReady: true })
+    renderWithRouter(<InboxScreen />, { initialEntries: ['/inbox?tab=chat'] })
+
+    expect(screen.getByLabelText('对 GM 说')).toBeInTheDocument()
+  })
 })
 
 describe('chat composer', () => {

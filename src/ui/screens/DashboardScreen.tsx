@@ -13,6 +13,7 @@ import { NextMatchPanel } from './dashboard/NextMatchPanel'
 import { PlayerFormCard } from './dashboard/PlayerFormCard'
 import { WeekStatusBanner } from './dashboard/WeekStatusBanner'
 import { buildDashboardData } from './dashboard/dashboardData'
+import { INBOX_CHAT_PATH } from './inbox/inboxTab'
 
 export function DashboardScreen() {
   const navigate = useNavigate()
@@ -45,7 +46,7 @@ export function DashboardScreen() {
         aiError={aiError}
         narrative={world.aiNarrative ?? null}
         onDismiss={clearAiError}
-        onContinue={() => navigate('/inbox')}
+        onContinue={() => navigate(INBOX_CHAT_PATH)}
       />
 
       <NextMatchPanel

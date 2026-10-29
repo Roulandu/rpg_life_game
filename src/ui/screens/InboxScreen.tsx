@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useGameStore } from '../../store'
 import { selectActionLabel } from '../../store'
 import { formatSeasonLabel } from '../../lib'
 import { PageHeader } from '../components/PageHeader'
 import { ChatTab } from './inbox/ChatTab'
 import { EventsTab } from './inbox/EventsTab'
-import { InboxTabs, type InboxTab } from './inbox/InboxTabs'
+import { InboxTabs } from './inbox/InboxTabs'
+import { parseInboxTab, type InboxTab } from './inbox/inboxTab'
 import { NewsTab } from './inbox/NewsTab'
 
 export function InboxScreen() {
@@ -18,7 +19,8 @@ export function InboxScreen() {
   const aiBusy = useGameStore((state) => state.aiBusy)
   const aiError = useGameStore((state) => state.aiError)
   const clearAiError = useGameStore((state) => state.clearAiError)
-  const [tab, setTab] = useState<InboxTab>('events')
+  const [params] = useSearchParams()
+  const [tab, setTab] = useState<InboxTab>(() => parseInboxTab(params.get('tab')))
 
   if (!world) return null
   const events = Object.values(world.events).sort((a, b) => b.week - a.week)

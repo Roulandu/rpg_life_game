@@ -1,6 +1,5 @@
 import clsx from 'clsx'
-
-export type InboxTab = 'events' | 'chat' | 'news'
+import type { InboxTab } from './inboxTab'
 
 const TABS = [
   ['events', '事件'],

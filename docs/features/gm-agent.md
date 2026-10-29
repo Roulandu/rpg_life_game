@@ -41,7 +41,7 @@ last_reviewed: 2026-10-29
 1. 玩家在 `/settings` 选择 Provider（OpenAI/Anthropic/自定义）、模型、Base URL、网络模式、叙事密度与 AI 模式。
 2. 玩家保存 API Key（原生安全存储 / Web 加密存储 / 仅会话），并可测试连接。
 3. 开启 `aiMode = llm` 后，每周推进并完成比赛日，store 异步请求周叙事。
-4. 玩家在 `/inbox` 与 GM 对话；GM 可返回一段叙事，并选择一个固定行动（谈话/休息/加练/采访/无）。
+4. 玩家在 `/inbox` 与 GM 对话；GM 可返回一段叙事，并选择一个固定行动（谈话/休息/加练/采访/无）。主页周叙事的「继续对话」直达 `/inbox?tab=chat`，`InboxScreen` 读取 `tab` 查询参数决定初始页签，非法或缺省时为事件页。
 5. 任何 AI 失败都降级到本地模板或错误提示，比赛与存档结果不受影响。
 
 ## 关键时序
@@ -201,6 +201,7 @@ sequenceDiagram
 | OpenAI/Anthropic 请求与解析 | `tests/llm/providers.test.ts` |
 | store 编排、Key、降级、并发 | `tests/store/store.test.ts` |
 | 设置页与聊天 UI 烟测 | `tests/ui/smoke.test.tsx`、`tests/ui/settings.test.tsx`、`tests/ui/inbox.test.tsx` |
+| 主页「继续对话」直达聊天页 | `tests/ui/inboxTab.test.ts`、`tests/ui/smoke.test.tsx` |
 
 手动验收：
 
@@ -220,3 +221,4 @@ sequenceDiagram
 | 2026-10-29 | 叙事与聊天动作迁入 `store/aiActions.ts`，LLM 默认值与行动文案经 `store/selectors.ts` 暴露给 UI，消除 ui→llm 直接依赖 | 全量重构提交 10 |
 | 2026-10-29 | 设置页拆为 `ui/screens/settings/*`（AI 参数、Key、连接测试、用量、隐私、本地数据、危险操作），收件箱拆为 `ui/screens/inbox/*`（事件/对话/新闻），主组件只编排；页面行为与文案不变 | 全量重构提交 12 |
 | 2026-10-29 | 对话输入框回车发送前检查输入法组字状态，避免中文上屏误发送 | 缺陷修复 P6 |
+| 2026-10-29 | 主页「继续对话」改为直达 `/inbox?tab=chat`，收件箱按查询参数初始化页签，缺省仍为事件页 | 缺陷修复 P8 |
