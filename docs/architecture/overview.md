@@ -179,6 +179,11 @@ flowchart TD
 - `llm/schema.ts` 用 Zod 校验工具输出，`sanitizeText` 去控制字符、标签与 URL。
 - `llm/actions.ts` 的 `resolveChatAction` 是纯函数，返回 `ChatActionProposal`；`engine/chatAction.ts` 的 `applyChatActionProposal` 施加效果并记录 `aiAction`，store 编排两步。
 
+### 应用生命周期与返回键
+
+- `app/App.tsx` 负责初始化 store、挂载 `Toast` 与全局返回键监听。
+- Android 返回键在主页/游戏页先调用 `store.saveNow`，只有返回 `true` 才退出应用；保存失败或回调抛错时留在应用内并提示原因，避免丢档。
+
 ## 数据所有权
 
 | 数据 | 所有者 | 读者 | 写入约束 |

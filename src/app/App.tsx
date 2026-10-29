@@ -38,7 +38,8 @@ export function App() {
   useEffect(
     () =>
       registerBackButton(async () => {
-        if (useGameStore.getState().world) await saveNow()
+        if (!useGameStore.getState().world) return true
+        return saveNow()
       }),
     [saveNow],
   )
