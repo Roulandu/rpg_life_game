@@ -39,13 +39,7 @@
 
 ## 已知违规
 
-| 模块 | 文件 | 指向 | 原因 |
-|---|---|---|---|
-| `ui` | `src/ui/screens/CreateCareerScreen.tsx` | `world` | 直接读取国家数据包，待通过 store/service |
-| `ui` | `src/ui/screens/DashboardScreen.tsx` | `engine` | 页面直接调用 hasPendingKeyMoments，待移入 selector（积分榜深引已随 leagueTable 下沉 domain 消除） |
-| `ui` | `src/ui/screens/InboxScreen.tsx` | `llm` | 聊天调用直接 import llm，待通过 store |
-| `ui` | `src/ui/screens/ScheduleScreen.tsx` | `world` | 赛程派生数据直接读 world |
-| `ui` | `src/ui/screens/SettingsScreen.tsx` | `llm` | LLM 连接测试直接 import llm，待通过 store |
+无。
 
 ## 已知循环
 

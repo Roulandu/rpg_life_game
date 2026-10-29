@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { useGameStore } from '../../store/gameStore'
 import { computeLeagueTable } from '../../domain/leagueTable'
-import { getClubFixtures } from '../../world/queries'
+import { selectClubFixtures } from '../../store/selectors'
 import { formatSeasonLabel } from '../../lib/format'
 import { Card, SectionTitle } from '../components/Card'
 import { PageHeader } from '../components/PageHeader'
@@ -18,7 +18,7 @@ export function ScheduleScreen() {
 
   const club = world.clubs[world.clubId]
   const league = world.leagues[club.leagueId]
-  const fixtures = getClubFixtures(world, club.id, world.season)
+  const fixtures = selectClubFixtures(world)
   const table = computeLeagueTable(world, league.id)
   const userPosition = table.findIndex((row) => row.clubId === club.id) + 1
 

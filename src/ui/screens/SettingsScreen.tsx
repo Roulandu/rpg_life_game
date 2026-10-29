@@ -18,8 +18,8 @@ import {
   XCircle,
 } from 'lucide-react'
 import { useGameStore } from '../../store/gameStore'
+import { selectProviderDefaults } from '../../store/selectors'
 import { formatSeasonLabel } from '../../lib/format'
-import { pickDefaultBaseUrl, pickDefaultModel } from '../../llm/types'
 import { isNativePlatform } from '../../platform/native'
 import { Card, SectionTitle } from '../components/Card'
 import { PageHeader } from '../components/PageHeader'
@@ -63,14 +63,12 @@ export function SettingsScreen() {
   const aiEnabled = settings.aiMode === 'llm'
 
   function changeProvider(provider: typeof settings.provider) {
+    const previous = selectProviderDefaults(settings.provider)
+    const next = selectProviderDefaults(provider)
     const baseUrl =
-      !settings.baseUrl || settings.baseUrl === pickDefaultBaseUrl(settings.provider)
-        ? pickDefaultBaseUrl(provider)
-        : settings.baseUrl
+      !settings.baseUrl || settings.baseUrl === previous.baseUrl ? next.baseUrl : settings.baseUrl
     const model =
-      !settings.model || settings.model === pickDefaultModel(settings.provider)
-        ? pickDefaultModel(provider)
-        : settings.model
+      !settings.model || settings.model === previous.model ? next.model : settings.model
     updateSettings({ provider, baseUrl, model })
   }
 
@@ -148,7 +146,7 @@ export function SettingsScreen() {
             <input
               id="ai-base-url"
               className="input font-mono text-xs"
-              placeholder={pickDefaultBaseUrl(settings.provider)}
+              placeholder={selectProviderDefaults(settings.provider).baseUrl}
               value={settings.baseUrl ?? ''}
               onChange={(event) => updateSettings({ baseUrl: event.target.value })}
               autoComplete="off"
@@ -165,7 +163,7 @@ export function SettingsScreen() {
             <input
               id="ai-model"
               className="input font-mono text-sm"
-              placeholder={pickDefaultModel(settings.provider)}
+              placeholder={selectProviderDefaults(settings.provider).model}
               value={settings.model}
               onChange={(event) => updateSettings({ model: event.target.value })}
               autoComplete="off"

@@ -11,8 +11,8 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { useGameStore } from '../../store/gameStore'
+import { selectActionLabel } from '../../store/selectors'
 import { formatSeasonLabel } from '../../lib/format'
-import { actionLabelFor } from '../../llm/actions'
 import { Card, EmptyState, SectionTitle } from '../components/Card'
 import { PageHeader } from '../components/PageHeader'
 import { effectList } from '../labels'
@@ -164,7 +164,7 @@ export function InboxScreen() {
                 </p>
                 <p className="mt-1 text-[10px] leading-relaxed text-dim">
                   每周最多执行 1 个带数值效果的行动；本周
-                  {actionUsed ? `已使用「${actionLabelFor(world.aiAction?.actionId) ?? '本周行动'}」。` : '尚未使用。'}
+                  {actionUsed ? `已使用「${selectActionLabel(world.aiAction?.actionId) ?? '本周行动'}」。` : '尚未使用。'}
                 </p>
               </div>
             </div>

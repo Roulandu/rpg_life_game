@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { POSITION_LABELS, overall } from '../../domain/attributes'
 import { useGameStore } from '../../store/gameStore'
-import { hasPendingKeyMoments } from '../../engine/keyMoments'
+import { selectPendingKeyMoments } from '../../store/selectors'
 import { computeLeagueTable } from '../../domain/leagueTable'
 import { formatMoneyShort, formatSeasonLabel, formatWeekLabel } from '../../lib/format'
 import { Card, SectionTitle } from '../components/Card'
@@ -61,7 +61,7 @@ export function DashboardScreen() {
   const isHome = next?.homeId === club.id
   const opponentForm = opponent ? formOf(world, opponent.id) : []
   const last = world.lastMatch
-  const pendingMatch = hasPendingKeyMoments(world)
+  const pendingMatch = selectPendingKeyMoments(world)
   const keyMoments = last?.keyMoments ?? []
   const pendingMoments = keyMoments.filter((moment) => !moment.outcome)
   const resolvedMoments = keyMoments.length - pendingMoments.length

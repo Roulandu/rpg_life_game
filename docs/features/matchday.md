@@ -10,6 +10,8 @@ code:
   - src/engine/keyMomentNarrative.ts
   - src/engine/data/keyMomentOptions.ts
   - src/domain/leagueTable.ts
+  - src/store/matchSlice.ts
+  - src/store/selectors.ts
   - src/ui/screens/MatchdayScreen.tsx
 tests:
   - tests/engine/match.test.ts
@@ -18,7 +20,7 @@ tests:
   - tests/domain/leagueTable.test.ts
   - tests/ui/smoke.test.tsx
 diagrams: [sequence]
-last_reviewed: 2026-10-26
+last_reviewed: 2026-10-29
 ---
 
 # 比赛日与关键回合
@@ -203,3 +205,4 @@ sequenceDiagram
 | 2026-10-28 | 积分榜计算 `computeLeagueTable` 下沉至 `src/domain/leagueTable.ts`，斩断 engine→world 与 llm/ui→engine 深引 | 全量重构提交 3 |
 | 2026-10-29 | 关键回合选项构建外迁 `src/engine/data/keyMomentOptions.ts`、叙事与媒体反应外迁 `src/engine/keyMomentNarrative.ts`，keyMoments.ts 只保留编排；golden 哈希不变 | 全量重构提交 7 |
 | 2026-10-29 | 比赛模拟拆为 `matchGoals.ts`（期望进球/射手/助攻/伤种）与 `matchUser.ts`（选人/评分/赛后结算），match.ts 只保留比赛编排；RNG 顺序不变，golden 哈希一致 | 全量重构提交 8 |
+| 2026-10-29 | 比赛日动作迁入 `store/matchSlice.ts`，Dashboard/Schedule 的待处理回合与赛程派生改走 `store/selectors.ts`，消除 ui→engine/world 直接依赖 | 全量重构提交 10 |

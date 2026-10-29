@@ -10,7 +10,7 @@ import {
   backgroundBonus,
 } from '../../domain/attributes'
 import type { Archetype, CareerBackground, Position } from '../../domain/types'
-import { STARTING_CLUBS } from '../../world/data/england'
+import { selectStartingClubs } from '../../store/selectors'
 import { useGameStore } from '../../store/gameStore'
 import { Card, SectionTitle } from '../components/Card'
 import { PageHeader } from '../components/PageHeader'
@@ -19,6 +19,7 @@ import clsx from 'clsx'
 const POSITIONS: Position[] = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST']
 const ARCHETYPES: Archetype[] = ['speedster', 'technician', 'engine', 'finisher', 'wall']
 const BACKGROUNDS: CareerBackground[] = ['academy', 'lowerLeague', 'overseas']
+const STARTING_CLUB_OPTIONS = selectStartingClubs()
 
 const BACKGROUND_DESCRIPTIONS: Record<CareerBackground, string> = {
   academy: '从小在青训学院长大，技术基础扎实。',
@@ -37,7 +38,7 @@ export function CreateCareerScreen() {
   const [position, setPosition] = useState<Position>('CM')
   const [archetype, setArchetype] = useState<Archetype>('technician')
   const [background, setBackground] = useState<CareerBackground>('academy')
-  const [clubId, setClubId] = useState(STARTING_CLUBS[1].id)
+  const [clubId, setClubId] = useState(STARTING_CLUB_OPTIONS[1].id)
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 900000) + 100000)
 
   const combinedBonus: Record<string, number> = {}
@@ -221,7 +222,7 @@ export function CreateCareerScreen() {
         <Card>
           <SectionTitle>起点俱乐部</SectionTitle>
           <div className="space-y-1.5">
-            {STARTING_CLUBS.map((club) => (
+            {STARTING_CLUB_OPTIONS.map((club) => (
               <button
                 key={club.id}
                 type="button"

@@ -7,6 +7,8 @@ code:
   - src/db/repository.ts
   - src/domain/schema/save.schema.ts
   - src/store/gameStore.ts
+  - src/store/careerSlice.ts
+  - src/store/helpers.ts
   - src/store/exportSave.ts
   - src/store/secretStore.ts
   - src/platform/keyStore.ts
@@ -214,3 +216,4 @@ sequenceDiagram
 |---|---|---|
 | 2026-10-26 | 初版：自动保存、envelope、导入校验、IndexedDB 与 Key 分离 | ADR 0001 |
 | 2026-10-28 | hashString 下沉 `src/lib/rng.ts`，repository 校验和 import 路径调整，checksum 输出与导入校验行为不变 | 全量重构 P1 |
+| 2026-10-29 | 生涯生命周期动作迁入 `careerSlice.ts`，持久化 helper 抽到 `store/helpers.ts`；存档结构与导入导出行为不变 | 全量重构提交 10 |

@@ -90,46 +90,6 @@
         }
       }
     },
-    "src/store/gameStore.ts": {
-      "metrics": {
-        "lines": {
-          "value": 524,
-          "max": 300
-        }
-      }
-    },
-    "src/store/gameStore.ts::<anonymous>": {
-      "metrics": {
-        "functionLines": {
-          "value": 386,
-          "max": 60
-        }
-      }
-    },
-    "src/store/gameStore.ts::narrateTurn": {
-      "metrics": {
-        "complexity": {
-          "value": 22,
-          "max": 12
-        }
-      }
-    },
-    "src/store/gameStore.ts::sendChat": {
-      "metrics": {
-        "complexity": {
-          "value": 23,
-          "max": 12
-        }
-      }
-    },
-    "src/store/gameStore.ts::sendChat#2": {
-      "metrics": {
-        "functionLines": {
-          "value": 71,
-          "max": 60
-        }
-      }
-    },
     "src/ui/components/SeasonSummaryModal.tsx::SeasonSummaryModal": {
       "metrics": {
         "functionLines": {
@@ -261,7 +221,7 @@
     "src/ui/screens/SettingsScreen.tsx": {
       "metrics": {
         "lines": {
-          "value": 487,
+          "value": 485,
           "max": 300
         }
       }
@@ -277,7 +237,7 @@
     "src/ui/screens/SettingsScreen.tsx::SettingsScreen#2": {
       "metrics": {
         "functionLines": {
-          "value": 438,
+          "value": 436,
           "max": 60
         }
       }

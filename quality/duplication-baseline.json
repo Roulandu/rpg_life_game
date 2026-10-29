@@ -1,13 +1,12 @@
 {
   "version": 1,
   "total": {
-    "lines": 14751,
-    "duplicatedLines": 80,
-    "percentage": 0.54
+    "lines": 15100,
+    "duplicatedLines": 73,
+    "percentage": 0.48
   },
   "files": {
     "src/llm/prompt.ts": 9,
-    "src/store/gameStore.ts": 16,
     "src/ui/gameHelpers.ts": 9,
     "src/ui/screens/MatchdayScreen.tsx": 92,
     "src/ui/screens/MoreScreen.tsx": 23,

@@ -11,13 +11,17 @@ code:
   - src/engine/data/eventTemplates.ts
   - src/engine/finance.ts
   - src/store/gameStore.ts
+  - src/store/careerSlice.ts
+  - src/store/matchSlice.ts
+  - src/store/uiSlice.ts
+  - src/store/helpers.ts
 tests:
   - tests/engine/season.test.ts
   - tests/engine/determinism.test.ts
   - tests/engine/eventTemplates.test.ts
   - tests/store/store.test.ts
 diagrams: [sequence]
-last_reviewed: 2026-10-26
+last_reviewed: 2026-10-29
 ---
 
 # 每周回合
@@ -218,3 +222,4 @@ sequenceDiagram
 | 2026-10-28 | engine/turn 改从 `src/domain/leagueTable` 引入 computeLeagueTable；赛季结算排名逻辑与 golden 哈希不变 | 全量重构 P1 |
 | 2026-10-29 | 事件模板与结果文案外迁 `src/engine/data/eventTemplates.ts`，events.ts 降为插值与编排，golden 哈希不变 | 全量重构提交 6 |
 | 2026-10-29 | 赛季结算拆为 `season.ts`（评价 + 转季步骤）与 `seasonAwards.ts`（奖项/历史/新闻），turn.ts 只保留编排；赛季切换行为与 golden 哈希不变 | 全量重构提交 8 |
+| 2026-10-29 | gameStore 拆为 career/match/ai/ui 四个切片 + helpers，动作体抽为独立 handler 压复杂度；状态与行为保持不变 | 全量重构提交 10 |

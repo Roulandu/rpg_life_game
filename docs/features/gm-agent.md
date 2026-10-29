@@ -12,12 +12,15 @@ code:
   - src/llm/transport.ts
   - src/llm/providers/openai.ts
   - src/llm/providers/anthropic.ts
+  - src/store/aiSlice.ts
+  - src/store/aiActions.ts
+  - src/store/selectors.ts
 tests:
   - tests/llm/generate.test.ts
   - tests/llm/providers.test.ts
   - tests/llm/validation.test.ts
 diagrams: [sequence]
-last_reviewed: 2026-10-26
+last_reviewed: 2026-10-29
 ---
 
 # AI GM / Agent
@@ -206,3 +209,4 @@ sequenceDiagram
 |---|---|---|
 | 2026-10-26 | 初版：模式、工具契约、校验、重试、行动、成本与降级 | ADR 0001 |
 | 2026-10-28 | `prompt.ts` 改从 `src/domain/leagueTable.ts` 读积分榜，消除 llm→engine 深引 | 全量重构提交 3 |
+| 2026-10-29 | 叙事与聊天动作迁入 `store/aiActions.ts`，LLM 默认值与行动文案经 `store/selectors.ts` 暴露给 UI，消除 ui→llm 直接依赖 | 全量重构提交 10 |

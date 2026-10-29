@@ -221,7 +221,7 @@ flowchart TD
 ## 架构演进
 
 - 决策背景与取舍见 [ADR 0001](../decisions/0001-governance-and-modular-monolith.md)。
-- 后续拆分顺序：`gameStore.ts` → `generator.ts` → `match.ts` / `keyMoments.ts`；随后补公共 `index.ts`，把已知深引降为 0。
+- 已完成拆分：`gameStore.ts`（切片化）→ `generator.ts` → `match.ts` / `keyMoments.ts`；下一步补公共 `index.ts`，把跨模块深引降为 0。
 - 平台端口化与 iOS / 微信评估不在本轮实现，规则见 [多端策略](platform-strategy.md)。
 
 ## 变更记录
@@ -230,5 +230,6 @@ flowchart TD
 |---|---|---|
 | 2026-10-26 | 初版：记录运行形态、模块矩阵、已知违规与关键流程 | ADR 0001 |
 | 2026-10-28 | rng 下沉 lib、strength/fixtures/leagueTable 下沉 domain，消除 world/db/ui→engine 与 engine→world 违规及 engine↔world 循环 | 全量重构 P1 |
+| 2026-10-29 | engine/world/store 大文件完成拆分，store 切片化并以 selectors 承接 UI 派生数据，ui 已知违规清零 | 全量重构 P2 |
 | 2026-10-29 | llm 聊天动作提案化（resolveChatAction/applyChatActionProposal），消除 llm→engine 红线 | 全量重构 P1 |
 | 2026-10-29 | 平台端口化：keyStore 注入 SecretStore、HTTP 迁 platform/http、文件下载迁 platform/fileExport，消除 platform→db 与两处内联平台违规 | 全量重构 P1 |
