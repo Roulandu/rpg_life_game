@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ATTR_KEYS, clamp, round1 } from '../../src/domain/attributes'
-import type { KeyMoment, MatchReport, WeeklyPlan, WorldState } from '../../src/domain/types'
+import type { KeyMoment, KeyMomentKind, MatchReport, WeeklyPlan, WorldState } from '../../src/domain/types'
+import { optionsFor, type KindContext } from '../../src/engine/data/keyMomentOptions'
 import {
   autoResolveKeyMoments,
   finalizeMatchday,
@@ -198,5 +199,28 @@ describe('key moments', () => {
     expect(world.lastMatch?.mediaReaction).toContain(world.players[world.playerId]!.name)
     const news = world.news.find((item) => item.id === `news:match:${report.fixtureId}`)
     expect(news?.body).toContain(`${world.lastMatch?.userRating?.toFixed(1)} 分`)
+  })
+})
+
+describe('key moment option formulas', () => {
+  const table: [KeyMomentKind, string[], number[]][] = [
+    ['bigChance', ['shoot', 'square', 'hold'], [0.74, 0.756, 0.92]],
+    ['penalty', ['placed', 'power', 'panenka'], [0.864, 0.764, 0.676]],
+    ['throughBall', ['thread', 'simple', 'carry'], [0.708, 0.878, 0.736]],
+    ['duel', ['commit', 'contain', 'foul'], [0.72, 0.844, 0.84]],
+    ['save', ['reflex', 'position', 'rush'], [0.76, 0.816, 0.76]],
+    ['clearance', ['hoof', 'calm', 'shield'], [0.9, 0.768, 0.85]],
+  ]
+
+  it('keeps option ids and success chances for a 92-attribute player', () => {
+    const world = generateWorld(testOptions({ seed: 7 }), TEST_NOW)
+    const player = world.players[world.playerId]
+    for (const key of ATTR_KEYS) player.attributes[key] = 92
+    const context: KindContext = { player, isHome: true }
+    for (const [kind, ids, chances] of table) {
+      const options = optionsFor(kind, context)
+      expect(options.map((option) => option.id)).toEqual(ids)
+      expect(options.map((option) => Number(option.successChance.toFixed(3)))).toEqual(chances)
+    }
   })
 })

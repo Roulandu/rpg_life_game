@@ -26,62 +26,6 @@
         }
       }
     },
-    "src/engine/keyMoments.ts": {
-      "metrics": {
-        "lines": {
-          "value": 552,
-          "max": 300
-        }
-      }
-    },
-    "src/engine/keyMoments.ts::<anonymous>": {
-      "metrics": {
-        "params": {
-          "value": 7,
-          "max": 5
-        }
-      }
-    },
-    "src/engine/keyMoments.ts::optionsFor": {
-      "metrics": {
-        "functionLines": {
-          "value": 187,
-          "max": 60
-        }
-      }
-    },
-    "src/engine/keyMoments.ts::outcomeText": {
-      "metrics": {
-        "complexity": {
-          "value": 27,
-          "max": 12
-        }
-      }
-    },
-    "src/engine/keyMoments.ts::resolveKeyMoment": {
-      "metrics": {
-        "statements": {
-          "value": 55,
-          "max": 50
-        }
-      }
-    },
-    "src/engine/keyMoments.ts::resolveKeyMoment#2": {
-      "metrics": {
-        "complexity": {
-          "value": 38,
-          "max": 12
-        }
-      }
-    },
-    "src/engine/keyMoments.ts::resolveKeyMoment#3": {
-      "metrics": {
-        "functionLines": {
-          "value": 87,
-          "max": 60
-        }
-      }
-    },
     "src/engine/match.ts": {
       "metrics": {
         "lines": {

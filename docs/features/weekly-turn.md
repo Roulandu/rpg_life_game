@@ -214,3 +214,4 @@ sequenceDiagram
 | 2026-10-28 | createRng 下沉 `src/lib/rng.ts`，engine（match/turn/events/training/keyMoments）import 路径调整，回合行为与 golden 哈希不变 | 全量重构 P1 |
 | 2026-10-28 | engine/match、engine/turn 改从 `src/domain/strength`、`src/domain/fixtures` 引入 computeClubStrength/generateFixtures，消除 engine→world 违规；回合与赛季切换行为不变 | 全量重构 P1 |
 | 2026-10-28 | engine/turn 改从 `src/domain/leagueTable` 引入 computeLeagueTable；赛季结算排名逻辑与 golden 哈希不变 | 全量重构 P1 |
+| 2026-10-29 | 事件模板与结果文案外迁 `src/engine/data/eventTemplates.ts`，events.ts 降为插值与编排，golden 哈希不变 | 全量重构提交 6 |

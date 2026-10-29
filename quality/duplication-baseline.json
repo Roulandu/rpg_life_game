@@ -1,7 +1,7 @@
 {
   "version": 1,
   "total": {
-    "lines": 14431,
+    "lines": 14285,
     "duplicatedLines": 80,
     "percentage": 0.55
   },
