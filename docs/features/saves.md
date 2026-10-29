@@ -13,12 +13,15 @@ code:
   - src/store/secretStore.ts
   - src/platform/keyStore.ts
   - src/platform/fileExport.ts
+  - src/ui/screens/settings/LocalDataSection.tsx
+  - src/ui/screens/settings/DangerZone.tsx
 tests:
   - tests/db/save.test.ts
   - tests/db/repository.test.ts
   - tests/store/store.test.ts
   - tests/store/exportSave.test.ts
   - tests/store/secretStore.test.ts
+  - tests/ui/settings.test.tsx
 last_reviewed: 2026-10-29
 diagrams: [sequence]
 ---
@@ -217,3 +220,4 @@ sequenceDiagram
 | 2026-10-26 | 初版：自动保存、envelope、导入校验、IndexedDB 与 Key 分离 | ADR 0001 |
 | 2026-10-28 | hashString 下沉 `src/lib/rng.ts`，repository 校验和 import 路径调整，checksum 输出与导入校验行为不变 | 全量重构 P1 |
 | 2026-10-29 | 生涯生命周期动作迁入 `careerSlice.ts`，持久化 helper 抽到 `store/helpers.ts`；存档结构与导入导出行为不变 | 全量重构提交 10 |
+| 2026-10-29 | 设置页本地数据与删除存档拆为 `settings/LocalDataSection.tsx`、`settings/DangerZone.tsx`，导入/导出/删除行为不变 | 全量重构提交 12 |

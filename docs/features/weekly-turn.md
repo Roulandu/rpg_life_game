@@ -19,12 +19,15 @@ code:
   - src/ui/screens/dashboard/dashboardData.ts
   - src/ui/screens/dashboard/WeekStatusBanner.tsx
   - src/ui/screens/dashboard/MiniLeagueTable.tsx
+  - src/ui/screens/InboxScreen.tsx
+  - src/ui/screens/inbox/EventsTab.tsx
 tests:
   - tests/engine/season.test.ts
   - tests/engine/determinism.test.ts
   - tests/engine/eventTemplates.test.ts
   - tests/store/store.test.ts
   - tests/ui/smoke.test.tsx
+  - tests/ui/inbox.test.tsx
 diagrams: [sequence]
 last_reviewed: 2026-10-29
 ---
@@ -229,3 +232,4 @@ sequenceDiagram
 | 2026-10-29 | 赛季结算拆为 `season.ts`（评价 + 转季步骤）与 `seasonAwards.ts`（奖项/历史/新闻），turn.ts 只保留编排；赛季切换行为与 golden 哈希不变 | 全量重构提交 8 |
 | 2026-10-29 | gameStore 拆为 career/match/ai/ui 四个切片 + helpers，动作体抽为独立 handler 压复杂度；状态与行为保持不变 | 全量重构提交 10 |
 | 2026-10-29 | 主页拆为 `ui/screens/dashboard/*`，派生状态集中到 `dashboardData.ts`，AI 叙事/待处理回合/联赛迷你表/新闻各自独立，主组件只编排 | 全量重构提交 11 |
+| 2026-10-29 | 收件箱拆为 `ui/screens/inbox/*`，待处理事件卡片与已处理列表独立，事件展示与选择行为保持不变 | 全量重构提交 12 |

@@ -114,30 +114,6 @@
         }
       }
     },
-    "src/ui/screens/InboxScreen.tsx": {
-      "metrics": {
-        "lines": {
-          "value": 309,
-          "max": 300
-        }
-      }
-    },
-    "src/ui/screens/InboxScreen.tsx::InboxScreen": {
-      "metrics": {
-        "complexity": {
-          "value": 23,
-          "max": 12
-        }
-      }
-    },
-    "src/ui/screens/InboxScreen.tsx::InboxScreen#2": {
-      "metrics": {
-        "functionLines": {
-          "value": 268,
-          "max": 60
-        }
-      }
-    },
     "src/ui/screens/MoreScreen.tsx::MoreScreen": {
       "metrics": {
         "functionLines": {
@@ -166,30 +142,6 @@
       "metrics": {
         "functionLines": {
           "value": 155,
-          "max": 60
-        }
-      }
-    },
-    "src/ui/screens/SettingsScreen.tsx": {
-      "metrics": {
-        "lines": {
-          "value": 485,
-          "max": 300
-        }
-      }
-    },
-    "src/ui/screens/SettingsScreen.tsx::SettingsScreen": {
-      "metrics": {
-        "complexity": {
-          "value": 36,
-          "max": 12
-        }
-      }
-    },
-    "src/ui/screens/SettingsScreen.tsx::SettingsScreen#2": {
-      "metrics": {
-        "functionLines": {
-          "value": 436,
           "max": 60
         }
       }

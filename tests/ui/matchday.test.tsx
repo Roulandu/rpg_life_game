@@ -1,33 +1,20 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { cleanup, screen } from '@testing-library/react'
 import { MatchdayScreen } from '../../src/ui/screens/MatchdayScreen'
 import { useGameStore } from '../../src/store/gameStore'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
 import { finalizedWorld, resolveFirstMoment, worldWithKeyMoments } from './matchdayWorld'
+import { renderWithRouter } from './renderScreen'
+import { resetUiStore } from './resetStore'
 
 function renderMatchday() {
-  return render(
-    <MemoryRouter>
-      <MatchdayScreen />
-    </MemoryRouter>,
-  )
+  return renderWithRouter(<MatchdayScreen />)
 }
 
 afterEach(() => {
   cleanup()
-  useGameStore.setState({
-    world: null,
-    saveId: null,
-    saves: [],
-    lastTurn: null,
-    seasonTransition: null,
-    busy: false,
-    hydrated: true,
-    notice: null,
-    error: null,
-  })
+  resetUiStore()
 })
 
 describe('matchday screen', () => {

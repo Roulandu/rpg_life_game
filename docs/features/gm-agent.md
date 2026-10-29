@@ -15,10 +15,17 @@ code:
   - src/store/aiSlice.ts
   - src/store/aiActions.ts
   - src/store/selectors.ts
+  - src/ui/screens/SettingsScreen.tsx
+  - src/ui/screens/settings/AiSettingsSection.tsx
+  - src/ui/screens/settings/useSettingsForm.ts
+  - src/ui/screens/InboxScreen.tsx
+  - src/ui/screens/inbox/ChatTab.tsx
 tests:
   - tests/llm/generate.test.ts
   - tests/llm/providers.test.ts
   - tests/llm/validation.test.ts
+  - tests/ui/settings.test.tsx
+  - tests/ui/inbox.test.tsx
 diagrams: [sequence]
 last_reviewed: 2026-10-29
 ---
@@ -192,7 +199,7 @@ sequenceDiagram
 | 叙事生成、重试、事件改写 | `tests/llm/generate.test.ts` |
 | OpenAI/Anthropic 请求与解析 | `tests/llm/providers.test.ts` |
 | store 编排、Key、降级、并发 | `tests/store/store.test.ts` |
-| 设置页与聊天 UI 烟测 | `tests/ui/smoke.test.tsx` |
+| 设置页与聊天 UI 烟测 | `tests/ui/smoke.test.tsx`、`tests/ui/settings.test.tsx`、`tests/ui/inbox.test.tsx` |
 
 手动验收：
 
@@ -210,3 +217,4 @@ sequenceDiagram
 | 2026-10-26 | 初版：模式、工具契约、校验、重试、行动、成本与降级 | ADR 0001 |
 | 2026-10-28 | `prompt.ts` 改从 `src/domain/leagueTable.ts` 读积分榜，消除 llm→engine 深引 | 全量重构提交 3 |
 | 2026-10-29 | 叙事与聊天动作迁入 `store/aiActions.ts`，LLM 默认值与行动文案经 `store/selectors.ts` 暴露给 UI，消除 ui→llm 直接依赖 | 全量重构提交 10 |
+| 2026-10-29 | 设置页拆为 `ui/screens/settings/*`（AI 参数、Key、连接测试、用量、隐私、本地数据、危险操作），收件箱拆为 `ui/screens/inbox/*`（事件/对话/新闻），主组件只编排；页面行为与文案不变 | 全量重构提交 12 |
