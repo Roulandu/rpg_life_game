@@ -1,7 +1,7 @@
-import { clamp, overall, positionGroup, round1 } from '../domain/attributes'
-import type { Club, MatchEventLine, Player, WorldState } from '../domain/types'
-import type { Rng } from '../lib/rng'
-import { computeClubStrength } from '../domain/strength'
+import { clamp, overall, positionGroup, round1 } from '../domain'
+import type { Club, MatchEventLine, Player, WorldState } from '../domain'
+import type { Rng } from '../lib'
+import { computeClubStrength } from '../domain'
 import { pickInjuryKind } from './matchGoals'
 import { adjustRelationship, adjustRoleTrust, coachTrust, getRelationshipByRole } from './relationships'
 

@@ -1,4 +1,4 @@
-import { useGameStore } from '../../../store/gameStore'
+import { useGameStore } from '../../../store'
 import type { GameSettings } from './types'
 
 export function SamplingFields({ settings }: { settings: GameSettings }) {

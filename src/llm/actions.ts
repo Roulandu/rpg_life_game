@@ -1,5 +1,5 @@
-import type { ChatActionProposal } from '../domain/chatAction'
-import type { Effect, WorldState } from '../domain/types'
+import type { ChatActionProposal } from '../domain'
+import type { Effect, WorldState } from '../domain'
 
 export type ChatActionId = 'none' | 'talk_coach' | 'rest' | 'extra_training' | 'media_interview'
 

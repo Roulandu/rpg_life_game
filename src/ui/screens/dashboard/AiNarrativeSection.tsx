@@ -1,5 +1,5 @@
 import { Sparkles } from 'lucide-react'
-import type { AiNarrative } from '../../../domain/types'
+import type { AiNarrative } from '../../../domain'
 import { SectionTitle } from '../../components/Card'
 import { AiErrorCard, NarrativeCard, NarrativeSkeleton } from './NarrativeCard'
 

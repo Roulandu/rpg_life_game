@@ -1,4 +1,4 @@
-import type { Club, KeyMoment, MatchReport, WorldState } from '../../../domain/types'
+import type { Club, KeyMoment, MatchReport, WorldState } from '../../../domain'
 import { SectionTitle } from '../../components/Card'
 import { KeyMomentCard } from './KeyMomentCard'
 import { MomentList } from './MomentList'

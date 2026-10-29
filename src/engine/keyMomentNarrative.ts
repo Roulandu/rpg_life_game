@@ -1,4 +1,4 @@
-import type { KeyMoment, KeyMomentOption, MatchReport, WorldState } from '../domain/types'
+import type { KeyMoment, KeyMomentOption, MatchReport, WorldState } from '../domain'
 
 interface OutcomeVariant {
   success: string

@@ -1,4 +1,4 @@
-import { clamp, round1 } from '../domain/attributes'
+import { clamp, round1 } from '../domain'
 import type {
   Club,
   Fixture,
@@ -8,9 +8,9 @@ import type {
   MatchReport,
   Player,
   WorldState,
-} from '../domain/types'
-import { computeClubStrength } from '../domain/strength'
-import { createRng, type Rng } from '../lib/rng'
+} from '../domain'
+import { computeClubStrength } from '../domain'
+import { createRng, type Rng } from '../lib'
 import { generateKeyMoments } from './keyMoments'
 import {
   expectedGoals,

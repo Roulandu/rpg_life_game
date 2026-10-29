@@ -1,5 +1,5 @@
 import { CalendarDays } from 'lucide-react'
-import type { Club, Fixture, WorldState } from '../../../domain/types'
+import type { Club, Fixture, WorldState } from '../../../domain'
 import { Card } from '../../components/Card'
 import { TeamBlock } from './TeamBlock'
 import clsx from 'clsx'

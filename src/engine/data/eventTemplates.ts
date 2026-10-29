@@ -1,4 +1,4 @@
-import type { EventChoice } from '../../domain/types'
+import type { EventChoice } from '../../domain'
 
 export interface EventDraftContext {
   coach: string

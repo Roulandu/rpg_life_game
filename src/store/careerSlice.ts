@@ -6,10 +6,10 @@ import {
   listSaves,
   loadWorld,
   saveWorld,
-} from '../db/repository'
-import type { CareerCreateOptions, WorldState } from '../domain/types'
-import { loadApiKey } from '../platform/keyStore'
-import { generateWorld } from '../world/generator'
+} from '../db'
+import type { CareerCreateOptions, WorldState } from '../domain'
+import { loadApiKey } from '../platform'
+import { generateWorld } from '../world'
 import { downloadWorld } from './exportSave'
 import { messageOf, persist } from './helpers'
 import type { GameStore, StoreGet, StoreSet, StoreSlice } from './types'

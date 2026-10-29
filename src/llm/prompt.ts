@@ -1,7 +1,7 @@
-import { POSITION_LABELS, overall } from '../domain/attributes'
-import type { AiChatMessage, GameEvent, MatchReport, WorldState } from '../domain/types'
-import { computeLeagueTable } from '../domain/leagueTable'
-import { formatMoneyShort, formatRating, formatSeasonLabel } from '../lib/format'
+import { POSITION_LABELS, overall } from '../domain'
+import type { AiChatMessage, GameEvent, MatchReport, WorldState } from '../domain'
+import { computeLeagueTable } from '../domain'
+import { formatMoneyShort, formatRating, formatSeasonLabel } from '../lib'
 
 type Density = WorldState['settings']['narrativeDensity']
 

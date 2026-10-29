@@ -1,5 +1,5 @@
-import { overall } from '../domain/attributes'
-import type { WorldState } from '../domain/types'
+import { overall } from '../domain'
+import type { WorldState } from '../domain'
 
 export function retirementReason(world: WorldState): string | null {
   const user = world.players[world.playerId]

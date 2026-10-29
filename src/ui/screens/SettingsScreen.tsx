@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
-import { useGameStore } from '../../store/gameStore'
+import { useGameStore } from '../../store'
 import { PageHeader } from '../components/PageHeader'
 import { AiSettingsSection } from './settings/AiSettingsSection'
 import { DangerZone } from './settings/DangerZone'

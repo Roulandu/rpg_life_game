@@ -1,4 +1,4 @@
-import { clamp, positionGroup, round1 } from '../domain/attributes'
+import { clamp, positionGroup, round1 } from '../domain'
 import type {
   KeyMoment,
   KeyMomentKind,
@@ -6,8 +6,8 @@ import type {
   MatchReport,
   Player,
   WorldState,
-} from '../domain/types'
-import type { Rng } from '../lib/rng'
+} from '../domain'
+import type { Rng } from '../lib'
 import { KIND_PROMPTS, KIND_TITLES, optionsFor } from './data/keyMomentOptions'
 import {
   buildMediaReaction,

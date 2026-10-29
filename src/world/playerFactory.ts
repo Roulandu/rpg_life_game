@@ -6,7 +6,7 @@ import {
   clamp,
   computeOverall,
   round1,
-} from '../domain/attributes'
+} from '../domain'
 import type {
   AttrKey,
   Attributes,
@@ -18,8 +18,8 @@ import type {
   Position,
   Reputation,
   SeasonStat,
-} from '../domain/types'
-import { createRng, type Rng } from '../lib/rng'
+} from '../domain'
+import { createRng, type Rng } from '../lib'
 import { NAME_POOLS, NATIONALITY_WEIGHTS } from './data/england'
 import { NO_SPACE_NATIONALITIES, START_SEASON } from './constants'
 

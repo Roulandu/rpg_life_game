@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useGameStore } from '../../store/gameStore'
+import { useGameStore } from '../../store'
 import { WeekPlannerModal } from '../components/WeekPlannerModal'
 import { AdvanceAction } from './dashboard/AdvanceAction'
 import { DashboardFooter } from './dashboard/DashboardFooter'

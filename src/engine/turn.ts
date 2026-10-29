@@ -1,5 +1,5 @@
-import { computeClubStrength } from '../domain/strength'
-import type { GameEvent, MatchReport, SeasonSummary, WeeklyPlan, WorldState } from '../domain/types'
+import { computeClubStrength } from '../domain'
+import type { GameEvent, MatchReport, SeasonSummary, WeeklyPlan, WorldState } from '../domain'
 import { expireEvents, generateWeeklyEvent } from './events'
 import { settleWeekFinance, updatePlayerValue } from './finance'
 import { simulateWeekFixtures } from './match'

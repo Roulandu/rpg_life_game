@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
-import type { MatchReport } from '../../../domain/types'
-import { formatSeasonLabel } from '../../../lib/format'
+import type { MatchReport } from '../../../domain'
+import { formatSeasonLabel } from '../../../lib'
 
 export function MatchdayHeader({ title, match }: { title: string; match: MatchReport | null }) {
   const navigate = useNavigate()

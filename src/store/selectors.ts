@@ -1,10 +1,10 @@
-import type { Fixture, WorldState } from '../domain/types'
-import { hasPendingKeyMoments } from '../engine/keyMoments'
-import { actionLabelFor } from '../llm/actions'
-import type { LlmProvider } from '../llm/types'
-import { pickDefaultBaseUrl, pickDefaultModel } from '../llm/types'
-import { STARTING_CLUBS } from '../world/data/england'
-import { getClubFixtures } from '../world/queries'
+import type { Fixture, WorldState } from '../domain'
+import { hasPendingKeyMoments } from '../engine'
+import { actionLabelFor } from '../llm'
+import type { LlmProvider } from '../llm'
+import { pickDefaultBaseUrl, pickDefaultModel } from '../llm'
+import { STARTING_CLUBS } from '../world'
+import { getClubFixtures } from '../world'
 
 export function selectPendingKeyMoments(world: WorldState | null): boolean {
   return world ? hasPendingKeyMoments(world) : false

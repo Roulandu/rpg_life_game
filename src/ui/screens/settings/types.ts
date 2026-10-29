@@ -1,4 +1,4 @@
-import type { WorldState } from '../../../domain/types'
+import type { WorldState } from '../../../domain'
 
 export type GameSettings = WorldState['settings']
 

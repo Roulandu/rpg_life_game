@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
-import type { MatchReport } from '../../../domain/types'
+import type { MatchReport } from '../../../domain'
 import clsx from 'clsx'
 
 export function LastMatchCard({

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
-import { useGameStore } from '../../../store/gameStore'
-import { selectProviderDefaults } from '../../../store/selectors'
-import { isNativePlatform } from '../../../platform/native'
+import { useGameStore } from '../../../store'
+import { selectProviderDefaults } from '../../../store'
+import { isNativePlatform } from '../../../platform'
 import type { GameSettings, TestState } from './types'
 
 export function useSettingsForm(settings: GameSettings | undefined) {

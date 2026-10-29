@@ -1,5 +1,5 @@
-import { useGameStore } from '../../../store/gameStore'
-import { selectProviderDefaults } from '../../../store/selectors'
+import { useGameStore } from '../../../store'
+import { selectProviderDefaults } from '../../../store'
 import type { GameSettings } from './types'
 
 interface Props {

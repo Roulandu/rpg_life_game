@@ -1,4 +1,4 @@
-import { overall } from '../domain/attributes'
+import { overall } from '../domain'
 import {
   CURRENT_SAVE_VERSION,
   SAVE_FORMAT,
@@ -6,9 +6,9 @@ import {
   assertWorld,
   saveEnvelopeSchema,
 } from '../domain/schema/save.schema'
-import type { SaveRecord, SaveSummary, WorldState } from '../domain/types'
-import { hashString } from '../lib/rng'
-import { canonicalStringify } from '../lib/json'
+import type { SaveRecord, SaveSummary, WorldState } from '../domain'
+import { hashString } from '../lib'
+import { canonicalStringify } from '../lib'
 import { db } from './db'
 
 const LAST_SAVE_KEY = 'lastSaveId'

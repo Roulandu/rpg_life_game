@@ -1,5 +1,5 @@
 import { Trash2 } from 'lucide-react'
-import { useGameStore } from '../../../store/gameStore'
+import { useGameStore } from '../../../store'
 import { Card, SectionTitle } from '../../components/Card'
 
 interface Props {

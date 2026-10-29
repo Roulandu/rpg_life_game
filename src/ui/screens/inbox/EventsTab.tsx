@@ -1,4 +1,4 @@
-import type { GameEvent } from '../../../domain/types'
+import type { GameEvent } from '../../../domain'
 import { Card, EmptyState, SectionTitle } from '../../components/Card'
 import { OpenEventCard } from './OpenEventCard'
 

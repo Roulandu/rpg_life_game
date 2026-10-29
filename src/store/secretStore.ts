@@ -1,5 +1,5 @@
-import { db } from '../db/db'
-import { configureSecretStore } from '../platform/keyStore'
+import { db } from '../db'
+import { configureSecretStore } from '../platform'
 
 configureSecretStore({
   get: (id) => db.secrets.get(id),

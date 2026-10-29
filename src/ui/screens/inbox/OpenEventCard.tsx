@@ -1,5 +1,5 @@
 import { ChevronRight, Inbox } from 'lucide-react'
-import type { GameEvent } from '../../../domain/types'
+import type { GameEvent } from '../../../domain'
 import { Card } from '../../components/Card'
 import { effectList } from '../../labels'
 

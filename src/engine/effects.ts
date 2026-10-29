@@ -1,5 +1,5 @@
-import { clamp } from '../domain/attributes'
-import type { Effect, WorldState } from '../domain/types'
+import { clamp } from '../domain'
+import type { Effect, WorldState } from '../domain'
 import { adjustRelationship, adjustRoleTrust, getRelationshipByRole } from './relationships'
 
 export function applyEffects(world: WorldState, effects: Effect[], label = '事件结果'): void {

@@ -1,5 +1,5 @@
-import type { Effect, EffectOp, ExtraAction } from '../domain/types'
-import { formatMoneyShort } from '../lib/format'
+import type { Effect, EffectOp, ExtraAction } from '../domain'
+import { formatMoneyShort } from '../lib'
 
 export const EFFECT_LABELS: Record<EffectOp, string> = {
   morale: '士气',

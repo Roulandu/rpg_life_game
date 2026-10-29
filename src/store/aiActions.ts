@@ -1,16 +1,16 @@
-import type { AiChatMessage, WorldState } from '../domain/types'
-import { applyChatActionProposal } from '../engine/chatAction'
-import type { TurnResult } from '../engine/turn'
-import { resolveChatAction } from '../llm/actions'
+import type { AiChatMessage, WorldState } from '../domain'
+import { applyChatActionProposal } from '../engine'
+import type { TurnResult } from '../engine'
+import { resolveChatAction } from '../llm'
 import {
   accumulateUsage,
   applyWeekNarrative,
   generateChatReply,
   narrateWeek,
-} from '../llm/generate'
-import { sanitizeText } from '../llm/schema'
-import { describeLlmError } from '../llm/types'
-import { getLoadedApiKey } from '../platform/keyStore'
+} from '../llm'
+import { sanitizeText } from '../llm'
+import { describeLlmError } from '../llm'
+import { getLoadedApiKey } from '../platform'
 import { persist } from './helpers'
 import type { StoreGet, StoreSet } from './types'
 

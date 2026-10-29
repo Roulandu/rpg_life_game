@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { Settings } from 'lucide-react'
-import { POSITION_LABELS, overall } from '../../../domain/attributes'
-import type { Club, League, Player, WorldState } from '../../../domain/types'
-import { formatMoneyShort, formatSeasonLabel } from '../../../lib/format'
+import { POSITION_LABELS, overall } from '../../../domain'
+import type { Club, League, Player, WorldState } from '../../../domain'
+import { formatMoneyShort, formatSeasonLabel } from '../../../lib'
 
 export function DashboardHeader({
   world,

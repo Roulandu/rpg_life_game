@@ -1,6 +1,6 @@
 import { AlertTriangle } from 'lucide-react'
-import type { AiNarrative } from '../../../domain/types'
-import { formatWeekLabel } from '../../../lib/format'
+import type { AiNarrative } from '../../../domain'
+import { formatWeekLabel } from '../../../lib'
 import { Card } from '../../components/Card'
 
 export function NarrativeSkeleton() {

@@ -1,6 +1,6 @@
-import { overall } from '../domain/attributes'
-import type { Club, Finance, Id, Player, Relationship, WorldState } from '../domain/types'
-import { createRng, type Rng } from '../lib/rng'
+import { overall } from '../domain'
+import type { Club, Finance, Id, Player, Relationship, WorldState } from '../domain'
+import { createRng, type Rng } from '../lib'
 import { START_SEASON } from './constants'
 import { makeName } from './playerFactory'
 

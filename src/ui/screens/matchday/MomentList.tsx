@@ -1,5 +1,5 @@
 import { CheckCircle2, XCircle } from 'lucide-react'
-import type { KeyMoment } from '../../../domain/types'
+import type { KeyMoment } from '../../../domain'
 import clsx from 'clsx'
 
 export function MomentList({ moments }: { moments: KeyMoment[] }) {

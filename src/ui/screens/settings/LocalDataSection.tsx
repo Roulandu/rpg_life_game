@@ -1,6 +1,6 @@
 import type { RefObject } from 'react'
 import { Download, Save, Upload } from 'lucide-react'
-import { formatSeasonLabel } from '../../../lib/format'
+import { formatSeasonLabel } from '../../../lib'
 import { Card, SectionTitle } from '../../components/Card'
 
 interface Props {

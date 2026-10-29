@@ -1,6 +1,6 @@
 import { Newspaper } from 'lucide-react'
-import type { NewsItem } from '../../../domain/types'
-import { formatSeasonLabel } from '../../../lib/format'
+import type { NewsItem } from '../../../domain'
+import { formatSeasonLabel } from '../../../lib'
 import { Card, EmptyState } from '../../components/Card'
 
 const NEWS_KIND_LABEL: Record<string, string> = {

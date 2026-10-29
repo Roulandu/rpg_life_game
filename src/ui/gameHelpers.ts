@@ -1,5 +1,5 @@
-import { computeLeagueTable } from '../domain/leagueTable'
-import type { Fixture, Id, LeagueTableRow, WorldState } from '../domain/types'
+import { computeLeagueTable } from '../domain'
+import type { Fixture, Id, LeagueTableRow, WorldState } from '../domain'
 
 export type FormResult = 'W' | 'D' | 'L'
 

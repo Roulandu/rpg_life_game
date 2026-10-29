@@ -1,6 +1,6 @@
 import { CalendarDays, House, Inbox, Menu, UserRound } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
-import { useGameStore } from '../../store/gameStore'
+import { useGameStore } from '../../store'
 import clsx from 'clsx'
 
 const ITEMS = [

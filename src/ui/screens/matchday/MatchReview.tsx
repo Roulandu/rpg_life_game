@@ -1,4 +1,4 @@
-import type { Club, MatchReport, WorldState } from '../../../domain/types'
+import type { Club, MatchReport, WorldState } from '../../../domain'
 import { SectionTitle } from '../../components/Card'
 import { MatchTimeline } from './MatchTimeline'
 import { MediaReactionCard } from './MediaReactionCard'

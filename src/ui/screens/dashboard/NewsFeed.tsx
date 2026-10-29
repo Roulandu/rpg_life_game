@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Newspaper } from 'lucide-react'
-import type { NewsItem } from '../../../domain/types'
+import type { NewsItem } from '../../../domain'
 import { Card, SectionTitle } from '../../components/Card'
 
 const NEWS_KIND_LABEL: Record<string, string> = {

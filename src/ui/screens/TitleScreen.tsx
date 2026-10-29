@@ -1,8 +1,8 @@
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronRight, Plus, Trash2, Upload } from 'lucide-react'
-import { useGameStore } from '../../store/gameStore'
-import { formatMoneyShort, formatSeasonLabel } from '../../lib/format'
+import { useGameStore } from '../../store'
+import { formatMoneyShort, formatSeasonLabel } from '../../lib'
 import { Card } from '../components/Card'
 
 export function TitleScreen() {

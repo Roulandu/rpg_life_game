@@ -1,4 +1,4 @@
-import type { Player } from '../../../domain/types'
+import type { Player } from '../../../domain'
 import { Card } from '../../components/Card'
 import { StatBar } from '../../components/StatBar'
 

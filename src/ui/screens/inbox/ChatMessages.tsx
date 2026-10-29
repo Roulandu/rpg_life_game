@@ -1,6 +1,6 @@
 import { Sparkles } from 'lucide-react'
 import clsx from 'clsx'
-import type { AiChatMessage } from '../../../domain/types'
+import type { AiChatMessage } from '../../../domain'
 import { EmptyState } from '../../components/Card'
 
 export function ChatMessages({ chat }: { chat: AiChatMessage[] }) {

@@ -1,4 +1,4 @@
-import type { Position } from '../domain/types'
+import type { Position } from '../domain'
 
 export const ENGINE_VERSION = '0.1.0'
 export const START_SEASON = 2026

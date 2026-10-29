@@ -1,6 +1,6 @@
-import { computeLeagueTable } from '../../../domain/leagueTable'
-import type { Club, Fixture, GameEvent, League, LeagueTableRow, MatchReport, NewsItem, Player, WorldState } from '../../../domain/types'
-import { selectPendingKeyMoments } from '../../../store/selectors'
+import { computeLeagueTable } from '../../../domain'
+import type { Club, Fixture, GameEvent, League, LeagueTableRow, MatchReport, NewsItem, Player, WorldState } from '../../../domain'
+import { selectPendingKeyMoments } from '../../../store'
 import { formLabel, formOf, nextFixtureOf, opponentOfClub } from '../../gameHelpers'
 
 export interface DashboardData {

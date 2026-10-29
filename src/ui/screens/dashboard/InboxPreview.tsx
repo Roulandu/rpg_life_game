@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { MessageSquare } from 'lucide-react'
-import type { GameEvent } from '../../../domain/types'
+import type { GameEvent } from '../../../domain'
 import { Card, SectionTitle } from '../../components/Card'
 
 export function InboxPreview({ openCount, latest }: { openCount: number; latest: GameEvent | undefined }) {

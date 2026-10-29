@@ -1,6 +1,6 @@
 import { Award, CalendarDays } from 'lucide-react'
-import type { MatchReport } from '../../../domain/types'
-import { formatRating } from '../../../lib/format'
+import type { MatchReport } from '../../../domain'
+import { formatRating } from '../../../lib'
 import { Card } from '../../components/Card'
 import clsx from 'clsx'
 

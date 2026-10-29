@@ -8,10 +8,10 @@ import {
   POSITION_LABELS,
   archetypeBonus,
   backgroundBonus,
-} from '../../domain/attributes'
-import type { Archetype, CareerBackground, Position } from '../../domain/types'
-import { selectStartingClubs } from '../../store/selectors'
-import { useGameStore } from '../../store/gameStore'
+} from '../../domain'
+import type { Archetype, CareerBackground, Position } from '../../domain'
+import { selectStartingClubs } from '../../store'
+import { useGameStore } from '../../store'
 import { Card, SectionTitle } from '../components/Card'
 import { PageHeader } from '../components/PageHeader'
 import clsx from 'clsx'

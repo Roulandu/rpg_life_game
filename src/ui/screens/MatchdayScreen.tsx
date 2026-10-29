@@ -1,4 +1,4 @@
-import { useGameStore } from '../../store/gameStore'
+import { useGameStore } from '../../store'
 import { Card } from '../components/Card'
 import { nextFixtureOf, opponentOfClub } from '../gameHelpers'
 import { KeyMomentStage } from './matchday/KeyMomentStage'

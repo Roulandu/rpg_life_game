@@ -1,7 +1,7 @@
-import { clamp, overall, round1 } from '../domain/attributes'
-import { generateFixtures } from '../domain/fixtures'
-import { computeLeagueTable } from '../domain/leagueTable'
-import { computeClubStrength } from '../domain/strength'
+import { clamp, overall, round1 } from '../domain'
+import { generateFixtures } from '../domain'
+import { computeLeagueTable } from '../domain'
+import { computeClubStrength } from '../domain'
 import type {
   Club,
   Id,
@@ -10,8 +10,8 @@ import type {
   SeasonStat,
   SeasonSummary,
   WorldState,
-} from '../domain/types'
-import { createRng } from '../lib/rng'
+} from '../domain'
+import { createRng } from '../lib'
 import { paySeasonBonuses, reputationAfterSeason, updatePlayerValue } from './finance'
 import { retirementReason } from './retirement'
 import { buildSeasonSummary, collectAwards, publishSeasonNews, recordSeasonHistory } from './seasonAwards'

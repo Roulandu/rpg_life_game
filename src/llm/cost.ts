@@ -1,4 +1,4 @@
-import type { AiUsage } from '../domain/types'
+import type { AiUsage } from '../domain'
 import type { LlmUsage } from './types'
 
 // 每 100 万 token 的美元价格。模型名匹配不到时使用保守默认值。

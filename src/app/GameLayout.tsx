@@ -1,8 +1,8 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import { useGameStore } from '../store/gameStore'
-import { BottomNav } from '../ui/components/BottomNav'
-import { SeasonSummaryModal } from '../ui/components/SeasonSummaryModal'
+import { useGameStore } from '../store'
+import { BottomNav } from '../ui'
+import { SeasonSummaryModal } from '../ui'
 
 export function GameLayout() {
   const world = useGameStore((state) => state.world)

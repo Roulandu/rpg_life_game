@@ -1,4 +1,4 @@
-import type { CareerEntry, Club, Id, League, Player, SeasonStat, SeasonSummary, WorldState } from '../domain/types'
+import type { CareerEntry, Club, Id, League, Player, SeasonStat, SeasonSummary, WorldState } from '../domain'
 
 export function leagueTopScorer(world: WorldState, leagueId: Id): Player | null {
   const league = world.leagues[leagueId]

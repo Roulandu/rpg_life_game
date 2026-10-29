@@ -1,4 +1,4 @@
-import type { AiNarrative, GameEvent, MatchReport, WorldState } from '../domain/types'
+import type { AiNarrative, GameEvent, MatchReport, WorldState } from '../domain'
 import { callStructuredTool } from './client'
 import { addUsage, estimateCostUsd } from './cost'
 import {

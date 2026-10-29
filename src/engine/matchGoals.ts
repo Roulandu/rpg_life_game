@@ -1,6 +1,6 @@
-import { clamp, positionGroup } from '../domain/attributes'
-import type { Club, Id, Player, WorldState } from '../domain/types'
-import type { Rng } from '../lib/rng'
+import { clamp, positionGroup } from '../domain'
+import type { Club, Id, Player, WorldState } from '../domain'
+import type { Rng } from '../lib'
 
 export interface GoalContribution {
   scorer: Player

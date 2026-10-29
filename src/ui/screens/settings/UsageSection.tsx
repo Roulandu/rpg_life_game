@@ -1,5 +1,5 @@
 import { Wallet } from 'lucide-react'
-import type { WorldState } from '../../../domain/types'
+import type { WorldState } from '../../../domain'
 import { Card, SectionTitle } from '../../components/Card'
 
 export function UsageSection({ usage }: { usage: NonNullable<WorldState['aiUsage']> }) {

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
-import type { Club, Fixture } from '../../../domain/types'
+import type { Club, Fixture } from '../../../domain'
 
 export function NextFixtureLink({ next, opponent, isHome }: { next: Fixture; opponent: Club; isHome: boolean }) {
   const navigate = useNavigate()

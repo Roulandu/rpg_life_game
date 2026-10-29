@@ -1,5 +1,5 @@
-import { clamp } from '../domain/attributes'
-import type { Relationship, RelationshipRole, WorldState } from '../domain/types'
+import { clamp } from '../domain'
+import type { Relationship, RelationshipRole, WorldState } from '../domain'
 
 export function getRelationshipByRole(
   world: WorldState,

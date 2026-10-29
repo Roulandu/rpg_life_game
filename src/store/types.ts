@@ -4,9 +4,9 @@ import type {
   SaveSummary,
   WeeklyPlan,
   WorldState,
-} from '../domain/types'
-import type { SeasonTransition, TurnResult } from '../engine/turn'
-import type { ConnectionTestResult } from '../llm/client'
+} from '../domain'
+import type { SeasonTransition, TurnResult } from '../engine'
+import type { ConnectionTestResult } from '../llm'
 
 export interface GameStore {
   world: WorldState | null

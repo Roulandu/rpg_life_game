@@ -1,5 +1,5 @@
-import { POSITION_GROUPS } from '../domain/attributes'
-import type { Club, Fixture, Id, League, Player, Position, WorldState } from '../domain/types'
+import { POSITION_GROUPS } from '../domain'
+import type { Club, Fixture, Id, League, Player, Position, WorldState } from '../domain'
 
 export function getPlayerWorldClub(world: WorldState): Club {
   return world.clubs[world.clubId] ?? Object.values(world.clubs)[0]

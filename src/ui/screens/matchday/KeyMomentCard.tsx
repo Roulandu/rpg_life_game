@@ -1,5 +1,5 @@
 import { FastForward } from 'lucide-react'
-import type { KeyMoment } from '../../../domain/types'
+import type { KeyMoment } from '../../../domain'
 import { Card } from '../../components/Card'
 
 export function KeyMomentCard({

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { CheckCircle2, X } from 'lucide-react'
-import { useGameStore } from '../../store/gameStore'
+import { useGameStore } from '../../store'
 
 export function Toast() {
   const notice = useGameStore((state) => state.notice)

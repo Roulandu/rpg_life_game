@@ -5,7 +5,7 @@ import {
   type HttpPort,
   type HttpRequest,
   type HttpResponse,
-} from '../platform/http'
+} from '../platform'
 import { LlmError, type NetworkMode } from './types'
 
 export type { HttpRequest, HttpResponse }

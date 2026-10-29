@@ -1,4 +1,4 @@
-import type { MatchEventLine } from '../../../domain/types'
+import type { MatchEventLine } from '../../../domain'
 import clsx from 'clsx'
 import { EVENT_TONE } from './matchdayUtils'
 

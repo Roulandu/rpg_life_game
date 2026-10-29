@@ -1,5 +1,5 @@
-import { clamp, round1 } from '../../domain/attributes'
-import type { KeyMomentKind, KeyMomentOption, Player } from '../../domain/types'
+import { clamp, round1 } from '../../domain'
+import type { KeyMomentKind, KeyMomentOption, Player } from '../../domain'
 
 export interface KindContext {
   player: Player

@@ -1,12 +1,12 @@
-import type { MatchReport, WeeklyPlan, WorldState } from '../domain/types'
-import { resolveEvent } from '../engine/events'
+import type { MatchReport, WeeklyPlan, WorldState } from '../domain'
+import { resolveEvent } from '../engine'
 import {
   autoResolveKeyMoments,
   finalizeMatchday,
   hasPendingKeyMoments,
   resolveKeyMoment as applyKeyMomentChoice,
-} from '../engine/keyMoments'
-import { advanceWeek, type TurnResult } from '../engine/turn'
+} from '../engine'
+import { advanceWeek, type TurnResult } from '../engine'
 import { messageOf, persist } from './helpers'
 import type { GameStore, StoreGet, StoreSet, StoreSlice } from './types'
 

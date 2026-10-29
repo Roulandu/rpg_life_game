@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Award, CalendarRange, TrendingUp } from 'lucide-react'
-import { useGameStore } from '../../store/gameStore'
-import { formatRating, formatSeasonLabel } from '../../lib/format'
+import { useGameStore } from '../../store'
+import { formatRating, formatSeasonLabel } from '../../lib'
 import { Card, EmptyState, SectionTitle } from '../components/Card'
 
 export function TimelineScreen() {

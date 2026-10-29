@@ -1,5 +1,5 @@
-import type { Club, Coach, Id, Player } from '../domain/types'
-import { createRng } from '../lib/rng'
+import type { Club, Coach, Id, Player } from '../domain'
+import { createRng } from '../lib'
 import type { ClubSeed } from './data/england'
 import { SQUAD_POSITIONS } from './constants'
 import { makeAiPlayer, makeName } from './playerFactory'

@@ -1,5 +1,5 @@
-import { clamp, overall, round1 } from '../domain/attributes'
-import type { Player, WorldState } from '../domain/types'
+import { clamp, overall, round1 } from '../domain'
+import type { Player, WorldState } from '../domain'
 
 export interface WeeklyFinanceResult {
   income: number

@@ -10,8 +10,8 @@ import {
   Upload,
   Wallet,
 } from 'lucide-react'
-import { useGameStore } from '../../store/gameStore'
-import { formatMoney, formatMoneyShort, formatSeasonLabel } from '../../lib/format'
+import { useGameStore } from '../../store'
+import { formatMoney, formatMoneyShort, formatSeasonLabel } from '../../lib'
 import { Card, SectionTitle } from '../components/Card'
 import { PageHeader } from '../components/PageHeader'
 

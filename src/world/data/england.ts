@@ -1,4 +1,4 @@
-import type { Club } from '../../domain/types'
+import type { Club } from '../../domain'
 import { COUNTRY_PACKS } from '../datapack'
 
 export type ClubStyle = Club['style']

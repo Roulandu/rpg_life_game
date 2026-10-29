@@ -1,4 +1,4 @@
-import { createRng, type Rng } from '../lib/rng'
+import { createRng, type Rng } from '../lib'
 import type { Fixture, Id, League } from './types'
 
 interface RoundPair {

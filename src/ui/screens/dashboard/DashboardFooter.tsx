@@ -1,5 +1,5 @@
 import { Trophy, Wallet } from 'lucide-react'
-import { formatMoneyShort, formatWeekLabel } from '../../../lib/format'
+import { formatMoneyShort, formatWeekLabel } from '../../../lib'
 
 export function DashboardFooter({ balance, season, week }: { balance: number; season: number; week: number }) {
   return (

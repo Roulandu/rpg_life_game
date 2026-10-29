@@ -6,9 +6,9 @@ import {
   POSITION_LABELS,
   overall,
   round1,
-} from '../../domain/attributes'
-import { useGameStore } from '../../store/gameStore'
-import { formatMoney, formatMoneyShort, formatRating, formatSeasonLabel } from '../../lib/format'
+} from '../../domain'
+import { useGameStore } from '../../store'
+import { formatMoney, formatMoneyShort, formatRating, formatSeasonLabel } from '../../lib'
 import { Card, EmptyState, SectionTitle } from '../components/Card'
 import { StatBar } from '../components/StatBar'
 

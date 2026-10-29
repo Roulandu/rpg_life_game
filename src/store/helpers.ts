@@ -1,5 +1,5 @@
-import { saveWorld } from '../db/repository'
-import type { SaveSummary, WorldState } from '../domain/types'
+import { saveWorld } from '../db'
+import type { SaveSummary, WorldState } from '../domain'
 
 export function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : '发生了未知错误。'

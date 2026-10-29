@@ -12,7 +12,7 @@ knownPlatformViolations: []
 modules:
   app:
     path: src/app
-    publicEntry: null
+    publicEntry: src/app/index.ts
     allowedDeps: [ui, store, platform, domain, lib]
     tests: [tests/app/**/*.test.tsx]
     docs: [docs/architecture/overview.md]
@@ -22,7 +22,7 @@ modules:
 
   ui:
     path: src/ui
-    publicEntry: null
+    publicEntry: src/ui/index.ts
     allowedDeps: [store, domain, lib, platform]
     tests: [tests/ui/**/*.test.tsx]
     docs:
@@ -36,7 +36,7 @@ modules:
 
   store:
     path: src/store
-    publicEntry: null
+    publicEntry: src/store/index.ts
     allowedDeps: [engine, world, llm, db, platform, domain, lib]
     tests: [tests/store/**/*.test.ts]
     docs:
@@ -49,7 +49,7 @@ modules:
 
   engine:
     path: src/engine
-    publicEntry: null
+    publicEntry: src/engine/index.ts
     allowedDeps: [domain, lib]
     tests: [tests/engine/**/*.test.ts]
     docs:
@@ -61,7 +61,7 @@ modules:
 
   world:
     path: src/world
-    publicEntry: null
+    publicEntry: src/world/index.ts
     allowedDeps: [domain, lib]
     tests:
       - tests/engine/world.test.ts
@@ -74,7 +74,7 @@ modules:
 
   llm:
     path: src/llm
-    publicEntry: null
+    publicEntry: src/llm/index.ts
     allowedDeps: [domain, lib, platform]
     tests: [tests/llm/**/*.test.ts]
     docs: [docs/features/gm-agent.md]
@@ -84,7 +84,7 @@ modules:
 
   db:
     path: src/db
-    publicEntry: null
+    publicEntry: src/db/index.ts
     allowedDeps: [domain, lib]
     tests: [tests/db/**/*.test.ts]
     docs:
@@ -96,7 +96,7 @@ modules:
 
   platform:
     path: src/platform
-    publicEntry: null
+    publicEntry: src/platform/index.ts
     allowedDeps: [lib]
     tests: [tests/platform/**/*.test.ts]
     docs:
@@ -114,7 +114,7 @@ modules:
 
   domain:
     path: src/domain
-    publicEntry: null
+    publicEntry: src/domain/index.ts
     allowedDeps: [lib]
     tests: [tests/**/*.test.ts]
     docs:
@@ -126,7 +126,7 @@ modules:
 
   lib:
     path: src/lib
-    publicEntry: null
+    publicEntry: src/lib/index.ts
     allowedDeps: []
     tests: [tests/**/*.test.ts]
     docs: [docs/architecture/overview.md]

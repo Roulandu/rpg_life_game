@@ -1,5 +1,5 @@
-import type { GameEvent, MatchReport, WeeklyPlan, WorldState } from '../domain/types'
-import { createRng } from '../lib/rng'
+import type { GameEvent, MatchReport, WeeklyPlan, WorldState } from '../domain'
+import { createRng } from '../lib'
 import {
   renderEventDraft,
   resultTextFor,

@@ -1,9 +1,9 @@
-import { testLlmConnection } from '../llm/client'
+import { testLlmConnection } from '../llm'
 import {
   clearApiKey as clearStoredApiKey,
   getLoadedApiKey,
   saveApiKey as storeApiKey,
-} from '../platform/keyStore'
+} from '../platform'
 import { narrateTurn, sendChat } from './aiActions'
 import { messageOf } from './helpers'
 import type { GameStore, StoreGet, StoreSet, StoreSlice } from './types'

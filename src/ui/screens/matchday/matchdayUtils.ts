@@ -1,4 +1,4 @@
-import type { KeyMoment } from '../../../domain/types'
+import type { KeyMoment } from '../../../domain'
 
 export interface Momentum {
   rating: number

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import type { LeagueTableRow, WorldState } from '../../../domain/types'
+import type { LeagueTableRow, WorldState } from '../../../domain'
 import { Card, SectionTitle } from '../../components/Card'
 import { formClass, formLabel } from '../../gameHelpers'
 import clsx from 'clsx'

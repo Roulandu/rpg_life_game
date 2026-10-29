@@ -1,5 +1,5 @@
 import { AlertTriangle, LoaderCircle } from 'lucide-react'
-import type { AiChatMessage } from '../../../domain/types'
+import type { AiChatMessage } from '../../../domain'
 import { Card } from '../../components/Card'
 import { ChatComposer } from './ChatComposer'
 import { ChatGate } from './ChatGate'

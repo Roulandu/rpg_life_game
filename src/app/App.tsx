@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import { registerBackButton } from '../platform/backButton'
-import { useGameStore } from '../store/gameStore'
-import { Toast } from '../ui/components/Toast'
+import { registerBackButton } from '../platform'
+import { useGameStore } from '../store'
+import { Toast } from '../ui'
 
 function Splash() {
   return (

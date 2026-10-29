@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Award, TrendingDown, TrendingUp } from 'lucide-react'
-import { useGameStore } from '../../store/gameStore'
-import { formatSeasonLabel } from '../../lib/format'
+import { useGameStore } from '../../store'
+import { formatSeasonLabel } from '../../lib'
 import { Modal } from './Modal'
 
 export function SeasonSummaryModal() {

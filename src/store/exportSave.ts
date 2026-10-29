@@ -1,6 +1,6 @@
-import { exportWorld } from '../db/repository'
-import type { WorldState } from '../domain/types'
-import { downloadTextFile } from '../platform/fileExport'
+import { exportWorld } from '../db'
+import type { WorldState } from '../domain'
+import { downloadTextFile } from '../platform'
 
 export function downloadWorld(world: WorldState): void {
   const user = world.players[world.playerId]

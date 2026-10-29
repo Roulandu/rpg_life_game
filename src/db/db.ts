@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import type { SaveRecord } from '../domain/types'
+import type { SaveRecord } from '../domain'
 
 export interface MetaRow {
   key: string

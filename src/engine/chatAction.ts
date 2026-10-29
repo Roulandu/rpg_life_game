@@ -1,5 +1,5 @@
-import type { ChatActionProposal } from '../domain/chatAction'
-import type { WorldState } from '../domain/types'
+import type { ChatActionProposal } from '../domain'
+import type { WorldState } from '../domain'
 import { applyEffects } from './effects'
 
 export function applyChatActionProposal(world: WorldState, proposal: ChatActionProposal): string {

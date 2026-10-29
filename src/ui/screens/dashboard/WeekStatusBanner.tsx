@@ -1,4 +1,4 @@
-import type { AiNarrative } from '../../../domain/types'
+import type { AiNarrative } from '../../../domain'
 import { AiNarrativeSection } from './AiNarrativeSection'
 import { PendingMomentsCard } from './PendingMomentsCard'
 
