@@ -6,11 +6,13 @@ code:
   - src/engine/turn.ts
   - src/engine/training.ts
   - src/engine/events.ts
+  - src/engine/data/eventTemplates.ts
   - src/engine/finance.ts
   - src/store/gameStore.ts
 tests:
   - tests/engine/season.test.ts
   - tests/engine/determinism.test.ts
+  - tests/engine/eventTemplates.test.ts
   - tests/store/store.test.ts
 diagrams: [sequence]
 last_reviewed: 2026-10-26
@@ -114,6 +116,7 @@ sequenceDiagram
 
 - 每周 72% 概率生成事件；已有同类伤病事件时不再生成。
 - 事件上下文：伤病、未出场、评分 ≥7.3、评分 <6.2、额外行动为媒体、普通周。
+- 模板文案与结果文案集中在 `src/engine/data/eventTemplates.ts`，`events.ts` 只做上下文插值与流程编排；未知模板回退到简化版队友聚餐。
 - 有效期 2 周；`expiresWeek < week` 时标记 `expired`。
 - 事件选项效果由 `applyEffects` 统一结算；特殊事件（伤病、消费）有额外逻辑。
 - 新闻上限：事件生成时截断到 80 条。

@@ -18,30 +18,6 @@
         }
       }
     },
-    "src/engine/events.ts": {
-      "metrics": {
-        "lines": {
-          "value": 472,
-          "max": 300
-        }
-      }
-    },
-    "src/engine/events.ts::buildEventDraft": {
-      "metrics": {
-        "complexity": {
-          "value": 17,
-          "max": 12
-        }
-      }
-    },
-    "src/engine/events.ts::buildEventDraft#2": {
-      "metrics": {
-        "functionLines": {
-          "value": 292,
-          "max": 60
-        }
-      }
-    },
     "src/engine/events.ts::generateWeeklyEvent": {
       "metrics": {
         "complexity": {

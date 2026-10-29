@@ -87,7 +87,7 @@ lib        -> (无)
 
 - 事件模板、关键时刻定义、新闻/文案优先放 `data/` 或独立 content 模块。
 - 引擎只负责规则与结算，不负责长文案。
-- 现有 `engine/events.ts`、`engine/keyMoments.ts` 里的文案是历史债；新增内容不要再堆进去。
+- 事件模板与结果文案已数据化到 `src/engine/data/eventTemplates.ts`，`engine/keyMoments.ts` 里的文案仍是历史债；新增内容不要再堆进编排文件。
 
 ## UI 规则
 
