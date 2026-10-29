@@ -117,18 +117,11 @@ flowchart TD
   ENGINE --> LIB
   WORLD --> LIB
   DB --> LIB
-  UI -.违规.-> ENGINE
-  UI -.违规.-> WORLD
-  UI -.违规.-> LLM
+
 ```
 
-| 违规 | 位置 | 现状原因 |
-|---|---|---|
-| ui → engine | `DashboardScreen` | 直接调用 `hasPendingKeyMoments`，应移入 store selector（积分榜深引已下沉 domain 消除） |
-| ui → world | `CreateCareerScreen`、`ScheduleScreen` | 直接读国家数据包与赛程 |
-| ui → llm | `InboxScreen`、`SettingsScreen` | 聊天与连接测试直接调用 llm，应经 store |
-
-`rng`（`createRng`/`hashString`）已下沉到 `src/lib/rng.ts`，`world→engine`、`db→engine` 违规与 `engine↔world` 循环已消除；`computeClubStrength`/`generateFixtures` 与 `computeLeagueTable` 已下沉到 `src/domain`，`engine→world` 违规与 `ui→engine`（积分榜）、`llm→engine`（prompt）深引随之清除；`llm/actions.ts` 已提案化，`resolveChatAction` 返回 `ChatActionProposal`（`src/domain/chatAction.ts`），效果应用移到 `src/engine/chatAction.ts`，`llm→engine` 违规清零。平台端口化后 `platform→db` 违规与两处内联平台违规（`capacitor-import`、`dom-file-export`）一并消除：`keyStore.ts` 改为注入 `SecretStore` 端口（实现见 `src/store/secretStore.ts`，组合根 `main.tsx` 装配），HTTP 迁到 `src/platform/http.ts`（`llm/transport.ts` 只做 `HttpError→LlmError` 映射），文件下载迁到 `src/platform/fileExport.ts`。剩余 `ui→engine` 仅 `DashboardScreen` 的关键回合查询。
+当前没有登记的跨模块违规：ui 的派生数据统一经 `src/store/selectors.ts`，平台能力经 `src/platform` 端口，`docs/modules.yaml` 的 `knownViolations` / `knownCycles` 为空。
+`rng`（`createRng`/`hashString`）已下沉到 `src/lib/rng.ts`，`world→engine`、`db→engine` 违规与 `engine↔world` 循环已消除；`computeClubStrength`/`generateFixtures` 与 `computeLeagueTable` 已下沉到 `src/domain`，`engine→world` 违规与 `ui→engine`（积分榜）、`llm→engine`（prompt）深引随之清除；`llm/actions.ts` 已提案化，`resolveChatAction` 返回 `ChatActionProposal`（`src/domain/chatAction.ts`），效果应用移到 `src/engine/chatAction.ts`，`llm→engine` 违规清零。平台端口化后 `platform→db` 违规与两处内联平台违规（`capacitor-import`、`dom-file-export`）一并消除：`keyStore.ts` 改为注入 `SecretStore` 端口（实现见 `src/store/secretStore.ts`，组合根 `main.tsx` 装配），HTTP 迁到 `src/platform/http.ts`（`llm/transport.ts` 只做 `HttpError→LlmError` 映射），文件下载迁到 `src/platform/fileExport.ts`。`ui→engine/world/llm` 的 7 处深引已改走 `src/store/selectors.ts`，违规清零。
 
 ## 关键流程
 
@@ -233,3 +226,4 @@ flowchart TD
 | 2026-10-29 | engine/world/store 大文件完成拆分，store 切片化并以 selectors 承接 UI 派生数据，ui 已知违规清零 | 全量重构 P2 |
 | 2026-10-29 | llm 聊天动作提案化（resolveChatAction/applyChatActionProposal），消除 llm→engine 红线 | 全量重构 P1 |
 | 2026-10-29 | 平台端口化：keyStore 注入 SecretStore、HTTP 迁 platform/http、文件下载迁 platform/fileExport，消除 platform→db 与两处内联平台违规 | 全量重构 P1 |
+| 2026-10-29 | Dashboard 拆为 `ui/screens/dashboard/*`（头部/本周状态/下一场/联赛迷你表/收件箱/新闻等），Matchday 拆为 `ui/screens/matchday/*`（比分卡/关键时刻/回顾/时间线），派生数据集中到 `dashboardData.ts`，页面结构与视觉不变 | 全量重构提交 11 |

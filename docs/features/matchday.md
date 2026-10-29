@@ -13,12 +13,17 @@ code:
   - src/store/matchSlice.ts
   - src/store/selectors.ts
   - src/ui/screens/MatchdayScreen.tsx
+  - src/ui/screens/matchday/ScoreCard.tsx
+  - src/ui/screens/matchday/KeyMomentCard.tsx
+  - src/ui/screens/matchday/MatchReview.tsx
+  - src/ui/screens/matchday/MatchTimeline.tsx
 tests:
   - tests/engine/match.test.ts
   - tests/engine/keyMoments.test.ts
   - tests/engine/season.test.ts
   - tests/domain/leagueTable.test.ts
   - tests/ui/smoke.test.tsx
+  - tests/ui/matchday.test.tsx
 diagrams: [sequence]
 last_reviewed: 2026-10-29
 ---
@@ -188,6 +193,7 @@ sequenceDiagram
 | 比赛模拟、出场判定、赛季统计 | `tests/engine/season.test.ts` |
 | 积分榜计算（下沉 domain） | `tests/domain/leagueTable.test.ts` |
 | 比赛页渲染与交互烟测 | `tests/ui/smoke.test.tsx` |
+| 比赛日页面（阶段/回顾/空态/替补）渲染 | `tests/ui/matchday.test.tsx` |
 | 未完成回合阻塞下一周 | `tests/store/store.test.ts` |
 
 手动验收：
@@ -206,3 +212,4 @@ sequenceDiagram
 | 2026-10-29 | 关键回合选项构建外迁 `src/engine/data/keyMomentOptions.ts`、叙事与媒体反应外迁 `src/engine/keyMomentNarrative.ts`，keyMoments.ts 只保留编排；golden 哈希不变 | 全量重构提交 7 |
 | 2026-10-29 | 比赛模拟拆为 `matchGoals.ts`（期望进球/射手/助攻/伤种）与 `matchUser.ts`（选人/评分/赛后结算），match.ts 只保留比赛编排；RNG 顺序不变，golden 哈希一致 | 全量重构提交 8 |
 | 2026-10-29 | 比赛日动作迁入 `store/matchSlice.ts`，Dashboard/Schedule 的待处理回合与赛程派生改走 `store/selectors.ts`，消除 ui→engine/world 直接依赖 | 全量重构提交 10 |
+| 2026-10-29 | `MatchdayScreen` 拆为 `ui/screens/matchday/*`：比分卡、关键时刻选择、赛后回顾、文字直播与回合工具，主组件只做编排；新增页面状态测试，视觉与交互不变 | 全量重构提交 11 |
