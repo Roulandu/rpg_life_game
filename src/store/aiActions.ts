@@ -126,9 +126,13 @@ async function commitAiWorld(
 ): Promise<void> {
   world.updatedAt = new Date().toISOString()
   if (aiTaskSeq === taskId) set({ world, aiBusy: false })
-  const summary = await persist(world, saveId)
-  if (summary) set({ saveId: summary.id })
-  await get().refreshSaves()
+  const result = await persist(world, saveId)
+  if (result.ok) {
+    set({ saveId: result.summary.id })
+    await get().refreshSaves()
+    return
+  }
+  set({ error: `保存失败：${result.error}` })
 }
 
 async function runNarration(set: StoreSet, get: StoreGet, input: NarrationInput): Promise<void> {

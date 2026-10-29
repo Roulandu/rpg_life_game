@@ -111,13 +111,18 @@ async function loadGame(set: StoreSet, get: StoreGet, id: string): Promise<void>
   }
 }
 
-async function saveNow(set: StoreSet, get: StoreGet): Promise<void> {
+async function saveNow(set: StoreSet, get: StoreGet): Promise<boolean> {
   const world = get().world
-  if (!world) return
+  if (!world) return false
   const updated = { ...world, updatedAt: new Date().toISOString() }
-  const summary = await persist(updated, get().saveId)
-  set({ world: updated, saveId: summary?.id ?? get().saveId, notice: '已保存。' })
+  const result = await persist(updated, get().saveId)
+  if (!result.ok) {
+    set({ error: `保存失败：${result.error}` })
+    return false
+  }
+  set({ world: updated, saveId: result.summary.id, notice: '已保存。' })
   await get().refreshSaves()
+  return true
 }
 
 async function removeSave(set: StoreSet, get: StoreGet, id: string): Promise<void> {
@@ -142,7 +147,10 @@ function updateSettings(
   if (!world) return
   const next = { ...world, settings: { ...world.settings, ...patch } }
   set({ world: next })
-  void persist(next, get().saveId).then(() => get().refreshSaves())
+  void persist(next, get().saveId).then((result) => {
+    if (!result.ok) set({ error: `保存失败：${result.error}` })
+    return get().refreshSaves()
+  })
 }
 
 async function importFromText(set: StoreSet, get: StoreGet, text: string): Promise<void> {

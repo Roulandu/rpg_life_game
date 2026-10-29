@@ -98,7 +98,7 @@ sequenceDiagram
 - 发送 AI 对话并收到回复。
 - 手动“保存”。
 
-保存是“整世界覆盖”，没有增量 patch。写入失败不阻塞内存推进，但会导致进度无法恢复；这是当前已知风险，后续应增加显式失败提示。
+保存是“整世界覆盖”，没有增量 patch。写入失败不阻塞内存推进，但会通过顶部错误提示明确告知“保存失败：<原因>”，不再显示“已保存”；`saveNow` 返回布尔值，调用方（返回键退出等）必须据此决定后续动作。
 
 ### 存档 ID 与摘要
 
@@ -171,7 +171,7 @@ sequenceDiagram
 
 | 场景 | 行为 |
 |---|---|
-| IndexedDB 不可用/配额满 | 保存失败；内存继续，提示能力有限 |
+| IndexedDB 不可用/配额满 | 保存失败；内存继续，顶部错误提示“保存失败：<原因>”；`saveNow` 返回 `false` |
 | 读取上次存档失败 | 记录错误，回到标题页，不覆盖存档 |
 | JSON 损坏 | 拒绝导入，不写入 |
 | 字段缺失/非法 | 拒绝导入，提示字段路径 |
@@ -203,6 +203,7 @@ sequenceDiagram
 | 更高版本拒绝 | `tests/db/save.test.ts` |
 | Zod 校验失败 | `tests/db/save.test.ts` |
 | store 自动保存与载入 | `tests/store/store.test.ts` |
+| 保存失败反馈（返回 false + 提示原因） | `tests/store/persist-failure.test.ts` |
 | Key 不进入存档 | `tests/db/save.test.ts`、`tests/store/store.test.ts` |
 
 手动验收：
@@ -221,3 +222,4 @@ sequenceDiagram
 | 2026-10-28 | hashString 下沉 `src/lib/rng.ts`，repository 校验和 import 路径调整，checksum 输出与导入校验行为不变 | 全量重构 P1 |
 | 2026-10-29 | 生涯生命周期动作迁入 `careerSlice.ts`，持久化 helper 抽到 `store/helpers.ts`；存档结构与导入导出行为不变 | 全量重构提交 10 |
 | 2026-10-29 | 设置页本地数据与删除存档拆为 `settings/LocalDataSection.tsx`、`settings/DangerZone.tsx`，导入/导出/删除行为不变 | 全量重构提交 12 |
+| 2026-10-29 | `persist` 改为结构化结果，保存失败显式提示原因；`saveNow` 返回布尔值 | 缺陷修复 P1 |

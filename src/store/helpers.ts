@@ -5,13 +5,14 @@ export function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : '发生了未知错误。'
 }
 
-export async function persist(
-  world: WorldState,
-  saveId: string | null,
-): Promise<SaveSummary | null> {
+export type PersistResult =
+  | { ok: true; summary: SaveSummary }
+  | { ok: false; error: string }
+
+export async function persist(world: WorldState, saveId: string | null): Promise<PersistResult> {
   try {
-    return await saveWorld(world, saveId ?? undefined)
-  } catch {
-    return null
+    return { ok: true, summary: await saveWorld(world, saveId ?? undefined) }
+  } catch (error) {
+    return { ok: false, error: messageOf(error) }
   }
 }

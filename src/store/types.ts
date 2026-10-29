@@ -27,7 +27,7 @@ export interface GameStore {
   refreshSaves: () => Promise<void>
   createCareer: (options: CareerCreateOptions) => Promise<void>
   loadGame: (id: string) => Promise<void>
-  saveNow: () => Promise<void>
+  saveNow: () => Promise<boolean>
   removeSave: (id: string) => Promise<void>
   advance: (plan: WeeklyPlan) => Promise<TurnResult | null>
   resolveKeyMoment: (momentId: string, optionId: string) => Promise<void>

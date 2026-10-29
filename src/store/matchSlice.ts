@@ -54,8 +54,9 @@ async function advance(
       seasonTransition: result.seasonTransition,
       busy: false,
     })
-    const summary = await persist(updated, get().saveId)
-    if (summary) set({ saveId: summary.id })
+    const saved = await persist(updated, get().saveId)
+    if (saved.ok) set({ saveId: saved.summary.id })
+    else set({ error: `保存失败：${saved.error}` })
     await get().refreshSaves()
     if (!hasPendingKeyMoments(updated)) void get().narrateTurn(adapted)
     return adapted
@@ -84,8 +85,9 @@ async function resolveKeyMoment(
   if (!stillPending) finalizeMatchday(next)
   next.updatedAt = new Date().toISOString()
   set({ world: next })
-  const summary = await persist(next, saveId)
-  if (summary) set({ saveId: summary.id })
+  const result = await persist(next, saveId)
+  if (result.ok) set({ saveId: result.summary.id })
+  else set({ error: `保存失败：${result.error}` })
   await get().refreshSaves()
   if (!stillPending) narrateCompletedMatch(get, next, report)
 }
@@ -100,8 +102,9 @@ async function skipKeyMoments(set: StoreSet, get: StoreGet): Promise<void> {
   finalizeMatchday(next)
   next.updatedAt = new Date().toISOString()
   set({ world: next, notice: '关键回合已按稳妥选择自动处理。' })
-  const summary = await persist(next, saveId)
-  if (summary) set({ saveId: summary.id })
+  const result = await persist(next, saveId)
+  if (result.ok) set({ saveId: result.summary.id })
+  else set({ error: `保存失败：${result.error}` })
   await get().refreshSaves()
   narrateCompletedMatch(get, next, report)
 }
@@ -122,8 +125,9 @@ async function resolveChoice(
   }
   next.updatedAt = new Date().toISOString()
   set({ world: next, notice: `已处理：${event.title}` })
-  const summary = await persist(next, get().saveId)
-  if (summary) set({ saveId: summary.id })
+  const result = await persist(next, get().saveId)
+  if (result.ok) set({ saveId: result.summary.id })
+  else set({ error: `保存失败：${result.error}` })
   await get().refreshSaves()
 }
 
