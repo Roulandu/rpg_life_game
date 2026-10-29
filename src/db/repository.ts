@@ -57,7 +57,15 @@ export async function loadWorld(id: string): Promise<WorldState | null> {
 
 export async function listSaves(): Promise<SaveSummary[]> {
   const records = await db.saves.toArray()
-  return records.map((record) => summarizeWorld(record.world, record.id)).sort(sortByUpdatedAtDesc)
+  const summaries: SaveSummary[] = []
+  for (const record of records) {
+    try {
+      summaries.push(summarizeWorld(record.world, record.id))
+    } catch {
+      console.warn(`跳过无法解析的存档：${record.id}`)
+    }
+  }
+  return summaries.sort(sortByUpdatedAtDesc)
 }
 
 export async function deleteSave(id: string): Promise<void> {

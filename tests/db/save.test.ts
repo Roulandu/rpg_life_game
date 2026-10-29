@@ -8,7 +8,9 @@ import {
   listSaves,
   loadWorld,
   saveWorld,
+  summarizeWorld,
 } from '../../src/db/repository'
+import type { SaveRecord } from '../../src/domain'
 import { canonicalStringify } from '../../src/lib/json'
 import { hashString } from '../../src/lib/rng'
 import { generateWorld } from '../../src/world/generator'
@@ -74,5 +76,31 @@ describe('save persistence', () => {
     await deleteSave('save:test')
     expect(await loadWorld('save:test')).toBeNull()
     expect(await listSaves()).toHaveLength(0)
+  })
+})
+
+describe('save list tolerance', () => {
+  beforeEach(async () => {
+    await db.saves.clear()
+    await db.meta.clear()
+  })
+
+  it('skips a corrupt save instead of failing the whole list', async () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    await saveWorld(world, 'save:good')
+    await saveWorld(world, 'save:good-2')
+
+    const brokenWorld = structuredClone(world)
+    ;(brokenWorld.players[brokenWorld.playerId] as unknown as { position: string }).position = 'XX'
+    const record: SaveRecord = {
+      id: 'save:broken',
+      summary: summarizeWorld(world, 'save:broken'),
+      world: brokenWorld,
+    }
+    await db.saves.put(record)
+
+    const saves = await listSaves()
+
+    expect(saves.map((save) => save.id)).toEqual(['save:good', 'save:good-2'])
   })
 })

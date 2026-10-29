@@ -105,6 +105,7 @@ sequenceDiagram
 - ID：`save:<seed>:<Date.now 的 base36>:<4 位随机>`。
 - 摘要：球员名、俱乐部名、赛季、周次、年龄、综合能力、更新时间。
 - 列表按 `updatedAt` 倒序；时间相同时按 ID 字典序。
+- 列表逐条生成摘要：单条记录损坏时跳过该条并 `console.warn`，其余存档正常显示，不会清空整个列表。
 - `meta.lastSaveId` 指向最近保存的存档；删除该存档时清除。
 
 ### 导出
@@ -173,6 +174,7 @@ sequenceDiagram
 |---|---|
 | IndexedDB 不可用/配额满 | 保存失败；内存继续，顶部错误提示“保存失败：<原因>”；`saveNow` 返回 `false` |
 | 读取上次存档失败 | 记录错误，回到标题页，不覆盖存档 |
+| 列表中有损坏记录 | 跳过该条并告警，其余存档照常列出 |
 | JSON 损坏 | 拒绝导入，不写入 |
 | 字段缺失/非法 | 拒绝导入，提示字段路径 |
 | checksum 不匹配 | 拒绝导入，提示文件损坏 |
@@ -204,6 +206,7 @@ sequenceDiagram
 | Zod 校验失败 | `tests/db/save.test.ts` |
 | store 自动保存与载入 | `tests/store/store.test.ts` |
 | 保存失败反馈（返回 false + 提示原因） | `tests/store/persist-failure.test.ts` |
+| 单条损坏存档跳过 | `tests/db/save.test.ts` |
 | Key 不进入存档 | `tests/db/save.test.ts`、`tests/store/store.test.ts` |
 
 手动验收：
@@ -223,3 +226,4 @@ sequenceDiagram
 | 2026-10-29 | 生涯生命周期动作迁入 `careerSlice.ts`，持久化 helper 抽到 `store/helpers.ts`；存档结构与导入导出行为不变 | 全量重构提交 10 |
 | 2026-10-29 | 设置页本地数据与删除存档拆为 `settings/LocalDataSection.tsx`、`settings/DangerZone.tsx`，导入/导出/删除行为不变 | 全量重构提交 12 |
 | 2026-10-29 | `persist` 改为结构化结果，保存失败显式提示原因；`saveNow` 返回布尔值 | 缺陷修复 P1 |
+| 2026-10-29 | `listSaves` 逐条摘要，损坏存档只跳过自身，不再拖垮整个列表 | 缺陷修复 P2 |
