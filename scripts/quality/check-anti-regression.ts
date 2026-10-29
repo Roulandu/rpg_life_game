@@ -9,7 +9,17 @@ const SAVE_SCHEMA = 'src/domain/schema/save.schema.ts'
 const VERSION_PATTERN = /CURRENT_SAVE_VERSION\s*=\s*(\d+)/
 const GOLDEN_FIXTURE = 'quality/golden/season-seed-42.json'
 const GENERATOR = 'src/world/generator.ts'
+const CONSTANTS = 'src/world/constants.ts'
+const ENGINE_SOURCES = [GENERATOR, CONSTANTS]
 const ENGINE_VERSION_PATTERN = /ENGINE_VERSION\s*=\s*['"]([^'"]+)['"]/
+
+function engineVersion(read: (file: string) => string | null | undefined): string | undefined {
+  for (const file of ENGINE_SOURCES) {
+    const version = read(file)?.match(ENGINE_VERSION_PATTERN)?.[1]
+    if (version) return version
+  }
+  return undefined
+}
 
 function argValue(name: string): string | undefined {
   const prefix = `--${name}=`
@@ -63,11 +73,13 @@ function main(): void {
       const beforeHash = (JSON.parse(before) as { hash?: string }).hash
       const afterHash = (JSON.parse(readFileSync(afterPath, 'utf8')) as { hash?: string }).hash
       if (beforeHash !== afterHash) {
-        const beforeVersion = showAt(baseCommit, GENERATOR)?.match(ENGINE_VERSION_PATTERN)?.[1]
-        const afterVersion = existsSync(resolve(repoRoot, GENERATOR))
-          ? readFileSync(resolve(repoRoot, GENERATOR), 'utf8').match(ENGINE_VERSION_PATTERN)?.[1]
-          : undefined
-        if (!changed.includes(GENERATOR) || beforeVersion === afterVersion) {
+        const beforeVersion = engineVersion((file) => showAt(baseCommit, file))
+        const afterVersion = engineVersion((file) => {
+          const path = resolve(repoRoot, file)
+          return existsSync(path) ? readFileSync(path, 'utf8') : undefined
+        })
+        const engineTouched = ENGINE_SOURCES.some((file) => changed.includes(file))
+        if (!engineTouched || beforeVersion === afterVersion) {
           problems.push(
             `golden 哈希已变化，但 ENGINE_VERSION 未升级（${afterVersion ?? '未知'}）；引擎输出变化必须升版本并说明。`,
           )

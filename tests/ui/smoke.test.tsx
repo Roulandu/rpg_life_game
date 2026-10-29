@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { DashboardScreen } from '../../src/ui/screens/DashboardScreen'
+import { ScheduleScreen } from '../../src/ui/screens/ScheduleScreen'
 import { TitleScreen } from '../../src/ui/screens/TitleScreen'
 import { useGameStore } from '../../src/store/gameStore'
 import { generateWorld } from '../../src/world/generator'
@@ -46,5 +47,18 @@ describe('ui smoke tests', () => {
     expect(screen.getByRole('button', { name: /安排并推进第 1 周/ })).toBeInTheDocument()
     expect(screen.getByText('联赛排名')).toBeInTheDocument()
     expect(screen.getByText('积分')).toBeInTheDocument()
+  })
+
+  it('renders the schedule screen for an active career', () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    useGameStore.setState({ world, hydrated: true, saves: [] })
+    render(
+      <MemoryRouter>
+        <ScheduleScreen />
+      </MemoryRouter>,
+    )
+    expect(screen.getByText('赛程与联赛')).toBeInTheDocument()
+    expect(screen.getByText('全部赛程')).toBeInTheDocument()
+    expect(screen.getByText(/0 \/ 38 已赛/)).toBeInTheDocument()
   })
 })

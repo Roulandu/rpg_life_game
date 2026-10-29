@@ -18,7 +18,7 @@
 | `platform` | `src/platform` | — | lib | `exempt` | secure-storage, http, file-export, lifecycle, persistence, device-info | — | `docs/architecture/platform-strategy.md`<br>`docs/features/saves.md` |
 | `store` | `src/store` | — | engine, world, llm, db, platform, domain, lib | `strict` | session | `tests/store/**/*.test.ts` | `docs/features/weekly-turn.md`<br>`docs/features/saves.md`<br>`docs/features/gm-agent.md` |
 | `ui` | `src/ui` | — | store, domain, lib, platform | `via-module` | ui | `tests/ui/**/*.test.tsx` | `docs/features/weekly-turn.md`<br>`docs/features/matchday.md`<br>`docs/features/gm-agent.md`<br>`docs/features/saves.md` |
-| `world` | `src/world` | — | domain, lib | `strict` | core | `tests/engine/world.test.ts`<br>`tests/db/save.test.ts` | `docs/features/world-generation.md` |
+| `world` | `src/world` | — | domain, lib | `strict` | core | `tests/engine/world.test.ts`<br>`tests/db/save.test.ts`<br>`tests/world/**/*.test.ts` | `docs/features/world-generation.md` |
 
 ## 允许依赖矩阵
 

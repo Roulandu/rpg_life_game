@@ -4,6 +4,11 @@ status: implemented
 modules: [world, domain, engine, lib]
 code:
   - src/world/generator.ts
+  - src/world/constants.ts
+  - src/world/playerFactory.ts
+  - src/world/clubFactory.ts
+  - src/world/initialState.ts
+  - src/world/queries.ts
   - src/world/datapack.ts
   - src/world/data/england.ts
   - src/domain/attributes.ts
@@ -11,8 +16,10 @@ tests:
   - tests/engine/world.test.ts
   - tests/engine/season.test.ts
   - tests/engine/determinism.test.ts
+  - tests/world/queries.test.ts
+  - tests/world/generation.test.ts
 diagrams: [sequence]
-last_reviewed: 2026-10-26
+last_reviewed: 2026-10-29
 ---
 
 # 世界生成
@@ -127,6 +134,7 @@ sequenceDiagram
 调用：
 
 - `generateWorld(options, now)`（`src/world/generator.ts`）
+- `getPlayerWorldClub` / `getUserPlayer` / `getLeague` / `getClubFixtures` / `getWeekFixtures` / `ageGroupWeight`（`src/world/queries.ts`）
 - `generateFixtures(leagues, seed, season)`（`src/domain/fixtures.ts`）
 - `computeClubStrength(club, players, options?)`（`src/domain/strength.ts`）
 - `db.saveWorld`（由 store 调用）
@@ -153,8 +161,10 @@ sequenceDiagram
 | 规则/场景 | 测试 |
 |---|---|
 | 生成两级联赛、40 俱乐部、完整阵容 | `tests/engine/world.test.ts` |
-| 用户球员属性、合同、关系、财务 | `tests/engine/world.test.ts` |
+| 用户球员属性、合同、关系、财务 | `tests/engine/world.test.ts`、`tests/world/generation.test.ts` |
 | 38 周双循环赛程、每队主客均衡 | `tests/engine/world.test.ts`、`tests/engine/season.test.ts` |
+| 只读查询：俱乐部/球员/联赛/赛程/年龄权重 | `tests/world/queries.test.ts` |
+| 未知俱乐部回退默认球队 | `tests/world/generation.test.ts` |
 | 同 seed 输出一致 | `tests/engine/determinism.test.ts` |
 | 生成结果可存档并读回 | `tests/db/save.test.ts` |
 
@@ -171,3 +181,4 @@ sequenceDiagram
 | 2026-10-26 | 初版：世界规模、用户球员、赛程、关系、财务与确定性约束 | ADR 0001 |
 | 2026-10-28 | rng 工具下沉 `src/lib/rng.ts`，generator 的 createRng import 路径调整，生成行为与 golden 哈希不变 | 全量重构 P1 |
 | 2026-10-28 | `computeClubStrength` 下沉 `src/domain/strength.ts`、`generateFixtures`/`makeRoundRobin` 下沉 `src/domain/fixtures.ts`，斩断 engine→world 依赖并清洁超标函数；生成行为与 golden 哈希不变 | 全量重构 P1 |
+| 2026-10-29 | generator 拆分为 `constants`/`playerFactory`/`clubFactory`/`initialState`/`queries`，`makeAttributes` 按门将/外场拆分降低复杂度，关系组装按角色拆分；新增回退与合同年龄测试，生成行为与 golden 哈希不变 | 全量重构 P2 |

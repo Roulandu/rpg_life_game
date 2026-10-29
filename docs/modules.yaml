@@ -81,6 +81,7 @@ modules:
     tests:
       - tests/engine/world.test.ts
       - tests/db/save.test.ts
+      - tests/world/**/*.test.ts
     docs: [docs/features/world-generation.md]
     testImpact: strict
     platformCapabilities: [core]

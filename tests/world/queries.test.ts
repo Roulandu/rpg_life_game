@@ -7,7 +7,7 @@ import {
   getPlayerWorldClub,
   getUserPlayer,
   getWeekFixtures,
-} from '../../src/world/generator'
+} from '../../src/world/queries'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
 

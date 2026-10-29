@@ -298,46 +298,6 @@
         }
       }
     },
-    "src/world/generator.ts": {
-      "metrics": {
-        "lines": {
-          "value": 576,
-          "max": 300
-        }
-      }
-    },
-    "src/world/generator.ts::createRelationships": {
-      "metrics": {
-        "functionLines": {
-          "value": 75,
-          "max": 60
-        }
-      }
-    },
-    "src/world/generator.ts::generateWorld": {
-      "metrics": {
-        "functionLines": {
-          "value": 66,
-          "max": 60
-        }
-      }
-    },
-    "src/world/generator.ts::makeAttributes": {
-      "metrics": {
-        "complexity": {
-          "value": 13,
-          "max": 12
-        }
-      }
-    },
-    "src/world/generator.ts::makeUserPlayer": {
-      "metrics": {
-        "functionLines": {
-          "value": 64,
-          "max": 60
-        }
-      }
-    },
     "tests/engine/keyMoments.test.ts::<anonymous>": {
       "metrics": {
         "functionLines": {
