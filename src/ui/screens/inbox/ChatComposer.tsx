@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { LoaderCircle, Send } from 'lucide-react'
 import { Card } from '../../components/Card'
+import { shouldSendOnEnter } from './composerKeys'
 
 const MAX_MESSAGE = 400
 
@@ -32,7 +33,15 @@ export function ChatComposer({ aiBusy, onSend }: Props) {
         value={message}
         onChange={(event) => setMessage(event.target.value)}
         onKeyDown={(event) => {
-          if (event.key === 'Enter' && !event.shiftKey) {
+          const native = event.nativeEvent
+          if (
+            shouldSendOnEnter({
+              key: event.key,
+              shiftKey: event.shiftKey,
+              isComposing: native.isComposing,
+              keyCode: native.keyCode,
+            })
+          ) {
             event.preventDefault()
             handleSend()
           }

@@ -111,6 +111,7 @@ sequenceDiagram
 ### 对话与行动
 
 - 输入经 `sanitizeText(message, 400)`；空文本拒绝。
+- 回车发送、Shift+回车换行；输入法组字中的回车（`isComposing` 或 keyCode 229）不触发发送。
 - 使用 `submit_action` 工具，返回 `replyZh`（≤400 字）与固定 `actionId`。
 - 行动效果由 `src/llm/actions.ts` 固定：
 
@@ -218,3 +219,4 @@ sequenceDiagram
 | 2026-10-28 | `prompt.ts` 改从 `src/domain/leagueTable.ts` 读积分榜，消除 llm→engine 深引 | 全量重构提交 3 |
 | 2026-10-29 | 叙事与聊天动作迁入 `store/aiActions.ts`，LLM 默认值与行动文案经 `store/selectors.ts` 暴露给 UI，消除 ui→llm 直接依赖 | 全量重构提交 10 |
 | 2026-10-29 | 设置页拆为 `ui/screens/settings/*`（AI 参数、Key、连接测试、用量、隐私、本地数据、危险操作），收件箱拆为 `ui/screens/inbox/*`（事件/对话/新闻），主组件只编排；页面行为与文案不变 | 全量重构提交 12 |
+| 2026-10-29 | 对话输入框回车发送前检查输入法组字状态，避免中文上屏误发送 | 缺陷修复 P6 |

@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, fireEvent, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { InboxScreen } from '../../src/ui/screens/InboxScreen'
+import { ChatComposer } from '../../src/ui/screens/inbox/ChatComposer'
 import { useGameStore } from '../../src/store/gameStore'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
@@ -56,5 +57,22 @@ describe('inbox screen', () => {
 
     expect(screen.getByLabelText('对 GM 说')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '发送' })).toBeDisabled()
+  })
+})
+
+describe('chat composer', () => {
+  it('does not send when enter confirms an input method composition', () => {
+    const onSend = vi.fn()
+    render(<ChatComposer aiBusy={false} onSend={onSend} />)
+    const input = screen.getByLabelText('对 GM 说')
+    fireEvent.change(input, { target: { value: '你好' } })
+
+    fireEvent.keyDown(input, { key: 'Enter', isComposing: true })
+
+    expect(onSend).not.toHaveBeenCalled()
+
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(onSend).toHaveBeenCalledWith('你好')
   })
 })
