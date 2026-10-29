@@ -92,7 +92,7 @@ async function createCareer(
   }
 }
 
-async function loadGame(set: StoreSet, get: StoreGet, id: string): Promise<void> {
+async function loadGame(set: StoreSet, get: StoreGet, id: string): Promise<boolean> {
   set({ busy: true, error: null, notice: null })
   try {
     const world = await loadWorld(id)
@@ -104,10 +104,13 @@ async function loadGame(set: StoreSet, get: StoreGet, id: string): Promise<void>
       seasonTransition: null,
       busy: false,
     })
-    await saveWorld(world, id)
+    const saved = await persist(world, id)
+    if (!saved.ok) set({ error: `保存失败：${saved.error}` })
     await get().refreshSaves()
+    return true
   } catch (error) {
     set({ busy: false, error: `读取存档失败：${messageOf(error)}` })
+    return false
   }
 }
 
@@ -125,7 +128,7 @@ async function saveNow(set: StoreSet, get: StoreGet): Promise<boolean> {
   return true
 }
 
-async function removeSave(set: StoreSet, get: StoreGet, id: string): Promise<void> {
+async function removeSave(set: StoreSet, get: StoreGet, id: string): Promise<boolean> {
   try {
     await deleteSave(id)
     if (get().saveId === id) {
@@ -133,8 +136,10 @@ async function removeSave(set: StoreSet, get: StoreGet, id: string): Promise<voi
     }
     await get().refreshSaves()
     set({ notice: '存档已删除。' })
+    return true
   } catch (error) {
     set({ error: `删除存档失败：${messageOf(error)}` })
+    return false
   }
 }
 
@@ -153,7 +158,7 @@ function updateSettings(
   })
 }
 
-async function importFromText(set: StoreSet, get: StoreGet, text: string): Promise<void> {
+async function importFromText(set: StoreSet, get: StoreGet, text: string): Promise<boolean> {
   set({ busy: true, error: null, notice: null })
   try {
     const world = importWorld(text)
@@ -169,8 +174,10 @@ async function importFromText(set: StoreSet, get: StoreGet, text: string): Promi
       notice: `已导入 ${world.players[world.playerId]?.name ?? '球员'} 的生涯。`,
     })
     await get().refreshSaves()
+    return true
   } catch (error) {
     set({ busy: false, error: `导入失败：${messageOf(error)}` })
+    return false
   }
 }
 

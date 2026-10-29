@@ -85,8 +85,8 @@ export function TitleScreen() {
                     type="button"
                     className="card flex flex-1 items-center justify-between gap-3 p-3 text-left transition hover:border-accent/40"
                     onClick={async () => {
-                      await loadGame(save.id)
-                      if (useGameStore.getState().world) navigate('/game')
+                      const ok = await loadGame(save.id)
+                      if (ok) navigate('/game')
                     }}
                   >
                     <div className="min-w-0">
@@ -134,9 +134,9 @@ export function TitleScreen() {
               const file = event.target.files?.[0]
               if (!file) return
               const text = await file.text()
-              await importFromText(text)
+              const ok = await importFromText(text)
               event.target.value = ''
-              if (useGameStore.getState().world) navigate('/game')
+              if (ok) navigate('/game')
             }}
           />
         </Card>

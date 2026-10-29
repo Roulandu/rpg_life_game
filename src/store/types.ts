@@ -26,9 +26,9 @@ export interface GameStore {
   init: () => Promise<void>
   refreshSaves: () => Promise<void>
   createCareer: (options: CareerCreateOptions) => Promise<void>
-  loadGame: (id: string) => Promise<void>
+  loadGame: (id: string) => Promise<boolean>
   saveNow: () => Promise<boolean>
-  removeSave: (id: string) => Promise<void>
+  removeSave: (id: string) => Promise<boolean>
   advance: (plan: WeeklyPlan) => Promise<TurnResult | null>
   resolveKeyMoment: (momentId: string, optionId: string) => Promise<void>
   skipKeyMoments: () => Promise<void>
@@ -39,7 +39,7 @@ export interface GameStore {
   clearApiKey: () => Promise<void>
   testAi: () => Promise<ConnectionTestResult>
   sendChat: (message: string) => Promise<void>
-  importFromText: (text: string) => Promise<void>
+  importFromText: (text: string) => Promise<boolean>
   exportCurrent: () => void
   dismissSeason: () => void
   clearLastTurn: () => void

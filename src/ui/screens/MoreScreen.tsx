@@ -112,9 +112,9 @@ export function MoreScreen() {
             onChange={async (event) => {
               const file = event.target.files?.[0]
               if (!file) return
-              await importFromText(await file.text())
+              const ok = await importFromText(await file.text())
               event.target.value = ''
-              if (useGameStore.getState().world) navigate('/game')
+              if (ok) navigate('/game')
             }}
           />
         </Card>

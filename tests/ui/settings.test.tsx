@@ -1,6 +1,8 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, fireEvent, screen } from '@testing-library/react'
+import { createRef } from 'react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { SettingsScreen } from '../../src/ui/screens/SettingsScreen'
+import { LocalDataSection } from '../../src/ui/screens/settings/LocalDataSection'
 import { useGameStore } from '../../src/store/gameStore'
 import type { WorldState } from '../../src/domain/types'
 import { generateWorld } from '../../src/world/generator'
@@ -55,5 +57,43 @@ describe('settings screen', () => {
 
     expect(useGameStore.getState().world?.settings.provider).toBe('anthropic')
     expect(screen.queryByLabelText('Token 参数')).not.toBeInTheDocument()
+  })
+})
+
+describe('local data import', () => {
+  function renderLocalData(onImportFile: () => Promise<boolean>, onImported: () => void) {
+    const fileRef = createRef<HTMLInputElement>()
+    const { container } = render(
+      <LocalDataSection
+        season={1}
+        week={1}
+        fileRef={fileRef}
+        onSave={() => {}}
+        onExport={() => {}}
+        onImportFile={onImportFile}
+        onImported={onImported}
+      />,
+    )
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement
+    fireEvent.change(input, {
+      target: { files: [new File(['{}'], 'bad.json', { type: 'application/json' })] },
+    })
+  }
+
+  it('导入失败时不触发跳转回调', async () => {
+    const onImportFile = vi.fn(async () => false)
+    const onImported = vi.fn()
+    renderLocalData(onImportFile, onImported)
+
+    await waitFor(() => expect(onImportFile).toHaveBeenCalled())
+    expect(onImported).not.toHaveBeenCalled()
+  })
+
+  it('导入成功时触发跳转回调', async () => {
+    const onImportFile = vi.fn(async () => true)
+    const onImported = vi.fn()
+    renderLocalData(onImportFile, onImported)
+
+    await waitFor(() => expect(onImported).toHaveBeenCalled())
   })
 })

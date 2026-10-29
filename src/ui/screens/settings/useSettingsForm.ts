@@ -43,8 +43,9 @@ export function useSettingsForm(settings: GameSettings | undefined) {
   }
 
   async function importFile(file: File) {
-    await importFromText(await file.text())
+    const ok = await importFromText(await file.text())
     if (fileRef.current) fileRef.current.value = ''
+    return ok
   }
 
   return {

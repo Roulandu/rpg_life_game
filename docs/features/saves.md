@@ -175,10 +175,12 @@ sequenceDiagram
 | IndexedDB 不可用/配额满 | 保存失败；内存继续，顶部错误提示“保存失败：<原因>”；`saveNow` 返回 `false` |
 | 读取上次存档失败 | 记录错误，回到标题页，不覆盖存档 |
 | 列表中有损坏记录 | 跳过该条并告警，其余存档照常列出 |
-| JSON 损坏 | 拒绝导入，不写入 |
-| 字段缺失/非法 | 拒绝导入，提示字段路径 |
-| checksum 不匹配 | 拒绝导入，提示文件损坏 |
-| 存档版本更高 | 拒绝导入，提示更新游戏 |
+| JSON 损坏 | 拒绝导入，不写入，保留当前生涯且不跳转 |
+| 字段缺失/非法 | 拒绝导入，提示字段路径，保留当前生涯且不跳转 |
+| checksum 不匹配 | 拒绝导入，提示文件损坏，保留当前生涯且不跳转 |
+| 存档版本更高 | 拒绝导入，提示更新游戏，保留当前生涯且不跳转 |
+| 载入存档失败 | 提示读取失败，停留在当前页面，不跳转 |
+| 删除存档失败 | 提示删除失败，停留在当前页面；仅成功后返回标题页 |
 | 删除当前存档 | 清空内存世界与 `lastSaveId`，回到标题页 |
 | Android 安全存储失败 | Key 只保留会话，提示用户 |
 | Web 无法加密 | Key 只保留会话，提示用户 |
@@ -207,6 +209,7 @@ sequenceDiagram
 | store 自动保存与载入 | `tests/store/store.test.ts` |
 | 保存失败反馈（返回 false + 提示原因） | `tests/store/persist-failure.test.ts` |
 | 单条损坏存档跳过 | `tests/db/save.test.ts` |
+| 载入/导入/删除返回值与失败不跳转 | `tests/store/import-failure.test.ts`、`tests/ui/settings.test.tsx` |
 | Key 不进入存档 | `tests/db/save.test.ts`、`tests/store/store.test.ts` |
 
 手动验收：
@@ -227,3 +230,4 @@ sequenceDiagram
 | 2026-10-29 | 设置页本地数据与删除存档拆为 `settings/LocalDataSection.tsx`、`settings/DangerZone.tsx`，导入/导出/删除行为不变 | 全量重构提交 12 |
 | 2026-10-29 | `persist` 改为结构化结果，保存失败显式提示原因；`saveNow` 返回布尔值 | 缺陷修复 P1 |
 | 2026-10-29 | `listSaves` 逐条摘要，损坏存档只跳过自身，不再拖垮整个列表 | 缺陷修复 P2 |
+| 2026-10-29 | `loadGame` / `importFromText` / `removeSave` 返回布尔值，UI 仅在成功后跳转 | 缺陷修复 P3 |

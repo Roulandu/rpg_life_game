@@ -22,7 +22,9 @@ export function DangerZone({ saveId, onRemoved }: Props) {
           onClick={() => {
             if (!saveId) return
             if (window.confirm('删除当前存档？这个操作无法撤销。')) {
-              void removeSave(saveId).then(onRemoved)
+              void removeSave(saveId).then((ok) => {
+                if (ok) onRemoved()
+              })
             }
           }}
         >

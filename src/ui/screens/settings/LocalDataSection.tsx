@@ -9,7 +9,7 @@ interface Props {
   fileRef: RefObject<HTMLInputElement | null>
   onSave: () => void
   onExport: () => void
-  onImportFile: (file: File) => Promise<void>
+  onImportFile: (file: File) => Promise<boolean>
   onImported: () => void
 }
 
@@ -55,8 +55,8 @@ export function LocalDataSection({ season, week, fileRef, onSave, onExport, onIm
           onChange={async (event) => {
             const file = event.target.files?.[0]
             if (!file) return
-            await onImportFile(file)
-            onImported()
+            const ok = await onImportFile(file)
+            if (ok) onImported()
           }}
         />
       </Card>
