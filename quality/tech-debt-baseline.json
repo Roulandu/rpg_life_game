@@ -29,56 +29,8 @@
     "src/engine/match.ts": {
       "metrics": {
         "lines": {
-          "value": 548,
+          "value": 406,
           "max": 300
-        }
-      }
-    },
-    "src/engine/match.ts::<anonymous>": {
-      "metrics": {
-        "params": {
-          "value": 9,
-          "max": 5
-        }
-      }
-    },
-    "src/engine/match.ts::simulateUserFixture": {
-      "metrics": {
-        "statements": {
-          "value": 77,
-          "max": 50
-        }
-      }
-    },
-    "src/engine/match.ts::simulateUserFixture#2": {
-      "metrics": {
-        "complexity": {
-          "value": 52,
-          "max": 12
-        }
-      }
-    },
-    "src/engine/match.ts::simulateUserFixture#3": {
-      "metrics": {
-        "functionLines": {
-          "value": 208,
-          "max": 60
-        }
-      }
-    },
-    "src/engine/match.ts::updateUserAfterMatch": {
-      "metrics": {
-        "complexity": {
-          "value": 27,
-          "max": 12
-        }
-      }
-    },
-    "src/engine/match.ts::updateUserAfterMatch#2": {
-      "metrics": {
-        "functionLines": {
-          "value": 65,
-          "max": 60
         }
       }
     },
@@ -95,38 +47,6 @@
         "complexity": {
           "value": 24,
           "max": 12
-        }
-      }
-    },
-    "src/engine/turn.ts": {
-      "metrics": {
-        "lines": {
-          "value": 377,
-          "max": 300
-        }
-      }
-    },
-    "src/engine/turn.ts::endSeason": {
-      "metrics": {
-        "statements": {
-          "value": 57,
-          "max": 50
-        }
-      }
-    },
-    "src/engine/turn.ts::endSeason#2": {
-      "metrics": {
-        "complexity": {
-          "value": 39,
-          "max": 12
-        }
-      }
-    },
-    "src/engine/turn.ts::endSeason#3": {
-      "metrics": {
-        "functionLines": {
-          "value": 145,
-          "max": 60
         }
       }
     },

@@ -4,12 +4,15 @@ status: implemented
 modules: [engine, store, ui]
 code:
   - src/engine/match.ts
+  - src/engine/matchGoals.ts
+  - src/engine/matchUser.ts
   - src/engine/keyMoments.ts
   - src/engine/keyMomentNarrative.ts
   - src/engine/data/keyMomentOptions.ts
   - src/domain/leagueTable.ts
   - src/ui/screens/MatchdayScreen.tsx
 tests:
+  - tests/engine/match.test.ts
   - tests/engine/keyMoments.test.ts
   - tests/engine/season.test.ts
   - tests/domain/leagueTable.test.ts
@@ -199,3 +202,4 @@ sequenceDiagram
 | 2026-10-26 | 初版：出场、比分、关键回合、结算、最终化与失败降级 | ADR 0001 |
 | 2026-10-28 | 积分榜计算 `computeLeagueTable` 下沉至 `src/domain/leagueTable.ts`，斩断 engine→world 与 llm/ui→engine 深引 | 全量重构提交 3 |
 | 2026-10-29 | 关键回合选项构建外迁 `src/engine/data/keyMomentOptions.ts`、叙事与媒体反应外迁 `src/engine/keyMomentNarrative.ts`，keyMoments.ts 只保留编排；golden 哈希不变 | 全量重构提交 7 |
+| 2026-10-29 | 比赛模拟拆为 `matchGoals.ts`（期望进球/射手/助攻/伤种）与 `matchUser.ts`（选人/评分/赛后结算），match.ts 只保留比赛编排；RNG 顺序不变，golden 哈希一致 | 全量重构提交 8 |
