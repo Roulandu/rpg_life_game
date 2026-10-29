@@ -149,11 +149,11 @@ function pickManOfTheMatch(
     else goalCounts.set(contribution.scorer.id, { player: contribution.scorer, count: 1 })
   }
   const topScorer = [...goalCounts.values()].sort((a, b) => b.count - a.count)[0]?.player
-  const name =
-    userRating != null && userRating >= 8.3
-      ? setup.user.name
-      : topScorer?.name ?? (setup.isHome ? setup.homeClub.nameZh : setup.awayClub.nameZh)
-  const rating = userRating != null && userRating >= 8.3 ? userRating : round1(rng.float(7.2, 8.5))
+  const userHighlighted = userRating != null && (userRating >= 8.3 || topScorer?.isUser === true)
+  const name = userHighlighted
+    ? setup.user.name
+    : topScorer?.name ?? (setup.isHome ? setup.homeClub.nameZh : setup.awayClub.nameZh)
+  const rating = userHighlighted ? userRating : round1(rng.float(7.2, 8.5))
   return { name, rating }
 }
 
