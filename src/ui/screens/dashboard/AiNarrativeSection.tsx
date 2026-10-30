@@ -17,7 +17,7 @@ export function AiNarrativeSection({
   onContinue: () => void
 }) {
   return (
-    <section className="mb-3">
+    <section className="mb-3" data-dashboard-block="week">
       <SectionTitle
         right={
           <span className="flex items-center gap-1 text-[10px] text-teal">

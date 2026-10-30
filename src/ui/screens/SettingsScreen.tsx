@@ -46,7 +46,7 @@ export function SettingsScreen() {
   const aiKeyForm = toApiKeyForm(form, aiKeyReady, aiKeyHint)
 
   return (
-    <div className="page-pad pb-6">
+    <div className="page-pad pb-6 sm:mx-auto sm:max-w-[var(--focus-max)]">
       <button type="button" className="btn-ghost -ml-2 mb-3 px-2" onClick={() => navigate('/more')}>
         <ArrowLeft size={16} /> 更多
       </button>

@@ -39,7 +39,7 @@ export function Modal({ open, title, description, onClose, children, footer, dis
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="card max-h-[88svh] w-full max-w-[460px] overflow-y-auto p-5 animate-fade-up"
+        className="card max-h-[88svh] w-full max-w-[460px] overflow-y-auto p-5 animate-fade-up sm:max-w-[560px]"
       >
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>

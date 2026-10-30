@@ -38,18 +38,26 @@ flowchart LR
 
 路由（`src/router.tsx`）：
 
-| 路径 | 页面 | 主要职责 |
-|---|---|---|
-| `/` | TitleScreen | 继续生涯 / 新建 / 导入 |
-| `/create` | CreateCareerScreen | 选择国籍、位置、俱乐部、种子 |
-| `/game` | DashboardScreen | 周计划、推进、当前事件 |
-| `/match` | MatchdayScreen | 比赛报告与关键回合 |
-| `/schedule` | ScheduleScreen | 赛程与积分榜 |
-| `/inbox` | InboxScreen | 新闻、事件、AI 对话 |
-| `/profile` | ProfileScreen | 属性、合同、财务、生涯记录 |
-| `/timeline` | TimelineScreen | 赛季与生涯时间线 |
-| `/settings` | SettingsScreen | LLM Provider、Key、叙事密度、导入导出 |
-| `/more` | MoreScreen | 次级入口 |
+| 路径 | 页面 | 布局类型 | 主要职责 |
+|---|---|---|---|
+| `/` | TitleScreen | 桌面双栏 960 / 其余专注 720 | 继续生涯 / 新建 / 导入 |
+| `/create` | CreateCareerScreen | 专注 720 | 选择国籍、位置、俱乐部、种子 |
+| `/game` | DashboardScreen | 桌面两栏 1152 | 周计划、推进、当前事件 |
+| `/match` | MatchdayScreen | 专注 720 | 比赛报告与关键回合 |
+| `/schedule` | ScheduleScreen | 桌面并排 960 | 赛程与积分榜 |
+| `/inbox` | InboxScreen | 限宽 760 + 对话内滚 | 新闻、事件、AI 对话 |
+| `/profile` | ProfileScreen | 桌面两栏 960 | 属性、合同、财务、生涯记录 |
+| `/timeline` | TimelineScreen | 桌面双列 960 | 赛季与生涯时间线 |
+| `/settings` | SettingsScreen | 专注 720 | LLM Provider、Key、叙事密度、导入导出 |
+| `/more` | MoreScreen | 桌面两栏 960 | 次级入口 |
+
+### 响应式外壳
+
+- `GameLayout` 的根节点使用 `.app-shell.game-shell`：手机保持 480 上限与底部导航；`lg:` 起为侧栏预留 `--sidenav-w` 左内边距并去掉底栏内边距。
+- `<Outlet/>` 包在语义 `<main>` 中，桌面下居中且不超过 `--content-max`（1152px）；页面自身再按上表追加更窄的上限。
+- `BottomNav` 是唯一导航 DOM：`<640` 为底部五等分栏，`640–1023` 为加宽底栏，`≥1024` 同一 `<nav>` 变为左侧固定竖栏（`lg:flex-col`），不新增第二套导航。
+- 页面宽度分三类：专注型 720（新建/比赛日/设置）、列表型 760/960（收件箱、赛程、生涯、更多、时间线）、主次两栏 1152（主页）；标题页手机/平板 720、桌面双栏 960。
+- 纯 CSS 断点实现，不读视口；详见 `docs/architecture/platform-strategy.md` 的「断点与布局」。
 
 ## 模块划分
 
@@ -234,3 +242,4 @@ flowchart TD
 | 2026-10-29 | Dashboard 拆为 `ui/screens/dashboard/*`（头部/本周状态/下一场/联赛迷你表/收件箱/新闻等），Matchday 拆为 `ui/screens/matchday/*`（比分卡/关键时刻/回顾/时间线），派生数据集中到 `dashboardData.ts`，页面结构与视觉不变 | 全量重构提交 11 |
 | 2026-10-29 | 10 个模块新增显式 `index.ts` 公共入口与每模块导出面测试；边界脚本支持 `publicEntry` 深引与模块内自引检查，当前入口未启用保持休眠 | 全量重构提交 13 |
 | 2026-10-29 | 全量源码跨模块相对 import 切到模块公共入口（191 条跨模块依赖），10 个 `publicEntry` 启用，深引/自引门禁转为强制 | 全量重构提交 14 |
+| 2026-10-30 | 落地平板/桌面响应式外壳：语义 `<main>`、桌面侧栏偏移、页面宽度分级；路由表补布局类型 | 响应式改造 |

@@ -1,14 +1,11 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import clsx from 'clsx'
 import { useGameStore } from '../../store'
 import { selectActionLabel } from '../../store'
-import { formatSeasonLabel } from '../../lib'
-import { PageHeader } from '../components/PageHeader'
-import { ChatTab } from './inbox/ChatTab'
-import { EventsTab } from './inbox/EventsTab'
-import { InboxTabs } from './inbox/InboxTabs'
+import { InboxHeader } from './inbox/InboxHeader'
+import { InboxTabBody } from './inbox/InboxTabBody'
 import { parseInboxTab, type InboxTab } from './inbox/inboxTab'
-import { NewsTab } from './inbox/NewsTab'
 
 export function InboxScreen() {
   const navigate = useNavigate()
@@ -31,41 +28,34 @@ export function InboxScreen() {
     ? (selectActionLabel(world.aiAction?.actionId) ?? '本周行动')
     : null
   const aiEnabled = world.settings.aiMode === 'llm'
+  const canChat = aiEnabled && aiKeyReady
+  const lockChatHeight = tab === 'chat' && canChat
 
   return (
-    <div className="page-pad pb-6">
-      <PageHeader
-        eyebrow={formatSeasonLabel(world.season)}
-        title="收件箱"
-        subtitle="教练、队友、经纪人和媒体都在这里等你回应。"
-        right={
-          open.length > 0 ? <span className="chip border-accent/30 text-accent">{open.length} 待处理</span> : undefined
-        }
-      />
-
-      <InboxTabs tab={tab} onChange={setTab} />
-
-      {tab === 'events' ? (
-        <EventsTab
-          open={open}
-          history={history}
-          onChoose={(eventId, choiceId) => void resolveChoice(eventId, choiceId)}
-        />
-      ) : tab === 'chat' ? (
-        <ChatTab
-          aiEnabled={aiEnabled}
-          canChat={aiEnabled && aiKeyReady}
-          aiBusy={aiBusy}
-          aiError={aiError}
-          chat={world.aiChat ?? []}
-          usedActionLabel={usedActionLabel}
-          onClearError={clearAiError}
-          onOpenSettings={() => navigate('/settings')}
-          onSend={(text) => void sendChat(text)}
-        />
-      ) : (
-        <NewsTab news={world.news.slice(0, 40)} />
+    <div
+      className={clsx(
+        'page-pad pb-6 sm:mx-auto sm:max-w-[760px]',
+        lockChatHeight &&
+          'md:flex md:h-[calc(100svh_-_var(--bottom-nav-h))] md:flex-col md:overflow-hidden md:mb-[calc(var(--bottom-nav-h)_-_6rem)] lg:h-svh lg:mb-0',
       )}
+    >
+      <InboxHeader season={world.season} openCount={open.length} tab={tab} onChange={setTab} />
+      <InboxTabBody
+        tab={tab}
+        open={open}
+        history={history}
+        onChoose={(eventId, choiceId) => void resolveChoice(eventId, choiceId)}
+        aiEnabled={aiEnabled}
+        canChat={canChat}
+        aiBusy={aiBusy}
+        aiError={aiError}
+        chat={world.aiChat ?? []}
+        usedActionLabel={usedActionLabel}
+        onClearError={clearAiError}
+        onOpenSettings={() => navigate('/settings')}
+        onSend={(text) => void sendChat(text)}
+        news={world.news.slice(0, 40)}
+      />
     </div>
   )
 }

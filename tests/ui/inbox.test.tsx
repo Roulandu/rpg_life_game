@@ -67,6 +67,24 @@ describe('inbox screen', () => {
 
     expect(screen.getByLabelText('对 GM 说')).toBeInTheDocument()
   })
+
+  it('locks the chat viewport and scrolls messages above the composer', () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    world.settings.aiMode = 'llm'
+    useGameStore.setState({ world, hydrated: true, aiKeyReady: true })
+    const { container } = renderWithRouter(<InboxScreen />, { initialEntries: ['/inbox?tab=chat'] })
+
+    const page = container.firstElementChild as HTMLElement
+    const scroll = screen.getByTestId('chat-scroll')
+    const composer = screen.getByLabelText('对 GM 说')
+
+    expect(page.className).toContain('md:h-[calc(100svh_-_var(--bottom-nav-h))]')
+    expect(page.className).toContain('md:mb-[calc(var(--bottom-nav-h)_-_6rem)]')
+    expect(page.className).toContain('lg:mb-0')
+    expect(scroll.className).toContain('md:overflow-y-auto')
+    expect(scroll.contains(composer)).toBe(false)
+    expect(composer.closest('.card')?.className).toContain('md:shrink-0')
+  })
 })
 
 describe('chat composer', () => {

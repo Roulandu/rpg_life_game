@@ -7,7 +7,7 @@ export function InboxPreview({ openCount, latest }: { openCount: number; latest:
   const navigate = useNavigate()
 
   return (
-    <section className="mb-4">
+    <section className="mb-4" data-dashboard-block="inbox">
       <SectionTitle
         right={
           openCount > 0 ? <span className="chip border-accent/30 text-accent">{openCount} 个待处理</span> : undefined

@@ -4,7 +4,7 @@ import { StatBar } from '../../components/StatBar'
 
 export function PlayerFormCard({ user }: { user: Player }) {
   return (
-    <div className="mb-4 grid grid-cols-2 gap-2">
+    <div className="mb-4 grid grid-cols-2 gap-2" data-dashboard-block="form">
       <Card className="p-3">
         <StatBar label="体能" value={user.fitness} />
         <StatBar label="士气" value={user.morale} className="mt-2" />

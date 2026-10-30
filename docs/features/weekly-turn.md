@@ -203,6 +203,12 @@ sequenceDiagram
 
 核心回合完全本地计算，不依赖网络。
 
+宽屏布局：
+
+- 主页 `≥1024px` 为主次两栏：左列最近比赛/本周状态/下一场/推进，右列球员状态/迷你积分表/收件箱预览/新闻；`<640px` 顺序不变。
+- 赛程页 `≥1024px` 隐藏 tab，赛程与积分榜并排常驻；积分表外层 `overflow-x-auto`，窄屏不出横向滚动。
+- 区块顺序由 `data-dashboard-block` 标记保护，测试逐项比对。
+
 ## 验收与测试映射
 
 | 规则/场景 | 测试 |
@@ -212,6 +218,8 @@ sequenceDiagram
 | 同 seed 回放一致 | `tests/engine/determinism.test.ts` |
 | store 守卫、持久化、叙事降级 | `tests/store/store.test.ts` |
 | 关键回合阻塞下一周 | `tests/engine/keyMoments.test.ts`、`tests/store/store.test.ts` |
+| 主页区块顺序与两栏归属 | `tests/ui/dashboardLayout.test.tsx` |
+| 赛程双面板常驻与表格溢出容器 | `tests/ui/schedule.test.tsx` |
 
 手动验收：
 
@@ -219,6 +227,7 @@ sequenceDiagram
 2. 制造伤病，确认恢复与训练分支。
 3. 推进到第 38 周，确认赛季总结、升降级与合同变化。
 4. 有未完成关键回合时尝试推进，确认被拒绝。
+5. 1024px 宽度下确认主页两栏、赛程并排，360px 下区块顺序与并排前一致。
 
 ## 变更记录
 
@@ -230,6 +239,7 @@ sequenceDiagram
 | 2026-10-28 | engine/turn 改从 `src/domain/leagueTable` 引入 computeLeagueTable；赛季结算排名逻辑与 golden 哈希不变 | 全量重构 P1 |
 | 2026-10-29 | 事件模板与结果文案外迁 `src/engine/data/eventTemplates.ts`，events.ts 降为插值与编排，golden 哈希不变 | 全量重构提交 6 |
 | 2026-10-29 | 赛季结算拆为 `season.ts`（评价 + 转季步骤）与 `seasonAwards.ts`（奖项/历史/新闻），turn.ts 只保留编排；赛季切换行为与 golden 哈希不变 | 全量重构提交 8 |
+| 2026-10-30 | 主页与赛程页落地宽屏布局（`lg:` 两栏/并排、表格溢出容器）；回合规则不变 | 响应式改造 |
 | 2026-10-29 | gameStore 拆为 career/match/ai/ui 四个切片 + helpers，动作体抽为独立 handler 压复杂度；状态与行为保持不变 | 全量重构提交 10 |
 | 2026-10-29 | 主页拆为 `ui/screens/dashboard/*`，派生状态集中到 `dashboardData.ts`，AI 叙事/待处理回合/联赛迷你表/新闻各自独立，主组件只编排 | 全量重构提交 11 |
 | 2026-10-29 | 收件箱拆为 `ui/screens/inbox/*`，待处理事件卡片与已处理列表独立，事件展示与选择行为保持不变 | 全量重构提交 12 |

@@ -188,6 +188,8 @@ sequenceDiagram
 
 无差异。比赛与关键回合完全本地计算；UI 只负责展示与收集选择。
 
+宽屏布局：`≥640px` 起页面以 720px 专注宽度居中（`--focus-max`），保持单列关键回合流程，不拆两栏。
+
 ## 验收与测试映射
 
 | 规则/场景 | 测试 |
@@ -207,6 +209,7 @@ sequenceDiagram
 2. 刷新页面，确认未完成回合仍可继续。
 3. 点击自动处理，确认按稳妥选项结算并生成媒体反应。
 4. 在 360–390px 宽度确认选项按钮可点击、不溢出。
+5. 在 1024px 以上确认页面以 720px 居中、按键与文案不被拉伸。
 
 ## 变更记录
 
@@ -215,6 +218,7 @@ sequenceDiagram
 | 2026-10-26 | 初版：出场、比分、关键回合、结算、最终化与失败降级 | ADR 0001 |
 | 2026-10-28 | 积分榜计算 `computeLeagueTable` 下沉至 `src/domain/leagueTable.ts`，斩断 engine→world 与 llm/ui→engine 深引 | 全量重构提交 3 |
 | 2026-10-29 | 关键回合选项构建外迁 `src/engine/data/keyMomentOptions.ts`、叙事与媒体反应外迁 `src/engine/keyMomentNarrative.ts`，keyMoments.ts 只保留编排；golden 哈希不变 | 全量重构提交 7 |
+| 2026-10-30 | 宽屏下比赛日以 720px 专注宽度居中；比赛规则与结算不变 | 响应式改造 |
 | 2026-10-29 | 比赛模拟拆为 `matchGoals.ts`（期望进球/射手/助攻/伤种）与 `matchUser.ts`（选人/评分/赛后结算），match.ts 只保留比赛编排；RNG 顺序不变，golden 哈希一致 | 全量重构提交 8 |
 | 2026-10-29 | 比赛日动作迁入 `store/matchSlice.ts`，Dashboard/Schedule 的待处理回合与赛程派生改走 `store/selectors.ts`，消除 ui→engine/world 直接依赖 | 全量重构提交 10 |
 | 2026-10-29 | `MatchdayScreen` 拆为 `ui/screens/matchday/*`：比分卡、关键时刻选择、赛后回顾、文字直播与回合工具，主组件只做编排；新增页面状态测试，视觉与交互不变 | 全量重构提交 11 |

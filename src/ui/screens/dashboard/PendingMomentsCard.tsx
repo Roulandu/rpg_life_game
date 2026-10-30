@@ -3,7 +3,7 @@ import { Card } from '../../components/Card'
 
 export function PendingMomentsCard({ pendingCount }: { pendingCount: number }) {
   return (
-    <Card className="mb-3 border-teal/30 p-3">
+    <Card className="mb-3 border-teal/30 p-3" data-dashboard-block="week">
       <p className="flex items-center gap-1.5 text-[11px] font-medium text-teal">
         <Sparkles size={12} /> 等待你做出关键回合的选择
       </p>

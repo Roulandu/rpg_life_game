@@ -16,7 +16,7 @@ export function NewsFeed({ news }: { news: NewsItem[] }) {
   const navigate = useNavigate()
 
   return (
-    <section>
+    <section data-dashboard-block="news">
       <SectionTitle
         right={
           <button type="button" className="text-[11px] text-muted hover:text-text" onClick={() => navigate('/inbox')}>

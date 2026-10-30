@@ -37,7 +37,7 @@ export function MatchdayScreen() {
   const resolvedCount = moments.length - pending.length
 
   return (
-    <div className="page-pad pb-6">
+    <div className="page-pad pb-6 sm:mx-auto sm:max-w-[var(--focus-max)]">
       <MatchdayHeader title={active ? '比赛日 · 关键回合' : '比赛日'} match={match} />
 
       {match && active ? (

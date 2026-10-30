@@ -5,12 +5,9 @@ import { WeekPlannerModal } from '../components/WeekPlannerModal'
 import { AdvanceAction } from './dashboard/AdvanceAction'
 import { DashboardFooter } from './dashboard/DashboardFooter'
 import { DashboardHeader } from './dashboard/DashboardHeader'
-import { InboxPreview } from './dashboard/InboxPreview'
+import { DashboardSideColumn } from './dashboard/DashboardSideColumn'
 import { LastMatchCard } from './dashboard/LastMatchCard'
-import { MiniLeagueTable } from './dashboard/MiniLeagueTable'
-import { NewsFeed } from './dashboard/NewsFeed'
 import { NextMatchPanel } from './dashboard/NextMatchPanel'
-import { PlayerFormCard } from './dashboard/PlayerFormCard'
 import { WeekStatusBanner } from './dashboard/WeekStatusBanner'
 import { buildDashboardData } from './dashboard/dashboardData'
 import { INBOX_CHAT_PATH } from './inbox/inboxTab'
@@ -28,53 +25,51 @@ export function DashboardScreen() {
   const data = buildDashboardData(world)
 
   return (
-    <div className="page-pad pb-6">
+    <div className="page-pad pb-6 sm:mx-auto sm:max-w-[720px] lg:max-w-none">
       <DashboardHeader world={world} user={data.user} club={data.club} league={data.league} position={data.position} />
 
-      {data.last ? (
-        <LastMatchCard
-          last={data.last}
-          pendingMatch={data.pendingMatch}
-          resolvedMoments={data.resolvedMoments}
-          totalMoments={data.totalMoments}
-        />
-      ) : null}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-6">
+        <div data-testid="dashboard-main" className="min-w-0">
+          {data.last ? (
+            <LastMatchCard
+              last={data.last}
+              pendingMatch={data.pendingMatch}
+              resolvedMoments={data.resolvedMoments}
+              totalMoments={data.totalMoments}
+            />
+          ) : null}
 
-      <WeekStatusBanner
-        pendingCount={data.pendingCount}
-        aiBusy={aiBusy}
-        aiError={aiError}
-        narrative={world.aiNarrative ?? null}
-        onDismiss={clearAiError}
-        onContinue={() => navigate(INBOX_CHAT_PATH)}
-      />
+          <WeekStatusBanner
+            pendingCount={data.pendingCount}
+            aiBusy={aiBusy}
+            aiError={aiError}
+            narrative={world.aiNarrative ?? null}
+            onDismiss={clearAiError}
+            onContinue={() => navigate(INBOX_CHAT_PATH)}
+          />
 
-      <NextMatchPanel
-        world={world}
-        club={data.club}
-        next={data.next}
-        opponent={data.opponent}
-        isHome={data.isHome}
-        opponentFormLabel={data.opponentFormLabel}
-      />
+          <NextMatchPanel
+            world={world}
+            club={data.club}
+            next={data.next}
+            opponent={data.opponent}
+            isHome={data.isHome}
+            opponentFormLabel={data.opponentFormLabel}
+          />
 
-      <AdvanceAction
-        retired={world.retired ?? false}
-        pendingMatch={data.pendingMatch}
-        resolvedMoments={data.resolvedMoments}
-        totalMoments={data.totalMoments}
-        busy={busy}
-        week={world.week}
-        onPlan={() => setPlannerOpen(true)}
-      />
+          <AdvanceAction
+            retired={world.retired ?? false}
+            pendingMatch={data.pendingMatch}
+            resolvedMoments={data.resolvedMoments}
+            totalMoments={data.totalMoments}
+            busy={busy}
+            week={world.week}
+            onPlan={() => setPlannerOpen(true)}
+          />
+        </div>
 
-      <PlayerFormCard user={data.user} />
-
-      <MiniLeagueTable world={world} table={data.table} clubId={data.club.id} position={data.position} />
-
-      <InboxPreview openCount={data.openEvents.length} latest={data.latestEvent} />
-
-      <NewsFeed news={data.news} />
+        <DashboardSideColumn world={world} data={data} />
+      </div>
 
       <DashboardFooter balance={world.finance.balance} season={world.season} week={world.week} />
 

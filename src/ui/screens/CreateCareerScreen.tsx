@@ -74,7 +74,7 @@ export function CreateCareerScreen() {
   }
 
   return (
-    <div className="app-shell px-4 pb-10 pt-[max(1rem,env(safe-area-inset-top))]">
+    <div className="app-shell px-4 pb-10 pt-[max(1rem,env(safe-area-inset-top))] sm:max-w-[var(--focus-max)]">
       <button type="button" className="btn-ghost -ml-2 mb-3 px-2" onClick={() => navigate('/')}>
         <ArrowLeft size={16} /> 返回
       </button>

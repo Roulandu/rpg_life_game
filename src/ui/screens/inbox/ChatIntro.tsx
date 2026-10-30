@@ -3,7 +3,7 @@ import { Card } from '../../components/Card'
 
 export function ChatIntro({ usedActionLabel }: { usedActionLabel: string | null }) {
   return (
-    <Card className="p-3">
+    <Card className="p-3 md:shrink-0">
       <div className="flex items-start gap-2">
         <MessageCircle size={14} className="mt-0.5 shrink-0 text-teal" />
         <div className="min-w-0 flex-1">

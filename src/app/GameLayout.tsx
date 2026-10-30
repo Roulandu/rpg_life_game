@@ -15,8 +15,10 @@ export function GameLayout() {
   if (!world) return <Navigate to="/" replace />
 
   return (
-    <div className="app-shell">
-      <Outlet />
+    <div className="app-shell game-shell lg:pb-0">
+      <main className="min-w-0 lg:mx-auto lg:w-full lg:max-w-[var(--content-max)]">
+        <Outlet />
+      </main>
       <BottomNav />
       <SeasonSummaryModal />
     </div>

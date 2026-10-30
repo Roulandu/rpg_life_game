@@ -20,7 +20,7 @@ interface Props {
 
 export function ChatTab(props: Props) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 md:flex md:min-h-0 md:flex-1 md:flex-col md:gap-3 md:space-y-0">
       <ChatIntro usedActionLabel={props.usedActionLabel} />
 
       {!props.canChat ? (
@@ -30,14 +30,14 @@ export function ChatTab(props: Props) {
           <ChatMessages chat={props.chat} />
 
           {props.aiBusy ? (
-            <Card className="flex items-center gap-2 p-3 text-[11px] text-muted">
+            <Card className="flex items-center gap-2 p-3 text-[11px] text-muted md:shrink-0">
               <LoaderCircle size={14} className="animate-spin text-teal" />
               GM 正在回应…
             </Card>
           ) : null}
 
           {props.aiError ? (
-            <Card className="border-danger/25 p-3">
+            <Card className="border-danger/25 p-3 md:shrink-0">
               <div className="flex items-start gap-2">
                 <AlertTriangle size={14} className="mt-0.5 shrink-0 text-danger" />
                 <p className="flex-1 text-[11px] leading-relaxed text-danger">{props.aiError}</p>

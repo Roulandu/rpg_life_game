@@ -23,6 +23,13 @@
 }
 
 @layer base {
+  :root {
+    --sidenav-w: 13rem;
+    --content-max: 72rem;
+    --focus-max: 45rem;
+    --bottom-nav-h: calc(3.5rem + max(0.5rem, env(safe-area-inset-bottom)));
+  }
+
   html {
     color-scheme: dark;
     background: var(--color-pitch);
@@ -65,11 +72,15 @@
 
 @layer components {
   .app-shell {
-    @apply mx-auto min-h-svh w-full max-w-[480px] pb-24;
+    @apply mx-auto min-h-svh w-full max-w-[480px] pb-24 sm:max-w-none;
+  }
+
+  .game-shell {
+    @apply lg:pl-[var(--sidenav-w)];
   }
 
   .page-pad {
-    @apply px-4 pt-5;
+    @apply px-4 pt-5 sm:px-6 lg:px-6;
   }
 
   .card {

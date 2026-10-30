@@ -2,35 +2,35 @@
   "version": 1,
   "global": {
     "lines": {
-      "total": 2565,
-      "covered": 1852,
-      "pct": 72.2
+      "total": 2607,
+      "covered": 1941,
+      "pct": 74.45
     },
     "statements": {
-      "total": 2967,
-      "covered": 2063,
-      "pct": 69.53
+      "total": 3017,
+      "covered": 2158,
+      "pct": 71.52
     },
     "functions": {
-      "total": 799,
-      "covered": 543,
-      "pct": 67.95
+      "total": 805,
+      "covered": 567,
+      "pct": 70.43
     },
     "branches": {
-      "total": 2253,
-      "covered": 1321,
-      "pct": 58.63
+      "total": 2270,
+      "covered": 1361,
+      "pct": 59.95
     }
   },
   "modules": {
     "app": {
       "lines": {
-        "total": 32,
+        "total": 33,
         "covered": 0,
         "pct": 0
       },
       "statements": {
-        "total": 41,
+        "total": 42,
         "covered": 0,
         "pct": 0
       },
@@ -47,24 +47,24 @@
     },
     "db": {
       "lines": {
-        "total": 47,
-        "covered": 42,
-        "pct": 89.36
+        "total": 52,
+        "covered": 48,
+        "pct": 92.31
       },
       "statements": {
-        "total": 51,
-        "covered": 45,
-        "pct": 88.24
+        "total": 55,
+        "covered": 51,
+        "pct": 92.73
       },
       "functions": {
-        "total": 15,
+        "total": 14,
         "covered": 14,
-        "pct": 93.33
+        "pct": 100
       },
       "branches": {
         "total": 36,
-        "covered": 16,
-        "pct": 44.44
+        "covered": 19,
+        "pct": 52.78
       }
     },
     "domain": {
@@ -91,14 +91,14 @@
     },
     "engine": {
       "lines": {
-        "total": 795,
-        "covered": 709,
-        "pct": 89.18
+        "total": 796,
+        "covered": 711,
+        "pct": 89.32
       },
       "statements": {
-        "total": 895,
-        "covered": 767,
-        "pct": 85.7
+        "total": 896,
+        "covered": 769,
+        "pct": 85.83
       },
       "functions": {
         "total": 150,
@@ -106,9 +106,9 @@
         "pct": 96.67
       },
       "branches": {
-        "total": 723,
-        "covered": 532,
-        "pct": 73.58
+        "total": 722,
+        "covered": 534,
+        "pct": 73.96
       }
     },
     "lib": {
@@ -158,67 +158,67 @@
     "platform": {
       "lines": {
         "total": 122,
-        "covered": 63,
-        "pct": 51.64
+        "covered": 75,
+        "pct": 61.48
       },
       "statements": {
-        "total": 136,
-        "covered": 66,
-        "pct": 48.53
+        "total": 137,
+        "covered": 79,
+        "pct": 57.66
       },
       "functions": {
-        "total": 25,
-        "covered": 13,
-        "pct": 52
+        "total": 26,
+        "covered": 17,
+        "pct": 65.38
       },
       "branches": {
-        "total": 75,
-        "covered": 35,
-        "pct": 46.67
+        "total": 77,
+        "covered": 43,
+        "pct": 55.84
       }
     },
     "store": {
       "lines": {
-        "total": 276,
-        "covered": 108,
-        "pct": 39.13
+        "total": 296,
+        "covered": 148,
+        "pct": 50
       },
       "statements": {
-        "total": 310,
-        "covered": 118,
-        "pct": 38.06
+        "total": 330,
+        "covered": 157,
+        "pct": 47.58
       },
       "functions": {
         "total": 71,
-        "covered": 35,
-        "pct": 49.3
+        "covered": 44,
+        "pct": 61.97
       },
       "branches": {
-        "total": 163,
-        "covered": 42,
-        "pct": 25.77
+        "total": 167,
+        "covered": 49,
+        "pct": 29.34
       }
     },
     "ui": {
       "lines": {
-        "total": 550,
-        "covered": 295,
-        "pct": 53.64
+        "total": 565,
+        "covered": 324,
+        "pct": 57.35
       },
       "statements": {
-        "total": 683,
-        "covered": 353,
-        "pct": 51.68
+        "total": 706,
+        "covered": 388,
+        "pct": 54.96
       },
       "functions": {
-        "total": 318,
-        "covered": 156,
-        "pct": 49.06
+        "total": 324,
+        "covered": 167,
+        "pct": 51.54
       },
       "branches": {
-        "total": 685,
-        "covered": 302,
-        "pct": 44.09
+        "total": 697,
+        "covered": 322,
+        "pct": 46.2
       }
     },
     "world": {

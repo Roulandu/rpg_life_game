@@ -24,7 +24,7 @@ export function MiniLeagueTable({
   const row = table[position - 1]
 
   return (
-    <section className="mb-4">
+    <section className="mb-4" data-dashboard-block="league">
       <SectionTitle
         right={
           <button type="button" className="text-[11px] text-muted hover:text-text" onClick={() => navigate('/schedule')}>

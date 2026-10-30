@@ -18,7 +18,7 @@ export function TimelineScreen() {
   if (world.retired) allAwards.push('退役')
 
   return (
-    <div className="page-pad pb-6">
+    <div className="page-pad pb-6 sm:mx-auto sm:max-w-[960px] lg:max-w-none">
       <button type="button" className="btn-ghost -ml-2 mb-3 px-2" onClick={() => navigate('/more')}>
         <ArrowLeft size={16} /> 更多
       </button>
@@ -75,7 +75,7 @@ export function TimelineScreen() {
             body={`当前 ${formatSeasonLabel(world.season)} 第 ${world.week} 周。赛季结束后，这里会生成一条完整的赛季记录。`}
           />
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2 lg:grid lg:grid-cols-2 lg:gap-2 lg:space-y-0">
             {summaries.map((summary) => (
               <Card key={summary.season} className="p-4">
                 <div className="flex items-start justify-between gap-3">

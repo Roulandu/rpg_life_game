@@ -114,34 +114,10 @@
         }
       }
     },
-    "src/ui/screens/MoreScreen.tsx::MoreScreen": {
-      "metrics": {
-        "functionLines": {
-          "value": 121,
-          "max": 60
-        }
-      }
-    },
-    "src/ui/screens/ProfileScreen.tsx::ProfileScreen": {
-      "metrics": {
-        "functionLines": {
-          "value": 145,
-          "max": 60
-        }
-      }
-    },
-    "src/ui/screens/ScheduleScreen.tsx::<anonymous>": {
-      "metrics": {
-        "complexity": {
-          "value": 14,
-          "max": 12
-        }
-      }
-    },
     "src/ui/screens/ScheduleScreen.tsx::ScheduleScreen": {
       "metrics": {
         "functionLines": {
-          "value": 155,
+          "value": 64,
           "max": 60
         }
       }
@@ -150,14 +126,6 @@
       "metrics": {
         "functionLines": {
           "value": 119,
-          "max": 60
-        }
-      }
-    },
-    "src/ui/screens/TitleScreen.tsx::TitleScreen": {
-      "metrics": {
-        "functionLines": {
-          "value": 144,
           "max": 60
         }
       }

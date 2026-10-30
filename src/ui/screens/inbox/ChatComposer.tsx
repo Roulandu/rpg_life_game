@@ -21,7 +21,7 @@ export function ChatComposer({ aiBusy, onSend }: Props) {
   }
 
   return (
-    <Card className="p-3">
+    <Card className="p-3 md:shrink-0">
       <label className="label" htmlFor="gm-message">
         对 GM 说
       </label>

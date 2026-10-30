@@ -20,7 +20,7 @@ export function NextMatchPanel({
   opponentFormLabel: string
 }) {
   return (
-    <Card className="mb-3 overflow-hidden p-0">
+    <Card className="mb-3 overflow-hidden p-0" data-dashboard-block="next">
       <div className="flex items-center justify-between border-b border-line-soft px-4 py-2.5">
         <span className="flex items-center gap-1.5 text-[11px] text-muted">
           <CalendarDays size={13} /> 下一场 · 第 {next?.week ?? '—'} 周

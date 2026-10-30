@@ -19,6 +19,7 @@ export function LastMatchCard({
   return (
     <button
       type="button"
+      data-dashboard-block="last"
       className={clsx(
         'card mb-3 flex w-full items-center justify-between gap-3 px-4 py-3 text-left',
         pendingMatch && 'border-teal/40',

@@ -3,7 +3,7 @@ import { formatMoneyShort, formatWeekLabel } from '../../../lib'
 
 export function DashboardFooter({ balance, season, week }: { balance: number; season: number; week: number }) {
   return (
-    <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-dim">
+    <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-dim" data-dashboard-block="footer">
       <span className="flex items-center gap-1">
         <Wallet size={12} /> {formatMoneyShort(balance)}
       </span>
