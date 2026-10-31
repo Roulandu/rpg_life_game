@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createLiveCareer, pendingMoments, saveWorldMock } from '../fixtures/liveStore'
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { WeeklyPlan } from '../../src/domain/types'
 import { listSaves } from '../../src/db/repository'
 import { startWeek } from '../../src/engine/turn'
@@ -6,28 +7,25 @@ import { useGameStore } from '../../src/store/gameStore'
 import { createMatchSlice } from '../../src/store/matchSlice'
 import { selectPendingKeyMoments } from '../../src/store/selectors'
 import { migrateWorld } from '../../src/db/migrate'
-import { testOptions } from '../fixtures/career'
 import { PLAN, readyWorld } from '../fixtures/matchday'
 import { legacyWorld } from '../fixtures/legacySave'
 import { resetStore } from '../fixtures/storeHarness'
-
-const { saveWorldMock } = vi.hoisted(() => ({ saveWorldMock: vi.fn() }))
-
-vi.mock('../../src/db', async (importActual) => {
-  const actual = await importActual<typeof import('../../src/db')>()
-  return { ...actual, saveWorld: saveWorldMock }
-})
+import { testOptions } from '../fixtures/career'
 
 const plan: WeeklyPlan = PLAN
 
 beforeEach(() => resetStore(saveWorldMock, true))
 
-async function createLiveCareer() {
-  await useGameStore.getState().createCareer(testOptions())
-  useGameStore.getState().updateSettings({ aiMode: 'llm' })
-  const result = await useGameStore.getState().advance(plan)
-  expect(result?.live).toBe(true)
-  return result!
+async function resolveAllButLast(week: number) {
+  let pending = pendingMoments()
+  while (pending.length > 1) {
+    await useGameStore.getState().resolveKeyMoment(pending[0]!.id, pending[0]!.defaultOptionId)
+    expect(useGameStore.getState().world?.week).toBe(week)
+    useGameStore.getState().continueAfterMoment()
+    useGameStore.getState().jumpToNextKeyMoment()
+    pending = pendingMoments()
+  }
+  return pending
 }
 
 describe('matchday store', () => {
@@ -80,23 +78,23 @@ describe('matchday store completion', () => {
     expect(await listSaves()).toHaveLength(1)
   })
 
-  it('resolveKeyMoment 处理最后一个回合后自动完成整周', async () => {
+  it('resolveKeyMoment 处理最后一个回合后停在 result，继续播放并完成后推进周次', async () => {
     await createLiveCareer()
     const week = useGameStore.getState().world!.week
-    let pending = (useGameStore.getState().world?.lastMatch?.keyMoments ?? []).filter(
-      (moment) => !moment.outcome,
-    )
+    const pending = await resolveAllButLast(week)
 
-    while (pending.length > 1) {
-      await useGameStore.getState().resolveKeyMoment(pending[0]!.id, pending[0]!.defaultOptionId)
-      expect(useGameStore.getState().world?.week).toBe(week)
-      pending = (useGameStore.getState().world?.lastMatch?.keyMoments ?? []).filter(
-        (moment) => !moment.outcome,
-      )
-    }
+    await useGameStore.getState().resolveKeyMoment(pending[0]!.id, pending[0]!.defaultOptionId)
+
+    expect(useGameStore.getState().livePlayback.phase).toBe('result')
+    expect(useGameStore.getState().world?.lastMatch?.status).toBe('live')
+    expect(useGameStore.getState().world?.week).toBe(week)
+
+    useGameStore.getState().continueAfterMoment()
+    useGameStore.getState().jumpToNextKeyMoment()
+    expect(useGameStore.getState().livePlayback.phase).toBe('ended')
 
     saveWorldMock.mockClear()
-    await useGameStore.getState().resolveKeyMoment(pending[0]!.id, pending[0]!.defaultOptionId)
+    await useGameStore.getState().finishLiveMatch()
 
     const state = useGameStore.getState()
     expect(state.world?.week).toBe(week + 1)

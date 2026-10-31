@@ -8,6 +8,7 @@ import type {
 import type { SeasonTransition, TurnResult } from '../engine'
 import type { ConnectionTestResult } from '../llm'
 import type { ColorScheme, ThemePreference } from '../platform'
+import type { LivePlayback, LiveSpeed } from './livePlayback'
 
 export interface GameStore {
   world: WorldState | null
@@ -19,6 +20,7 @@ export interface GameStore {
   hydrated: boolean
   notice: string | null
   error: string | null
+  livePlayback: LivePlayback
   aiKeyReady: boolean
   aiKeyHint: string | null
   aiBusy: boolean
@@ -38,6 +40,14 @@ export interface GameStore {
   advance: (plan: WeeklyPlan) => Promise<TurnResult | null>
   resolveKeyMoment: (momentId: string, optionId: string) => Promise<void>
   skipKeyMoments: () => Promise<void>
+  finishLiveMatch: () => Promise<void>
+  startLivePlayback: () => void
+  tickLiveMatch: () => void
+  pauseLivePlayback: () => void
+  resumeLivePlayback: () => void
+  setLiveSpeed: (speed: LiveSpeed) => void
+  jumpToNextKeyMoment: () => void
+  continueAfterMoment: () => void
   narrateTurn: (result: TurnResult) => Promise<void>
   resolveChoice: (eventId: string, choiceId: string) => Promise<void>
   updateSettings: (patch: Partial<WorldState['settings']>) => void

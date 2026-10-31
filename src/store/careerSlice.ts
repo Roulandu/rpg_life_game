@@ -12,6 +12,7 @@ import { loadApiKey } from '../platform'
 import { generateWorld } from '../world'
 import { downloadWorld } from './exportSave'
 import { messageOf, persist } from './helpers'
+import { IDLE_PLAYBACK } from './livePlayback'
 import type { GameStore, StoreGet, StoreSet, StoreSlice } from './types'
 
 type CareerSlice = Pick<
@@ -82,6 +83,7 @@ async function createCareer(
       saveId,
       lastTurn: null,
       seasonTransition: null,
+      livePlayback: IDLE_PLAYBACK,
       busy: false,
       notice: '生涯已创建，并自动保存。',
     })
@@ -102,6 +104,7 @@ async function loadGame(set: StoreSet, get: StoreGet, id: string): Promise<boole
       saveId: id,
       lastTurn: null,
       seasonTransition: null,
+      livePlayback: IDLE_PLAYBACK,
       busy: false,
     })
     const saved = await persist(world, id)
@@ -132,7 +135,13 @@ async function removeSave(set: StoreSet, get: StoreGet, id: string): Promise<boo
   try {
     await deleteSave(id)
     if (get().saveId === id) {
-      set({ world: null, saveId: null, lastTurn: null, seasonTransition: null })
+      set({
+        world: null,
+        saveId: null,
+        lastTurn: null,
+        seasonTransition: null,
+        livePlayback: IDLE_PLAYBACK,
+      })
     }
     await get().refreshSaves()
     set({ notice: '存档已删除。' })
@@ -170,6 +179,7 @@ async function importFromText(set: StoreSet, get: StoreGet, text: string): Promi
       saveId,
       lastTurn: null,
       seasonTransition: null,
+      livePlayback: IDLE_PLAYBACK,
       busy: false,
       notice: `已导入 ${world.players[world.playerId]?.name ?? '球员'} 的生涯。`,
     })

@@ -2,6 +2,7 @@ import type { Mock } from 'vitest'
 import { db } from '../../src/db/db'
 import type { GameStore } from '../../src/store'
 import { useGameStore } from '../../src/store/gameStore'
+import { IDLE_PLAYBACK } from '../../src/store/livePlayback'
 
 export const EMPTY_STORE_STATE: Partial<GameStore> = {
   world: null,
@@ -13,6 +14,7 @@ export const EMPTY_STORE_STATE: Partial<GameStore> = {
   hydrated: false,
   notice: null,
   error: null,
+  livePlayback: IDLE_PLAYBACK,
   aiBusy: false,
   aiError: null,
   themePreference: 'system',
