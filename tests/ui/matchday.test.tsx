@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { MatchdayScreen } from '../../src/ui/screens/MatchdayScreen'
 import { useGameStore } from '../../src/store/gameStore'
 import { generateWorld } from '../../src/world/generator'
@@ -10,6 +11,17 @@ import { resetUiStore } from './resetStore'
 
 function renderMatchday() {
   return renderWithRouter(<MatchdayScreen />)
+}
+
+function renderMatchdayRoute() {
+  return render(
+    <MemoryRouter initialEntries={['/match']}>
+      <Routes>
+        <Route path="/match" element={<MatchdayScreen />} />
+        <Route path="/game" element={<p>主页占位</p>} />
+      </Routes>
+    </MemoryRouter>,
+  )
 }
 
 afterEach(() => {
@@ -49,7 +61,8 @@ describe('matchday screen', () => {
     expect(screen.getByText('媒体反应')).toBeInTheDocument()
     expect(screen.getByText('关键回合回顾')).toBeInTheDocument()
     expect(screen.getByText('文字直播')).toBeInTheDocument()
-    expect(screen.getByText('下一场')).toBeInTheDocument()
+    expect(screen.getByText(/下一场：第/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /下一场/ })).not.toBeInTheDocument()
   })
 
   it('renders the bench role when the user did not play', () => {
@@ -71,6 +84,44 @@ describe('matchday screen', () => {
 
     expect(screen.getByText('还没有比赛记录')).toBeInTheDocument()
     expect(screen.getByText('下一场')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '返回主页' })).not.toBeInTheDocument()
+  })
+})
+
+describe('matchday exit', () => {
+  it('回归: 比赛结束后在结果页底部显示返回主页主按钮', () => {
+    useGameStore.setState({ world: finalizedWorld(worldWithKeyMoments()), hydrated: true })
+    renderMatchday()
+
+    expect(screen.getByRole('button', { name: '返回主页' })).toHaveClass('btn-primary')
+  })
+
+  it('回归: 点击返回主页回到主页', () => {
+    useGameStore.setState({ world: finalizedWorld(worldWithKeyMoments()), hydrated: true })
+    renderMatchdayRoute()
+
+    fireEvent.click(screen.getByRole('button', { name: '返回主页' }))
+
+    expect(screen.getByText('主页占位')).toBeInTheDocument()
+  })
+
+  it('回归: 关键回合未完成时不显示返回主页按钮', () => {
+    useGameStore.setState({ world: worldWithKeyMoments(), hydrated: true })
+    renderMatchday()
+
+    expect(screen.queryByRole('button', { name: '返回主页' })).not.toBeInTheDocument()
+  })
+
+  it('回归: 没有下一场时仍显示返回主页按钮', () => {
+    const world = finalizedWorld(worldWithKeyMoments())
+    Object.values(world.fixtures).forEach((fixture) => {
+      fixture.status = 'played'
+    })
+    useGameStore.setState({ world, hydrated: true })
+    renderMatchday()
+
+    expect(screen.getByRole('button', { name: '返回主页' })).toBeInTheDocument()
+    expect(screen.queryByText(/下一场：/)).not.toBeInTheDocument()
   })
 })
 

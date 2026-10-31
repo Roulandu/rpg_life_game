@@ -16,6 +16,7 @@ code:
   - src/ui/screens/matchday/ScoreCard.tsx
   - src/ui/screens/matchday/KeyMomentCard.tsx
   - src/ui/screens/matchday/MatchReview.tsx
+  - src/ui/screens/matchday/MatchdayExit.tsx
   - src/ui/screens/matchday/MatchTimeline.tsx
 tests:
   - tests/engine/match.test.ts
@@ -25,7 +26,7 @@ tests:
   - tests/ui/smoke.test.tsx
   - tests/ui/matchday.test.tsx
 diagrams: [sequence]
-last_reviewed: 2026-10-29
+last_reviewed: 2026-10-31
 ---
 
 # 比赛日与关键回合
@@ -41,7 +42,8 @@ last_reviewed: 2026-10-29
 3. 玩家按顺序处理每个关键回合：阅读场景，选择选项，查看结果。
 4. 每处理一条立即持久化；全部完成后自动 `finalizeMatchday`，生成媒体反应并刷新新闻/比分时间线。
 5. 玩家也可以选择“自动处理”，系统为每个回合选择成功率最高的选项。
-6. 完成后触发本周 AI 叙事；失败只影响文案。
+6. 结果页末尾提供整宽「返回主页」主按钮；存在下一场时，下一场信息作为按钮上方的一行说明。
+7. 完成后触发本周 AI 叙事；失败只影响文案。
 
 ## 关键时序
 
@@ -144,7 +146,9 @@ sequenceDiagram
 
 ### 交互状态
 
-- 存在待处理回合时隐藏“下一场”入口，避免跳过后面的关键回合。
+- 存在待处理回合时隐藏“下一场”入口与「返回主页」按钮，避免跳过后面的关键回合。
+- 比赛全部结束后，结果页内容末尾显示整宽「返回主页」主按钮，点击回到主页。
+- 存在下一场时，下一场信息只作为按钮上方的一行说明文字，不再渲染独立的可点击卡片。
 - 提交回合或自动处理期间按钮锁定；即使动作抛错也会在 `finally` 解锁，不会永久禁用。
 
 ### 不可变条件
@@ -201,6 +205,7 @@ sequenceDiagram
 | 积分榜计算（下沉 domain） | `tests/domain/leagueTable.test.ts` |
 | 比赛页渲染与交互烟测 | `tests/ui/smoke.test.tsx` |
 | 比赛日页面（阶段/回顾/空态/替补）渲染 | `tests/ui/matchday.test.tsx` |
+| 结果页返回主页入口、跳转与回合阶段隐藏 | `tests/ui/matchday.test.tsx` |
 | 未完成回合阻塞下一周 | `tests/store/store.test.ts` |
 
 手动验收：
@@ -210,6 +215,7 @@ sequenceDiagram
 3. 点击自动处理，确认按稳妥选项结算并生成媒体反应。
 4. 在 360–390px 宽度确认选项按钮可点击、不溢出。
 5. 在 1024px 以上确认页面以 720px 居中、按键与文案不被拉伸。
+6. 比赛结束后滚到结果页底部，确认整宽「返回主页」按钮可见可点；关键回合未完成时不出现该按钮。
 
 ## 变更记录
 
@@ -224,3 +230,4 @@ sequenceDiagram
 | 2026-10-29 | `MatchdayScreen` 拆为 `ui/screens/matchday/*`：比分卡、关键时刻选择、赛后回顾、文字直播与回合工具，主组件只做编排；新增页面状态测试，视觉与交互不变 | 全量重构提交 11 |
 | 2026-10-29 | 全场最佳在用户为射手王但评分 <8.3 时改用用户实际评分，消除姓名与评分矛盾；golden 哈希不变 | 缺陷修复 P4 |
 | 2026-10-29 | 待处理回合时隐藏“下一场”入口；回合动作用 try/finally 解锁按钮 | 缺陷修复 P5 |
+| 2026-10-31 | 结果页末尾新增整宽「返回主页」主按钮，下一场信息合并为按钮上方说明；比赛结算规则不变 | 交互修复：结果页出口 |

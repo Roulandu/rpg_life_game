@@ -4,20 +4,12 @@ import { Card } from '../components/Card'
 import { nextFixtureOf, opponentOfClub } from '../gameHelpers'
 import { KeyMomentStage } from './matchday/KeyMomentStage'
 import { MatchReview } from './matchday/MatchReview'
+import { MatchdayExit } from './matchday/MatchdayExit'
 import { MatchdayHeader } from './matchday/MatchdayHeader'
 import { NextFixtureLink } from './matchday/NextFixtureLink'
 import { useMomentActions } from './matchday/useMomentActions'
 
-function UpcomingFixture({
-  world,
-  clubId,
-  hidden,
-}: {
-  world: WorldState
-  clubId: string
-  hidden: boolean
-}) {
-  if (hidden) return null
+function UpcomingFixture({ world, clubId }: { world: WorldState; clubId: string }) {
   const next = nextFixtureOf(world, clubId)
   const opponent = next ? opponentOfClub(world, next, clubId) : null
   if (!next || !opponent) return null
@@ -53,17 +45,21 @@ export function MatchdayScreen() {
           onSkip={() => void skip()}
         />
       ) : match ? (
-        <MatchReview world={world} club={club} match={match} />
+        <>
+          <MatchReview world={world} club={club} match={match} />
+          <MatchdayExit world={world} clubId={club.id} />
+        </>
       ) : (
-        <Card className="mb-4 p-6 text-center">
-          <p className="text-sm font-medium text-text">还没有比赛记录</p>
-          <p className="mt-1 text-[11px] leading-relaxed text-muted">
-            在主页安排本周训练并推进，比赛结束后这里会出现完整的过程与评分。
-          </p>
-        </Card>
+        <>
+          <Card className="mb-4 p-6 text-center">
+            <p className="text-sm font-medium text-text">还没有比赛记录</p>
+            <p className="mt-1 text-[11px] leading-relaxed text-muted">
+              在主页安排本周训练并推进，比赛结束后这里会出现完整的过程与评分。
+            </p>
+          </Card>
+          <UpcomingFixture world={world} clubId={club.id} />
+        </>
       )}
-
-      <UpcomingFixture world={world} clubId={club.id} hidden={active !== null} />
     </div>
   )
 }
