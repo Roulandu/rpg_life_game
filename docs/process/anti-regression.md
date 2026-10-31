@@ -114,6 +114,9 @@ npm run quality:file -- src/engine/match.ts
 - push/PR 必须跑全量：typecheck、lint、data、全量测试、覆盖率、build、所有门禁。
 - CI 不做路径过滤，不把“只跑改动测试”当作唯一验证。
 - CI 复查 `base..HEAD` 的提交信息，`--no-verify` 绕不过去。
+- push/PR 后必须等到该 commit 的 workflow 结束；失败先 `gh run view <run-id> --log-failed` 定位，再修复到绿。
+- 仅重跑通过不算闭环，必须排除代码、测试和基线原因。
+- 断网或无权限时如实说明“CI 未出结果”，不得默认通过。
 
 ## 提交里的回归说明
 

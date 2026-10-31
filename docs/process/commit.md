@@ -88,6 +88,8 @@ Baseline-Update: <仅改基线/已知违规时需要>
 
 RED/GREEN 必须指向同一个测试。不要用“手动点了一下”代替可复现命令。
 
+本地 GREEN 写进提交；CI 结论在推送后记录到 PR 描述或交付说明，不改已推送的提交信息。
+
 ### 回归风险与验证
 
 写这次修改可能弄坏什么，以及用什么测试/命令证明没弄坏。改到别人改过的文件时尤其重要。
@@ -218,6 +220,32 @@ Test-Impact: none: 仅文档与规范，不涉及可执行行为
 - CI：对 `base..HEAD` 的每个提交重新校验消息；本地 `--no-verify` 绕不过去。
 - `Merge` / `Revert` / `fixup!` / `squash!` 跳过消息校验。
 
+## 推送与 CI 闭环
+
+push 不等于交付完成。推送后必须等待该提交的 CI 结果，失败要修到绿才算结束。
+
+```bash
+# push 后定位本次 commit 的 run
+gh run list --commit $(git rev-parse HEAD) --limit 1
+# 等待，退出码反映结论
+gh run watch <run-id> --exit-status
+# PR 分支直接等全部检查
+gh pr checks --watch
+```
+
+失败时按四步闭环：
+
+1. `gh run view <run-id> --log-failed` 取失败步骤日志。
+2. 本地用同一命令复现（`npm run check`、`npm test` 等），确认失败原因。
+3. 修复后新增提交再 push；禁止 `--amend` 已推送提交，禁止删/跳过测试、抬高基线或 `--no-verify`。
+4. 重新定位并等待，循环直到 CI 全绿。
+
+边界：
+
+- runner 故障、网络或 registry 抖动，可以 `gh run rerun <run-id> --failed`，但仍须等待最终结果；重跑通过不算修复，必须说明是基础设施问题。
+- 等待超时、断网或无权限时，如实说明“CI 未出结果”，不得默认通过。
+- CI 结论（run 链接 + conclusion）写进 PR 描述或交付说明；已推送的提交信息不要改。
+
 ## 常见错误
 
 | 错误 | 结果 |
@@ -230,9 +258,12 @@ Test-Impact: none: 仅文档与规范，不涉及可执行行为
 | 改了 `src` 没改文档也没豁免 | 提交被拒 |
 | 改基线不写 `Baseline-Update` | CI 标红 |
 | 用 `--no-verify` 逃避 | CI 复查提交，仍标红 |
+| push 后不看 CI 结果 | 视为未交付 |
+| CI 红后只重跑不排查 | 不算修复，仍需定位根因 |
+| 为过 CI 删测试、抬基线或 `--no-verify` | CI 与 review 均标红 |
 
 ## 例外
 
-- 紧急回滚/线上事故：可以 `--no-verify`，但必须在 PR 描述里写明原因，并尽快补合规提交。
+- 紧急回滚/线上事故：可以 `--no-verify`，但必须在 PR 描述里写明原因，并尽快补合规提交；CI 闭环义务不免除，事后必须修到绿。
 - 纯格式化/机械重命名：仍需六段，但 `Test-Impact` 可写 `none` 并说明由现有测试覆盖。
 - 合并提交、revert：按 Git 默认格式，不做六段校验。

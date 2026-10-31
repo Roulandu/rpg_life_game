@@ -37,6 +37,8 @@ npm run quality:report       # 质量报告
 npm run quality:update       # 只降低/删除基线条目
 npm run docs:build           # 生成 docs/architecture/modules.md
 npm run hooks:install        # 安装 commit-msg / pre-commit
+gh run list --commit $(git rev-parse HEAD) --limit 1  # 定位本次 push 的 CI
+gh run watch <run-id> --exit-status                   # 等待并返回 CI 结论
 ```
 
 ## 提交
@@ -46,6 +48,15 @@ npm run hooks:install        # 安装 commit-msg / pre-commit
 - `feat` / `fix` 必须有 `RED:` 与 `GREEN:`；`refactor` / `perf` 至少 GREEN；`docs` / `chore` 可写不适用。
 - Trailer：`Docs-Impact`、`Test-Impact`；改基线时必须带 `Baseline-Update`。
 - 详细格式见 `docs/process/commit.md`。
+
+### 推送与 CI 闭环
+
+- push 到 GitHub 后必须等到该 commit 的 CI 结束；未出结果不得声称完成，也不得开始无关的新任务。
+- 定位并等待：push 用 `gh run list --commit $(git rev-parse HEAD) --limit 1` + `gh run watch <run-id> --exit-status`；PR 用 `gh pr checks --watch`。
+- CI 失败必须主动修复：`gh run view <run-id> --log-failed` 取日志，本地用同一命令复现，修复后新增提交并重新 push，再次等待，直到全绿。
+- 已推送提交不得 `--amend`；不得靠重跑、删测试、跳过测试、抬高基线或 `--no-verify` 过关。
+- 重跑只用于 runner、网络等基础设施故障，且必须等到最终结果；断网或无权限时如实说明“CI 未出结果”，不得默认通过。
+- 紧急回滚的 `--no-verify` 例外不免除事后 CI 闭环：补合规提交并修到绿。
 
 ## 红线
 
@@ -89,6 +100,7 @@ npm run hooks:install        # 安装 commit-msg / pre-commit
 - 涉及 UI 时在手机宽度（360–390px）和桌面宽度手动验收。
 - 涉及存档时完成旧档导入/导出往返验证。
 - 提交信息完整、范围准确、回归风险写清楚。
+- push 后对应 commit 的 CI 全绿；失败已定位原因、修复并重新验证。
 
 ## 文档地图
 

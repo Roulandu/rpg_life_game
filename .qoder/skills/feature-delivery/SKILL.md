@@ -95,6 +95,24 @@ Trailer：
 - `Test-Impact: updated | none: <理由> | removed: <理由>`
 - 改基线时 `Baseline-Update: <理由>`
 
+## 推送与 CI 闭环
+
+push 之后必须等 CI 结果，失败要修到绿才算交付完成：
+
+```bash
+gh run list --commit $(git rev-parse HEAD) --limit 1   # 定位 run
+gh run watch <run-id> --exit-status                    # 等待结果
+gh run view <run-id> --log-failed                      # 失败日志
+gh pr checks --watch                                   # PR 全量检查
+```
+
+失败时：取日志 → 本地用同一命令复现 → 新增提交修复后重新 push → 再次等待，循环到全绿。
+
+- 禁止 `--amend` 已推送提交。
+- 禁止靠重跑、删测试、跳过测试、抬高基线或 `--no-verify` 过关。
+- 重跑只用于 runner/网络等基础设施故障，且必须等到最终结果。
+- CI 结论写进 PR 描述或交付说明，不说“应该能过”。
+
 ## 停止条件
 
 遇到以下情况必须停下来问人，不能硬绕：
@@ -105,6 +123,7 @@ Trailer：
 - 需要改存档结构但不升版本。
 - 文档无法同步且没有合理豁免。
 - 需要 `--no-verify`、删除测试或跳过测试。
+- CI 失败且需要越出本次范围、改基线或删/跳过测试才能通过。
 
 ## 诚实规则
 
@@ -113,6 +132,7 @@ Trailer：
 - 不得用 `.only` / `.skip` 制造假绿。
 - 不得改 baseline 或删除断言来“消灾”。
 - 不得把“手动点了一下”写成自动化验证。
+- CI 未出结果或未通过时，不得声称完成或“应该能过”。
 - 不确定时如实说明限制，而不是猜一个结果。
 
 ## 快速命令
