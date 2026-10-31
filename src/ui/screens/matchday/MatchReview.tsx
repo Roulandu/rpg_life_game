@@ -1,5 +1,6 @@
 import type { Club, MatchReport, WorldState } from '../../../domain'
 import { SectionTitle } from '../../components/Card'
+import { MatchStatsPanel } from './MatchStatsPanel'
 import { MatchTimeline } from './MatchTimeline'
 import { MediaReactionCard } from './MediaReactionCard'
 import { MomentList } from './MomentList'
@@ -18,6 +19,12 @@ export function MatchReview({ world, club, match }: { world: WorldState; club: C
     <>
       <ScoreCard match={match} clubId={club.id} stadium={stadium} liveMinute={null} />
       <UserPerformanceCard match={match} moments={moments} momentum={momentum} />
+      {match.stats ? (
+        <section className="mb-4">
+          <SectionTitle>数据统计</SectionTitle>
+          <MatchStatsPanel homeName={match.homeName} awayName={match.awayName} stats={match.stats} />
+        </section>
+      ) : null}
       {match.mediaReaction ? <MediaReactionCard text={match.mediaReaction} /> : null}
       {moments.length > 0 ? (
         <section className="mb-4">

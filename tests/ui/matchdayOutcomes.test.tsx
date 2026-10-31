@@ -82,12 +82,25 @@ describe('match review guards', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
+  it('shows full-time stats when the report has them', () => {
+    const world = finalizedWorld(worldWithKeyMoments())
+    const club = world.clubs[world.clubId]!
+    const report = world.lastMatch!
+
+    expect(report.stats).toBeDefined()
+    render(<MatchReview world={world} club={club} match={report} />)
+
+    expect(screen.getByText('数据统计')).toBeInTheDocument()
+    expect(screen.getByTestId('match-stats')).toBeInTheDocument()
+  })
+
   it('skips optional sections and falls back to the club stadium', () => {
     const world = finalizedWorld(worldWithKeyMoments())
     const club = world.clubs[world.clubId]!
     const report = world.lastMatch!
     report.keyMoments = []
     report.mediaReaction = undefined
+    report.stats = undefined
     delete world.clubs[report.homeId]
 
     render(<MatchReview world={world} club={club} match={report} />)
@@ -95,5 +108,6 @@ describe('match review guards', () => {
     expect(screen.getByText('文字直播')).toBeInTheDocument()
     expect(screen.queryByText('媒体反应')).not.toBeInTheDocument()
     expect(screen.queryByText('关键回合回顾')).not.toBeInTheDocument()
+    expect(screen.queryByText('数据统计')).not.toBeInTheDocument()
   })
 })

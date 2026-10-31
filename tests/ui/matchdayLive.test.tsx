@@ -33,7 +33,7 @@ afterEach(async () => {
 })
 
 describe('live matchday score', () => {
-  it('回归: 关键回合页比分取当前分钟而非终场比分', () => {
+  it('回归: 实时比赛页比分取当前分钟而非终场比分', () => {
     const { world, live, finalScore } = liveWithLaterGoals()
     useGameStore.setState({ world, hydrated: true })
 

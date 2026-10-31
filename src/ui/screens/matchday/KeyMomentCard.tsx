@@ -1,5 +1,6 @@
 import { FastForward } from 'lucide-react'
 import type { KeyMoment } from '../../../domain'
+import { effectsSummary, successBasisText } from '../../../domain'
 import { Card } from '../../components/Card'
 
 export function KeyMomentCard({
@@ -19,6 +20,9 @@ export function KeyMomentCard({
         <div>
           <p className="text-sm font-semibold text-text">{active.titleZh}</p>
           <p className="mt-1 text-[11px] leading-relaxed text-muted">{active.promptZh}</p>
+          {active.triggerZh ? (
+            <p className="mt-1 text-[10px] leading-relaxed text-dim">触发条件：{active.triggerZh}</p>
+          ) : null}
         </div>
         <span className="chip shrink-0 font-mono">{active.minute}&apos;</span>
       </div>
@@ -33,9 +37,12 @@ export function KeyMomentCard({
           >
             <span className="flex items-center justify-between gap-2">
               <span className="text-xs font-medium text-text">{option.labelZh}</span>
-              <span className="chip shrink-0 font-mono text-[10px]">成功率 {Math.round(option.successChance * 100)}%</span>
+              <span className="chip shrink-0 font-mono text-[10px]">
+                {successBasisText(option)}
+              </span>
             </span>
             <span className="mt-0.5 block text-[10px] leading-relaxed text-muted">{option.descriptionZh}</span>
+            <span className="mt-0.5 block text-[10px] leading-relaxed text-dim">{effectsSummary(option)}</span>
           </button>
         ))}
       </div>

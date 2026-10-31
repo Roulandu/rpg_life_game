@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { MatchdayScreen } from '../../src/ui/screens/MatchdayScreen'
 import { useGameStore } from '../../src/store/gameStore'
+import { IDLE_PLAYBACK } from '../../src/store/livePlayback'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
 import { finalizedWorld, resolveFirstMoment, worldWithKeyMoments } from './matchdayWorld'
@@ -30,25 +31,35 @@ afterEach(() => {
 })
 
 describe('matchday screen', () => {
-  it('renders the pending key moment stage', () => {
+  it('renders the pending key moment modal', () => {
     useGameStore.setState({ world: worldWithKeyMoments(), hydrated: true })
     renderMatchday()
 
     expect(screen.getByText('比赛日 · 关键回合')).toBeInTheDocument()
-    expect(screen.getByText('轮到你做决定')).toBeInTheDocument()
-    expect(screen.getByText(/关键回合 1\//)).toBeInTheDocument()
+    expect(screen.getByText(/关键时刻/)).toBeInTheDocument()
+    expect(screen.getAllByText(/成功率/)).toHaveLength(5)
     expect(screen.getByText(/跳过剩余回合/)).toBeInTheDocument()
-    expect(screen.getAllByText(/成功率/).length).toBeGreaterThan(0)
     expect(screen.queryByText('已经发生')).not.toBeInTheDocument()
   })
 
-  it('shows resolved moments and running impact after one choice', () => {
-    useGameStore.setState({ world: resolveFirstMoment(worldWithKeyMoments()), hydrated: true })
+  it('shows the resolved moment result with a continue action', () => {
+    const world = resolveFirstMoment(worldWithKeyMoments())
+    const match = world.lastMatch!
+    const moment = match.keyMoments!.find((item) => item.outcome)!
+    useGameStore.setState({
+      world,
+      hydrated: true,
+      livePlayback: {
+        ...IDLE_PLAYBACK,
+        fixtureId: match.fixtureId,
+        phase: 'result',
+        resultMomentId: moment.id,
+      },
+    })
     renderMatchday()
 
-    expect(screen.getByText('已经发生')).toBeInTheDocument()
-    expect(screen.getByText('到目前为止的影响')).toBeInTheDocument()
-    expect(screen.getByText(/教练信任/)).toBeInTheDocument()
+    expect(screen.getByText(/掷骰/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '继续比赛' })).toBeInTheDocument()
   })
 
   it('renders the final match review', () => {
@@ -60,6 +71,7 @@ describe('matchday screen', () => {
     expect(screen.getByText('你的表现')).toBeInTheDocument()
     expect(screen.getByText('媒体反应')).toBeInTheDocument()
     expect(screen.getByText('关键回合回顾')).toBeInTheDocument()
+    expect(screen.getByText('数据统计')).toBeInTheDocument()
     expect(screen.getByText('文字直播')).toBeInTheDocument()
     expect(screen.getByText(/下一场：第/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /下一场/ })).not.toBeInTheDocument()
@@ -105,7 +117,7 @@ describe('matchday exit', () => {
     expect(screen.getByText('主页占位')).toBeInTheDocument()
   })
 
-  it('回归: 关键回合未完成时不显示返回主页按钮', () => {
+  it('回归: 实时比赛进行中不显示返回主页按钮', () => {
     useGameStore.setState({ world: worldWithKeyMoments(), hydrated: true })
     renderMatchday()
 

@@ -1,4 +1,4 @@
-import type { KeyMoment } from '../../../domain'
+import type { KeyMoment, MatchSide } from '../../../domain'
 
 export interface Momentum {
   rating: number
@@ -6,16 +6,29 @@ export interface Momentum {
   coach: number
 }
 
+export const FAST_FORWARD_LABEL = '跳到下一关键回合'
+
 export const EVENT_TONE: Record<string, string> = {
   goal: 'border-accent/40 bg-accent/10 text-accent',
   assist: 'border-teal/40 bg-teal/10 text-teal',
   chance: 'border-teal/30 bg-teal/5 text-teal',
   save: 'border-teal/30 bg-teal/5 text-teal',
+  shot: 'border-teal/30 bg-teal/5 text-teal',
+  attack: 'border-line bg-card-2 text-muted',
+  corner: 'border-gold/30 bg-gold/5 text-gold',
+  foul: 'border-danger/30 bg-danger/5 text-danger',
+  offside: 'border-gold/30 bg-gold/5 text-gold',
   card: 'border-gold/40 bg-gold/10 text-gold',
   injury: 'border-danger/40 bg-danger/10 text-danger',
   sub: 'border-line bg-card-2 text-muted',
   info: 'border-line bg-card-2 text-muted',
   fulltime: 'border-line bg-card-2 text-text',
+}
+
+export function eventSideLabel(side: MatchSide | undefined): '主' | '客' | null {
+  if (side === 'home') return '主'
+  if (side === 'away') return '客'
+  return null
 }
 
 export function momentDelta(moment: KeyMoment): Momentum {

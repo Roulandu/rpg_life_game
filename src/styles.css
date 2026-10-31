@@ -200,8 +200,24 @@
   animation: fade-up 0.35s ease-out both;
 }
 
+.pitch-dot,
+.pitch-ball,
+.pitch-trail {
+  transition:
+    left 0.45s ease-out,
+    top 0.45s ease-out,
+    background-color 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up {
     animation: none;
+  }
+
+  .pitch-dot,
+  .pitch-ball,
+  .pitch-trail {
+    transition: none;
   }
 }

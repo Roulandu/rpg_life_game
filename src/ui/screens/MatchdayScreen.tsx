@@ -1,13 +1,16 @@
-import type { Club, KeyMoment, MatchReport, WorldState } from '../../domain'
+import { useEffect } from 'react'
+import type { MatchReport, WorldState } from '../../domain'
 import { useGameStore } from '../../store'
+import type { LivePhase } from '../../store'
 import { Card } from '../components/Card'
 import { nextFixtureOf, opponentOfClub } from '../gameHelpers'
-import { KeyMomentStage } from './matchday/KeyMomentStage'
+import { KeyMomentModal } from './matchday/KeyMomentModal'
+import { LiveMatchStage } from './matchday/LiveMatchStage'
 import { MatchReview } from './matchday/MatchReview'
 import { MatchdayExit } from './matchday/MatchdayExit'
 import { MatchdayHeader } from './matchday/MatchdayHeader'
 import { NextFixtureLink } from './matchday/NextFixtureLink'
-import { ScoreCard } from './matchday/ScoreCard'
+import { useLiveClock } from './matchday/useLiveClock'
 import { useMomentActions } from './matchday/useMomentActions'
 
 function UpcomingFixture({ world, clubId }: { world: WorldState; clubId: string }) {
@@ -15,40 +18,6 @@ function UpcomingFixture({ world, clubId }: { world: WorldState; clubId: string 
   const opponent = next ? opponentOfClub(world, next, clubId) : null
   if (!next || !opponent) return null
   return <NextFixtureLink next={next} opponent={opponent} isHome={next.homeId === clubId} />
-}
-
-function LiveFinishCard({
-  match,
-  clubId,
-  stadium,
-  acting,
-  onFinish,
-}: {
-  match: MatchReport
-  clubId: string
-  stadium: string
-  acting: boolean
-  onFinish: () => void
-}) {
-  return (
-    <>
-      <ScoreCard match={match} clubId={clubId} stadium={stadium} liveMinute={match.currentMinute} />
-      <Card className="mb-4 p-6 text-center">
-        <p className="text-sm font-medium text-text">第 {match.currentMinute} 分钟，比赛等待结算</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-muted">
-          所有关键回合都已处理，完成比赛后会生成评分、媒体反应与新闻。
-        </p>
-        <button
-          type="button"
-          className="btn-primary mt-4 w-full justify-center"
-          disabled={acting}
-          onClick={onFinish}
-        >
-          完成比赛
-        </button>
-      </Card>
-    </>
-  )
 }
 
 function EmptyMatchday({ world, clubId }: { world: WorldState; clubId: string }) {
@@ -65,84 +34,69 @@ function EmptyMatchday({ world, clubId }: { world: WorldState; clubId: string })
   )
 }
 
-function MatchdayBody({
-  world,
-  club,
-  match,
-  active,
-  acting,
-  choose,
-  skip,
-  stadium,
-}: {
-  world: WorldState
-  club: Club
-  match: MatchReport | null
-  active: KeyMoment | null
-  acting: boolean
-  choose: (momentId: string, optionId: string) => void
-  skip: () => void
-  stadium: string
-}) {
-  if (!match) return <EmptyMatchday world={world} clubId={club.id} />
-  if (active) {
-    const moments = match.keyMoments ?? []
-    return (
-      <KeyMomentStage
-        world={world}
-        club={club}
-        match={match}
-        active={active}
-        moments={moments}
-        resolvedCount={moments.filter((moment) => moment.outcome).length}
-        acting={acting}
-        onChoose={choose}
-        onSkip={skip}
-      />
-    )
-  }
-  if (match.status === 'live') {
-    return (
-      <LiveFinishCard
-        match={match}
-        clubId={club.id}
-        stadium={stadium}
-        acting={acting}
-        onFinish={skip}
-      />
-    )
-  }
-  return (
-    <>
-      <MatchReview world={world} club={club} match={match} />
-      <MatchdayExit world={world} clubId={club.id} />
-    </>
-  )
+function titleFor(match: MatchReport | null, phase: LivePhase): string {
+  if (match?.status !== 'live') return '比赛日'
+  return phase === 'awaiting' || phase === 'result' ? '比赛日 · 关键回合' : '比赛日 · 实时'
 }
 
 export function MatchdayScreen() {
   const world = useGameStore((state) => state.world)
+  const playback = useGameStore((state) => state.livePlayback)
+  const startLivePlayback = useGameStore((state) => state.startLivePlayback)
+  const pauseLivePlayback = useGameStore((state) => state.pauseLivePlayback)
+  const resumeLivePlayback = useGameStore((state) => state.resumeLivePlayback)
+  const setLiveSpeed = useGameStore((state) => state.setLiveSpeed)
+  const jumpToNextKeyMoment = useGameStore((state) => state.jumpToNextKeyMoment)
+  const continueAfterMoment = useGameStore((state) => state.continueAfterMoment)
+  const finishLiveMatch = useGameStore((state) => state.finishLiveMatch)
   const { acting, choose, skip } = useMomentActions()
+  const match = world?.lastMatch ?? null
+  const live = match?.status === 'live'
+
+  useEffect(() => {
+    if (live) startLivePlayback()
+  }, [live, match?.fixtureId, startLivePlayback])
+
+  useLiveClock()
+
   if (!world) return null
 
-  const match = world.lastMatch
   const club = world.clubs[world.clubId]
-  const active = match?.keyMoments?.find((moment) => !moment.outcome) ?? null
-  const stadium = match ? (world.clubs[match.homeId]?.stadium ?? club.stadium) : club.stadium
 
   return (
     <div className="page-pad pb-6 sm:mx-auto sm:max-w-[var(--focus-max)]">
-      <MatchdayHeader title={active ? '比赛日 · 关键回合' : '比赛日'} match={match} />
-      <MatchdayBody
-        world={world}
-        club={club}
-        match={match}
-        active={active}
-        acting={acting}
-        choose={(momentId, optionId) => void choose(momentId, optionId)}
-        skip={() => void skip()}
-        stadium={stadium}
-      />
+      <MatchdayHeader title={titleFor(match, playback.phase)} match={match} />
+      {!match ? (
+        <EmptyMatchday world={world} clubId={club.id} />
+      ) : match.status === 'live' ? (
+        <>
+          <LiveMatchStage
+            world={world}
+            club={club}
+            match={match}
+            playback={playback}
+            acting={acting}
+            onPause={pauseLivePlayback}
+            onResume={resumeLivePlayback}
+            onJump={jumpToNextKeyMoment}
+            onSpeed={setLiveSpeed}
+            onFinish={() => void finishLiveMatch()}
+          />
+          <KeyMomentModal
+            match={match}
+            playback={playback}
+            acting={acting}
+            onChoose={(momentId, optionId) => void choose(momentId, optionId)}
+            onSkip={() => void skip()}
+            onContinue={continueAfterMoment}
+          />
+        </>
+      ) : (
+        <>
+          <MatchReview world={world} club={club} match={match} />
+          <MatchdayExit world={world} clubId={club.id} />
+        </>
+      )}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { useGameStore } from '../../src/store/gameStore'
+import { IDLE_PLAYBACK } from '../../src/store/livePlayback'
 
 export function resetUiStore(): void {
   useGameStore.setState({
@@ -11,6 +12,7 @@ export function resetUiStore(): void {
     hydrated: true,
     notice: null,
     error: null,
+    livePlayback: IDLE_PLAYBACK,
     aiBusy: false,
     aiError: null,
     aiKeyReady: false,
