@@ -16,6 +16,10 @@ export interface Fixture {
   report?: MatchReport | null
 }
 
+export type MatchSide = 'home' | 'away'
+
+export type BeatKind = 'attack' | 'shot' | 'corner' | 'foul' | 'offside'
+
 export type MatchEventType =
   | 'goal'
   | 'assist'
@@ -26,12 +30,39 @@ export type MatchEventType =
   | 'sub'
   | 'info'
   | 'fulltime'
+  | BeatKind
 
 export interface MatchEventLine {
   minute: number
   type: MatchEventType
   text: string
   isUser?: boolean
+  side?: MatchSide
+}
+
+export interface MatchStatLine {
+  possession: number
+  shots: number
+  shotsOnTarget: number
+  corners: number
+}
+
+export interface MatchStats {
+  home: MatchStatLine
+  away: MatchStatLine
+}
+
+export interface MatchLineupPlayer {
+  id: Id
+  name: string
+  number: number
+  position: Position
+  isUser: boolean
+}
+
+export interface MatchLineups {
+  home: MatchLineupPlayer[]
+  away: MatchLineupPlayer[]
 }
 
 export interface MatchGoal {
@@ -74,15 +105,30 @@ export interface MatchReport {
   attendance: number
   keyMoments?: KeyMoment[]
   mediaReaction?: string
+  stats?: MatchStats
+  lineups?: MatchLineups
 }
 
-export type KeyMomentKind = 'bigChance' | 'penalty' | 'throughBall' | 'duel' | 'save' | 'clearance'
+export type KeyMomentKind =
+  | 'bigChance'
+  | 'penalty'
+  | 'throughBall'
+  | 'duel'
+  | 'save'
+  | 'clearance'
+  | 'freeKick'
+  | 'headerDuel'
+  | 'oneOnOne'
+  | 'counterAttack'
+  | 'cross'
+  | 'longShot'
 
 export interface KeyMomentOption {
   id: string
   labelZh: string
   descriptionZh: string
   successChance: number
+  successBasisZh?: string
   ratingOnSuccess: number
   ratingOnFail: number
   goalOnSuccess?: boolean
@@ -113,6 +159,7 @@ export interface KeyMoment {
   options: KeyMomentOption[]
   defaultOptionId: string
   roll: number
+  triggerZh?: string
   outcome?: KeyMomentOutcome
 }
 

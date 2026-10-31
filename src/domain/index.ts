@@ -22,8 +22,28 @@ export {
 } from './attributes'
 export type { ChatActionProposal } from './chatAction'
 export { generateFixtures } from './fixtures'
+export { effectsSummary, successBasisText } from './keyMomentView'
 export { computeLeagueTable, goalDifference, leaguePosition } from './leagueTable'
+export { buildMatchLineups, selectLineup } from './lineup'
+export type { LineupOptions } from './lineup'
+export { buildPitchFrame } from './pitch'
+export type {
+  PitchFrame,
+  PitchFrameInput,
+  PitchHistoryPoint,
+  PitchPlayer,
+  PitchPoint,
+} from './pitch'
 export { computeClubStrength } from './strength'
+export { CURRENT_SAVE_VERSION } from './version'
+export type {
+  BeatKind,
+  MatchLineupPlayer,
+  MatchLineups,
+  MatchSide,
+  MatchStatLine,
+  MatchStats,
+} from './matchTypes'
 export type {
   AiChatMessage,
   AiNarrative,
