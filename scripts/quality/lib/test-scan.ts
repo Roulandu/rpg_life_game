@@ -2,8 +2,26 @@ import { readFileSync } from 'node:fs'
 import { repoRoot, toPosix } from './manifest'
 import { resolve } from 'node:path'
 
+export interface ChangedTestSource {
+  file: string
+  before: string | null
+  after: string
+}
+
 export function countTests(text: string): number {
   return (text.match(/\b(?:it|test)\s*(?:\.\w+)?\s*\(/g) ?? []).length
+}
+
+export function isTestSourceFile(file: string): boolean {
+  return /^tests\/.*\.(ts|tsx)$/.test(toPosix(file))
+}
+
+export function hasAddedTestCases(changed: ChangedTestSource[]): boolean {
+  return changed.some(({ file, before, after }) => {
+    if (!isTestSourceFile(file)) return false
+    const count = countTests(after)
+    return before ? count > countTests(before) : count > 0
+  })
 }
 
 export function scanTestDirectives(files: string[]): string[] {

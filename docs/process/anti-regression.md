@@ -102,6 +102,7 @@ npm run quality:file -- src/engine/match.ts
 
 ## 测试数量与跳过
 
+- 统计范围：`tests/**/*.test.ts` 与 `tests/**/*.test.tsx`；`feat` / `fix` 的“必须新增用例”按同一范围计数。
 - 改动测试文件的用例数不得减少，除非 `Test-Impact: removed: <理由>`。
 - 禁止 `.only`。
 - `.skip` 必须同行写 `skip-reason: <原因>`；无理由 skip 视为删除测试。

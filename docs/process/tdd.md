@@ -62,7 +62,7 @@ GREEN: npm test -- tests/engine/training.test.ts — 12 passed；npm run check:f
 - 改 `src/**` 必须有测试改动。
 - `strict` 模块：测试文件必须 import 被改文件。
 - `via-module` 模块：允许模块测试目录内的相关测试改动。
-- `feat` / `fix`：必须新增测试用例（CI 检查用例数或新测试文件），不能只改实现。
+- `feat` / `fix`：必须新增测试用例（CI 检查用例数或新测试文件，`.ts` 与 `.tsx` 均计入），不能只改实现。
 - `fix`：必须有回归测试，或 RED 指向一个真实存在的测试。
 - `refactor` / `perf`：可以不新增测试，但必须有 GREEN 证明现有测试通过。
 - 纯类型/样式/生成文件可豁免，需 `Test-Impact: none: <理由>`。

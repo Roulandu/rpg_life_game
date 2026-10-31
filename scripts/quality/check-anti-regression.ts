@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { changedFiles, commitsSince, mergeBase, resolveBase, showAt } from './lib/git'
 import { repoRoot } from './lib/manifest'
 import { scanSecrets } from './lib/secrets'
-import { countTests, scanTestDirectives } from './lib/test-scan'
+import { countTests, hasAddedTestCases, isTestSourceFile, scanTestDirectives } from './lib/test-scan'
 
 const SAVE_SCHEMA = 'src/domain/schema/save.schema.ts'
 const VERSION_PATTERN = /CURRENT_SAVE_VERSION\s*=\s*(\d+)/
@@ -91,20 +91,17 @@ function main(): void {
   const removalWaived = /^Test-Impact:\s*(?:removed|none):\s*\S{4,}/m.test(messages)
   const featOrFix = commits.some((commit) => /^(feat|fix)(\(|:)/.test(commit.subject))
   if (featOrFix) {
-    const added = changed.some((file) => {
-      if (!file.startsWith('tests/') || !file.endsWith('.ts')) return false
+    const testSources = changed.filter(isTestSourceFile).flatMap((file) => {
       const afterPath = resolve(repoRoot, file)
-      if (!existsSync(afterPath)) return false
-      const before = showAt(baseCommit, file)
-      const after = countTests(readFileSync(afterPath, 'utf8'))
-      return before ? after > countTests(before) : after > 0
+      if (!existsSync(afterPath)) return []
+      return [{ file, before: showAt(baseCommit, file), after: readFileSync(afterPath, 'utf8') }]
     })
-    if (!added) {
+    if (!hasAddedTestCases(testSources)) {
       problems.push('feat/fix 提交必须新增测试用例，不能只改实现或只改已有断言。')
     }
   }
 
-  for (const file of changed.filter((item) => item.startsWith('tests/') && item.endsWith('.ts'))) {
+  for (const file of changed.filter(isTestSourceFile)) {
     const before = showAt(baseCommit, file)
     const afterPath = resolve(repoRoot, file)
     if (!before || !existsSync(afterPath)) continue
