@@ -32,7 +32,7 @@ export function KeyMomentStage({
 
   return (
     <>
-      <ScoreCard match={match} clubId={club.id} stadium={stadium} liveMinute={active.minute} />
+      <ScoreCard match={match} clubId={club.id} stadium={stadium} liveMinute={match.currentMinute} />
       <section className="mb-3">
         <SectionTitle
           right={

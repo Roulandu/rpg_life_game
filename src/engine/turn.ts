@@ -2,7 +2,9 @@ import { computeClubStrength } from '../domain'
 import type { GameEvent, MatchReport, SeasonSummary, WeeklyPlan, WorldState } from '../domain'
 import { expireEvents, generateWeeklyEvent } from './events'
 import { settleWeekFinance, updatePlayerValue } from './finance'
-import { simulateWeekFixtures } from './match'
+import { autoResolveKeyMoments, finalizeMatchday, hasPendingKeyMoments } from './keyMoments'
+import { advanceLiveMatch, startUserMatch } from './liveMatch'
+import { getUserMatchFixture, simulateWeekFixtures } from './match'
 import { applySeasonTransition, evaluateSeason } from './season'
 import { applyExtraAction, applyTraining, recoverInjuries } from './training'
 
@@ -25,6 +27,7 @@ export interface TurnResult {
   seasonTransition: SeasonTransition | null
   weekPlayed: number
   seasonPlayed: number
+  live: boolean
 }
 
 function recomputeAllStrengths(world: WorldState): void {
@@ -56,23 +59,15 @@ export function endSeason(world: WorldState): SeasonTransition {
   }
 }
 
-export function advanceWeek(input: WorldState, plan: WeeklyPlan): TurnResult {
-  const world = structuredClone(input)
-  const weekPlayed = world.week
-  const seasonPlayed = world.season
-  if (world.retired) {
-    return { world, match: null, event: null, seasonTransition: null, weekPlayed, seasonPlayed }
-  }
-
-  recomputeAllStrengths(world)
-  recoverInjuries(world)
-  applyTraining(world, plan.training)
-  applyExtraAction(world, plan.extra)
-  expireEvents(world)
-
-  const match = simulateWeekFixtures(world)
-  if (match) world.lastMatch = match
-
+function finishWeek(
+  world: WorldState,
+  plan: WeeklyPlan,
+  match: MatchReport | null,
+  weekPlayed: number,
+  seasonPlayed: number,
+): TurnResult {
+  if (match?.status === 'final') world.lastMatch = match
+  simulateWeekFixtures(world)
   settleWeekFinance(world)
   const event = generateWeeklyEvent(world, match, plan)
   if (world.week % 3 === 0) updatePlayerValue(world)
@@ -82,8 +77,89 @@ export function advanceWeek(input: WorldState, plan: WeeklyPlan): TurnResult {
   if (world.week > world.totalWeeks) {
     seasonTransition = endSeason(world)
   }
+  world.pendingWeekPlan = null
 
-  return { world, match, event, seasonTransition, weekPlayed, seasonPlayed }
+  return {
+    world,
+    match,
+    event,
+    seasonTransition,
+    weekPlayed,
+    seasonPlayed,
+    live: false,
+  }
+}
+
+export function startWeek(input: WorldState, plan: WeeklyPlan): TurnResult {
+  const world = structuredClone(input)
+  const weekPlayed = world.week
+  const seasonPlayed = world.season
+  const live = world.lastMatch?.status === 'live'
+  const idle: TurnResult = {
+    world,
+    match: world.lastMatch,
+    event: null,
+    seasonTransition: null,
+    weekPlayed,
+    seasonPlayed,
+    live,
+  }
+  if (world.retired) return { ...idle, match: null, live: false }
+  if (live || hasPendingKeyMoments(world)) return idle
+
+  recomputeAllStrengths(world)
+  recoverInjuries(world)
+  applyTraining(world, plan.training)
+  applyExtraAction(world, plan.extra)
+  expireEvents(world)
+
+  const fixture = getUserMatchFixture(world)
+  if (!fixture) return finishWeek(world, plan, null, weekPlayed, seasonPlayed)
+
+  const report = startUserMatch(world, fixture)
+  if (report.status === 'live' && (report.keyMoments ?? []).some((moment) => !moment.outcome)) {
+    world.pendingWeekPlan = { ...plan, fixtureId: fixture.id }
+    return { ...idle, world, match: report, live: true }
+  }
+
+  const settled = finalizeMatchday(world)
+  return finishWeek(world, plan, settled, weekPlayed, seasonPlayed)
+}
+
+export function completeWeek(input: WorldState): TurnResult {
+  const world = structuredClone(input)
+  const weekPlayed = world.week
+  const seasonPlayed = world.season
+  const plan = world.pendingWeekPlan
+  const idle: TurnResult = {
+    world,
+    match: world.lastMatch,
+    event: null,
+    seasonTransition: null,
+    weekPlayed,
+    seasonPlayed,
+    live: world.lastMatch?.status === 'live',
+  }
+  if (!plan) return idle
+
+  if (world.lastMatch?.status === 'live') {
+    if (hasPendingKeyMoments(world)) return idle
+    advanceLiveMatch(world)
+    finalizeMatchday(world)
+  }
+
+  const match = world.lastMatch?.status === 'final' ? world.lastMatch : null
+  return finishWeek(world, plan, match, weekPlayed, seasonPlayed)
+}
+
+export function advanceWeek(input: WorldState, plan: WeeklyPlan): TurnResult {
+  const started = startWeek(input, plan)
+  if (!started.live) return started
+
+  const world = structuredClone(started.world)
+  autoResolveKeyMoments(world)
+  finalizeMatchday(world)
+  return completeWeek(world)
 }
 
 export function advanceWeeks(world: WorldState, plan: WeeklyPlan, count: number): TurnResult[] {

@@ -8,6 +8,7 @@ import { UserPerformanceCard } from './UserPerformanceCard'
 import { momentumOf, successCountOf } from './matchdayUtils'
 
 export function MatchReview({ world, club, match }: { world: WorldState; club: Club; match: MatchReport }) {
+  if (match.status !== 'final') return null
   const moments = match.keyMoments ?? []
   const momentum = momentumOf(moments)
   const successCount = successCountOf(moments)

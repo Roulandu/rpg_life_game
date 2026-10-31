@@ -25,9 +25,9 @@ flowchart TD
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| `version` | number | 世界结构版本，当前 `1` |
+| `version` | number | 世界结构版本，当前 `2` |
 | `seed` | number | 世界种子，决定生成、赛程、比赛与事件 |
-| `engineVersion` | string | 生成世界的引擎版本，当前 `0.1.0` |
+| `engineVersion` | string | 生成世界的引擎版本，当前 `0.2.0` |
 | `createdAt` / `updatedAt` | ISO string | 创建与最近更新时间 |
 | `playerId` | Id | 用户球员 ID |
 | `clubId` | Id | 用户当前俱乐部 ID |
@@ -40,7 +40,8 @@ flowchart TD
 | `finance` | `Finance` | 余额、周薪、支出、流水、赞助 |
 | `news` | `NewsItem[]` | 新闻，保留最近 120 条 |
 | `season` / `week` / `totalWeeks` | number | 当前赛季、周次（1–38）、总周数 |
-| `lastMatch` | `MatchReport \| null` | 最近一场用户比赛，含关键回合 |
+| `lastMatch` | `MatchReport \| null` | 最近一场用户比赛，含实时状态、进球与关键回合 |
+| `pendingWeekPlan` | `PendingWeekPlan \| null` | live 比赛期间保存的本周计划与 fixture；完成周后清空 |
 | `seasonSummaries` | `SeasonSummary[]` | 赛季总结 |
 | `retired` | boolean? | 是否已退役 |
 | `settings` | object | LLM Provider、模型、叙事密度、网络模式等 |
@@ -56,8 +57,10 @@ flowchart TD
 | `Player` | 属性、潜力、状态、合同、声望、伤病、赛季/生涯统计 | 属性 10–96；年龄 14–60；用户球员必须存在于 `players` |
 | `Club` | 联赛、层级、声望、预算、设施、阵容、教练、强度 | `squadIds` 指向真实球员；`leagueId` 指向真实联赛 |
 | `League` | 俱乐部列表、升降级名额 | `clubIds` 与俱乐部 `leagueId` 一致 |
-| `Fixture` | 赛季、周次、主客、状态、比分 | 已结束必须有比分；同一赛季每队 38 场 |
-| `MatchReport` | 比分、用户出场、评分、事件、关键回合、媒体反应 | 关键回合的 `roll` 在生成时固定 |
+| `Fixture` | 赛季、周次、主客、状态、比分 | 状态为 `scheduled / live / played`；live 比分随分钟实时写入；已结束必须有比分；同一赛季每队 38 场 |
+| `MatchReport` | 状态、当前分钟、比分、进球列表、用户出场、评分、事件、关键回合、媒体反应 | `status` 为 `live / final`；live 阶段评分/MOTM/媒体为空；进球只通过统一写入函数追加 |
+| `MatchGoal` | `minute / side / scorerId / scorerName / assistId? / assistName? / isUser? / isUserAssist? / fromKeyMoment?` | 一条进球只出现一次；比分缓存必须等于进球列表按主客统计 |
+| `PendingWeekPlan` | `training / extra / fixtureId` | 只在 live 期间存在；完成后清空，旧档迁移为 `null` |
 | `GameEvent` | 模板、正文、有效期、选项、状态 | `expiresWeek` 之后必须过期；LLM 只能改文案 |
 | `Relationship` | 角色、信任、紧张、摘要 | 信任/紧张 0–100 |
 | `Finance` | 余额、周薪、支出、流水 | 流水金额带符号；结算后余额与流水一致 |
@@ -69,6 +72,8 @@ flowchart TD
 - 训练：`physical / technical / tactical / recovery`
 - 额外行动：`media / agent / social / rest / family / none`
 - 事件状态：`open / resolved / expired`
+- 比赛状态：`scheduled / live / played`
+- 比赛报告状态：`live / final`
 - 关键回合：`bigChance / penalty / throughBall / duel / save / clearance`
 
 ## ID 约定
@@ -93,8 +98,8 @@ flowchart TD
 ```json
 {
   "format": "pitch-life-save",
-  "saveVersion": 1,
-  "engineVersion": "0.1.0",
+  "saveVersion": 2,
+  "engineVersion": "0.2.0",
   "exportedAt": "2026-10-26T12:00:00.000Z",
   "checksum": "<hashString(canonicalStringify(world))>",
   "world": { "...": "WorldState" }
@@ -104,16 +109,16 @@ flowchart TD
 规则：
 
 1. `format` 必须等于 `pitch-life-save`。
-2. `saveVersion` 来自 `CURRENT_SAVE_VERSION`，当前为 `1`。
+2. `saveVersion` 来自 `CURRENT_SAVE_VERSION`，当前为 `2`。
 3. `checksum` 按 `lib.canonicalStringify` 规范化后计算；对象键排序、`undefined` 视为 `null`。
-4. `importWorld` 依次执行：JSON 解析 → `saveEnvelopeSchema` → 拒绝更高版本 → `worldSchema` → 重算 checksum 比对。
+4. `importWorld` 依次执行：JSON 解析 → `saveEnvelopeSchema`（含 world 结构）→ 拒绝更高版本 → **用原始 world 重算 checksum 比对** → 迁移到当前版本。
 5. 任何一步失败都抛出中文错误，不写入 IndexedDB。
 
 `world.version` 与 envelope `saveVersion` 是两个维度：
 
-- `world.version` 描述世界结构本身。
-- `saveVersion` 描述存档封装与迁移契约。
-- 当前两者都是 `1`；结构变化时必须同时评估。
+- `world.version` 描述世界结构本身，当前为 `2`。
+- `saveVersion` 描述存档封装与迁移契约，当前为 `2`。
+- 结构变化时必须同时评估；旧版本 world 在加载/导入时迁移到当前结构。
 
 ## IndexedDB
 
@@ -144,7 +149,20 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 
 ## 迁移策略
 
-当前版本为 `1`，没有历史迁移。
+当前 `CURRENT_SAVE_VERSION = 2`，由 `src/db/migrate.ts` 提供 v1 → v2 迁移。
+
+| 版本 | 变更 | 迁移 |
+|---|---|---|
+| 1 | 预生成终场比分；`MatchReport` 无状态/分钟/进球列表 | — |
+| 2 | 逐分钟实时比赛；`Fixture.status` 增加 `live`；`MatchReport` 增加 `status / currentMinute / goals`；`WorldState.pendingWeekPlan` | 所有已有报告补 `status: 'final'`、`currentMinute: 90`、`goals: []`；`pendingWeekPlan = null`；`world.version = 2`；`engineVersion` 保留历史值 |
+
+迁移规则：
+
+- 迁移幂等，可重复执行；只前进不后退。
+- 旧档中未完成的关键回合保留，结算继续走旧版 `final` 路径；由于没有 `pendingWeekPlan`，完成后不会多推一周。
+- `loadWorld` 在 schema 校验后迁移；发生迁移时回写数据库并同步摘要。
+- `importWorld` 必须先校验 checksum，再做迁移；拒绝 `saveVersion > 2`。
+- 旧客户端遇到 v2 存档会按现有版本检查拒绝读取；不提供降级迁移。
 
 任何存档结构变化必须满足：
 
@@ -186,3 +204,4 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 日期 | 变更 | 关联 |
 |---|---|---|
 | 2026-10-26 | 初版：世界状态、envelope、IndexedDB 与迁移规则 | ADR 0001 |
+| 2026-10-31 | 存档升 v2：fixture `live`、报告 `status/currentMinute/goals`、`pendingWeekPlan`；v1 迁移保留未完成回合；engine 0.2.0 | 缺陷修复：比赛日比分穿越 |

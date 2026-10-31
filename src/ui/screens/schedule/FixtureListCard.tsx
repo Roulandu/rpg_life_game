@@ -33,7 +33,8 @@ function FixtureRow({ world, club, fixture }: { world: WorldState; club: Club; f
   const isHome = fixture.homeId === club.id
   const opponent = world.clubs[isHome ? fixture.awayId : fixture.homeId]
   const result = fixtureResultForClub(fixture, club.id)
-  const current = fixture.week === world.week && fixture.status === 'scheduled'
+  const current =
+    fixture.week === world.week && (fixture.status === 'scheduled' || fixture.status === 'live')
 
   return (
     <div className={clsx('flex items-center gap-2 px-3 py-2.5 text-[11px]', current && 'bg-accent/5')}>
@@ -54,6 +55,27 @@ function FixtureRow({ world, club, fixture }: { world: WorldState; club: Club; f
   )
 }
 
+function LiveOutcome({ fixture, isHome }: { fixture: Fixture; isHome: boolean }) {
+  const goalsFor = isHome ? fixture.homeGoals ?? 0 : fixture.awayGoals ?? 0
+  const goalsAgainst = isHome ? fixture.awayGoals ?? 0 : fixture.homeGoals ?? 0
+  return (
+    <span className="flex w-14 shrink-0 flex-col items-center text-[9px] leading-tight text-accent">
+      <span className="font-mono text-xs">
+        {goalsFor}-{goalsAgainst}
+      </span>
+      <span>进行中</span>
+    </span>
+  )
+}
+
+function PlayedOutcome({ fixture, isHome }: { fixture: Fixture; isHome: boolean }) {
+  return (
+    <span className="w-12 text-center font-mono text-xs text-text">
+      {isHome ? fixture.homeGoals : fixture.awayGoals}-{isHome ? fixture.awayGoals : fixture.homeGoals}
+    </span>
+  )
+}
+
 function FixtureOutcome({
   fixture,
   isHome,
@@ -63,13 +85,8 @@ function FixtureOutcome({
   isHome: boolean
   current: boolean
 }) {
-  if (fixture.status === 'played') {
-    return (
-      <span className="w-12 text-center font-mono text-xs text-text">
-        {isHome ? fixture.homeGoals : fixture.awayGoals}-{isHome ? fixture.awayGoals : fixture.homeGoals}
-      </span>
-    )
-  }
+  if (fixture.status === 'live') return <LiveOutcome fixture={fixture} isHome={isHome} />
+  if (fixture.status === 'played') return <PlayedOutcome fixture={fixture} isHome={isHome} />
 
   return (
     <span className={clsx('w-12 text-center text-[10px]', current ? 'text-accent' : 'text-dim')}>

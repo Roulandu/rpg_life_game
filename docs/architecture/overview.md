@@ -155,22 +155,26 @@ flowchart LR
 ```mermaid
 flowchart TD
   UI[周计划界面] --> S[store.advance]
-  S --> E[engine.advanceWeek]
+  S --> E[engine.startWeek]
   E --> T[训练 / 恢复 / 额外行动]
-  E --> M[模拟本周比赛]
+  E --> M[开始用户比赛 · 逐分钟实时]
   M --> K{用户出场且有 key moments?}
-  K -- 是 --> P[持久化并进入比赛日]
+  K -- 是 --> P[持久化 live 报告并进入比赛日]
   P --> R[逐条 resolveKeyMoment]
-  R --> F[finalizeMatchday]
-  F --> N[store.narrateTurn]
-  K -- 否 --> N
-  N --> L[llm.narrateWeek]
+  R --> X[finalizeLiveMatch]
+  X --> C[engine.completeWeek]
+  C --> N[store.narrateTurn]
+  K -- 否 --> C
+  C --> L[llm.narrateWeek]
   L --> A[applyWeekNarrative]
   A --> DB[(IndexedDB)]
 ```
 
-- 比赛结果在 `advanceWeek` 内一次算完；关键回合只允许在既定 `roll` 与选项上追加结果，不重新模拟比赛。
-- 所有状态变更完成后先持久化，再触发可选的 LLM 叙事。
+- 比赛从第 1 分钟逐分钟模拟；比分只反映截至当前分钟的进球，不再预生成终场比分。
+- 关键回合在对应分钟暂停比赛，选择立即写入实时比分、时间线与势头，然后继续推进。
+- live 期间周次不变，`pendingWeekPlan` 与 live 报告一起持久化，刷新后可回到同一分钟。
+- 全部回合完成后由 `finalizeLiveMatch` 统一生成评分、赛季统计、MOTM、媒体与新闻，再 `completeWeek` 推进周次。
+- 所有状态变更完成后先持久化（完成周只保存一次），再触发可选的 LLM 叙事。
 - LLM 失败只影响叙事，不回滚比赛结果。
 
 ### 存档、导出与导入
@@ -219,8 +223,8 @@ flowchart TD
 ## 非功能约束
 
 - **确定性**：engine / world 内禁止 `Math.random`、`Date.now`、`new Date()`、`performance.now`；随机数只走 `createRng(seed, ...domain)`。
-- **原子回合**：`advanceWeek` 接收旧状态并返回新状态，内部用 `structuredClone`，不修改入参。
-- **存档可校验**：任何持久化状态必须通过 `worldSchema`；导出必须带版本与 checksum。
+- **原子回合**：`startWeek` / `completeWeek` / `advanceWeek` 接收旧状态并返回新状态，内部用 `structuredClone`，不修改入参；live 中途刷新由 `pendingWeekPlan` 恢复。
+- **存档可校验**：任何持久化状态必须通过 `worldSchema`；旧版本先迁移，导出必须带版本与 checksum。
 - **技术债棘轮**：新代码按阈值卡，现有超标文件只降不升。
 - **文档同步**：改模块代码必须同步对应功能/架构文档，或有书面豁免。
 
@@ -243,3 +247,4 @@ flowchart TD
 | 2026-10-29 | 10 个模块新增显式 `index.ts` 公共入口与每模块导出面测试；边界脚本支持 `publicEntry` 深引与模块内自引检查，当前入口未启用保持休眠 | 全量重构提交 13 |
 | 2026-10-29 | 全量源码跨模块相对 import 切到模块公共入口（191 条跨模块依赖），10 个 `publicEntry` 启用，深引/自引门禁转为强制 | 全量重构提交 14 |
 | 2026-10-30 | 落地平板/桌面响应式外壳：语义 `<main>`、桌面侧栏偏移、页面宽度分级；路由表补布局类型 | 响应式改造 |
+| 2026-10-31 | 周推进改为 `startWeek` / `completeWeek` 两阶段，比赛逐分钟实时模拟，关键回合插入比赛进程；存档 v2；engine 0.2.0 | 缺陷修复：比赛日比分穿越 |

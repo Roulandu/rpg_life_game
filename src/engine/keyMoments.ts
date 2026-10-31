@@ -1,21 +1,12 @@
-import { clamp, positionGroup, round1 } from '../domain'
-import type {
-  KeyMoment,
-  KeyMomentKind,
-  KeyMomentOption,
-  MatchReport,
-  Player,
-  WorldState,
-} from '../domain'
-import type { Rng } from '../lib'
-import { KIND_PROMPTS, KIND_TITLES, optionsFor } from './data/keyMomentOptions'
-import {
-  buildMediaReaction,
-  outcomeText,
-  refreshMatchNews,
-  refreshScoreTimeline,
-} from './keyMomentNarrative'
+import { clamp, round1 } from '../domain'
+import type { KeyMoment, KeyMomentOption, MatchReport, Player, WorldState } from '../domain'
+import { buildMediaReaction, outcomeText, refreshMatchNews, refreshScoreTimeline } from './keyMomentNarrative'
+import { hasPendingKeyMoments } from './keyMomentGen'
+import { finalizeLiveMatch } from './matchFinalize'
 import { adjustRelationship, getRelationshipByRole } from './relationships'
+import { advanceLiveMatch, applyLiveKeyMomentOutcome, userSideOf } from './liveMatch'
+
+export { generateKeyMoments, hasPendingKeyMoments, pendingKeyMoments } from './keyMomentGen'
 
 interface AppliedOutcome {
   success: boolean
@@ -24,69 +15,6 @@ interface AppliedOutcome {
   ratingDelta: number
   moraleDelta: number
   coachDelta: number
-}
-
-function kindPool(player: Player): KeyMomentKind[] {
-  switch (positionGroup(player.position)) {
-    case 'GK':
-      return ['save', 'save', 'clearance']
-    case 'DEF':
-      return ['duel', 'clearance', 'duel', 'bigChance']
-    case 'MID':
-      return ['throughBall', 'bigChance', 'duel', 'penalty']
-    case 'FWD':
-      return ['bigChance', 'bigChance', 'penalty', 'throughBall']
-  }
-}
-
-export function generateKeyMoments(
-  player: Player,
-  rng: Rng,
-  minutes: number,
-  isHome: boolean,
-  startMinute = 0,
-): KeyMoment[] {
-  if (minutes <= 0) return []
-  const windowStart = Math.max(1, startMinute + 2)
-  const windowEnd = Math.min(89, startMinute + minutes - 1)
-  if (windowEnd <= windowStart) return []
-
-  const maxCount = minutes >= 70 ? 4 : minutes >= 40 ? 3 : 2
-  const count = Math.min(rng.int(2, 4), maxCount)
-  const pool = rng.shuffle(kindPool(player))
-  const moments: KeyMoment[] = []
-  let lastMinute = windowStart - 1
-
-  for (let index = 0; index < count; index += 1) {
-    const kind = pool[index % pool.length] as KeyMomentKind
-    const target =
-      Math.round(windowStart + ((index + 1) * (windowEnd - windowStart)) / (count + 1)) +
-      rng.int(-3, 3)
-    const minute = Math.max(lastMinute + 1, Math.min(windowEnd, target))
-    if (minute <= lastMinute) break
-    lastMinute = minute
-    const options = optionsFor(kind, { player, isHome })
-    const safest = [...options].sort((a, b) => b.successChance - a.successChance)[0] as KeyMomentOption
-    moments.push({
-      id: `km:${player.id}:${index}`,
-      minute,
-      kind,
-      titleZh: KIND_TITLES[kind],
-      promptZh: KIND_PROMPTS[kind],
-      options,
-      defaultOptionId: safest.id,
-      roll: Math.round(rng.next() * 10000) / 10000,
-    })
-  }
-  return moments
-}
-
-export function pendingKeyMoments(world: WorldState): KeyMoment[] {
-  return (world.lastMatch?.keyMoments ?? []).filter((moment) => !moment.outcome)
-}
-
-export function hasPendingKeyMoments(world: WorldState): boolean {
-  return pendingKeyMoments(world).length > 0
 }
 
 function findPendingOption(
@@ -112,8 +40,9 @@ function evaluateOption(moment: KeyMoment, choice: KeyMomentOption): AppliedOutc
   }
 }
 
-function userSide(report: MatchReport, world: WorldState): 'home' | 'away' {
-  return report.homeId === world.clubId ? 'home' : 'away'
+function applyLivePlayerEffects(user: Player, outcome: AppliedOutcome): void {
+  user.morale = clamp(user.morale + outcome.moraleDelta, 0, 100)
+  user.confidence = clamp(user.confidence + (outcome.success ? 1 : -1), 0, 100)
 }
 
 function applyScoreEffects(
@@ -123,7 +52,7 @@ function applyScoreEffects(
   user: Player,
   outcome: AppliedOutcome,
 ): void {
-  if (userSide(report, world) === 'home') {
+  if (userSideOf(report, world) === 'home') {
     report.homeGoals += 1
     if (moment.minute <= 45 && report.halfTimeHomeGoals !== undefined) {
       report.halfTimeHomeGoals += 1
@@ -172,6 +101,22 @@ function adjustMatchRelationships(world: WorldState, outcome: AppliedOutcome): v
   }
 }
 
+function outcomeEventType(moment: KeyMoment, outcome: AppliedOutcome): 'goal' | 'assist' | 'save' | 'chance' {
+  if (outcome.goal) return 'goal'
+  if (outcome.assist) return 'assist'
+  return moment.kind === 'save' ? 'save' : 'chance'
+}
+
+function appendMomentEvent(report: MatchReport, moment: KeyMoment, outcome: AppliedOutcome): void {
+  report.events.push({
+    minute: moment.minute,
+    type: outcomeEventType(moment, outcome),
+    text: moment.outcome?.textZh ?? '',
+    isUser: true,
+  })
+  report.events.sort((a, b) => a.minute - b.minute)
+}
+
 function appendTimeline(
   world: WorldState,
   report: MatchReport,
@@ -179,14 +124,7 @@ function appendTimeline(
   playerName: string,
   outcome: AppliedOutcome,
 ): void {
-  const type = outcome.goal ? 'goal' : outcome.assist ? 'assist' : moment.kind === 'save' ? 'save' : 'chance'
-  report.events.push({
-    minute: moment.minute,
-    type,
-    text: moment.outcome?.textZh ?? '',
-    isUser: true,
-  })
-  report.events.sort((a, b) => a.minute - b.minute)
+  appendMomentEvent(report, moment, outcome)
   if (outcome.goal || outcome.assist) {
     refreshMatchNews(world, report, playerName)
     refreshScoreTimeline(report)
@@ -211,6 +149,17 @@ export function resolveKeyMoment(
     ...outcome,
     textZh: outcomeText(pending.moment, pending.choice, outcome.success, user.name),
   }
+  if (report.status === 'live') {
+    if (outcome.goal || outcome.assist) {
+      applyLiveKeyMomentOutcome(world, report, pending.moment.minute, pending.moment.outcome)
+    }
+    applyLivePlayerEffects(user, outcome)
+    adjustMatchRelationships(world, outcome)
+    appendMomentEvent(report, pending.moment, outcome)
+    advanceLiveMatch(world)
+    return report
+  }
+
   if (outcome.goal || outcome.assist) {
     applyScoreEffects(world, report, pending.moment, user, outcome)
   }
@@ -233,6 +182,12 @@ export function autoResolveKeyMoments(world: WorldState): MatchReport | null {
 export function finalizeMatchday(world: WorldState): MatchReport | null {
   const report = world.lastMatch
   if (!report) return null
+  if (report.status === 'live') {
+    if (hasPendingKeyMoments(world)) return null
+    advanceLiveMatch(world)
+    return finalizeLiveMatch(world)
+  }
+
   const moments = report.keyMoments ?? []
   if (moments.some((moment) => !moment.outcome)) return null
   const user = world.players[world.playerId]

@@ -5,6 +5,7 @@ modules: [db, domain, store, platform, ui]
 code:
   - src/db/db.ts
   - src/db/repository.ts
+  - src/db/migrate.ts
   - src/domain/schema/save.schema.ts
   - src/store/gameStore.ts
   - src/store/careerSlice.ts
@@ -17,6 +18,7 @@ code:
   - src/ui/screens/settings/DangerZone.tsx
 tests:
   - tests/db/save.test.ts
+  - tests/db/migration.test.ts
   - tests/db/repository.test.ts
   - tests/store/store.test.ts
   - tests/store/exportSave.test.ts
@@ -122,11 +124,18 @@ sequenceDiagram
 1. `JSON.parse`，失败 → “不是有效的 JSON 文件”。
 2. `saveEnvelopeSchema.safeParse`，失败 → 带字段路径的中文错误。
 3. `saveVersion > CURRENT_SAVE_VERSION` → 拒绝“来自更新版本”。
-4. `worldSchema.parse`，检查玩家、俱乐部、周次等不变量。
-5. 重新计算 checksum 并比对，失败 → “存档校验失败，文件可能已损坏”。
-6. 生成新存档 ID 并写入，不覆盖原存档。
+4. `worldSchema.parse`，检查玩家、俱乐部、周次等不变量（schema 兼容 v1 结构，迁移在 checksum 之后）。
+5. **用迁移前的原始 world** 重新计算 checksum 并比对，失败 → “存档校验失败，文件可能已损坏”。
+6. 迁移到当前版本并生成新存档 ID 写入，不覆盖原存档。
 
-当前 `CURRENT_SAVE_VERSION = 1`，没有旧版本迁移逻辑；升级版本时必须补迁移、fixture 与往返测试。
+当前 `CURRENT_SAVE_VERSION = 2`，`src/db/migrate.ts` 提供 v1 → v2 迁移：
+
+- 所有已有比赛报告补 `status: 'final'`、`currentMinute: 90`、`goals: []`。
+- `pendingWeekPlan = null`；`world.version = 2`；`engineVersion` 保留历史值。
+- 旧档中未完成的关键回合保留，继续走旧版结算路径；完成后不会多推一周。
+- 迁移幂等；只前进不后退；`saveVersion > 2` 直接拒绝。
+- `loadWorld` 在 schema 校验后迁移，发生迁移时回写数据库并同步摘要。
+- 导入顺序固定为“解析 → 版本检查 → checksum（原始数据）→ 迁移”，禁止先迁移后校验。
 
 ### IndexedDB
 
@@ -205,6 +214,7 @@ sequenceDiagram
 | 导出/导入 round-trip | `tests/db/save.test.ts` |
 | checksum 篡改 | `tests/db/save.test.ts` |
 | 更高版本拒绝 | `tests/db/save.test.ts` |
+| v1 存档迁移、幂等与 checksum 顺序 | `tests/db/save.test.ts`、`tests/store/import-failure.test.ts` |
 | Zod 校验失败 | `tests/db/save.test.ts` |
 | store 自动保存与载入 | `tests/store/store.test.ts` |
 | 保存失败反馈（返回 false + 提示原因） | `tests/store/persist-failure.test.ts` |
@@ -231,3 +241,4 @@ sequenceDiagram
 | 2026-10-29 | `persist` 改为结构化结果，保存失败显式提示原因；`saveNow` 返回布尔值 | 缺陷修复 P1 |
 | 2026-10-29 | `listSaves` 逐条摘要，损坏存档只跳过自身，不再拖垮整个列表 | 缺陷修复 P2 |
 | 2026-10-29 | `loadGame` / `importFromText` / `removeSave` 返回布尔值，UI 仅在成功后跳转 | 缺陷修复 P3 |
+| 2026-10-31 | 存档升 v2：fixture `live`、报告实时字段、`pendingWeekPlan`；新增 v1→v2 幂等迁移，checksum 在迁移前校验；载入后自动回写迁移结果 | 缺陷修复：比赛日比分穿越 |

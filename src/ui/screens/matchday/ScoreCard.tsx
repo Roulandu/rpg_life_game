@@ -33,7 +33,10 @@ export function ScoreCard({
         <p className={clsx('min-w-0 text-center text-sm font-medium', match.homeId === clubId ? 'text-accent' : 'text-text')}>
           {match.homeName}
         </p>
-        <p className={clsx('font-mono font-semibold tabular-nums text-text', live ? 'text-2xl' : 'text-3xl')}>
+        <p
+          data-testid="score-line"
+          className={clsx('font-mono font-semibold tabular-nums text-text', live ? 'text-2xl' : 'text-3xl')}
+        >
           {match.homeGoals} - {match.awayGoals}
         </p>
         <p className={clsx('min-w-0 text-center text-sm font-medium', match.awayId === clubId ? 'text-accent' : 'text-text')}>

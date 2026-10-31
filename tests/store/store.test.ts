@@ -56,6 +56,7 @@ describe('game store', () => {
     expect(result).not.toBeNull()
     expect(result?.weekPlayed).toBe(1)
     expect(result?.match).not.toBeNull()
+    if (result?.live) await useGameStore.getState().skipKeyMoments()
     expect(useGameStore.getState().world?.week).toBe(2)
     expect(useGameStore.getState().lastTurn?.match?.fixtureId).toBe(result?.match?.fixtureId)
     expect(await listSaves()).toHaveLength(1)

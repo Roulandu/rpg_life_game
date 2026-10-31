@@ -1,6 +1,6 @@
 import { ATTR_KEYS } from '../../src/domain/attributes'
 import type { MatchReport, WeeklyPlan, WorldState } from '../../src/domain/types'
-import { advanceWeek } from '../../src/engine/turn'
+import { advanceWeek, completeWeek, startWeek } from '../../src/engine/turn'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from './career'
 
@@ -22,11 +22,19 @@ export function readyWorld(seed = 2026): WorldState {
 export function playToKeyMoments(seed = 2026): { world: WorldState; report: MatchReport } {
   let world = readyWorld(seed)
   for (let index = 0; index < 10; index += 1) {
-    const result = advanceWeek(world, PLAN)
+    const result = startWeek(world, PLAN)
     world = result.world
-    if (result.match?.userPlayed && (result.match.keyMoments?.length ?? 0) > 0) {
+    if (result.live && result.match?.userPlayed) {
       return { world, report: result.match }
     }
   }
-  throw new Error('No user match with key moments within 10 weeks')
+  throw new Error('No live user match with key moments within 10 weeks')
+}
+
+export function completeCurrentWeek(world: WorldState): WorldState {
+  return completeWeek(world).world
+}
+
+export function advanceOneWeek(world: WorldState, plan: WeeklyPlan = PLAN): WorldState {
+  return advanceWeek(world, plan).world
 }

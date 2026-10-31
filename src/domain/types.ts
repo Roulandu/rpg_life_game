@@ -1,4 +1,20 @@
+import type { Fixture, MatchReport, PendingWeekPlan } from './matchTypes'
+
 export type Id = string
+
+export type {
+  Fixture,
+  FixtureStatus,
+  KeyMoment,
+  KeyMomentKind,
+  KeyMomentOption,
+  KeyMomentOutcome,
+  MatchEventLine,
+  MatchEventType,
+  MatchGoal,
+  MatchReport,
+  PendingWeekPlan,
+} from './matchTypes'
 
 export type Position = 'GK' | 'CB' | 'LB' | 'RB' | 'DM' | 'CM' | 'AM' | 'LW' | 'RW' | 'ST'
 
@@ -151,105 +167,6 @@ export interface League {
   reputation: number
 }
 
-export interface Fixture {
-  id: Id
-  competitionId: Id
-  season: number
-  week: number
-  round: number
-  homeId: Id
-  awayId: Id
-  status: 'scheduled' | 'played'
-  homeGoals?: number
-  awayGoals?: number
-  report?: MatchReport | null
-}
-
-export type MatchEventType =
-  | 'goal'
-  | 'assist'
-  | 'chance'
-  | 'save'
-  | 'card'
-  | 'injury'
-  | 'sub'
-  | 'info'
-  | 'fulltime'
-
-export interface MatchEventLine {
-  minute: number
-  type: MatchEventType
-  text: string
-  isUser?: boolean
-}
-
-export interface MatchReport {
-  fixtureId: Id
-  season: number
-  week: number
-  homeId: Id
-  awayId: Id
-  homeName: string
-  awayName: string
-  homeGoals: number
-  awayGoals: number
-  halfTimeHomeGoals?: number
-  halfTimeAwayGoals?: number
-  userPlayed: boolean
-  userStarted: boolean
-  userMinutes: number
-  userGoals: number
-  userAssists: number
-  userRating: number | null
-  userPosition: Position | null
-  events: MatchEventLine[]
-  motmName: string
-  motmRating: number
-  attendance: number
-  keyMoments?: KeyMoment[]
-  mediaReaction?: string
-}
-
-export type KeyMomentKind = 'bigChance' | 'penalty' | 'throughBall' | 'duel' | 'save' | 'clearance'
-
-export interface KeyMomentOption {
-  id: string
-  labelZh: string
-  descriptionZh: string
-  successChance: number
-  ratingOnSuccess: number
-  ratingOnFail: number
-  goalOnSuccess?: boolean
-  assistOnSuccess?: boolean
-  coachOnSuccess?: number
-  coachOnFail?: number
-  moraleOnSuccess?: number
-  moraleOnFail?: number
-}
-
-export interface KeyMomentOutcome {
-  optionId: string
-  success: boolean
-  textZh: string
-  ratingDelta: number
-  moraleDelta: number
-  coachDelta: number
-  goal: boolean
-  assist: boolean
-}
-
-export interface KeyMoment {
-  id: string
-  minute: number
-  kind: KeyMomentKind
-  titleZh: string
-  promptZh: string
-  options: KeyMomentOption[]
-  defaultOptionId: string
-  roll: number
-  outcome?: KeyMomentOutcome
-}
-
 export interface LeagueTableRow {
   clubId: Id
   played: number
@@ -374,6 +291,7 @@ export interface WorldState {
   week: number
   totalWeeks: number
   lastMatch: MatchReport | null
+  pendingWeekPlan?: PendingWeekPlan | null
   seasonSummaries: SeasonSummary[]
   retired?: boolean
   settings: {

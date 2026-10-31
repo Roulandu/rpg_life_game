@@ -15,6 +15,12 @@ export function LastMatchCard({
   totalMoments: number
 }) {
   const navigate = useNavigate()
+  const live = last.status === 'live'
+  const progress = live
+    ? ` · 第 ${last.currentMinute} 分钟`
+    : pendingMatch
+      ? ` · 关键回合 ${resolvedMoments}/${totalMoments}`
+      : ''
 
   return (
     <button
@@ -32,7 +38,7 @@ export function LastMatchCard({
         </p>
         <p className="mt-0.5 truncate text-sm font-medium text-text">
           {last.homeName} {last.homeGoals}-{last.awayGoals} {last.awayName}
-          {pendingMatch ? ` · 关键回合 ${resolvedMoments}/${totalMoments}` : ''}
+          {progress}
         </p>
       </div>
       <div className="flex items-center gap-2">

@@ -45,6 +45,7 @@ interface UserRatingInput {
   minutes: number
   played: boolean
   rng: Rng
+  keyMomentDelta?: number
 }
 
 export function computeUserRating(input: UserRatingInput): number | null {
@@ -52,7 +53,12 @@ export function computeUserRating(input: UserRatingInput): number | null {
   const { user } = input
   const resultBonus = input.goalsFor > input.goalsAgainst ? 0.3 : input.goalsFor < input.goalsAgainst ? -0.25 : 0
   let rating =
-    6.35 + input.goals * 0.95 + input.assists * 0.65 + resultBonus + input.rng.normal(0, 0.35)
+    6.35 +
+    input.goals * 0.95 +
+    input.assists * 0.65 +
+    resultBonus +
+    (input.keyMomentDelta ?? 0) +
+    input.rng.normal(0, 0.35)
   if (user.position === 'GK') rating += input.goalsAgainst === 0 ? 0.7 : -0.15 * input.goalsAgainst
   if (positionGroup(user.position) === 'DEF') rating += input.goalsAgainst === 0 ? 0.35 : 0
   if (input.minutes < 90) rating = 6 + (rating - 6) * (input.minutes / 90)

@@ -1,14 +1,20 @@
 ---
 feature: matchday
 status: implemented
-modules: [engine, store, ui]
+modules: [engine, store, ui, domain]
 code:
-  - src/engine/match.ts
+  - src/engine/liveMatch.ts
+  - src/engine/liveSetup.ts
+  - src/engine/matchReport.ts
+  - src/engine/matchFinalize.ts
   - src/engine/matchGoals.ts
   - src/engine/matchUser.ts
+  - src/engine/match.ts
   - src/engine/keyMoments.ts
+  - src/engine/keyMomentGen.ts
   - src/engine/keyMomentNarrative.ts
   - src/engine/data/keyMomentOptions.ts
+  - src/domain/matchTypes.ts
   - src/domain/leagueTable.ts
   - src/store/matchSlice.ts
   - src/store/selectors.ts
@@ -19,12 +25,16 @@ code:
   - src/ui/screens/matchday/MatchdayExit.tsx
   - src/ui/screens/matchday/MatchTimeline.tsx
 tests:
+  - tests/engine/liveMatch.test.ts
   - tests/engine/match.test.ts
   - tests/engine/keyMoments.test.ts
+  - tests/engine/motm.test.ts
   - tests/engine/season.test.ts
   - tests/domain/leagueTable.test.ts
+  - tests/store/matchdayStore.test.ts
   - tests/ui/smoke.test.tsx
   - tests/ui/matchday.test.tsx
+  - tests/ui/matchdayLive.test.tsx
 diagrams: [sequence]
 last_reviewed: 2026-10-31
 ---
@@ -33,17 +43,17 @@ last_reviewed: 2026-10-31
 
 ## 业务目标
 
-把一次联赛模拟变成玩家能参与的“比赛日”：引擎先决定比分与球员表现，再在用户出场时间内生成 2–4 个关键回合，让玩家做选择。选择必须影响评分、士气、关系与比分，但不能重抽已经决定的比赛结果。
+一场用户比赛从第 1 分钟逐分钟实时模拟，关键回合在比赛进行到对应分钟时暂停，玩家的选择立即改写比分、时间线与随后 10 分钟的势头，而不是在已经“预定”的终场比分上补充进球。玩家的选择必须真正决定比赛走向。
 
 ## 用户流程
 
-1. 玩家推进一周，若本周有用户比赛，引擎模拟整场比赛并生成关键回合。
-2. store 检测到 `hasPendingKeyMoments`，阻止继续推进，UI 引导玩家进入 `/match`。
-3. 玩家按顺序处理每个关键回合：阅读场景，选择选项，查看结果。
-4. 每处理一条立即持久化；全部完成后自动 `finalizeMatchday`，生成媒体反应并刷新新闻/比分时间线。
-5. 玩家也可以选择“自动处理”，系统为每个回合选择成功率最高的选项。
-6. 结果页末尾提供整宽「返回主页」主按钮；存在下一场时，下一场信息作为按钮上方的一行说明。
-7. 完成后触发本周 AI 叙事；失败只影响文案。
+1. 玩家推进一周，`startWeek` 完成赛前准备并开始比赛；比分从 `0-0` 开始逐分钟推进。
+2. 比赛在第一个关键回合分钟暂停，store 保存 live 存档并引导玩家进入 `/match`，此时不增加周次。
+3. 玩家按顺序处理每个回合：阅读场景、选择选项，立即看到比分/时间线变化，然后比赛继续推进到下一个回合或 90 分钟。
+4. 每个回合结算后立即持久化；刷新页面可回到同一分钟、同一待处理回合。
+5. 全部回合处理完后，玩家点击“完成比赛”或在最后一回合自动进入终场结算：评分、MOTM、媒体反应、新闻与赛季数据一次性生成。
+6. store 随后调用 `completeWeek`：结算背景比赛、财务、周事件与身价，周次 +1，再触发可选 AI 叙事。
+7. 玩家也可以“自动处理”，系统为每个回合选择默认（成功率最高）选项，并自动完成整周。
 
 ## 关键时序
 
@@ -52,38 +62,46 @@ sequenceDiagram
   participant U as 玩家
   participant UI as MatchdayScreen
   participant S as gameStore
-  participant E as engine/match
+  participant T as engine/turn
+  participant L as engine/liveMatch
   participant K as engine/keyMoments
+  participant F as engine/matchFinalize
   participant DB as db/repository
   U->>UI: 进入比赛日
-  UI->>S: 读取 lastMatch
-  alt 没有待处理回合
-    UI-->>U: 展示比赛报告
-  else 有待处理回合
+  UI->>S: 读取 lastMatch（status=live）
+  alt 有待处理回合
     UI->>S: resolveKeyMoment(momentId, optionId)
     S->>S: structuredClone(world)
     S->>K: resolveKeyMoment(next, momentId, optionId)
     K->>K: roll < successChance ? 成功 : 失败
-    K->>K: 更新评分/士气/关系/比分/事件
-    K-->>S: MatchReport
+    K->>L: 进球/助攻写入 appendGoal
+    K->>L: advanceLiveMatch 推进到下一回合或 90'
+    K-->>S: live MatchReport
     S->>DB: saveWorld(next)
     alt 仍有待处理回合
-      S-->>UI: 下一条
+      S-->>UI: 下一回合（分钟与比分已更新）
     else 全部完成
-      S->>K: finalizeMatchday(next)
-      K-->>S: mediaReaction
-      S->>DB: saveWorld(next)
+      S->>F: finalizeLiveMatch
+      F-->>S: 终场报告 + 评分/媒体/新闻
+      S->>T: completeWeek(world)
+      S->>DB: saveWorld 一次
       S->>S: narrateTurn
       UI-->>U: 比赛总结
     end
+  else 回合已全部处理但尚未结算
+    UI->>S: skipKeyMoments()
+    S->>F: finalizeLiveMatch
+    S->>T: completeWeek(world)
+    S->>DB: saveWorld
   end
 ```
 
 失败分支：
 
 - 回合 ID 不是下一条待处理 → `resolveKeyMoment` 返回 `null`，store 提示“已经结束或选项无效”。
-- 存档写入失败 → 内存状态更新，顶部提示“保存失败：<原因>”；关键回合结果可能未落盘。
-- AI 叙事失败 → 比赛结果与媒体反应保留，显示错误提示。
+- 存档写入失败 → 内存状态保留，顶部提示“保存失败：<原因>”；再次点击不会重复结算或推进周次。
+- AI 叙事失败 → 比赛结果、媒体反应与新闻保留，只显示错误提示。
+- 旧版存档（无 `pendingWeekPlan`）→ 完成回合后只结算比赛，不调用 `completeWeek`，不会多推一周。
 
 ## 规则与边界
 
@@ -98,21 +116,27 @@ sequenceDiagram
 - 体能 ≥45 且评分 ≥−18 且 45% 概率 → 替补 15–30 分钟。
 - 其余不出场。
 
-### 比分与球员表现
+### 逐分钟实时模拟
 
-- 期望进球：`clamp(1.3 或 1.1 + (进攻 - 防守) × 0.055 + 主场 0.18, 0.15, 4.2)`。
-- 俱乐部风格修正：反击 +0.08、高位逼抢 +0.06、控球 +0.03、直接 +0.05。
-- 实际进球：`rng.poisson(xG)`。
-- 射手/助攻按位置与属性加权；用户出场时权重 ×1.4 / ×1.3。
-- 用户评分：`6.35 + 进球 × 0.95 + 助攻 × 0.65 + 赛果修正 + rng.normal(0, 0.35)`：
-  - 门将零封 +0.7，否则每失球 −0.15。
-  - 后卫零封 +0.35。
-  - 替补按出场时间比例缩放。
-  - clamp 到 4.3–9.9。
-- 全场最佳：用户评分 ≥8.3 归用户；否则归进球最多者。评选为用户时评分直接取用户实际评分，只有非用户人选才随机生成 7.2–8.5，保证姓名与评分一致。
-- 上座率：按主队声望派生并 clamp 到 3,200–78,000。
-- 黄牌概率 6%；受伤概率 `0.012 × (1 + (100 - 体能)/100) × (门将 ? 0.5 : 1)`，伤停 2–8 周。
-- 未进球/助攻时 30% 概率生成一次机会或扑救事件。
+- 赛前用 `expectedGoals` + 俱乐部风格修正计算 `homeXg/awayXg`（与旧版一致）。
+- 每分钟主客各一次伯努利判定：`p = clamp(xG / 90 × 势头系数, 0, 0.5)`。
+- 每分钟使用独立随机流：`createRng(seed, 'live', fixtureId, minute)`；同一 seed 下暂停、读档、重放结果一致。
+- 关键回合所在分钟跳过自动进球判定，只由该回合结果决定是否进球。
+- 进球统一经 `appendGoal` 写入 `report.goals`、`report.homeGoals/awayGoals`、`fixture.homeGoals/awayGoals` 与时间线；禁止从事件反推比分。
+- 第一次跨过第 45 分钟时冻结半场比分并补一条半场事件，之后不再变化。
+- 90 分钟只推进 `currentMinute`，不自动结算；终场由 `finalizeLiveMatch` 负责。
+- 替补球员在登场前不会成为进球者或助攻者：用户可选窗口为 `90 - userMinutes` 到 90，未出场权重为 0。
+
+### 势头
+
+不落盘，完全由已结算回合推导：
+
+- 取最近一个已结算且距当前分钟 ≤10 分钟的回合，`decay = 1 - (minute - momentMinute) / 10`。
+- 成功：用户方 ×`(1 + 0.15 × decay)`，对手 ×`(1 - 0.10 × decay)`。
+- 失败：用户方 ×`(1 - 0.10 × decay)`，对手 ×`(1 + 0.12 × decay)`。
+- 没有已结算回合或超出 10 分钟：双方 ×1。
+
+读档后只需 `outcome` 与分钟即可重建同一势头，无新增持久字段。
 
 ### 关键回合生成
 
@@ -127,65 +151,82 @@ sequenceDiagram
 - `roll` 在生成时固定为 0–1 的四位小数；后续只比较 `roll < successChance`。
 - 每个选项含成功率、成功/失败评分、士气、教练信任、进球/助攻标记。
 
-### 结算
+### 回合结算
 
 - `success = moment.roll < option.successChance`。
-- 评分增量按成功/失败取值，clamp 后写回 `userRating`，同时调整 `seasonStats.ratingSum` 与状态。
-- 进球/助攻：更新 `MatchReport` 比分、半场比分、fixture 比分、用户赛季统计；只追加，不重算。
-- 士气、信心、教练关系、媒体/球迷关系按选项变化。
-- 每条结果追加到比赛事件并按分钟排序。
-- 进球/助攻后刷新比赛新闻与比分时间线。
-- 必须按待处理顺序处理；不能跳到后面的回合。
-- 全部完成后 `finalizeMatchday` 生成媒体反应，阈值：≥8.3 焦点、≥7.2 称赞、≥6.3 完成任务、否则质疑。
+- 实时比赛（`status === 'live'`）：
+  - 成功且 `goalOnSuccess`：立即为用户方追加进球，`userGoals + 1`。
+  - 成功且 `assistOnSuccess`：为球队生成一粒队友进球，用户 `userAssists + 1`。
+  - 失败：不增加进球。
+  - 士气、信心、教练/媒体/球迷关系立即结算。
+  - **不**在回合中写赛季进球/助攻/评分/form；`ratingDelta` 存入 outcome，终场统一加总。
+  - 结算后调用 `advanceLiveMatch`，推进到下一个关键回合分钟或 90 分钟。
+- 旧版 `final` 报告（v1 存档遗留的未完成回合）保留旧路径：立即写赛季统计、评分、form、新闻与时间线，避免旧档行为漂移。
+
+### 终场结算
+
+`finalizeLiveMatch` 幂等（`status === 'final'` 直接返回）：
+
+- 由 `report.goals` 统计 AI 射手/助攻赛季数据；用户数据经 `updateUserAfterMatch` 一次写入。
+- 最终评分 = `computeUserRating(...)` 基础分 + 所有 `outcome.ratingDelta` 之和，clamp 4.3–9.9。
+- MOTM 依据 `report.goals` 的射手与最终评分；用户评分 ≥8.3 归用户。
+- 生成黄牌/伤病/机会事件并并入时间线，追加 `fulltime` 事件与 `mediaReaction`。
+- `fixture.status = 'played'`，写报告与比赛新闻；`report.status = 'final'`、`currentMinute = 90`。
 
 ### 自动处理
 
-- 对每个待处理回合选择 `successChance` 最高的选项。
-- 仍然逐条走 `resolveKeyMoment`，因此结果与玩家选择同一路径。
-- 自动处理后立即 `finalizeMatchday`。
+- 对每个待处理回合选择 `defaultOptionId`（成功率最高的稳妥选项）。
+- 仍逐条走 `resolveKeyMoment`，结果与玩家选择同一路径。
+- `advanceWeek` / `advanceWeeks` / `simulateUserFixture` 兼容入口会 start → autoResolve → finalize → complete，保持“一次推进一周”的旧语义。
 
 ### 交互状态
 
 - 存在待处理回合时隐藏“下一场”入口与「返回主页」按钮，避免跳过后面的关键回合。
-- 比赛全部结束后，结果页内容末尾显示整宽「返回主页」主按钮，点击回到主页。
-- 存在下一场时，下一场信息只作为按钮上方的一行说明文字，不再渲染独立的可点击卡片。
-- 提交回合或自动处理期间按钮锁定；即使动作抛错也会在 `finally` 解锁，不会永久禁用。
+- live 且无待处理回合时显示“第 X 分钟，比赛等待结算”与「完成比赛」按钮。
+- 只有 `final` 报告才渲染结果页；结果页末尾提供整宽「返回主页」主按钮。
+- 提交回合或自动处理期间按钮锁定；即使动作抛错也会在 `finally` 解锁。
 
 ### 不可变条件
 
-- 比赛比分在 `simulateUserFixture` 中已确定；关键回合不得重新模拟比赛。
+- 比赛不得预先确定终场比分；比分只能是“截至当前分钟”的累计。
 - `roll` 不得重抽、不得在结算时重新计算成功率。
 - 关键回合顺序不可交换。
-- 未完成全部回合时不得生成媒体反应，也不得推进下一周。
+- 比分只能由 `appendGoal` 写入；同一进球不得重复计数。
+- 未完成全部回合时不得生成媒体反应、评分或推进下一周。
+- 赛季统计、form、MOTM、新闻只在终场结算一次。
 
 ## 数据与接口
 
 读写：
 
-- `world.lastMatch`：`MatchReport`，含 `keyMoments`、`events`、`mediaReaction`。
-- `world.fixtures[fixtureId]`：比分与状态。
+- `world.lastMatch`：`MatchReport`，live 阶段 `userRating = null`、`motmName = ''`、`motmRating = 0`、无 `mediaReaction`。
+- `world.pendingWeekPlan`：live 期间保存本周计划与 `fixtureId`，用于完成后继续结算。
+- `world.fixtures[fixtureId]`：`status` 为 `scheduled / live / played`，比分实时同步。
 - 用户球员：`seasonStats`、`form`、`morale`、`confidence`、`reputation`、`injury`。
 - `world.relationships`：教练、媒体、球迷。
-- `world.news`：比赛新闻与惊险比赛新闻。
+- `world.news`：比赛新闻与惊险比赛新闻（终场生成）。
 
 调用：
 
-- `engine.simulateWeekFixtures(world)`
+- `engine.startWeek(world, plan)` / `engine.completeWeek(world)`
+- `engine.startUserMatch(world, fixture)`
+- `engine.advanceLiveMatch(world)`
 - `engine.generateKeyMoments(player, rng, minutes, isHome, startMinute)`
 - `engine.resolveKeyMoment(world, momentId, optionId)`
 - `engine.autoResolveKeyMoments(world)`
-- `engine.finalizeMatchday(world)`
+- `engine.finalizeMatchday(world)` / `engine.finalizeLiveMatch(world)`
 - `domain.computeLeagueTable(world, leagueId, season)`
 
 ## 失败与降级
 
 | 场景 | 行为 |
 |---|---|
-| 用户未出场/无关键回合 | 直接展示比赛报告，不进入回合流程 |
+| 用户未出场/无关键回合 | `startWeek` 内完整模拟 90 分钟并结算整周，不进入回合流程 |
 | 无效回合或选项 | 返回 `null`，store 提示，不修改状态 |
 | 重复提交同一回合 | 第二次返回 `null` |
-| 存档失败 | 内存结果保留，持久化失败不阻塞；刷新可能丢失进度（已知风险） |
-| 页面刷新 | 未完成回合仍在 `lastMatch` 中，可继续处理 |
+| 存档失败 | 内存结果保留，持久化失败不阻塞；再次操作不会重复结算或推进周次 |
+| 页面刷新 | live 报告与 `pendingWeekPlan` 一起落盘，回到同一分钟、同一待处理回合 |
+| 旧版存档未完成回合 | 保留旧结算路径，完成回合后不多推周 |
 | AI 叙事失败 | 比赛报告、媒体反应与新闻保留 |
 
 ## 平台差异
@@ -198,24 +239,26 @@ sequenceDiagram
 
 | 规则/场景 | 测试 |
 |---|---|
+| 首个回合前比分不是终场比分 | `tests/engine/liveMatch.test.ts` |
+| 实时比分等于截至当前分钟的进球和 | `tests/engine/liveMatch.test.ts` |
+| 半场比分冻结、替补登场前不进球 | `tests/engine/liveMatch.test.ts` |
+| 关键回合成功/失败立即改写比分 | `tests/engine/liveMatch.test.ts` |
+| 暂停/读档/重放一致、终场幂等 | `tests/engine/liveMatch.test.ts` |
 | 关键回合生成数量、顺序、选项 | `tests/engine/keyMoments.test.ts` |
-| 成功/失败结算、比分、评分、关系 | `tests/engine/keyMoments.test.ts` |
-| 自动处理与最终化 | `tests/engine/keyMoments.test.ts` |
-| 比赛模拟、出场判定、赛季统计 | `tests/engine/season.test.ts` |
-| 积分榜计算（下沉 domain） | `tests/domain/leagueTable.test.ts` |
-| 比赛页渲染与交互烟测 | `tests/ui/smoke.test.tsx` |
-| 比赛日页面（阶段/回顾/空态/替补）渲染 | `tests/ui/matchday.test.tsx` |
-| 结果页返回主页入口、跳转与回合阶段隐藏 | `tests/ui/matchday.test.tsx` |
-| 未完成回合阻塞下一周 | `tests/store/store.test.ts` |
+| 终场评分、form、赛季统计、新闻 | `tests/engine/keyMoments.test.ts`、`tests/engine/motm.test.ts` |
+| 比赛模拟、出场判定、赛季统计 | `tests/engine/season.test.ts`、`tests/engine/match.test.ts` |
+| startWeek/completeWeek 两阶段 | `tests/engine/turn.test.ts` |
+| store 保存、完成与失败恢复 | `tests/store/matchdayStore.test.ts` |
+| 比赛页渲染与实时比分 | `tests/ui/matchday.test.tsx`、`tests/ui/matchdayLive.test.tsx` |
+| 主页/赛程 live 展示 | `tests/ui/matchdayLive.test.tsx` |
 
 手动验收：
 
-1. 制造一场有 2–4 个关键回合的比赛，逐条选择并确认比分/评分变化。
-2. 刷新页面，确认未完成回合仍可继续。
-3. 点击自动处理，确认按稳妥选项结算并生成媒体反应。
-4. 在 360–390px 宽度确认选项按钮可点击、不溢出。
-5. 在 1024px 以上确认页面以 720px 居中、按键与文案不被拉伸。
-6. 比赛结束后滚到结果页底部，确认整宽「返回主页」按钮可见可点；关键回合未完成时不出现该按钮。
+1. 推进一周，确认第一个关键回合的比分不是最终比分，且分钟等于该回合分钟。
+2. 选择一个回合，确认比分/时间线/分钟按选择变化，随后比赛继续。
+3. 刷新页面，确认分钟、比分与待处理回合一致。
+4. 处理最后一个回合或点击“完成比赛”，确认进入结果页并显示最终比分、MOTM 与媒体反应。
+5. 在 360–390px 宽度确认选项按钮可点击、不溢出；桌面宽度确认 720px 居中。
 
 ## 变更记录
 
@@ -231,3 +274,4 @@ sequenceDiagram
 | 2026-10-29 | 全场最佳在用户为射手王但评分 <8.3 时改用用户实际评分，消除姓名与评分矛盾；golden 哈希不变 | 缺陷修复 P4 |
 | 2026-10-29 | 待处理回合时隐藏“下一场”入口；回合动作用 try/finally 解锁按钮 | 缺陷修复 P5 |
 | 2026-10-31 | 结果页末尾新增整宽「返回主页」主按钮，下一场信息合并为按钮上方说明；比赛结算规则不变 | 交互修复：结果页出口 |
+| 2026-10-31 | 重做逐分钟实时模拟：取消预生成终场比分，关键回合插入实时进程并立即改写比分/势头；终场统一结算评分与赛季数据；存档升 v2；engine 0.2.0，golden 哈希更新 | 缺陷修复：比赛日比分穿越 |

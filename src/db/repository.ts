@@ -10,6 +10,7 @@ import type { SaveRecord, SaveSummary, WorldState } from '../domain'
 import { hashString } from '../lib'
 import { canonicalStringify } from '../lib'
 import { db } from './db'
+import { migrateWorld } from './migrate'
 
 const LAST_SAVE_KEY = 'lastSaveId'
 
@@ -52,7 +53,16 @@ export async function saveWorld(world: WorldState, id?: string): Promise<SaveSum
 export async function loadWorld(id: string): Promise<WorldState | null> {
   const record = await db.saves.get(id)
   if (!record) return null
-  return assertWorld(record.world)
+  const parsed = assertWorld(record.world)
+  const world = migrateWorld(parsed)
+  if (world !== parsed) {
+    await db.saves.put({
+      id: record.id,
+      summary: summarizeWorld(world, record.id),
+      world,
+    })
+  }
+  return world
 }
 
 export async function listSaves(): Promise<SaveSummary[]> {
@@ -129,5 +139,5 @@ export function importWorld(text: string): WorldState {
     throw new Error('存档校验失败，文件可能已损坏。')
   }
 
-  return world
+  return migrateWorld(world)
 }

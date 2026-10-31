@@ -14,7 +14,9 @@
 
 | 函数 | 签名 | 行为 |
 |---|---|---|
-| `advanceWeek` | `(input: WorldState, plan: WeeklyPlan) => TurnResult` | 克隆输入，依次执行恢复、训练、额外行动、事件过期、比赛、财务、事件生成、身价更新、周次推进；跨赛季时调用 `endSeason` |
+| `startWeek` | `(input: WorldState, plan: WeeklyPlan) => TurnResult` | 克隆输入，执行恢复、训练、额外行动、事件过期；用户出场且有关键回合时创建 live 报告并停在首个回合，周次不变；否则完整结算本周 |
+| `completeWeek` | `(world: WorldState) => TurnResult` | 仅处理存在 `pendingWeekPlan` 的周；终场结算、背景比赛、财务、事件、身价与周次推进；未完成 live 时拒绝 |
+| `advanceWeek` | `(input: WorldState, plan: WeeklyPlan) => TurnResult` | 兼容入口：`startWeek` + 自动处理关键回合 + `finalizeMatchday` + `completeWeek`，保持“一次推进一周”的旧语义 |
 | `advanceWeeks` | `(world: WorldState, plan: WeeklyPlan, count: number) => TurnResult[]` | 连续推进，遇到退役或赛季切换提前停止 |
 | `endSeason` | `(world: WorldState) => SeasonTransition` | 结算排名、奖项、奖金、声望、升降级、年龄、退役、合同、新赛季赛程；**原地修改** world |
 
@@ -28,21 +30,15 @@ interface TurnResult {
   seasonTransition: SeasonTransition | null
   weekPlayed: number
   seasonPlayed: number
+  live: boolean
 }
 ```
 
-回合顺序（`src/engine/turn.ts`）：
+两阶段顺序（`src/engine/turn.ts`）：
 
-1. `recomputeAllStrengths`
-2. `recoverInjuries`
-3. `applyTraining`
-4. `applyExtraAction`
-5. `expireEvents`
-6. `simulateWeekFixtures`
-7. `settleWeekFinance`
-8. `generateWeeklyEvent`
-9. 每 3 周 `updatePlayerValue`
-10. `week += 1`；超过 `totalWeeks` 时 `endSeason`
+1. `startWeek`：`recomputeAllStrengths → recoverInjuries → applyTraining → applyExtraAction → expireEvents →` 开始用户比赛。
+2. live：停在关键回合，写 `pendingWeekPlan`，不增加周次。
+3. `completeWeek`：`simulateWeekFixtures → settleWeekFinance → generateWeeklyEvent → updatePlayerValue（每 3 周）→ week += 1 → endSeason（必要时）→` 清空 `pendingWeekPlan`。
 
 `weekPlayed` / `seasonPlayed` 是“刚踢完的那一周”，不是推进后的周次。LLM 叙事必须使用这两个字段，否则会把新一周误写成已结束的一周。
 
@@ -62,7 +58,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.1.0'`
+- `ENGINE_VERSION = '0.2.0'`
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -73,13 +69,16 @@ interface TurnResult {
 | 函数 | 签名 | 行为 |
 |---|---|---|
 | `determineUserSelection` | `(world, club, rng) => SelectionResult` | 根据能力差、教练信任、体能、状态、锐度决定首发/替补/不出场 |
-| `simulateUserFixture` | `(world, fixture) => MatchReport` | 模拟用户参与的比赛，写入球员统计、关系、声望、伤病、关键回合 |
+| `startUserMatch` | `(world, fixture) => MatchReport` | 创建 live 报告并从第 1 分钟推进到首个关键回合；重复调用返回已有 live 报告 |
+| `advanceLiveMatch` | `(world) => MatchReport \| null` | 逐分钟模拟到下一个关键回合分钟或 90 分钟；半场比分在 45 分钟后冻结 |
+| `finalizeLiveMatch` | `(world) => MatchReport \| null` | 终场唯一结算入口：评分、赛季统计、MOTM、媒体、新闻、黄牌/伤病；幂等 |
+| `simulateUserFixture` | `(world, fixture) => MatchReport` | 兼容包装：`startUserMatch` → 自动处理回合 → `finalizeMatchday` |
 | `simulateBackgroundFixture` | `(world, fixture) => void` | 模拟其他比赛，写入比分与射手统计 |
 | `simulateWeekFixtures` | `(world) => MatchReport \| null` | 模拟本周全部比赛，返回用户比赛报告 |
 | `getUserMatchFixture` | `(world, week?) => Fixture \| undefined` | 取用户本周赛程 |
 | `opponentOf` | `(world, fixture) => Club \| undefined` | 取对手俱乐部 |
 
-`simulateUserFixture` 的比赛结果由 `rng.poisson(expectedGoals)` 决定；关键回合在比赛结果之后生成，只影响评分、士气、关系与可能的进球/助攻，不会重新抽取比分。
+用户比赛从 `0-0` 开始逐分钟模拟：每分钟以 `p = clamp(xG / 90 × 势头, 0, 0.5)` 做伯努利判定，随机流为 `createRng(seed, 'live', fixtureId, minute)`。关键回合分钟跳过自动判定，由回合结果经统一 `appendGoal` 写入比分、fixture 与时间线。势头由最近 10 分钟内已结算回合推导，不落盘，因此读档可重放。
 
 ## 关键回合
 
@@ -88,16 +87,17 @@ interface TurnResult {
 | `generateKeyMoments` | `(player, rng, minutes, isHome, startMinute?) => KeyMoment[]` | 根据出场时间生成 2–4 个关键回合，`roll` 在生成时固定 |
 | `pendingKeyMoments` | `(world) => KeyMoment[]` | 尚未处理的回合 |
 | `hasPendingKeyMoments` | `(world) => boolean` | 是否存在待处理回合 |
-| `resolveKeyMoment` | `(world, momentId, optionId) => MatchReport \| null` | 按固定 `roll` 与选项结算；只能处理下一个待处理回合 |
-| `autoResolveKeyMoments` | `(world) => MatchReport \| null` | 对每个待处理回合选择成功率最高的稳妥选项 |
-| `finalizeMatchday` | `(world) => MatchReport \| null` | 所有回合完成后生成媒体反应并刷新新闻/时间线 |
+| `resolveKeyMoment` | `(world, momentId, optionId) => MatchReport \| null` | 按固定 `roll` 与选项结算；只能处理下一个待处理回合。live 报告立即改写比分并推进比赛，赛季数据留到终场 |
+| `autoResolveKeyMoments` | `(world) => MatchReport \| null` | 对每个待处理回合选择默认（成功率最高）选项 |
+| `finalizeMatchday` | `(world) => MatchReport \| null` | live 报告：推进到 90 分钟后调用 `finalizeLiveMatch`；旧版 `final` 报告：刷新媒体反应与新闻 |
 
 不可变条件：
 
 - `roll` 生成后不得重抽。
 - 必须按数组顺序处理，不能跳回合。
-- 结算可能改比分，但只追加进球/助攻，不重算整场。
-- `finalizeMatchday` 在仍有未处理回合时返回 `null`，不得提前生成媒体反应。
+- 比分只通过 `appendGoal` 追加，不重算整场；live 回合的赛季进球/助攻/评分只在终场统计一次。
+- `finalizeMatchday` / `finalizeLiveMatch` 在仍有未处理回合时返回 `null`，不得提前生成媒体反应。
+- 终场结算幂等：`status === 'final'` 时直接返回，不重复统计或发布新闻。
 
 ## 事件
 
@@ -172,24 +172,31 @@ interface TurnResult {
 | 函数 | 签名 | 说明 |
 |---|---|---|
 | `saveWorld` | `(world, id?) => Promise<SaveSummary>` | 写入 Dexie 并更新 `lastSaveId` |
-| `loadWorld` | `(id) => Promise<WorldState \| null>` | 读取并过 `worldSchema` |
+| `loadWorld` | `(id) => Promise<WorldState \| null>` | 读取、schema 校验并迁移旧版本；迁移后回写数据库 |
 | `listSaves` | `() => Promise<SaveSummary[]>` | 按更新时间倒序 |
 | `deleteSave` | `(id) => Promise<void>` | 删除并清理 `lastSaveId` |
-| `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON |
-| `importWorld` | `(text) => WorldState` | 校验并返回世界，不落库 |
+| `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON（v2 envelope） |
+| `importWorld` | `(text) => WorldState` | 校验原始 checksum 后迁移到当前版本；不落库 |
 
 `downloadWorld`（`(world) => void`，触发浏览器下载）已从 `db/repository` 迁到 `store/exportSave`，经 `platform/fileExport.downloadTextFile` 落地。
 
 ## 错误与兼容
 
 - `generateWorld` 缺少可用俱乐部时抛错。
-- `simulateUserFixture` 缺少球员/俱乐部时抛错。
+- `startUserMatch` / `simulateUserFixture` 缺少球员/俱乐部时抛错。
 - `resolveEvent` / `resolveKeyMoment` 对无效输入返回 `null`，由 store 转成中文提示。
-- `loadWorld` / `importWorld` 使用 Zod 校验，错误信息包含字段路径。
+- `loadWorld` / `importWorld` 使用 Zod 校验，错误信息包含字段路径；旧版本存档先迁移，checksum 始终在迁移前校验。
 - 接口签名变化必须同步本文、功能文档与调用方；破坏性变化需要 ADR。
+
+## Golden 回放
+
+- `quality/golden/season-seed-42.json` 记录 seed 42 赛季回放的 `engineVersion` 与最终状态哈希。
+- 逐分钟实时比赛、关键回合进入比赛进程与终场统一结算都会改变引擎输出，因此本次将 `ENGINE_VERSION` 升到 `0.2.0` 并更新哈希。
+- 修改任何影响引擎输出的规则时，必须评估是否需要升 `ENGINE_VERSION` 并更新回放；哈希变化而版本未升会被 `check-anti-regression` 拦截。
 
 ## 变更记录
 
 | 日期 | 变更 | 关联 |
 |---|---|---|
 | 2026-10-26 | 初版：回合、比赛、关键回合、事件、财务、积分榜、RNG 与持久化接口 | ADR 0001 |
+| 2026-10-31 | 两阶段回合（startWeek/completeWeek）、逐分钟实时比赛、终场统一结算、存档 v2 迁移；engine 0.2.0 与 golden 更新 | 缺陷修复：比赛日比分穿越 |

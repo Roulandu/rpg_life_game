@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { db } from '../../src/db/db'
 import { useGameStore } from '../../src/store/gameStore'
 import { persist } from '../../src/store/helpers'
 import { testOptions } from '../fixtures/career'
+import { resetStore } from '../fixtures/storeHarness'
 
 const { saveWorldMock } = vi.hoisted(() => ({ saveWorldMock: vi.fn() }))
 
@@ -11,27 +11,8 @@ vi.mock('../../src/db', async (importActual) => {
   return { ...actual, saveWorld: saveWorldMock }
 })
 
-const INITIAL_STATE = {
-  world: null,
-  saveId: null,
-  saves: [],
-  lastTurn: null,
-  seasonTransition: null,
-  busy: false,
-  hydrated: false,
-  notice: null,
-  error: null,
-}
-
 describe('保存失败反馈', () => {
-  beforeEach(async () => {
-    await db.saves.clear()
-    await db.meta.clear()
-    useGameStore.setState(INITIAL_STATE)
-    const repository = await import('../../src/db/repository')
-    saveWorldMock.mockReset()
-    saveWorldMock.mockImplementation(repository.saveWorld)
-  })
+  beforeEach(() => resetStore(saveWorldMock))
 
   it('persist 把写入异常转成结构化失败而不是吞掉', async () => {
     await useGameStore.getState().createCareer(testOptions())
@@ -62,6 +43,7 @@ describe('保存失败反馈', () => {
     const result = await useGameStore.getState().advance({ training: 'technical', extra: 'none' })
 
     expect(result).not.toBeNull()
+    if (result?.live) await useGameStore.getState().skipKeyMoments()
     expect(useGameStore.getState().world?.week).toBe(2)
     expect(useGameStore.getState().error).toContain('保存失败')
   })

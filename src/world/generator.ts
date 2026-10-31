@@ -60,7 +60,7 @@ export function generateWorld(options: CareerCreateOptions, now: string): WorldS
   const finance = createFinance(user)
 
   return {
-    version: 1,
+    version: 2,
     seed,
     engineVersion: ENGINE_VERSION,
     createdAt: now,

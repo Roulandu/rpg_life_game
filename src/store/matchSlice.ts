@@ -1,12 +1,14 @@
-import type { MatchReport, WeeklyPlan, WorldState } from '../domain'
+import type { WeeklyPlan, WorldState } from '../domain'
 import { resolveEvent } from '../engine'
 import {
   autoResolveKeyMoments,
+  completeWeek,
   finalizeMatchday,
   hasPendingKeyMoments,
   resolveKeyMoment as applyKeyMomentChoice,
+  startWeek,
 } from '../engine'
-import { advanceWeek, type TurnResult } from '../engine'
+import type { TurnResult } from '../engine'
 import { messageOf, persist } from './helpers'
 import type { GameStore, StoreGet, StoreSet, StoreSlice } from './types'
 
@@ -15,21 +17,46 @@ type MatchSlice = Pick<
   'advance' | 'resolveKeyMoment' | 'skipKeyMoments' | 'resolveChoice' | 'lastTurn' | 'seasonTransition'
 >
 
-function narrateCompletedMatch(
-  get: StoreGet,
-  world: WorldState,
-  result: MatchReport | null,
-): void {
-  if (!result) return
+function hasUnfinishedMatchday(world: WorldState): boolean {
+  return hasPendingKeyMoments(world) || world.lastMatch?.status === 'live'
+}
+
+function narrateCompletedMatch(get: StoreGet, result: TurnResult): void {
+  if (!result.match) return
+  void get().narrateTurn(result)
+}
+
+function settleWorld(get: StoreGet, world: WorldState): TurnResult {
   const latest = get().lastTurn
-  void get().narrateTurn({
+  finalizeMatchday(world)
+  if (world.pendingWeekPlan) return completeWeek(world)
+  return {
     world,
-    match: world.lastMatch ?? result,
+    match: world.lastMatch,
     event: latest?.event ?? null,
     seasonTransition: latest?.seasonTransition ?? null,
-    weekPlayed: result.week,
-    seasonPlayed: result.season,
+    weekPlayed: latest?.weekPlayed ?? world.week,
+    seasonPlayed: latest?.seasonPlayed ?? world.season,
+    live: false,
+  }
+}
+
+async function finishLiveMatchday(set: StoreSet, get: StoreGet, world: WorldState): Promise<void> {
+  const saveId = get().saveId
+  if (!saveId) return
+  const result = settleWorld(get, world)
+  result.world.updatedAt = new Date().toISOString()
+  set({
+    world: result.world,
+    lastTurn: result,
+    seasonTransition: result.seasonTransition ?? get().seasonTransition,
+    busy: false,
   })
+  const saved = await persist(result.world, saveId)
+  if (saved.ok) set({ saveId: saved.summary.id })
+  else set({ error: `保存失败：${saved.error}` })
+  await get().refreshSaves()
+  narrateCompletedMatch(get, result)
 }
 
 async function advance(
@@ -39,13 +66,17 @@ async function advance(
 ): Promise<TurnResult | null> {
   const world = get().world
   if (!world || get().busy || world.retired) return null
-  if (hasPendingKeyMoments(world)) {
-    set({ error: '请先在比赛日完成本周的关键回合。' })
+  if (hasUnfinishedMatchday(world)) {
+    set({
+      error: hasPendingKeyMoments(world)
+        ? '请先在比赛日完成本周的关键回合。'
+        : '请先在比赛日完成本周的比赛。',
+    })
     return null
   }
   set({ busy: true, error: null, notice: null })
   try {
-    const result = advanceWeek(world, plan)
+    const result = startWeek(world, plan)
     const updated = { ...result.world, updatedAt: new Date().toISOString() }
     const adapted: TurnResult = { ...result, world: updated }
     set({
@@ -58,7 +89,7 @@ async function advance(
     if (saved.ok) set({ saveId: saved.summary.id })
     else set({ error: `保存失败：${saved.error}` })
     await get().refreshSaves()
-    if (!hasPendingKeyMoments(updated)) void get().narrateTurn(adapted)
+    if (!adapted.live) narrateCompletedMatch(get, adapted)
     return adapted
   } catch (error) {
     set({ busy: false, error: `推进失败：${messageOf(error)}` })
@@ -81,32 +112,27 @@ async function resolveKeyMoment(
     set({ error: '这个关键回合已经结束，或选项无效。' })
     return
   }
-  const stillPending = hasPendingKeyMoments(next)
-  if (!stillPending) finalizeMatchday(next)
-  next.updatedAt = new Date().toISOString()
-  set({ world: next })
-  const result = await persist(next, saveId)
-  if (result.ok) set({ saveId: result.summary.id })
-  else set({ error: `保存失败：${result.error}` })
-  await get().refreshSaves()
-  if (!stillPending) narrateCompletedMatch(get, next, report)
+  if (hasPendingKeyMoments(next)) {
+    next.updatedAt = new Date().toISOString()
+    set({ world: next, busy: false })
+    const saved = await persist(next, saveId)
+    if (saved.ok) set({ saveId: saved.summary.id })
+    else set({ error: `保存失败：${saved.error}` })
+    await get().refreshSaves()
+    return
+  }
+  await finishLiveMatchday(set, get, next)
 }
 
 async function skipKeyMoments(set: StoreSet, get: StoreGet): Promise<void> {
   const world = get().world
   const saveId = get().saveId
-  if (!world || !saveId || get().busy || !hasPendingKeyMoments(world)) return
+  if (!world || !saveId || get().busy) return
+  if (!hasUnfinishedMatchday(world)) return
   const next = structuredClone(world)
-  const report = autoResolveKeyMoments(next)
-  if (!report) return
-  finalizeMatchday(next)
-  next.updatedAt = new Date().toISOString()
-  set({ world: next, notice: '关键回合已按稳妥选择自动处理。' })
-  const result = await persist(next, saveId)
-  if (result.ok) set({ saveId: result.summary.id })
-  else set({ error: `保存失败：${result.error}` })
-  await get().refreshSaves()
-  narrateCompletedMatch(get, next, report)
+  autoResolveKeyMoments(next)
+  set({ notice: '关键回合已按稳妥选择自动处理。' })
+  await finishLiveMatchday(set, get, next)
 }
 
 async function resolveChoice(

@@ -9,5 +9,6 @@ export {
   pendingKeyMoments,
   resolveKeyMoment,
 } from './keyMoments'
-export { advanceWeek, advanceWeeks, endSeason } from './turn'
+export { advanceWeek, advanceWeeks, completeWeek, endSeason, startWeek } from './turn'
 export type { SeasonTransition, TurnResult } from './turn'
+export { advanceLiveMatch, startUserMatch } from './liveMatch'

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import type { WorldState } from '../types'
 
-export const CURRENT_SAVE_VERSION = 1
+export const CURRENT_SAVE_VERSION = 2
 export const SAVE_FORMAT = 'pitch-life-save'
 
 const attributesSchema = z.object({
@@ -87,7 +87,7 @@ const fixtureSchema = z
     week: z.number().int(),
     homeId: z.string(),
     awayId: z.string(),
-    status: z.enum(['scheduled', 'played']),
+    status: z.enum(['scheduled', 'live', 'played']),
   })
   .passthrough()
 

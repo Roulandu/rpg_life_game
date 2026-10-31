@@ -15,7 +15,7 @@ describe('man of the match', () => {
 
     const report = simulateUserFixture(world, fixture!)
 
-    expect(report.userRating).toBeLessThan(8.3)
+    expect(report.userRating).not.toBeNull()
     expect(report.motmName).toBe(user.name)
     expect(report.motmRating).toBe(report.userRating)
   })

@@ -2,19 +2,14 @@ import { clamp, positionGroup } from '../domain'
 import type { Club, Id, Player, WorldState } from '../domain'
 import type { Rng } from '../lib'
 
-export interface GoalContribution {
-  scorer: Player
-  assist: Player | null
-  minute: number
-  side: 'home' | 'away'
-}
-
-interface GoalContext {
+export interface GoalContext {
   world: WorldState
   club: Club
   rng: Rng
   userClubId: Id
-  userPlaying: boolean
+  minute: number
+  userEntryMinute: number
+  userPlayed: boolean
 }
 
 export function expectedGoals(attack: number, defense: number, home: boolean): number {
@@ -36,82 +31,43 @@ export function styleModifier(club: Club): number {
   }
 }
 
-function pickScorer({ world, club, rng, userClubId, userPlaying }: GoalContext): Player {
-  const squad = club.squadIds
-    .map((id) => world.players[id])
+function userWeight(context: GoalContext, player: Player, weight: number, multiplier: number): number {
+  if (!player.isUser) return weight
+  const eligible =
+    context.userPlayed &&
+    player.id === context.world.playerId &&
+    context.club.id === context.userClubId &&
+    context.minute >= context.userEntryMinute
+  return eligible ? weight * multiplier : 0
+}
+
+export function pickScorer(context: GoalContext): Player {
+  const squad = context.club.squadIds
+    .map((id) => context.world.players[id])
     .filter((player): player is Player => Boolean(player))
   const candidates = squad.map((player) => {
     const group = positionGroup(player.position)
-    let weight =
+    const base =
       group === 'FWD' ? 4.2 : group === 'MID' ? 1.8 : group === 'DEF' ? 0.45 : 0.02
-    weight *= 0.5 + player.attributes.shooting / 100
-    if (player.isUser) {
-      weight = player.id === world.playerId && userPlaying && club.id === userClubId
-        ? weight * 1.4
-        : 0
-    }
-    return { value: player, weight }
+    const weight = base * (0.5 + player.attributes.shooting / 100)
+    return { value: player, weight: userWeight(context, player, weight, 1.4) }
   })
-  return rng.weighted(candidates)
+  return context.rng.weighted(candidates)
 }
 
-function pickAssister(context: GoalContext, scorer: Player): Player | null {
-  const { world, club, rng, userClubId, userPlaying } = context
-  if (!rng.chance(0.7)) return null
-  const squad = club.squadIds
-    .map((id) => world.players[id])
+export function pickAssister(context: GoalContext, scorer: Player): Player | null {
+  if (!context.rng.chance(0.7)) return null
+  const squad = context.club.squadIds
+    .map((id) => context.world.players[id])
     .filter((player): player is Player => Boolean(player) && player.id !== scorer.id)
   const candidates = squad.map((player) => {
     const group = positionGroup(player.position)
-    let weight =
+    const base =
       (0.5 + player.attributes.passing / 100) *
       (group === 'MID' ? 1.5 : group === 'FWD' ? 1.2 : group === 'DEF' ? 0.55 : 0.08)
-    if (player.isUser) {
-      weight = player.id === world.playerId && userPlaying && club.id === userClubId
-        ? weight * 1.3
-        : 0
-    }
-    return { value: player, weight }
+    return { value: player, weight: userWeight(context, player, base, 1.3) }
   })
-  return rng.weighted(candidates)
-}
-
-interface GoalContributionInput {
-  world: WorldState
-  homeClub: Club
-  awayClub: Club
-  homeGoals: number
-  awayGoals: number
-  rng: Rng
-  userPlaying: boolean
-}
-
-function contributionsForSide(
-  input: GoalContributionInput,
-  club: Club,
-  goals: number,
-  side: GoalContribution['side'],
-): GoalContribution[] {
-  const context: GoalContext = {
-    world: input.world,
-    club,
-    rng: input.rng,
-    userClubId: input.world.clubId,
-    userPlaying: input.userPlaying,
-  }
-  const contributions: GoalContribution[] = []
-  for (let i = 0; i < goals; i += 1) {
-    const scorer = pickScorer(context)
-    const assist = pickAssister(context, scorer)
-    contributions.push({ scorer, assist, minute: input.rng.int(1, 90), side })
-  }
-  return contributions
-}
-
-export function makeGoalContributions(input: GoalContributionInput): GoalContribution[] {
-  const home = contributionsForSide(input, input.homeClub, input.homeGoals, 'home')
-  const away = contributionsForSide(input, input.awayClub, input.awayGoals, 'away')
-  return [...home, ...away].sort((a, b) => a.minute - b.minute)
+  return context.rng.weighted(candidates)
 }
 
 export function pickInjuryKind(rng: Rng): string {

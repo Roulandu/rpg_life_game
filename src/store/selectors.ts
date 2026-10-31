@@ -7,7 +7,8 @@ import { STARTING_CLUBS } from '../world'
 import { getClubFixtures } from '../world'
 
 export function selectPendingKeyMoments(world: WorldState | null): boolean {
-  return world ? hasPendingKeyMoments(world) : false
+  if (!world) return false
+  return hasPendingKeyMoments(world) || world.lastMatch?.status === 'live'
 }
 
 export function selectClubFixtures(world: WorldState | null): Fixture[] {
