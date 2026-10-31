@@ -47,6 +47,7 @@ modules:
       - docs/features/saves.md
       - docs/features/gm-agent.md
       - docs/features/appearance.md
+      - docs/features/matchday.md
     testImpact: strict
     platformCapabilities: [session]
     knownViolations: []

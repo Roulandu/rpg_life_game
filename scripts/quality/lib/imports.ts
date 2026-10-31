@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { dirname, extname, resolve } from 'node:path'
+import { dirname, extname, join, resolve } from 'node:path'
 import { init, parse } from 'es-module-lexer'
 
 export async function importsOfFile(file: string): Promise<string[]> {
@@ -27,7 +27,7 @@ export function resolveSpecifier(fromFile: string, specifier: string): string | 
   const base = resolve(dirname(fromFile), specifier)
   const candidates = [base]
   if (!extname(base)) {
-    candidates.push(`${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`)
+    candidates.push(`${base}.ts`, `${base}.tsx`, join(base, 'index.ts'), join(base, 'index.tsx'))
   }
   for (const candidate of candidates) {
     if (existsSync(candidate) && /\.(ts|tsx)$/.test(candidate)) return candidate

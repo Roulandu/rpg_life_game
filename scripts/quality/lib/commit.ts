@@ -126,7 +126,10 @@ export function validateCommitMessage(
   }
   if (options.verifyPaths !== false) {
     for (const path of listed) {
-      if (!existsSync(resolve(repoRoot, path))) errors.push(`修改范围中的路径不存在：${path}`)
+      // 已暂存的删除/重命名旧路径不在磁盘上，但仍属于本次改动的合法描述对象
+      if (!existsSync(resolve(repoRoot, path)) && !changed.includes(path)) {
+        errors.push(`修改范围中的路径不存在：${path}`)
+      }
     }
   }
   const important = changed.filter(isImportantFile)
