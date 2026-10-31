@@ -14,7 +14,7 @@
 
 | 函数 | 签名 | 行为 |
 |---|---|---|
-| `startWeek` | `(input: WorldState, plan: WeeklyPlan) => TurnResult` | 克隆输入，执行恢复、训练、额外行动、事件过期；用户出场且有关键回合时创建 live 报告并停在首个回合，周次不变；否则完整结算本周 |
+| `startWeek` | `(input: WorldState, plan: WeeklyPlan) => TurnResult` | 克隆输入，执行恢复、训练、额外行动、事件过期；用户出场且有关键回合时创建 live 报告并停在开球 0'，周次不变；否则完整结算本周 |
 | `completeWeek` | `(world: WorldState) => TurnResult` | 仅处理存在 `pendingWeekPlan` 的周；终场结算、背景比赛、财务、事件、身价与周次推进；未完成 live 时拒绝 |
 | `advanceWeek` | `(input: WorldState, plan: WeeklyPlan) => TurnResult` | 兼容入口：`startWeek` + 自动处理关键回合 + `finalizeMatchday` + `completeWeek`，保持“一次推进一周”的旧语义 |
 | `advanceWeeks` | `(world: WorldState, plan: WeeklyPlan, count: number) => TurnResult[]` | 连续推进，遇到退役或赛季切换提前停止 |
@@ -58,7 +58,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.2.0'`
+- `ENGINE_VERSION = '0.3.0'`
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -69,8 +69,10 @@ interface TurnResult {
 | 函数 | 签名 | 行为 |
 |---|---|---|
 | `determineUserSelection` | `(world, club, rng) => SelectionResult` | 根据能力差、教练信任、体能、状态、锐度决定首发/替补/不出场 |
-| `startUserMatch` | `(world, fixture) => MatchReport` | 创建 live 报告并从第 1 分钟推进到首个关键回合；重复调用返回已有 live 报告 |
-| `advanceLiveMatch` | `(world) => MatchReport \| null` | 逐分钟模拟到下一个关键回合分钟或 90 分钟；半场比分在 45 分钟后冻结 |
+| `startUserMatch` | `(world, fixture) => MatchReport` | 创建 live 报告并停在 0'，初始化双方首发与全零统计；重复调用返回已有 live 报告 |
+| `advanceLiveMinute` | `(world) => LiveMinuteResult \| null` | 每次只推进一步；返回分钟、球权、球位、事件与 `paused / finished / halfTime`；关键回合分钟先按归属计入控球再暂停 |
+| `buildBeats` | `(input: BeatInput) => BeatResult` | 纯函数：生成该分钟双方攻防事件与统计增量，不修改报告 |
+| `advanceLiveMatch` | `(world) => MatchReport \| null` | 循环调用 `advanceLiveMinute` 直到下一关键回合分钟或 90 分钟；半场比分在 45 分钟后冻结 |
 | `finalizeLiveMatch` | `(world) => MatchReport \| null` | 终场唯一结算入口：评分、赛季统计、MOTM、媒体、新闻、黄牌/伤病；幂等 |
 | `simulateUserFixture` | `(world, fixture) => MatchReport` | 兼容包装：`startUserMatch` → 自动处理回合 → `finalizeMatchday` |
 | `simulateBackgroundFixture` | `(world, fixture) => void` | 模拟其他比赛，写入比分与射手统计 |
@@ -84,10 +86,10 @@ interface TurnResult {
 
 | 函数 | 签名 | 行为 |
 |---|---|---|
-| `generateKeyMoments` | `(player, rng, minutes, isHome, startMinute?) => KeyMoment[]` | 根据出场时间生成 2–4 个关键回合，`roll` 在生成时固定 |
+| `generateKeyMoments` | `(player, rng, minutes, isHome, startMinute?) => KeyMoment[]` | 根据出场时间生成 5–7 个关键回合（12 类、每回合 5 选项），`roll` 在生成时固定 |
 | `pendingKeyMoments` | `(world) => KeyMoment[]` | 尚未处理的回合 |
 | `hasPendingKeyMoments` | `(world) => boolean` | 是否存在待处理回合 |
-| `resolveKeyMoment` | `(world, momentId, optionId) => MatchReport \| null` | 按固定 `roll` 与选项结算；只能处理下一个待处理回合。live 报告立即改写比分并推进比赛，赛季数据留到终场 |
+| `resolveKeyMoment` | `(world, momentId, optionId, options?: { advance?: boolean }) => MatchReport \| null` | 按固定 `roll` 与选项结算；只能处理下一个待处理回合。live 报告立即改写比分，`advance` 默认 `true`，为 `false` 时停在当前分钟；赛季数据留到终场 |
 | `autoResolveKeyMoments` | `(world) => MatchReport \| null` | 对每个待处理回合选择默认（成功率最高）选项 |
 | `finalizeMatchday` | `(world) => MatchReport \| null` | live 报告：推进到 90 分钟后调用 `finalizeLiveMatch`；旧版 `final` 报告：刷新媒体反应与新闻 |
 
@@ -98,6 +100,16 @@ interface TurnResult {
 - 比分只通过 `appendGoal` 追加，不重算整场；live 回合的赛季进球/助攻/评分只在终场统计一次。
 - `finalizeMatchday` / `finalizeLiveMatch` 在仍有未处理回合时返回 `null`，不得提前生成媒体反应。
 - 终场结算幂等：`status === 'final'` 时直接返回，不重复统计或发布新闻。
+
+## 领域比赛辅助
+
+| 函数 | 签名 | 行为 |
+|---|---|---|
+| `selectLineup` | `(club, players, options?) => Player[]` | 选择 1-4-4-2 首发；同俱乐部输出稳定；可强制/排除指定球员 |
+| `buildMatchLineups` | `(world, report) => MatchLineups` | 为主客各生成 11 人首发摘要（姓名、号码、位置、是否用户） |
+| `buildPitchFrame` | `(input: PitchFrameInput) => PitchFrame` | 生成双方 11 人坐标、足球位置、控球方与最近 5 帧轨迹；同一 seed/场次/分钟确定性 |
+| `successBasisText` | `(option) => string` | 成功率依据（属性名 + 百分比） |
+| `effectsSummary` | `(option) => string` | 选项效果摘要（进球、助攻、评分、士气、教练信任） |
 
 ## 事件
 
@@ -191,7 +203,7 @@ interface TurnResult {
 ## Golden 回放
 
 - `quality/golden/season-seed-42.json` 记录 seed 42 赛季回放的 `engineVersion` 与最终状态哈希。
-- 逐分钟实时比赛、关键回合进入比赛进程与终场统一结算都会改变引擎输出，因此本次将 `ENGINE_VERSION` 升到 `0.2.0` 并更新哈希。
+- 逐分钟实时比赛、双方攻防事件/统计、首发选择与关键回合扩展都会改变引擎输出，因此本次将 `ENGINE_VERSION` 升到 `0.3.0` 并更新哈希。
 - 修改任何影响引擎输出的规则时，必须评估是否需要升 `ENGINE_VERSION` 并更新回放；哈希变化而版本未升会被 `check-anti-regression` 拦截。
 
 ## 变更记录
@@ -200,3 +212,4 @@ interface TurnResult {
 |---|---|---|
 | 2026-10-26 | 初版：回合、比赛、关键回合、事件、财务、积分榜、RNG 与持久化接口 | ADR 0001 |
 | 2026-10-31 | 两阶段回合（startWeek/completeWeek）、逐分钟实时比赛、终场统一结算、存档 v2 迁移；engine 0.2.0 与 golden 更新 | 缺陷修复：比赛日比分穿越 |
+| 2026-10-31 | `advanceLiveMinute`、`buildBeats`、`startUserMatch` 停在 0'、`resolveKeyMoment` 增加 `advance` 选项、`selectLineup`/`buildMatchLineups`/`buildPitchFrame`；关键回合 5–7 次；engine 0.3.0 与 golden 更新 | 比赛日实时化改造 |

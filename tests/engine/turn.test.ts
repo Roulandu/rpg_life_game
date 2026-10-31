@@ -12,13 +12,14 @@ function weekFixtures(world: WorldState, week: number) {
 }
 
 describe('two-phase week', () => {
-  it('startWeek 停在第一个关键回合前，周次不变且比赛进入 live', () => {
+  it('startWeek 停在开球 0 分钟，周次不变且比赛进入 live', () => {
     const world = readyWorld()
     const result = startWeek(world, PLAN)
 
     expect(result.live).toBe(true)
     expect(result.world.week).toBe(world.week)
     expect(result.match?.status).toBe('live')
+    expect(result.match?.currentMinute).toBe(0)
     expect(hasPendingKeyMoments(result.world)).toBe(true)
     expect(result.world.pendingWeekPlan?.fixtureId).toBe(result.match?.fixtureId)
     const fixture = result.world.fixtures[result.match!.fixtureId]!

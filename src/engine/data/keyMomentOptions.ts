@@ -1,156 +1,22 @@
-import { clamp, round1 } from '../../domain'
-import type { KeyMomentKind, KeyMomentOption, Player } from '../../domain'
+import type { KeyMomentKind, KeyMomentOption } from '../../domain'
+import {
+  buildBigChance,
+  buildCounterAttack,
+  buildCross,
+  buildLongShot,
+  buildOneOnOne,
+  buildThroughBall,
+} from './keyMomentOptionsAttack'
+import {
+  buildClearance,
+  buildDuel,
+  buildHeaderDuel,
+  buildSave,
+} from './keyMomentOptionsDefense'
+import { buildFreeKick, buildPenalty } from './keyMomentOptionsSetPiece'
+import type { KindContext } from './optionUtils'
 
-export interface KindContext {
-  player: Player
-  isHome: boolean
-}
-
-interface OptionSpec {
-  id: string
-  labelZh: string
-  descriptionZh: string
-  successChance: number
-  ratingOnSuccess: number
-  ratingOnFail: number
-  extra?: Partial<KeyMomentOption>
-}
-
-function chance(value: number, low: number, high: number): number {
-  return round1(clamp(value, low, high) * 100) / 100
-}
-
-function option(spec: OptionSpec): KeyMomentOption {
-  const { extra, ...base } = spec
-  return { ...base, ...extra }
-}
-
-function buildBigChance({ player }: KindContext): KeyMomentOption[] {
-  const attrs = player.attributes
-  const mental = attrs.mental / 100
-  return [
-    option({
-      id: 'shoot', labelZh: '直接射门', descriptionZh: '把握机会自己解决，角度被封堵时容易浪费。',
-      successChance: chance(0.3 + attrs.shooting * 0.004 + mental * 0.08, 0.2, 0.74), ratingOnSuccess: 0.75, ratingOnFail: -0.35,
-      extra: { goalOnSuccess: true, coachOnSuccess: 0.5, moraleOnSuccess: 2, moraleOnFail: -1 },
-    }),
-    option({
-      id: 'square', labelZh: '横传队友', descriptionZh: '把球送到更好的位置，可能收获一次助攻。',
-      successChance: chance(0.48 + attrs.passing * 0.003, 0.4, 0.86), ratingOnSuccess: 0.45, ratingOnFail: -0.1,
-      extra: { assistOnSuccess: true, coachOnSuccess: 0.4, moraleOnSuccess: 1.5 },
-    }),
-    option({
-      id: 'hold', labelZh: '护球等待支援', descriptionZh: '几乎不会丢球，但很难制造直接威胁。',
-      successChance: 0.92, ratingOnSuccess: 0.05, ratingOnFail: -0.05,
-      extra: { moraleOnSuccess: 0.5 },
-    }),
-  ]
-}
-
-function buildPenalty({ player }: KindContext): KeyMomentOption[] {
-  const attrs = player.attributes
-  return [
-    option({
-      id: 'placed', labelZh: '推射死角', descriptionZh: '稳妥的角度与力量，门将很难够到。',
-      successChance: chance(0.68 + attrs.shooting * 0.002, 0.55, 0.88), ratingOnSuccess: 0.9, ratingOnFail: -0.7,
-      extra: { goalOnSuccess: true, coachOnSuccess: 0.6, moraleOnSuccess: 3, moraleOnFail: -2 },
-    }),
-    option({
-      id: 'power', labelZh: '大力抽射', descriptionZh: '用力量压制门将，但容错更低。',
-      successChance: chance(0.58 + attrs.shooting * 0.002, 0.45, 0.8), ratingOnSuccess: 1, ratingOnFail: -0.8,
-      extra: { goalOnSuccess: true, coachOnSuccess: 0.5, moraleOnSuccess: 3, moraleOnFail: -2 },
-    }),
-    option({
-      id: 'panenka', labelZh: '勺子点球', descriptionZh: '如果能骗过门将，这会成为本轮话题。',
-      successChance: chance(0.4 + attrs.technique * 0.003, 0.3, 0.7), ratingOnSuccess: 1.35, ratingOnFail: -1.1,
-      extra: { goalOnSuccess: true, coachOnSuccess: 0.2, moraleOnSuccess: 4, moraleOnFail: -3 },
-    }),
-  ]
-}
-
-function buildThroughBall({ player }: KindContext): KeyMomentOption[] {
-  const attrs = player.attributes
-  return [
-    option({
-      id: 'thread', labelZh: '直塞身后', descriptionZh: '最危险也最致命的选择，需要精准的脚法。',
-      successChance: chance(0.34 + attrs.passing * 0.004, 0.28, 0.72), ratingOnSuccess: 0.65, ratingOnFail: -0.4,
-      extra: { assistOnSuccess: true, coachOnSuccess: 0.5, moraleOnSuccess: 2 },
-    }),
-    option({
-      id: 'simple', labelZh: '分边转移', descriptionZh: '把球送到安全区域，保持球队的节奏。',
-      successChance: chance(0.74 + attrs.passing * 0.0015, 0.6, 0.9), ratingOnSuccess: 0.15, ratingOnFail: -0.1,
-      extra: { coachOnSuccess: 0.2 },
-    }),
-    option({
-      id: 'carry', labelZh: '自己带球推进', descriptionZh: '用盘带撕开空间，失败会把球权送回去。',
-      successChance: chance(0.46 + attrs.dribbling * 0.003, 0.35, 0.75), ratingOnSuccess: 0.35, ratingOnFail: -0.25,
-      extra: { moraleOnSuccess: 1, moraleOnFail: -0.5 },
-    }),
-  ]
-}
-
-function buildDuel({ player }: KindContext): KeyMomentOption[] {
-  const attrs = player.attributes
-  return [
-    option({
-      id: 'commit', labelZh: '贴身对抗', descriptionZh: '主动上抢能直接终结进攻，也可能被一步过掉。',
-      successChance: chance(0.3 + attrs.defending * 0.004 + attrs.physical * 0.002, 0.25, 0.72), ratingOnSuccess: 0.55, ratingOnFail: -0.5,
-      extra: { coachOnSuccess: 1, coachOnFail: -0.5, moraleOnSuccess: 1.5, moraleOnFail: -1 },
-    }),
-    option({
-      id: 'contain', labelZh: '保持站位', descriptionZh: '不轻易出脚，把对手逼向边路。',
-      successChance: chance(0.66 + attrs.defending * 0.002, 0.55, 0.85), ratingOnSuccess: 0.15, ratingOnFail: -0.15,
-      extra: { coachOnSuccess: 0.3 },
-    }),
-    option({
-      id: 'foul', labelZh: '战术犯规', descriptionZh: '用犯规终止反击，代价是可能吃牌。',
-      successChance: chance(0.84, 0.7, 0.9), ratingOnSuccess: -0.2, ratingOnFail: -0.65,
-      extra: { coachOnSuccess: 0.5, coachOnFail: -0.6, moraleOnSuccess: -0.5 },
-    }),
-  ]
-}
-
-function buildSave({ player }: KindContext): KeyMomentOption[] {
-  const attrs = player.attributes
-  return [
-    option({
-      id: 'reflex', labelZh: '飞身扑救', descriptionZh: '用反应速度赌一个不可思议的扑救。',
-      successChance: chance(0.3 + attrs.goalkeeping * 0.005, 0.2, 0.78), ratingOnSuccess: 0.9, ratingOnFail: -0.7,
-      extra: { coachOnSuccess: 1, moraleOnSuccess: 2, moraleOnFail: -1 },
-    }),
-    option({
-      id: 'position', labelZh: '封住近角', descriptionZh: '先把角度封死，把难题交给对手。',
-      successChance: chance(0.54 + attrs.goalkeeping * 0.003, 0.45, 0.82), ratingOnSuccess: 0.45, ratingOnFail: -0.5,
-      extra: { coachOnSuccess: 0.4 },
-    }),
-    option({
-      id: 'rush', labelZh: '出击干扰', descriptionZh: '扩大防守范围，但身后会留下空门。',
-      successChance: chance(0.42 + attrs.goalkeeping * 0.002 + attrs.mental * 0.002, 0.3, 0.76), ratingOnSuccess: 0.6, ratingOnFail: -0.9,
-      extra: { coachOnSuccess: 0.6, coachOnFail: -0.6 },
-    }),
-  ]
-}
-
-function buildClearance({ player }: KindContext): KeyMomentOption[] {
-  const attrs = player.attributes
-  return [
-    option({
-      id: 'hoof', labelZh: '大脚解围', descriptionZh: '把危险踢远，最务实的选择。',
-      successChance: 0.9, ratingOnSuccess: 0.1, ratingOnFail: -0.05,
-      extra: { coachOnSuccess: 0.2 },
-    }),
-    option({
-      id: 'calm', labelZh: '控球出压', descriptionZh: '冷静地把球传出去，能换来教练的信任。',
-      successChance: chance(0.4 + attrs.passing * 0.004, 0.3, 0.78), ratingOnSuccess: 0.4, ratingOnFail: -0.45,
-      extra: { coachOnSuccess: 0.5, coachOnFail: -0.4 },
-    }),
-    option({
-      id: 'shield', labelZh: '护球造犯规', descriptionZh: '用身体把对手挡在身后，争取定位球。',
-      successChance: chance(0.68 + attrs.physical * 0.002, 0.55, 0.85), ratingOnSuccess: 0.2, ratingOnFail: -0.2,
-      extra: {},
-    }),
-  ]
-}
+export type { KindContext } from './optionUtils'
 
 const OPTION_BUILDERS: Record<KeyMomentKind, (context: KindContext) => KeyMomentOption[]> = {
   bigChance: buildBigChance,
@@ -159,6 +25,12 @@ const OPTION_BUILDERS: Record<KeyMomentKind, (context: KindContext) => KeyMoment
   duel: buildDuel,
   save: buildSave,
   clearance: buildClearance,
+  freeKick: buildFreeKick,
+  headerDuel: buildHeaderDuel,
+  oneOnOne: buildOneOnOne,
+  counterAttack: buildCounterAttack,
+  cross: buildCross,
+  longShot: buildLongShot,
 }
 
 export const KIND_TITLES: Record<KeyMomentKind, string> = {
@@ -168,6 +40,12 @@ export const KIND_TITLES: Record<KeyMomentKind, string> = {
   duel: '防线前的对抗',
   save: '门前的考验',
   clearance: '禁区内的解围',
+  freeKick: '任意球机会',
+  headerDuel: '禁区上空的争顶',
+  oneOnOne: '单刀面对门将',
+  counterAttack: '由守转攻的瞬间',
+  cross: '边路传中的选择',
+  longShot: '禁区外的远射',
 }
 
 export const KIND_PROMPTS: Record<KeyMomentKind, string> = {
@@ -177,6 +55,27 @@ export const KIND_PROMPTS: Record<KeyMomentKind, string> = {
   duel: '对手带球向你逼近，身后就是禁区。你必须做出选择。',
   save: '对手在近距离起脚，你只有一瞬间判断方向。',
   clearance: '禁区里一片混乱，球正滚向危险区域。',
+  freeKick: '哨声响起，人墙已经排好。这个位置的任意球由你来处理。',
+  headerDuel: '传中球飞向禁区，你和对手同时起跳。',
+  oneOnOne: '你甩开最后一名后卫，面前只剩门将。',
+  counterAttack: '对手的进攻刚刚被断，大片空当出现在你面前。',
+  cross: '你在边路拿到球，禁区内队友正在等待传中。',
+  longShot: '防线退得很深，门将站位靠前。你有了远射的空间。',
+}
+
+export const KIND_TRIGGERS: Record<KeyMomentKind, string> = {
+  bigChance: '禁区内获得一次近距离射门机会',
+  penalty: '本方获得点球判罚',
+  throughBall: '中场拿球且队友前插到防线身后',
+  duel: '对手带球逼近本方禁区',
+  save: '对手在禁区内完成近距离射门',
+  clearance: '危险球进入本方禁区',
+  freeKick: '本方在对方半场获得直接任意球',
+  headerDuel: '传中球飞入禁区形成空中对抗',
+  oneOnOne: '你获得单刀机会',
+  counterAttack: '断球后出现快速反击空间',
+  cross: '你在边路持球且禁区内有接应点',
+  longShot: '防线后撤且门将站位靠前',
 }
 
 export function optionsFor(kind: KeyMomentKind, context: KindContext): KeyMomentOption[] {

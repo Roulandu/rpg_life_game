@@ -1,5 +1,5 @@
-import type { Club, Fixture, MatchReport, WorldState } from '../domain'
-import { computeClubStrength } from '../domain'
+import type { Club, Fixture, MatchLineups, MatchReport, WorldState } from '../domain'
+import { buildMatchLineups, computeClubStrength } from '../domain'
 import { createRng } from '../lib'
 import { expectedGoals, styleModifier } from './matchGoals'
 import { type LiveReportSetup } from './matchReport'
@@ -53,6 +53,11 @@ export function prepareUserFixture(world: WorldState, fixture: Fixture): UserFix
     homeStrength.defense,
     false,
   )
+  const lineups = buildMatchLineups(world, {
+    homeId: fixture.homeId,
+    awayId: fixture.awayId,
+    userPlayed,
+  })
   return {
     user,
     homeClub,
@@ -61,6 +66,7 @@ export function prepareUserFixture(world: WorldState, fixture: Fixture): UserFix
     userStarted: selection.started,
     userMinutes: selection.minutes,
     userPlayed,
+    lineups,
     homeStrength,
     awayStrength,
     homeXg,
@@ -73,8 +79,11 @@ export interface MatchContext {
   homeClub: Club
   awayClub: Club
   userSide: 'home' | 'away'
+  homeStrength: Club['strength']
+  awayStrength: Club['strength']
   homeXg: number
   awayXg: number
+  lineups: MatchLineups
 }
 
 export function contextFor(world: WorldState, report: MatchReport): MatchContext | null {
@@ -108,7 +117,10 @@ export function contextFor(world: WorldState, report: MatchReport): MatchContext
     homeClub,
     awayClub,
     userSide: isHome ? 'home' : 'away',
+    homeStrength,
+    awayStrength,
     homeXg: expectedGoals(homeStrength.attack + styleModifier(homeClub), awayStrength.defense, true),
     awayXg: expectedGoals(awayStrength.attack + styleModifier(awayClub), homeStrength.defense, false),
+    lineups: report.lineups ?? buildMatchLineups(world, report),
   }
 }

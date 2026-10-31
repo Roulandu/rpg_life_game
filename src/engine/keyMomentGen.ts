@@ -1,19 +1,49 @@
 import { positionGroup } from '../domain'
 import type { KeyMoment, KeyMomentKind, KeyMomentOption, Player, WorldState } from '../domain'
 import type { Rng } from '../lib'
-import { KIND_PROMPTS, KIND_TITLES, optionsFor } from './data/keyMomentOptions'
+import {
+  KIND_PROMPTS,
+  KIND_TITLES,
+  KIND_TRIGGERS,
+  optionsFor,
+} from './data/keyMomentOptions'
 
 function kindPool(player: Player): KeyMomentKind[] {
   switch (positionGroup(player.position)) {
     case 'GK':
-      return ['save', 'save', 'clearance']
+      return ['save', 'save', 'clearance', 'headerDuel']
     case 'DEF':
-      return ['duel', 'clearance', 'duel', 'bigChance']
+      return ['duel', 'duel', 'clearance', 'headerDuel', 'clearance', 'cross', 'freeKick']
     case 'MID':
-      return ['throughBall', 'bigChance', 'duel', 'penalty']
+      return [
+        'throughBall',
+        'bigChance',
+        'duel',
+        'penalty',
+        'cross',
+        'longShot',
+        'freeKick',
+        'counterAttack',
+      ]
     case 'FWD':
-      return ['bigChance', 'bigChance', 'penalty', 'throughBall']
+      return [
+        'bigChance',
+        'bigChance',
+        'penalty',
+        'throughBall',
+        'oneOnOne',
+        'counterAttack',
+        'headerDuel',
+        'longShot',
+        'cross',
+      ]
   }
+}
+
+function countCap(minutes: number): number {
+  if (minutes >= 70) return 7
+  if (minutes >= 40) return 5
+  return 3
 }
 
 export function generateKeyMoments(
@@ -28,8 +58,7 @@ export function generateKeyMoments(
   const windowEnd = Math.min(89, startMinute + minutes - 1)
   if (windowEnd <= windowStart) return []
 
-  const maxCount = minutes >= 70 ? 4 : minutes >= 40 ? 3 : 2
-  const count = Math.min(rng.int(2, 4), maxCount)
+  const count = Math.min(rng.int(5, 7), countCap(minutes))
   const pool = rng.shuffle(kindPool(player))
   const moments: KeyMoment[] = []
   let lastMinute = windowStart - 1
@@ -50,6 +79,7 @@ export function generateKeyMoments(
       kind,
       titleZh: KIND_TITLES[kind],
       promptZh: KIND_PROMPTS[kind],
+      triggerZh: KIND_TRIGGERS[kind],
       options,
       defaultOptionId: safest.id,
       roll: Math.round(rng.next() * 10000) / 10000,

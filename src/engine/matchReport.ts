@@ -5,7 +5,10 @@ import type {
   KeyMoment,
   MatchEventLine,
   MatchGoal,
+  MatchLineups,
   MatchReport,
+  MatchStatLine,
+  MatchStats,
   Player,
 } from '../domain'
 import type { Rng } from '../lib'
@@ -17,6 +20,29 @@ export interface LiveReportSetup {
   userStarted: boolean
   userMinutes: number
   userPlayed: boolean
+  lineups: MatchLineups
+}
+
+export function emptyStats(): MatchStats {
+  return {
+    home: { possession: 0, shots: 0, shotsOnTarget: 0, corners: 0 },
+    away: { possession: 0, shots: 0, shotsOnTarget: 0, corners: 0 },
+  }
+}
+
+export function addBeatStats(
+  report: MatchReport,
+  stats: { home: Partial<MatchStatLine>; away: Partial<MatchStatLine> },
+): void {
+  if (!report.stats) report.stats = emptyStats()
+  for (const side of ['home', 'away'] as const) {
+    const line = report.stats[side]
+    const delta = stats[side]
+    line.possession += delta.possession ?? 0
+    line.shots += delta.shots ?? 0
+    line.shotsOnTarget += delta.shotsOnTarget ?? 0
+    line.corners += delta.corners ?? 0
+  }
 }
 
 export function createLiveReport(
@@ -56,6 +82,8 @@ export function createLiveReport(
     motmRating: 0,
     attendance,
     keyMoments,
+    stats: emptyStats(),
+    lineups: setup.lineups,
   }
 }
 
@@ -72,6 +100,11 @@ export function appendGoal(report: MatchReport, fixture: Fixture, goal: MatchGoa
   fixture.awayGoals = report.awayGoals
   if (goal.isUser) report.userGoals += 1
   if (goal.isUserAssist) report.userAssists += 1
+  if (report.stats) {
+    const line = report.stats[goal.side]
+    line.shots += 1
+    line.shotsOnTarget += 1
+  }
 }
 
 export function buildGoalText(report: MatchReport, goal: MatchGoal): string {

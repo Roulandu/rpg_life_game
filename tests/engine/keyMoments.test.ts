@@ -28,19 +28,21 @@ function resolveAllWithDefaults(world: WorldState): MatchReport {
 }
 
 describe('key moments', () => {
-  it('generates 2-4 ordered moments for a played match', () => {
+  it('generates 5-7 ordered moments with five options each', () => {
     const { report } = playToKeyMoments()
     const moments = report.keyMoments ?? []
 
-    expect(moments.length).toBeGreaterThanOrEqual(2)
-    expect(moments.length).toBeLessThanOrEqual(4)
+    expect(moments.length).toBeGreaterThanOrEqual(5)
+    expect(moments.length).toBeLessThanOrEqual(7)
     expect(moments.every((moment) => moment.outcome === undefined)).toBe(true)
     expect(moments.every((moment) => moment.minute > 0 && moment.minute <= 90)).toBe(true)
     for (let index = 1; index < moments.length; index += 1) {
       expect(moments[index]!.minute).toBeGreaterThan(moments[index - 1]!.minute)
     }
     for (const moment of moments) {
-      expect(moment.options.length).toBeGreaterThanOrEqual(3)
+      expect(moment.options).toHaveLength(5)
+      expect(new Set(moment.options.map((option) => option.id)).size).toBe(5)
+      expect(moment.triggerZh?.length ?? 0).toBeGreaterThan(0)
       expect(moment.roll).toBeGreaterThanOrEqual(0)
       expect(moment.roll).toBeLessThan(1)
       const chances = moment.options.map((option) => option.successChance)
@@ -48,6 +50,17 @@ describe('key moments', () => {
       const safe = moment.options.find((option) => option.id === moment.defaultOptionId)
       expect(safe?.successChance).toBe(Math.max(...chances))
     }
+  })
+
+  it('resolveKeyMoment 传 advance=false 时停在当前分钟', () => {
+    const { world, report } = playToKeyMoments()
+    const moment = report.keyMoments![0]!
+    expect(report.currentMinute).toBe(moment.minute)
+
+    resolveKeyMoment(world, moment.id, moment.defaultOptionId, { advance: false })
+
+    expect(moment.outcome).toBeDefined()
+    expect(report.currentMinute).toBe(moment.minute)
   })
 
   it('applies the chosen option and only allows the next pending moment', () => {
@@ -267,8 +280,9 @@ describe('key moment option formulas', () => {
     const context: KindContext = { player, isHome: true }
     for (const [kind, ids, chances] of table) {
       const options = optionsFor(kind, context)
-      expect(options.map((option) => option.id)).toEqual(ids)
-      expect(options.map((option) => Number(option.successChance.toFixed(3)))).toEqual(chances)
+      expect(options).toHaveLength(5)
+      expect(options.slice(0, 3).map((option) => option.id)).toEqual(ids)
+      expect(options.slice(0, 3).map((option) => Number(option.successChance.toFixed(3)))).toEqual(chances)
     }
   })
 })

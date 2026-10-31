@@ -131,11 +131,14 @@ function appendTimeline(
   }
 }
 
-export function resolveKeyMoment(
-  world: WorldState,
-  momentId: string,
-  optionId: string,
-): MatchReport | null {
+interface PreparedMoment {
+  report: MatchReport
+  moment: KeyMoment
+  choice: KeyMomentOption
+  user: Player
+}
+
+function prepareMoment(world: WorldState, momentId: string, optionId: string): PreparedMoment | null {
   const report = world.lastMatch
   if (!report) return null
   const pending = findPendingOption(report, momentId, optionId)
@@ -143,30 +146,68 @@ export function resolveKeyMoment(
   const user = world.players[world.playerId]
   if (!user) return null
 
-  const outcome = evaluateOption(pending.moment, pending.choice)
-  pending.moment.outcome = {
-    optionId,
-    ...outcome,
-    textZh: outcomeText(pending.moment, pending.choice, outcome.success, user.name),
-  }
-  if (report.status === 'live') {
-    if (outcome.goal || outcome.assist) {
-      applyLiveKeyMomentOutcome(world, report, pending.moment.minute, pending.moment.outcome)
-    }
-    applyLivePlayerEffects(user, outcome)
-    adjustMatchRelationships(world, outcome)
-    appendMomentEvent(report, pending.moment, outcome)
+  // 批量自动结算时回合分钟可能还没播到；先推进到该分钟再写结果，保证该分钟按
+  // “暂停分钟”计入控球，与实时播放路径一致，否则同一 seed 的终场统计会差一分钟。
+  if (report.status === 'live' && pending.moment.minute > report.currentMinute) {
     advanceLiveMatch(world)
-    return report
   }
+  return { report, moment: pending.moment, choice: pending.choice, user }
+}
 
+interface MomentSettlement {
+  world: WorldState
+  report: MatchReport
+  moment: KeyMoment
+  user: Player
+  outcome: AppliedOutcome
+}
+
+function settleLiveMoment(settlement: MomentSettlement, options: ResolveKeyMomentOptions): MatchReport {
+  const { world, report, moment, user, outcome } = settlement
   if (outcome.goal || outcome.assist) {
-    applyScoreEffects(world, report, pending.moment, user, outcome)
+    applyLiveKeyMomentOutcome(world, report, moment.minute, moment.outcome!)
+  }
+  applyLivePlayerEffects(user, outcome)
+  adjustMatchRelationships(world, outcome)
+  appendMomentEvent(report, moment, outcome)
+  if (options.advance !== false) advanceLiveMatch(world)
+  return report
+}
+
+function settleFinalMoment(settlement: MomentSettlement): MatchReport {
+  const { world, report, moment, user, outcome } = settlement
+  if (outcome.goal || outcome.assist) {
+    applyScoreEffects(world, report, moment, user, outcome)
   }
   applyPlayerEffects(report, user, outcome)
   adjustMatchRelationships(world, outcome)
-  appendTimeline(world, report, pending.moment, user.name, outcome)
+  appendTimeline(world, report, moment, user.name, outcome)
   return report
+}
+
+export interface ResolveKeyMomentOptions {
+  advance?: boolean
+}
+
+export function resolveKeyMoment(
+  world: WorldState,
+  momentId: string,
+  optionId: string,
+  options: ResolveKeyMomentOptions = {},
+): MatchReport | null {
+  const prepared = prepareMoment(world, momentId, optionId)
+  if (!prepared) return null
+  const { report, moment, choice, user } = prepared
+  const outcome = evaluateOption(moment, choice)
+  moment.outcome = {
+    optionId,
+    ...outcome,
+    textZh: outcomeText(moment, choice, outcome.success, user.name),
+  }
+  const settlement = { world, report, moment, user, outcome }
+  return report.status === 'live'
+    ? settleLiveMoment(settlement, options)
+    : settleFinalMoment(settlement)
 }
 
 export function autoResolveKeyMoments(world: WorldState): MatchReport | null {

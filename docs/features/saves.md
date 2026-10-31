@@ -19,6 +19,7 @@ code:
 tests:
   - tests/db/save.test.ts
   - tests/db/migration.test.ts
+  - tests/db/migrationV3.test.ts
   - tests/db/repository.test.ts
   - tests/store/store.test.ts
   - tests/store/exportSave.test.ts
@@ -94,6 +95,9 @@ sequenceDiagram
 - 每次 `advance` 完成。
 - 每处理一条关键回合。
 - 自动处理关键回合。
+- 完成比赛（终场 + 推进周次）。
+
+比赛播放中的每分钟只在内存推进，不落盘；刷新后从最近一次 checkpoint（开局、关键回合结算、完赛）按确定性随机流重放。播放速度、当前 phase 与结果弹窗属于瞬态状态，不进入存档。
 - 每周 AI 叙事写入后。
 - 处理事件选项。
 - 修改设置。
@@ -128,12 +132,12 @@ sequenceDiagram
 5. **用迁移前的原始 world** 重新计算 checksum 并比对，失败 → “存档校验失败，文件可能已损坏”。
 6. 迁移到当前版本并生成新存档 ID 写入，不覆盖原存档。
 
-当前 `CURRENT_SAVE_VERSION = 2`，`src/db/migrate.ts` 提供 v1 → v2 迁移：
+当前 `CURRENT_SAVE_VERSION = 3`，`src/db/migrate.ts` 提供 v1 → v2 → v3 连续迁移：
 
-- 所有已有比赛报告补 `status: 'final'`、`currentMinute: 90`、`goals: []`。
-- `pendingWeekPlan = null`；`world.version = 2`；`engineVersion` 保留历史值。
-- 旧档中未完成的关键回合保留，继续走旧版结算路径；完成后不会多推一周。
-- 迁移幂等；只前进不后退；`saveVersion > 2` 直接拒绝。
+- v1 → v2：所有已有比赛报告补 `status: 'final'`、`currentMinute: 90`、`goals: []`；`pendingWeekPlan = null`。
+- v2 → v3：live 报告补 `stats`（控球按 `currentMinute` 均分、射门/射正=进球、角球 0）与 `lineups`（主客各 11 人）；**保留** `pendingWeekPlan`，旧 live 存档可继续播放到终场。
+- 终场旧报告不伪造统计与首发，UI 遇到缺失时隐藏对应面板。
+- 迁移幂等；只前进不后退；`saveVersion > 3` 直接拒绝。
 - `loadWorld` 在 schema 校验后迁移，发生迁移时回写数据库并同步摘要。
 - 导入顺序固定为“解析 → 版本检查 → checksum（原始数据）→ 迁移”，禁止先迁移后校验。
 
@@ -215,6 +219,7 @@ sequenceDiagram
 | checksum 篡改 | `tests/db/save.test.ts` |
 | 更高版本拒绝 | `tests/db/save.test.ts` |
 | v1 存档迁移、幂等与 checksum 顺序 | `tests/db/save.test.ts`、`tests/store/import-failure.test.ts` |
+| v2 → v3 补齐统计/首发、保留待办回合、可继续完赛、终场不伪造 | `tests/db/migrationV3.test.ts` |
 | Zod 校验失败 | `tests/db/save.test.ts` |
 | store 自动保存与载入 | `tests/store/store.test.ts` |
 | 保存失败反馈（返回 false + 提示原因） | `tests/store/persist-failure.test.ts` |
@@ -242,3 +247,4 @@ sequenceDiagram
 | 2026-10-29 | `listSaves` 逐条摘要，损坏存档只跳过自身，不再拖垮整个列表 | 缺陷修复 P2 |
 | 2026-10-29 | `loadGame` / `importFromText` / `removeSave` 返回布尔值，UI 仅在成功后跳转 | 缺陷修复 P3 |
 | 2026-10-31 | 存档升 v2：fixture `live`、报告实时字段、`pendingWeekPlan`；新增 v1→v2 幂等迁移，checksum 在迁移前校验；载入后自动回写迁移结果 | 缺陷修复：比赛日比分穿越 |
+| 2026-10-31 | 存档升 v3：报告可选 `stats / lineups`；新增 v2→v3 迁移补齐 live 统计与首发并保留待办回合；播放状态不持久化 | 比赛日实时化改造 |

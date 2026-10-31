@@ -1,5 +1,4 @@
-import { generateFixtures } from '../domain'
-import { computeClubStrength } from '../domain'
+import { CURRENT_SAVE_VERSION, computeClubStrength, generateFixtures } from '../domain'
 import type { CareerCreateOptions, Club, Id, League, Player, WorldState } from '../domain'
 import { ENGLAND_CLUBS, ENGLAND_LEAGUES } from './data/england'
 import { ENGINE_VERSION, START_SEASON, TOTAL_CLUBS_PER_LEAGUE, TOTAL_WEEKS } from './constants'
@@ -60,7 +59,7 @@ export function generateWorld(options: CareerCreateOptions, now: string): WorldS
   const finance = createFinance(user)
 
   return {
-    version: 2,
+    version: CURRENT_SAVE_VERSION,
     seed,
     engineVersion: ENGINE_VERSION,
     createdAt: now,

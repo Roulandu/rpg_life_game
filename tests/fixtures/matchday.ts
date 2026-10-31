@@ -1,5 +1,6 @@
 import { ATTR_KEYS } from '../../src/domain/attributes'
 import type { MatchReport, WeeklyPlan, WorldState } from '../../src/domain/types'
+import { advanceLiveMatch } from '../../src/engine/liveMatch'
 import { advanceWeek, completeWeek, startWeek } from '../../src/engine/turn'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from './career'
@@ -25,7 +26,8 @@ export function playToKeyMoments(seed = 2026): { world: WorldState; report: Matc
     const result = startWeek(world, PLAN)
     world = result.world
     if (result.live && result.match?.userPlayed) {
-      return { world, report: result.match }
+      advanceLiveMatch(world)
+      return { world, report: world.lastMatch! }
     }
   }
   throw new Error('No live user match with key moments within 10 weeks')

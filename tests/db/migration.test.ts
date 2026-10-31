@@ -20,12 +20,12 @@ function v1Envelope(world: WorldState): string {
   })
 }
 
-describe('save migration v1 -> v2', () => {
+describe('save migration v1 -> v3', () => {
   it('回归: v1 存档导入后报告变为终场，未完成关键回合仍保留', () => {
     const legacy = legacyWorld()
     const migrated = importWorld(v1Envelope(legacy))
 
-    expect(migrated.version).toBe(2)
+    expect(migrated.version).toBe(3)
     expect(migrated.lastMatch?.status).toBe('final')
     expect(migrated.lastMatch?.currentMinute).toBe(90)
     expect(migrated.lastMatch?.goals).toEqual([])
@@ -47,11 +47,11 @@ describe('save migration v1 -> v2', () => {
     expect(() => importWorld(JSON.stringify(broken))).toThrow(/校验失败/)
   })
 
-  it('迁移后 v2 世界可深度往返', () => {
+  it('迁移后 v3 世界可深度往返', () => {
     const migrated = migrateWorld(legacyWorld())
     const roundTripped = importWorld(exportWorld(migrated))
 
-    expect(migrated.version).toBe(2)
+    expect(migrated.version).toBe(3)
     expect(roundTripped).toEqual(migrated)
   })
 })
@@ -74,13 +74,13 @@ describe('save migration on load', () => {
     const loaded = await loadWorld('save:legacy')
     const stored = await db.saves.get('save:legacy')
 
-    expect(loaded?.version).toBe(2)
-    expect(stored?.world.version).toBe(2)
+    expect(loaded?.version).toBe(3)
+    expect(stored?.world.version).toBe(3)
   })
 
   it('拒绝来自更新版本的世界数据', async () => {
     const future = legacyWorld()
-    future.version = 3
+    future.version = 4
     const record: SaveRecord = {
       id: 'save:future',
       summary: summarizeWorld(future, 'save:future'),

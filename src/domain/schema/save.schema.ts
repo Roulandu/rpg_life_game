@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import type { WorldState } from '../types'
+import { CURRENT_SAVE_VERSION } from '../version'
 
-export const CURRENT_SAVE_VERSION = 2
+export { CURRENT_SAVE_VERSION }
 export const SAVE_FORMAT = 'pitch-life-save'
 
 const attributesSchema = z.object({

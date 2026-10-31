@@ -47,9 +47,9 @@ last_reviewed: 2026-10-31
 2. 点击“推进一周”，store 检查忙碌、退役、是否有未完成的比赛日。
 3. `startWeek` 依次执行恢复、训练、额外行动、事件过期，然后开始用户比赛：
    - 无用户比赛：直接结算比赛、财务、事件、身价并推进周次。
-   - 用户出场且有关键回合：停在第一个关键回合，写入 `pendingWeekPlan`，周次不变。
+   - 用户出场且有关键回合：创建 live 报告并停在开球 `0'`，写入 `pendingWeekPlan`，周次不变。
    - 用户不出场或无关键回合：完整模拟 90 分钟并结算整周。
-4. live 阶段进入 `/match`；每个关键回合处理一条立即持久化，比赛在本周内推进。
+4. live 阶段进入 `/match` 从头实时播放；每个关键回合处理一条立即持久化，播到 90' 后点击“完成比赛”才结算本周。
 5. 最后一回合或“完成比赛”后，store 调用 `finalizeLiveMatch` 与 `completeWeek`：结算背景比赛、财务、周事件、身价，周次 +1，再触发可选 LLM 叙事。
 6. 第 38 周结束后自动进入下赛季，展示赛季总结、奖项、升降级与退役提示。
 
@@ -108,10 +108,10 @@ sequenceDiagram
   4. 取本周用户 fixture：
      - 没有用户比赛：直接进入完成阶段。
      - 用户不出场 / 没有关键回合：完整模拟 90 分钟并结算，然后进入完成阶段。
-     - 用户出场且有关键回合：创建 live 报告，推进到第一个回合分钟，写 `world.pendingWeekPlan = { ...plan, fixtureId }`，`week` 不变，返回 `live: true`。
+     - 用户出场且有关键回合：创建 live 报告并停在 `0'`（双方首发与全零统计已就绪），写 `world.pendingWeekPlan = { ...plan, fixtureId }`，`week` 不变，返回 `live: true`。
 - `completeWeek(input)`：
   1. 无 `pendingWeekPlan` 时 no-op（兼容旧档，避免多推一周）。
-  2. live 报告仍有待处理回合时拒绝；否则推进到 90 分钟并 `finalizeLiveMatch`。
+  2. live 报告仍有待处理回合时拒绝；否则推进到 90 分钟并 `finalizeLiveMatch`。交互路径下由 `finishLiveMatch` 在 90' 后触发。
   3. 执行 `simulateWeekFixtures`（当前周 `scheduled` 且非用户场次）→ `settleWeekFinance` → `generateWeeklyEvent` → 每 3 周 `updatePlayerValue` → `week += 1` → 超过 `totalWeeks` 时 `endSeason` → 清空 `pendingWeekPlan`。
 - `advanceWeek(input, plan)`：兼容入口 = `startWeek` → 若 live 则按默认选项 `autoResolveKeyMoments` → `finalizeMatchday` → `completeWeek`。测试、golden、非交互调用保持“一次推进一周”的旧语义。
 - `advanceWeeks`：循环调用 `advanceWeek`，遇到退役或赛季切换提前停止。
@@ -243,7 +243,7 @@ sequenceDiagram
 
 | 规则/场景 | 测试 |
 |---|---|
-| startWeek 停在首个回合、week 不变 | `tests/engine/turn.test.ts` |
+| startWeek 停在 0'、week 不变 | `tests/engine/turn.test.ts` |
 | 重复 startWeek 不重复训练/恢复 | `tests/engine/turn.test.ts` |
 | completeWeek 拒绝未完成 live | `tests/engine/turn.test.ts` |
 | completeWeek 结算背景比赛/财务/事件/week+1 | `tests/engine/turn.test.ts` |
@@ -280,3 +280,4 @@ sequenceDiagram
 | 2026-10-29 | 主页拆为 `ui/screens/dashboard/*`，派生状态集中到 `dashboardData.ts`，AI 叙事/待处理回合/联赛迷你表/新闻各自独立，主组件只编排 | 全量重构提交 11 |
 | 2026-10-29 | 收件箱拆为 `ui/screens/inbox/*`，待处理事件卡片与已处理列表独立，事件展示与选择行为保持不变 | 全量重构提交 12 |
 | 2026-10-31 | 周推进拆为 `startWeek` / `completeWeek`：关键回合在比赛进程中暂停，`pendingWeekPlan` 支持中途存档；`advanceWeek` 保留兼容语义；engine 0.2.0，golden 哈希更新 | 缺陷修复：比赛日比分穿越 |
+| 2026-10-31 | `startWeek` 改为停在开球 0'，由实时播放推进到关键回合/90'；完成周仍需显式 `finishLiveMatch`（或自动处理）；engine 0.3.0，golden 哈希更新 | 比赛日实时化改造 |

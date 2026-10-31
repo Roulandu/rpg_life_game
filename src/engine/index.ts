@@ -12,3 +12,7 @@ export {
 export { advanceWeek, advanceWeeks, completeWeek, endSeason, startWeek } from './turn'
 export type { SeasonTransition, TurnResult } from './turn'
 export { advanceLiveMatch, startUserMatch } from './liveMatch'
+export { advanceLiveMinute } from './liveMinute'
+export type { LiveMinuteResult } from './liveMinute'
+export { buildBeats } from './matchBeats'
+export type { BeatInput, BeatResult } from './matchBeats'

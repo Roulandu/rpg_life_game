@@ -7,16 +7,16 @@ import { TEST_NOW, testOptions } from '../fixtures/career'
 
 describe('world public entry', () => {
   it('exports generation constants and helpers', () => {
-    expect(ENGINE_VERSION).toBe('0.2.0')
+    expect(ENGINE_VERSION).toBe('0.3.0')
     expect(STARTING_CLUBS.length).toBeGreaterThan(0)
     expect(typeof generateWorld).toBe('function')
     expect(typeof getClubFixtures).toBe('function')
   })
 
   it('generates worlds with the current structure version', () => {
-    expect(CORE_ENGINE_VERSION).toBe('0.2.0')
+    expect(CORE_ENGINE_VERSION).toBe('0.3.0')
     const world = generateCoreWorld(testOptions(), TEST_NOW)
-    expect(world.version).toBe(2)
+    expect(world.version).toBe(3)
   })
 
   it('exposes datapack types', () => {
