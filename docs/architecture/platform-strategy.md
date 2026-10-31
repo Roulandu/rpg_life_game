@@ -94,6 +94,7 @@ export interface DeviceInfo {
 | 返回键 | 浏览器返回 | 原生返回事件 | 原生返回 | 小程序导航栏 | `Lifecycle` |
 | 安全区 | CSS `env(safe-area-inset-*)` | 原生 inset | 原生 inset | 胶囊按钮避让 | `DeviceInfo` |
 | 后台/恢复 | visibilitychange | App 生命周期 | App 生命周期 | 小程序生命周期 | `Lifecycle` |
+| 主题（深浅色） | `prefers-color-scheme` + `light-dark()` | 同 Web + StatusBar | WKWebView 17.5+；状态栏规划 | 系统信息 + 存储（规划） | `Appearance` |
 
 能力缺失时的统一策略：
 
@@ -106,6 +107,18 @@ export interface DeviceInfo {
 - 主页/游戏页按返回键先保存，`saveNow` 返回 `true` 才退出应用。
 - 保存失败或回调抛错时留在应用内并显示错误提示，避免丢档。
 - 其他页面返回键走浏览器历史回退。
+
+## 主题与深浅色
+
+应用级外观偏好经 `src/platform/appearance.ts` 端口访问，UI/store 不直接接触 `localStorage` 或 `matchMedia`：
+
+- 偏好三态：`system`（默认）| `light` | `dark`，存储在 `pitch-life:theme`；非法值或读取失败回退 `system`。
+- 系统色通过 `matchMedia('(prefers-color-scheme: dark)')` 解析；媒体查询不可用时按 `dark`。
+- `watchSystemScheme` 返回取消函数，供组合根在卸载时清理。
+- `syncStatusBar` 仅在原生平台执行，动态 import `@capacitor/status-bar`；失败静默，不影响玩法。
+- 样式使用语义 token + `light-dark()`；不支持时整站保持深色。浏览器要求：Chrome 123+ / Safari 17.5+ / Firefox 120+。
+- 显式偏好通过 `html[data-theme]` 锁定 `color-scheme`；`system` 移除该属性，由系统媒体查询决定。
+- PWA manifest 与 Capacitor 启动屏背景仍为静态深色，只有运行时 UI 与 `meta[theme-color]` 会跟随偏好。
 
 ## 断点与布局
 
@@ -157,6 +170,7 @@ export interface DeviceInfo {
 | `src/platform/keyStore.ts` | 原生 SecureStorage / Web AES-GCM / 会话兜底；持久化经注入的 `SecretStore` 端口，实现见 `src/store/secretStore.ts`，组合根 `src/main.tsx` 装配。`platform → db` 违规已消除。 |
 | `src/platform/http.ts` | 浏览器 fetch / CapacitorHttp 两个 `HttpPort` 实现，抛平台中立 `HttpError`；`src/llm/transport.ts` 只做选择与 `HttpError→LlmError` 映射。`capacitor-import` 内联违规已消除。 |
 | `src/platform/fileExport.ts` | `downloadTextFile` 触发浏览器下载；`src/store/exportSave.ts` 的 `downloadWorld` 组装文件名后调用。`dom-file-export` 内联违规已消除。 |
+| `src/platform/appearance.ts` | 主题偏好读写、系统深浅色解析与监听、原生状态栏同步；store 与 UI 只经平台入口使用。 |
 
 剩余内联平台分支（已冻结，不得增加）：
 
@@ -193,3 +207,4 @@ export interface DeviceInfo {
 |---|---|---|
 | 2026-10-26 | 初版：端口、能力矩阵、断点与平台演进规则 | ADR 0001 |
 | 2026-10-30 | 落地平板/桌面布局：侧栏 208、内容 1152、专注 720、底栏高度令牌；480 上限收窄为手机专用 | 响应式改造 |
+| 2026-10-31 | 新增 `Appearance` 端口：主题偏好、系统深浅色监听、`light-dark()` 样式与原生状态栏 best-effort | 浅色模式需求 |

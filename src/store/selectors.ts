@@ -3,8 +3,16 @@ import { hasPendingKeyMoments } from '../engine'
 import { actionLabelFor } from '../llm'
 import type { LlmProvider } from '../llm'
 import { pickDefaultBaseUrl, pickDefaultModel } from '../llm'
+import type { ColorScheme } from '../platform'
+import type { GameStore } from './types'
 import { STARTING_CLUBS } from '../world'
 import { getClubFixtures } from '../world'
+
+export function selectResolvedTheme(
+  state: Pick<GameStore, 'themePreference' | 'systemScheme'>,
+): ColorScheme {
+  return state.themePreference === 'system' ? state.systemScheme : state.themePreference
+}
 
 export function selectPendingKeyMoments(world: WorldState | null): boolean {
   if (!world) return false

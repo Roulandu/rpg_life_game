@@ -31,6 +31,7 @@ platform/index.ts                   ← 唯一选择和装配适配器的地方
 | `Lifecycle` | 返回键、前后台、启动 | visibility/pagehide | Capacitor App | 小程序生命周期 |
 | `Persistence` | 存档存储 | IndexedDB | IndexedDB | 小程序 storage/云存储 |
 | `DeviceInfo` | 平台、视口、触控 | userAgent/matchMedia | Capacitor Device | 小程序系统信息 |
+| `Appearance` | 主题偏好、系统深浅色、状态栏 | localStorage + matchMedia | 同 Web + StatusBar | 系统信息 + storage（规划） |
 
 端口接口放 `src/platform/ports/`，适配器放 `src/platform/adapters/`。选择逻辑只在 `src/platform/index.ts`。
 
@@ -45,6 +46,7 @@ platform/index.ts                   ← 唯一选择和装配适配器的地方
 | 触觉反馈 | 受限 | 是 | 是 | 是 |
 | PWA 安装 | 是 | 否 | 否 | 否 |
 | 后台/生命周期 | 受限 | 是 | 是 | 是 |
+| 跟随系统深浅色 | 是（Chrome 123+） | 是（WebView 需 Chromium 123+） | 是（Safari 17.5+） | 评估 |
 
 具体实现状态以 `docs/architecture/platform-strategy.md` 为准。
 

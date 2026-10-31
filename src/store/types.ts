@@ -7,6 +7,7 @@ import type {
 } from '../domain'
 import type { SeasonTransition, TurnResult } from '../engine'
 import type { ConnectionTestResult } from '../llm'
+import type { ColorScheme, ThemePreference } from '../platform'
 
 export interface GameStore {
   world: WorldState | null
@@ -22,6 +23,11 @@ export interface GameStore {
   aiKeyHint: string | null
   aiBusy: boolean
   aiError: string | null
+  themePreference: ThemePreference
+  systemScheme: ColorScheme
+  setThemePreference: (preference: ThemePreference) => void
+  setSystemScheme: (scheme: ColorScheme) => void
+  toggleTheme: () => void
   clearAiError: () => void
   init: () => Promise<void>
   refreshSaves: () => Promise<void>

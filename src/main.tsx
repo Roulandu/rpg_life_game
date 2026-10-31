@@ -2,10 +2,13 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { ErrorBoundary } from './app/ErrorBoundary'
+import { applyBootTheme } from './app/theme'
 import { isNativePlatform } from './platform'
 import { router } from './router'
 import './store'
 import './styles.css'
+
+applyBootTheme()
 
 const container = document.getElementById('root')
 if (!container) throw new Error('Missing #root element')

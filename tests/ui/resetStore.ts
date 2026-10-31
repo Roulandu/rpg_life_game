@@ -15,5 +15,7 @@ export function resetUiStore(): void {
     aiError: null,
     aiKeyReady: false,
     aiKeyHint: null,
+    themePreference: 'system',
+    systemScheme: 'dark',
   })
 }

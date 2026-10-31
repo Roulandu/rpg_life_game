@@ -15,7 +15,9 @@ modules:
     publicEntry: src/app/index.ts
     allowedDeps: [ui, store, platform, domain, lib]
     tests: [tests/app/**/*.test.tsx]
-    docs: [docs/architecture/overview.md]
+    docs:
+      - docs/architecture/overview.md
+      - docs/features/appearance.md
     testImpact: exempt
     platformCapabilities: [composition]
     knownViolations: []
@@ -30,6 +32,7 @@ modules:
       - docs/features/matchday.md
       - docs/features/gm-agent.md
       - docs/features/saves.md
+      - docs/features/appearance.md
     testImpact: via-module
     platformCapabilities: [ui]
     knownViolations: []
@@ -43,6 +46,7 @@ modules:
       - docs/features/weekly-turn.md
       - docs/features/saves.md
       - docs/features/gm-agent.md
+      - docs/features/appearance.md
     testImpact: strict
     platformCapabilities: [session]
     knownViolations: []
@@ -102,6 +106,7 @@ modules:
     docs:
       - docs/architecture/platform-strategy.md
       - docs/features/saves.md
+      - docs/features/appearance.md
     testImpact: exempt
     platformCapabilities:
       - secure-storage
@@ -110,6 +115,7 @@ modules:
       - lifecycle
       - persistence
       - device-info
+      - appearance
     knownViolations: []
 
   domain:

@@ -4,6 +4,7 @@ import {
   selectClubFixtures,
   selectPendingKeyMoments,
   selectProviderDefaults,
+  selectResolvedTheme,
   selectStartingClubs,
   useGameStore,
 } from '../../src/store'
@@ -17,6 +18,7 @@ describe('store public entry', () => {
     expect(typeof selectStartingClubs).toBe('function')
     expect(typeof selectActionLabel).toBe('function')
     expect(typeof selectProviderDefaults('openai').model).toBe('string')
+    expect(selectResolvedTheme({ themePreference: 'light', systemScheme: 'dark' })).toBe('light')
   })
 
   it('exposes the store type', () => {

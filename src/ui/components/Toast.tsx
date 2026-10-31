@@ -23,7 +23,7 @@ export function Toast() {
         aria-live="polite"
         className={
           error
-            ? 'pointer-events-auto flex w-full max-w-[440px] items-start gap-2 rounded-xl border border-danger/40 bg-[#2a1010] px-3 py-2.5 text-xs text-danger shadow-lg'
+            ? 'pointer-events-auto flex w-full max-w-[440px] items-start gap-2 rounded-xl border border-danger/40 bg-danger-surface px-3 py-2.5 text-xs text-danger shadow-lg'
             : 'pointer-events-auto flex w-full max-w-[440px] items-start gap-2 rounded-xl border border-accent/30 bg-card px-3 py-2.5 text-xs text-text shadow-lg animate-fade-up'
         }
       >

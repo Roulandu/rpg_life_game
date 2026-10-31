@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import { registerBackButton } from '../platform'
+import { registerBackButton, syncStatusBar, watchSystemScheme } from '../platform'
 import { useGameStore } from '../store'
 import { Toast } from '../ui'
+import { applyTheme, resolveTheme } from './theme'
 
 function Splash() {
   return (
@@ -27,6 +28,9 @@ export function App() {
   const init = useGameStore((state) => state.init)
   const hydrated = useGameStore((state) => state.hydrated)
   const saveNow = useGameStore((state) => state.saveNow)
+  const themePreference = useGameStore((state) => state.themePreference)
+  const systemScheme = useGameStore((state) => state.systemScheme)
+  const setSystemScheme = useGameStore((state) => state.setSystemScheme)
   const started = useRef(false)
 
   useEffect(() => {
@@ -43,6 +47,13 @@ export function App() {
       }),
     [saveNow],
   )
+
+  useEffect(() => watchSystemScheme(setSystemScheme), [setSystemScheme])
+
+  useEffect(() => {
+    applyTheme(themePreference, systemScheme)
+    void syncStatusBar(resolveTheme(themePreference, systemScheme))
+  }, [themePreference, systemScheme])
 
   if (!hydrated) return <Splash />
 

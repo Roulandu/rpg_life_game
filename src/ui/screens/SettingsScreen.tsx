@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { useGameStore } from '../../store'
 import { PageHeader } from '../components/PageHeader'
 import { AiSettingsSection } from './settings/AiSettingsSection'
+import { AppearanceSection } from './settings/AppearanceSection'
 import { DangerZone } from './settings/DangerZone'
 import { LocalDataSection } from './settings/LocalDataSection'
 import { PrivacySection } from './settings/PrivacySection'
@@ -51,6 +52,8 @@ export function SettingsScreen() {
         <ArrowLeft size={16} /> 更多
       </button>
       <PageHeader eyebrow="Settings" title="设置" subtitle="叙事偏好、本地数据与隐私。" />
+
+      <AppearanceSection />
 
       <AiSettingsSection
         settings={settings}

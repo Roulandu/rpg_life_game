@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Upload } from 'lucide-react'
 import { useGameStore } from '../../store'
+import { ThemeToggle } from '../components/ThemeToggle'
 import { TitleAside } from './title/TitleAside'
 import { TitleHero } from './title/TitleHero'
 
@@ -22,14 +23,17 @@ export function TitleScreen() {
             <p className="text-[10px] uppercase tracking-[0.18em] text-dim">Pitch Life</p>
           </div>
         </div>
-        <button
-          type="button"
-          className="btn-ghost px-3 text-[11px]"
-          aria-label="导入存档"
-          onClick={() => fileRef.current?.click()}
-        >
-          <Upload size={16} /> 导入
-        </button>
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <button
+            type="button"
+            className="btn-ghost px-3 text-[11px]"
+            aria-label="导入存档"
+            onClick={() => fileRef.current?.click()}
+          >
+            <Upload size={16} /> 导入
+          </button>
+        </div>
       </header>
 
       <div

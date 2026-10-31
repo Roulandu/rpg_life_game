@@ -1,3 +1,11 @@
+export {
+  loadThemePreference,
+  resolveSystemScheme,
+  saveThemePreference,
+  syncStatusBar,
+  watchSystemScheme,
+} from './appearance'
+export type { ColorScheme, ThemePreference } from './appearance'
 export { registerBackButton } from './backButton'
 export { downloadTextFile } from './fileExport'
 export { HttpError, browserHttp, nativeHttp, selectHttp } from './http'

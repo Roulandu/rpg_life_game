@@ -1,8 +1,9 @@
 import type { Mock } from 'vitest'
 import { db } from '../../src/db/db'
+import type { GameStore } from '../../src/store'
 import { useGameStore } from '../../src/store/gameStore'
 
-export const EMPTY_STORE_STATE = {
+export const EMPTY_STORE_STATE: Partial<GameStore> = {
   world: null,
   saveId: null,
   saves: [],
@@ -14,6 +15,8 @@ export const EMPTY_STORE_STATE = {
   error: null,
   aiBusy: false,
   aiError: null,
+  themePreference: 'system',
+  systemScheme: 'dark',
 }
 
 export async function resetStore(saveWorldMock: Mock, init = false): Promise<void> {

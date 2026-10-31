@@ -40,7 +40,7 @@ flowchart LR
 
 | 路径 | 页面 | 布局类型 | 主要职责 |
 |---|---|---|---|
-| `/` | TitleScreen | 桌面双栏 960 / 其余专注 720 | 继续生涯 / 新建 / 导入 |
+| `/` | TitleScreen | 桌面双栏 960 / 其余专注 720 | 继续生涯 / 新建 / 导入 / 外观快捷切换 |
 | `/create` | CreateCareerScreen | 专注 720 | 选择国籍、位置、俱乐部、种子 |
 | `/game` | DashboardScreen | 桌面两栏 1152 | 周计划、推进、当前事件 |
 | `/match` | MatchdayScreen | 专注 720 | 比赛报告与关键回合 |
@@ -48,7 +48,7 @@ flowchart LR
 | `/inbox` | InboxScreen | 限宽 760 + 对话内滚 | 新闻、事件、AI 对话 |
 | `/profile` | ProfileScreen | 桌面两栏 960 | 属性、合同、财务、生涯记录 |
 | `/timeline` | TimelineScreen | 桌面双列 960 | 赛季与生涯时间线 |
-| `/settings` | SettingsScreen | 专注 720 | LLM Provider、Key、叙事密度、导入导出 |
+| `/settings` | SettingsScreen | 专注 720 | 外观、LLM Provider、Key、叙事密度、导入导出 |
 | `/more` | MoreScreen | 桌面两栏 960 | 次级入口 |
 
 ### 响应式外壳
@@ -150,6 +150,23 @@ flowchart LR
 2. `generateWorld` 生成两级联赛、俱乐部、23 人阵容、用户球员、38 周双循环赛程、关系、财务与初始新闻。
 3. store 立即写入 IndexedDB，并刷新存档列表。
 
+### 外观与启动
+
+```mermaid
+flowchart LR
+  M[main.tsx applyBootTheme] --> P[platform/appearance]
+  P --> D[html data-theme + meta theme-color]
+  S[store preferenceSlice] --> P
+  A[App.tsx watchSystemScheme] --> P
+  A --> D
+  T[ThemeToggle / AppearanceSection] --> S
+```
+
+1. `main.tsx` 在 `createRoot` 前读取偏好与系统色，写入 `html[data-theme]` 与 `meta[theme-color]`，减少首帧闪烁。
+2. store 的 `preferenceSlice` 保存 `themePreference` 与 `systemScheme`；`setThemePreference` 同时落盘，`toggleTheme` 按当前生效色取反。
+3. `App.tsx` 订阅系统媒体变化，并在偏好或系统色变化时重新应用 DOM。
+4. 主题偏好是应用级数据，不进入 `WorldState` 或存档；详见 [外观功能](../features/appearance.md)。
+
 ### 推进一周
 
 ```mermaid
@@ -205,6 +222,7 @@ flowchart TD
 | `aiNarrative` / `aiChat` / `aiUsage` | llm 产出，store 写入 | ui | 文本经 sanitize，事件改写需 templateId 匹配 |
 | 存档 envelope | db | 导入/导出 | 版本、checksum、Zod 校验 |
 | LLM API Key | platform | llm / store | 不写入 `WorldState`，不进入导出文件 |
+| 外观偏好 | platform | store / ui | `localStorage` 应用级设置，不进入 `WorldState`、存档或导出 |
 
 ## 平台边界
 
@@ -214,6 +232,7 @@ flowchart TD
 - `src/platform/keyStore.ts`：Android SecureStorage / Web AES-GCM，持久化经注入的 `SecretStore` 端口。
 - `src/platform/http.ts`：浏览器 fetch / CapacitorHttp 两个 `HttpPort` 实现，抛平台中立 `HttpError`。
 - `src/platform/fileExport.ts`：`downloadTextFile` 触发浏览器下载。
+- `src/platform/appearance.ts`：主题偏好、系统深浅色监听与原生状态栏同步。
 - `src/llm/transport.ts`：选择 `HttpPort` 并把 `HttpError` 映射为 `LlmError`。
 - `src/main.tsx`：组合根，装配 `store/secretStore` 并仅在生产 Web 注册 Service Worker。
 - `src/store/exportSave.ts`：`downloadWorld` 组装文件名并调用 `platform/fileExport`。
@@ -248,3 +267,4 @@ flowchart TD
 | 2026-10-29 | 全量源码跨模块相对 import 切到模块公共入口（191 条跨模块依赖），10 个 `publicEntry` 启用，深引/自引门禁转为强制 | 全量重构提交 14 |
 | 2026-10-30 | 落地平板/桌面响应式外壳：语义 `<main>`、桌面侧栏偏移、页面宽度分级；路由表补布局类型 | 响应式改造 |
 | 2026-10-31 | 周推进改为 `startWeek` / `completeWeek` 两阶段，比赛逐分钟实时模拟，关键回合插入比赛进程；存档 v2；engine 0.2.0 | 缺陷修复：比赛日比分穿越 |
+| 2026-10-31 | 新增应用级外观偏好：启动时应用主题、系统深浅色监听、设置页与首页入口；主题不入存档 | 浅色模式需求 |
