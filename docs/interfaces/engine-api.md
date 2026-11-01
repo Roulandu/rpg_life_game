@@ -47,7 +47,7 @@ interface FastForwardResult {
 
 `days[*].world` 指向同一份对象，只有末项是最新状态；调用方只应使用 `fast.days.at(-1)`。
 
-一天的顺序（`playDay`，不可交换）：`day === 1` 刷新用户俱乐部强度 → `advanceInjuries` → 训练日 `applyDailyTraining` → 活动日 `applyDailyAction` → `expireEvents` → 今天有场次则 `startUserMatch`/`finalizeMatchday` → `simulateDayFixtures` → `day === 7` 时 `settleWeekFinance` + `generateWeeklyEvent` → `absoluteDay % 21 === 0` 时 `updatePlayerValue` → 时钟 +1 天（跨周/跨赛季时进位）→ 清空 `pendingDayPlan`。
+一天的顺序（`playDay`，不可交换）：`day === 1` 刷新用户俱乐部强度 → `advanceInjuries` → 训练日 `applyDailyTraining` → 活动日 `applyDailyAction` → `expireEvents` → 今天有场次则 `startUserMatch`/`finalizeMatchday` → `simulateDayFixtures` → `day === 7` 时 `settleWeekFinance` → `generateDailyEvents(world, 今天这场)` → `absoluteDay % 21 === 0` 时 `updatePlayerValue` → 时钟 +1 天（跨周/跨赛季时进位）→ 清空 `pendingDayPlan`。
 
 ## 周回合（日步进的适配器）
 
@@ -159,12 +159,16 @@ interface TurnResult {
 
 | 函数 | 签名 | 行为 |
 |---|---|---|
-| `expireEvents` | `(world) => void` | 将超过 `expiresWeek` 的开放事件标记为 `expired` |
-| `generateWeeklyEvent` | `(world, match, plan) => GameEvent \| null` | 按概率与上下文生成模板事件 |
+| `expireEvents` | `(world) => void` | 把 `expiresDay` 早于当前绝对日的开放事件标记为 `expired`；旧档缺 `expiresDay` 时回落 `expiresWeek` 那一周的最后一天 |
+| `generateDailyEvents` | `(world, match: MatchReport \| null) => GameEvent[]` | 每天最多一条：保证型候选（赛后/伤病）不掷骰直接生成，否则 `dayRng('event').chance(0.13)`；命中后按 `weight` 加权抽取、渲染插值、写 `events` / `eventMemory` / 新闻并截断到 80 条 |
+| `buildEventScope` | `(world, match: MatchReport \| null) => EventScope` | 条件白名单投影（27 字段，一天构建一次）：日历段 + `bodyPart` + `identityPart` + `surroundingsPart` |
+| `scopeMatches` | `(scope, conditions) => boolean` | 合取求值，运算符只有 `eq / in / lt / lte / gte / between`；字段不在白名单则抛错 |
 | `resolveEvent` | `(world, eventId, choiceId) => GameEvent \| null` | 应用选项效果、写结果文本、标记 `resolved`；无效/重复返回 `null` |
 | `applyEffects` | `(world, effects, label?) => void` | 统一应用 `Effect[]`，写财务/关系/新闻等副作用 |
 
-事件是“引擎事实 + 玩家选择”的组合；LLM 只能改写标题/正文，不能新增选项、改变效果或 `templateId`。
+已退役：`generateWeeklyEvent`（周日 72% 拍一条）。它的上下文 if/else 阶梯改成了数据包里的 `when` 条件，`match` 参数改为**当天的战报**，因此赛后事件落在比赛当天而不是下周日。
+
+事件是“引擎事实 + 玩家选择”的组合；LLM 只能改写标题/正文，不能新增选项、改变效果或 `templateId`。模板内容在 `data/events/*.json`，由 `src/domain/eventContent.ts` 的 Zod 模式与 `assertWhitelist` 在加载时硬校验。
 
 ## 训练、财务、关系、退役
 
@@ -210,7 +214,7 @@ interface TurnResult {
 
 不同业务域必须使用不同的 `parts`，避免新增逻辑改变旧随机流。例如 `createRng(seed, 'match', fixture.id)` 与 `createRng(seed, 'event', world.season, world.week)` 相互独立。
 
-按天执行的步骤（训练与伤病、每日新闻、事件选项副作用）走 `dayRng(world, tag)` 与 `dailyId(world, prefix)`（`src/engine/dayContext.ts`，域尾追加 `season/week/day`）——id 不带日会让同周七天撞键，新闻与副作用记录因此互相覆盖。仍按周拍的一步（`generateWeeklyEvent`、余额告急新闻）继续用 `season/week` 作键，因为它们设计上每周只产出一条。`Fixture.id` 保持 `fixture:<leagueId>:<season>:<week>:<index>`：它同时是比赛随机盐，日粒度改造不得改其结构。
+按天执行的步骤（训练与伤病、每日新闻、事件选项副作用）走 `dayRng(world, tag)` 与 `dailyId(world, prefix)`（`src/engine/dayContext.ts`，域尾追加 `season/week/day`）——id 不带日会让同周七天撞键，新闻与副作用记录因此互相覆盖。事件 id 同样带日段（`event:<season>:<week>:<day>:<templateId>`），掷骰用 `dayRng(world, 'event')`。仍按周拍的一步（`settleWeekFinance` 的余额告急新闻）继续用 `season/week` 作键，因为它们设计上每周只产出一条。`Fixture.id` 保持 `fixture:<leagueId>:<season>:<week>:<index>`：它同时是比赛随机盐，日粒度改造不得改其结构。
 
 ## 领域工具
 

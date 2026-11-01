@@ -29,6 +29,7 @@ modules:
     tests: [tests/ui/**/*.test.tsx]
     docs:
       - docs/features/daily-turn.md
+      - docs/features/daily-events.md
       - docs/features/matchday.md
       - docs/features/team-squad.md
       - docs/features/names-i18n.md
@@ -46,6 +47,7 @@ modules:
     tests: [tests/store/**/*.test.ts]
     docs:
       - docs/features/daily-turn.md
+      - docs/features/daily-events.md
       - docs/features/saves.md
       - docs/features/gm-agent.md
       - docs/features/appearance.md
@@ -61,6 +63,7 @@ modules:
     tests: [tests/engine/**/*.test.ts]
     docs:
       - docs/features/daily-turn.md
+      - docs/features/daily-events.md
       - docs/features/matchday.md
       - docs/features/names-i18n.md
     testImpact: strict
@@ -136,6 +139,7 @@ modules:
       - docs/data-model.md
       - docs/interfaces/engine-api.md
       - docs/features/calendar-dates.md
+      - docs/features/daily-events.md
       - docs/features/team-squad.md
       - docs/features/names-i18n.md
     testImpact: strict

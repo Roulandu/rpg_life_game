@@ -130,6 +130,7 @@ sequenceDiagram
 - `players` / `clubs` / `leagues` / `fixtures` / `relationships` / `finance` / `news`
 - `playerId` / `clubId` / `seed` / `season` / `week` / `day` / `totalWeeks`
 - `weekPlan`（`DEFAULT_WEEK_PLAN`：训练重点 + 额外安排，日步进按它自动执行这一周）与 `pendingDayPlan`（开局为 `null`，只在停在开球的那一天写入）
+- `events`（开局为 `{}`，由 `generateDailyEvents` 逐日写入）与 `eventMemory`（开局为 `{}`，v7 的事件冷却表；赛季切换时由 `prepareNextSeason` 清空，见 [每日事件](daily-events.md)）
 - `settings`、`engineVersion`、`createdAt`、`updatedAt`
 
 调用：
@@ -190,3 +191,4 @@ sequenceDiagram
 | 2026-11-01 | 新世界写入 `day = 1` / `weekPlan = DEFAULT_WEEK_PLAN` / `pendingDayPlan = null`，`generateFixtures` 为每场写 `Fixture.day`；存档 5 / 引擎 0.5.0 由常量带出，RNG 抽样顺序不变 | 绿茵人生 M1.1 |
 | 2026-11-02 | `makeAiPlayer` / `makeUserPlayer` / `makeCoach` / 关系人物与初始新闻一律写 `nameZh`（`nameZhFor` 纯字符串运算，不消耗 RNG，抽样顺序不变）；引擎与新闻文本改取 `displayName`；存档 6 / 引擎 0.5.1，golden 重算 | 绿茵人生 M1.4（中文人名） |
 | 2026-11-02 | 生成侧不变：`Club.style` 仍由俱乐部 RNG 域抽样决定（种子 2026 的 40 家分布为控球 9 / 防反 12 / 高压 9 / 长传 10，四种打法都会出现）；该字段从"只存不用"变成引擎输入（选型 `(styleFit−0.5)×4`、训练 ×1.12），引擎 0.5.2、golden 重算 | 绿茵人生 M1.5 |
+| 2026-11-02 | 新世界额外写入 `eventMemory = {}`（v7 事件冷却表），`events` 仍为 `{}`；其余抽样顺序与生成内容不变，引擎 0.6.0 的重算来自每日事件生成器换轨 | 绿茵人生 M1.7 |

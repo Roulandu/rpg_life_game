@@ -12,7 +12,11 @@ code:
   - src/engine/seasonAwards.ts
   - src/engine/liveMatch.ts
   - src/engine/events.ts
+  - src/engine/eventsDaily.ts
+  - src/engine/eventCondition.ts
+  - src/domain/eventContent.ts
   - src/engine/data/eventTemplates.ts
+  - data/events/legacy.json
   - src/engine/finance.ts
   - src/domain/calendar.ts
   - src/domain/attributes.ts
@@ -38,7 +42,11 @@ tests:
   - tests/engine/season.test.ts
   - tests/engine/determinism.test.ts
   - tests/engine/eventTemplates.test.ts
+  - tests/engine/eventConditions.test.ts
+  - tests/engine/eventDaily.test.ts
+  - tests/engine/eventCadence.test.ts
   - tests/db/migrationV5.test.ts
+  - tests/db/migrationV7.test.ts
   - tests/store/store.test.ts
   - tests/store/dayStore.test.ts
   - tests/store/matchdayStore.test.ts
@@ -47,7 +55,7 @@ tests:
   - tests/ui/layoutContract.test.tsx
   - tests/ui/inbox.test.tsx
 diagrams: [sequence]
-last_reviewed: 2026-11-01
+last_reviewed: 2026-11-02
 ---
 
 # 每日回合
@@ -123,7 +131,7 @@ sequenceDiagram
 
 1. **晨间** `runMorning`：`day === 1` 时刷新用户俱乐部 `strength`（其余 39 队不再每天重算）→ `advanceInjuries`（`daysLeft - 1`，归零则伤愈、体能 +10、写「伤愈复出」新闻并返回 `true` 计为里程碑）→ 训练日 `applyDailyTraining` → 活动日 `applyDailyAction` → `expireEvents`。
 2. **比赛**：`getUserFixtureOnDay` 命中今天则 `kickoff` —— `startUserMatch` 建 live 报告；若仍有待处理关键回合，写 `pendingDayPlan = { ...weekPlan, fixtureId }` 并**冻结时钟**返回 `live: true`；否则 `finalizeMatchday` 当场踢完。
-3. **收尾** `closeDay`：`simulateDayFixtures`（当天其余场次）→ `day === 7` 时 `settleWeekFinance` + `generateWeeklyEvent` → `absoluteDay % 21 === 0` 时 `updatePlayerValue` → `advanceClock` → 清空 `pendingDayPlan`。
+3. **收尾** `closeDay`：`simulateDayFixtures`（当天其余场次）→ `day === 7` 时 `settleWeekFinance` → `generateDailyEvents(world, 今天这场)`（见 [每日事件](daily-events.md)）→ `absoluteDay % 21 === 0` 时 `updatePlayerValue` → `advanceClock` → 清空 `pendingDayPlan`。
 
 ### 停止条件与优先级
 
@@ -132,7 +140,7 @@ sequenceDiagram
 | 原因 | 触发 | 为什么必须停 |
 |---|---|---|
 | `matchday` | 今天有用户比赛且仍有未处理关键回合 | 三重不可跳过：引擎 `playDay` 直接返回 live、快进见非平静日即停、store 的 `hasUnfinishedMatch` 拒绝继续推进 |
-| `event` | 周日 `generateWeeklyEvent` 产出新事件 | 事件带选项，替玩家选等于改事实 |
+| `event` | 当天 `generateDailyEvents` 产出 `blocking` 事件 | 事件带选项，替玩家选等于改事实；非拦截事件只计数不打断 |
 | `milestone` | 伤愈（`advanceInjuries` 返回 `true`） | 可用性、体能与合同判断依赖这条信息 |
 
 `quiet === (stopReason === null)`；平静日不写新闻、不产生停止原因，只累加 `quietDays` 供快进提示使用。
@@ -142,7 +150,7 @@ sequenceDiagram
 - `startDay` / `advanceDay` / `advanceUntilDecision` / `startWeek` / `completeWeek` 不得修改入参：入口各 `structuredClone` 一次。
 - `playDay(world, { autoResolve })` 是**就地**结算，只允许已被授予可写克隆的调用方使用（周适配器与快进靠它把七天走在同一次克隆上；每天一次深拷贝会让整季推进慢一个量级）。
 - 时钟仍钉在这天时（`isPendingDay`：存在 `pendingDayPlan`、live 报告或待处理回合）不得重跑晨间步骤；重复 `startDay` 原样返回 live 状态。
-- 随机数只走 `createRng`，日维度域统一由 `dayRng(world, tag)`（`seed, tag, season, week, day`）与 `dailyId(world, prefix)` 提供。日执行步骤（训练、伤病、每日新闻）的 id 必须带日，否则同周七天写同一键会互相覆盖；仍按周拍的步骤（周事件、余额告急新闻）继续用 `season:week` 作键，因为它们设计上每周只出一次。
+- 随机数只走 `createRng`，日维度域统一由 `dayRng(world, tag)`（`seed, tag, season, week, day`）与 `dailyId(world, prefix)` 提供。日执行步骤（训练、伤病、每日新闻、每日事件）的 id 必须带日，否则同周七天写同一键会互相覆盖；仍按周拍的步骤（余额告急新闻）继续用 `season:week` 作键，因为它们设计上每周只出一次。
 - 退役后不得再推进。
 
 ### 周适配器
@@ -156,7 +164,7 @@ sequenceDiagram
 
 ### 周节奏：财务、事件、身价、叙事
 
-- 财务与事件仍按周拍（落在 `day === 7`）：一周一条流水，避免 `ledger` 上限 120 条被日粒度压成 120 天。
+- 财务仍按周拍（落在 `day === 7`）：一周一条流水，避免 `ledger` 上限 120 条被日粒度压成 120 天。事件已从周拍改为日拍，见[每日事件](daily-events.md)。
 - 身价评估改为绝对日序每 21 天一拍，与旧「每 3 周」对齐。
 - LLM 周叙事仍每周一行：`commitDay` 只在**非 live 且周次跨过去**时调 `narrateTurn`，不随 ×7 膨胀。
 - 周收入 = 周薪 + 未到期赞助；周支出 = 周薪 × 18% + 15,000；余额为负时士气 −1，周期性生成余额告急新闻。
@@ -185,13 +193,13 @@ sequenceDiagram
 
 ### 事件
 
-- 每周 72% 概率在周日生成 1 条事件；已有同类伤病事件时不再生成。
-- 事件上下文：伤病、未出场、评分 ≥7.3、评分 <6.2、额外安排为媒体、普通周。
-- 模板文案与结果文案集中在 `src/engine/data/eventTemplates.ts`，`events.ts` 只做上下文插值与流程编排；未知模板回退到简化版队友聚餐。
-- 有效期 2 周；`expiresWeek < week` 时标记 `expired`。
-- 事件选项效果由 `applyEffects` 统一结算；特殊事件（伤病、消费）有额外逻辑。
+- 每天最多一条：`generateDailyEvents(world, 今天这场)` 先查「今天有没有已生成的事件」，有则直接返回；没有才评估候选。
+- 触发口径从「周日 + if/else 阶梯」换成数据包条件：模板住在 `data/events/*.json`，条件在 27 字段白名单投影 `EventScope` 上求合取（`src/engine/eventCondition.ts`）。
+- 保证型（`guaranteed`）模板不掷骰，因此赛后表扬/板凳不满/伤病关注一定落在**比赛当天**；其余候选按 `dayRng(world, 'event').chance(0.13)` 掷骰，命中后按 `weight` 加权抽取。
+- 冷却由 `world.eventMemory[templateId] = 季内绝对日序` 管（`cooldownDays`），`once` / `maxPerSeason` / `weekdays` 各自另有一道闸；赛季切换时 `prepareNextSeason` 清空冷却表。
+- 有效期按天：`expiresDay < absoluteDay(world)` 时 `expireEvents` 标记 `expired`；事件选项效果仍由 `applyEffects` 统一结算，伤病与消费类事件有额外逻辑。
 - 新闻上限：事件生成时截断到 80 条。
-- 「每天随机事件」的日粒度化属于 M1.7（事件内容进 `data/events/*.json` + 条件 DSL + 频率重标定），本文档描述当前的周日一拍。
+- 完整的条件语法、内容校验与频率验收见[每日事件](daily-events.md)。
 
 ### 赛季切换
 
@@ -215,6 +223,7 @@ sequenceDiagram
 - `Fixture.day?: number`：缺省由 `fixtureDayOf(fixture) = day ?? dayForRound(round)` 推导；`Fixture.id` 结构不变（它同时是比赛 RNG 域盐）。
 - `Injury = { kind, daysLeft, severity }`：v4 的 `weeksLeft` 迁移为 `daysLeft = weeksLeft * 7`。
 - `NewsItem.day?: number`。
+- `world.eventMemory: Record<模板 id, 季内绝对日序>`：v7 新增的事件冷却表，存档 schema 里可选、由迁移与 `generateWorld` 补齐。
 - `DayResult`：`{ world, dayPlayed, live, quiet, stopReason, match, event, seasonTransition }`
 - `FastForwardResult`：`{ days: DayResult[], stopReason, quietDays }`——一次克隆，`days[*].world` 指向同一对象，只有末项是最新状态。
 - `TurnResult`：`{ world, match, event, seasonTransition, weekPlayed, seasonPlayed, live }`
@@ -286,6 +295,8 @@ store 调用：
 | 停在比赛日时时钟不动并写入 `pendingDayPlan` | `tests/engine/day.test.ts` |
 | 重复 `startDay` 不会重复训练或生成回合 | `tests/engine/day.test.ts` |
 | 快进在有比赛的一周停在比赛日并统计平静日 | `tests/engine/day.test.ts` |
+| 每日事件一天最多一条、保证型落在比赛当天、冷却与过期按天 | `tests/engine/eventDaily.test.ts`、[每日事件](daily-events.md) |
+| 全季事件总数锁在 40–80 且存在空白日 | `tests/engine/eventCadence.test.ts` |
 | 有未完成关键回合时 `startDay` 直接返回 live 且不动时钟 | `tests/engine/stopConditions.test.ts` |
 | `advanceDay` 自动处理关键回合并踢完这一天 | `tests/engine/stopConditions.test.ts` |
 | 快进遇到 live 比赛立即停止而不是自动踢完 | `tests/engine/stopConditions.test.ts` |
@@ -347,3 +358,4 @@ store 调用：
 | 2026-11-02 | 底部导航第 3 槽 `/inbox` → `/team`，新增队伍页（教练卡 + 按 `computeOverall` 排序的一线队名单，伤停统一「预计缺阵 N 天」），详见 [队伍与一线队名单](team-squad.md) | 绿茵人生 M1.3 |
 | 2026-11-02 | 训练成长接入教练打法协同（命中打法偏好的训练重点 ×1.12，`dailyGrowth` 导出为纯函数）；队伍页新增球员详情页与教练打法说明，见 [队伍与一线队名单](team-squad.md)；engine 升 0.5.2 并重算回放基准 | 绿茵人生 M1.5 |
 | 2026-11-02 | 360/390px 视口用手同源 iframe 量到真实布局（两档均无横向溢出）：主页「安排本周/完整赛程/全部消息」17px、赛程与收件箱 tab 36px 低于 44px，已提到 44px，并由 `tests/ui/layoutContract.test.tsx` 结构断言守住（无 CDP 仿真、`window.resizeTo` 对标签页无效） | 绿茵人生 M1.6 验收兜底 |
+| 2026-11-02 | 事件从「周日 72% 一条」改为「每天最多一条 + 条件白名单 + 冷却表」：`generateWeeklyEvent` 退役，`closeDay` 改调 `generateDailyEvents(world, 今天这场)`，`stopReason = 'event'` 只在拦截性事件时产生；新增 `world.eventMemory`（存档 v7）；主页「今天」与收件箱改按日口径。详见 [每日事件](daily-events.md)；engine 0.6.0，golden 重算 | 绿茵人生 M1.7 |

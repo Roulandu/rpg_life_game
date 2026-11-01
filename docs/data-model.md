@@ -25,9 +25,9 @@ flowchart TD
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| `version` | number | 世界结构版本，当前 `5` |
+| `version` | number | 世界结构版本，当前 `7` |
 | `seed` | number | 世界种子，决定生成、赛程、比赛与事件 |
-| `engineVersion` | string | 生成世界的引擎版本，当前 `0.5.2` |
+| `engineVersion` | string | 生成世界的引擎版本，当前 `0.6.0` |
 | `createdAt` / `updatedAt` | ISO string | 创建与最近更新时间 |
 | `playerId` | Id | 用户球员 ID |
 | `clubId` | Id | 用户当前俱乐部 ID |
@@ -36,7 +36,8 @@ flowchart TD
 | `leagues` | `Record<Id, League>` | 联赛与升降级名额 |
 | `fixtures` | `Record<Id, Fixture>` | 赛季赛程与比赛报告引用 |
 | `relationships` | `Record<Id, Relationship>` | 教练、队友、经纪人、家人、媒体、球迷 |
-| `events` | `Record<Id, GameEvent>` | 开放/已处理/过期事件 |
+| `events` | `Record<Id, GameEvent>` | 开放/已处理/过期事件，每天最多新增一条 |
+| `eventMemory` | `Record<模板 id, 季内绝对日序>` | 事件冷却表；v7 新增，赛季切换时清空 |
 | `finance` | `Finance` | 余额、周薪、支出、流水、赞助 |
 | `news` | `NewsItem[]` | 新闻，保留最近 120 条 |
 | `season` / `week` / `day` / `totalWeeks` | number | 当前赛季、周次（1–38）、周内日序（1–7，周一 = 1）、总周数 |
@@ -73,7 +74,8 @@ flowchart TD
 | `WeeklyPlan` | `training / extra` | 每周模板；`world.day` 决定当天是否执行训练或额外安排 |
 | `PendingDayPlan` | `training / extra / fixtureId` | 只在停在开球那天存在；当日收尾时清空；v4→v5 迁移由 `pendingWeekPlan` 改名并把时钟摆回比赛日 |
 | `NewsItem` | `id / season / week / day? / title / body / kind` | 日步骤产生的新闻带 `day`；`id` 由 `dailyId` 生成，同周七天不撞键 |
-| `GameEvent` | 模板、正文、有效期、选项、状态 | `expiresWeek` 之后必须过期；LLM 只能改文案 |
+| `GameEvent` | 模板、发件人 `sender?`、正文、`day / createdAtDay / expiresDay`、`blocking?`、选项、状态 | 一天最多一条（id 带日段）；`expiresDay` 早于当前绝对日必须过期；旧档缺 `expiresDay` 时回落 `expiresWeek` 那一周的最后一天；LLM 只能改标题与正文，不能改选项、效果与有效期。类型定义与数据包 Zod 模式同在 `src/domain/eventContent.ts` |
+| `EventTemplateContent` | `id / title / body / sender / weight / expiresDays / cooldownDays / blocking / guaranteed / once? / maxPerSeason? / weekdays? / when[] / choices / resultTexts?` | 来自 `data/events/*.json`；条件字段 ∈ `EVENT_SCOPE_FIELDS`（27 项白名单）、正文占位符 ∈ `EVENT_BODY_TOKENS`（5 项）；`weight > 0`、`1 ≤ expiresDays ≤ 21`、`0 ≤ cooldownDays ≤ 120`、`choices ≥ 2` 且选项 id 唯一、`blocking` 事件不许有空效果选项 |
 | `Relationship` | 角色、中文名 `nameZh`、信任、紧张、摘要 | 信任/紧张 0–100 |
 | `Finance` | 余额、周薪、支出、流水 | 流水金额带符号；结算后余额与流水一致 |
 
@@ -98,7 +100,7 @@ flowchart TD
 | 赛程 | `fixture:<leagueId>:<season>:<week>:<index>` | `fixture:league:ENG:1:2026:01:0`（比赛日在 `day` 字段，不改 id 结构：它同时是比赛随机盐） |
 | 关系 | `rel:<role>:<playerId>` | `rel:coach:player:user:42` |
 | 日步骤新闻/事件 | `dailyId` → `<prefix>:<season>:<week>:<day>[:<suffix>]` | `news:injury:2026:3:5` |
-| 周拍事件 | `event:<season>:<week>:<templateId>` | `event:2026:3:coach_praise`（每周只出一条，不带日） |
+| 日事件 | `event:<season>:<week>:<day>:<templateId>` | `event:2026:3:6:coach_praise`（带日段：同周不同天可以出现同一模板，冷却由 `eventMemory` 管） |
 | 新闻 | `news:<kind>:<key>` | `news:season:end:2026` |
 | 存档 | `save:<seed>:<base36 time>:<random>` | 由 `db.createSaveId` 生成 |
 | AI 对话 | `chat:<season>:<week>:<index>:<u\|a>` | `chat:2026:3:0:u` |
@@ -112,8 +114,8 @@ flowchart TD
 ```json
 {
   "format": "pitch-life-save",
-  "saveVersion": 5,
-  "engineVersion": "0.5.2",
+  "saveVersion": 7,
+  "engineVersion": "0.6.0",
   "exportedAt": "2026-10-26T12:00:00.000Z",
   "checksum": "<hashString(canonicalStringify(world))>",
   "world": { "...": "WorldState" }
@@ -123,17 +125,18 @@ flowchart TD
 规则：
 
 1. `format` 必须等于 `pitch-life-save`。
-2. `saveVersion` 来自 `CURRENT_SAVE_VERSION`，当前为 `6`。
+2. `saveVersion` 来自 `CURRENT_SAVE_VERSION`，当前为 `7`。
 3. `checksum` 按 `lib.canonicalStringify` 规范化后计算；对象键排序、`undefined` 视为 `null`。
 4. `importWorld` 依次执行：JSON 解析 → `saveEnvelopeSchema`（含 world 结构）→ 拒绝更高版本 → **用原始 world 重算 checksum 比对** → 迁移到当前版本。
 5. 任何一步失败都抛出中文错误，不写入 IndexedDB。
 
 `world.version` 与 envelope `saveVersion` 是两个维度：
 
-- `world.version` 描述世界结构本身，当前为 `6`。
-- `saveVersion` 描述存档封装与迁移契约，当前为 `6`。
+- `world.version` 描述世界结构本身，当前为 `7`。
+- `saveVersion` 描述存档封装与迁移契约，当前为 `7`。
 - 结构变化时必须同时评估；旧版本 world 在加载/导入时迁移到当前结构。
 - `day` / `weekPlan` / `pendingDayPlan` 在 `worldSchema` 里是**可选**字段：v5 之前的存档缺少它们，而校验发生在迁移之前，必填会让旧档直接被拒。迁移负责补齐，`assertWorld` 负责在补齐后把关。
+- `eventMemory` 同理是**可选**：v6 存档没有冷却表，`events` 记录本身是 `.passthrough()`，所以事件的 `day / createdAtDay / expiresDay / sender / blocking` 与新闻的 `day` 都不需要写进 schema，只由迁移补齐。
 
 ## IndexedDB
 
@@ -164,7 +167,7 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 
 ## 迁移策略
 
-当前 `CURRENT_SAVE_VERSION = 6`，由 `src/db/migrate.ts` 提供 v1 → v2 → v3 → v4 → v5 → v6 连续迁移。
+当前 `CURRENT_SAVE_VERSION = 7`，由 `src/db/migrate.ts` 提供 v1 → v2 → v3 → v4 → v5 → v6 → v7 连续迁移。
 
 | 版本 | 变更 | 迁移 |
 |---|---|---|
@@ -174,14 +177,15 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 4 | 2D 比赛画面状态；`MatchReport` 增加可选 `liveState`（`possession / ballX / carrierId? / pendingKickoff?`） | 仅 live 报告补 `liveState = { possession: 'home', ballX: 0.5 }`；终场报告与 `lineups / stats` 不变；`world.version = 4` |
 | 5 | 时间粒度改为天：`WorldState.day` / `weekPlan` / `pendingDayPlan`（取代 `pendingWeekPlan`）、`Fixture.day`、`Injury.daysLeft`（取代 `weeksLeft`）、`NewsItem.day` | `fixtures[*].day = dayForRound(round)`（纯推导，不消耗 RNG）；`injury.daysLeft = max(1, round(weeksLeft × 7))` 并删除 `weeksLeft`；`pendingWeekPlan → pendingDayPlan`；`weekPlan` 缺省补 `DEFAULT_WEEK_PLAN`；停着的 live 比赛把时钟摆回它所在的那一天（`day = fixtureDayOf(liveFixture)`），否则 `day = 1`；末尾 `assertWorld` 把关；`world.version = 5` |
 | 6 | 中文人名：`Player.nameZh`、`Club.coach.nameZh`、`Relationship.nameZh`、`MatchLineupPlayer.nameZh`、`PitchPlayer.nameZh`（`name` 语义不变，仍用于存档 id、合同与导出文件名） | 实体按 `nameZhFor(name, nationality)` 补齐中文名，已有值不覆盖（幂等）；历史文本按「原名 → 中文名」整词替换：战报 `events[].text` / `mediaReaction` / 关键回合文案与结算文案、`scorerName` / `assistName` / `motmName`、新闻与事件的标题正文选项与结果文案、关系摘要；首发名单条目按 `playerId` 回查补 `nameZh`。不改动时钟与 `fixture.id`，停在关键回合的 live 档迁移后仍能踢完；`world.version = 6` |
+| 7 | 每日事件：`WorldState.eventMemory`（模板 id → 季内绝对日序）、`GameEvent.day / createdAtDay / expiresDay / sender / blocking`、事件 id 加日段 | `events[*]` 的 `day` 回灌为 `DAYS_PER_WEEK`（旧事件本来就是周日拍的），`createdAtDay = absoluteDay(createdAtWeek, day)`，`expiresDay = absoluteDay(expiresWeek, DAYS_PER_WEEK)`；`sender`/`blocking` 优先取数据包、未知模板落回「俱乐部」/`true`；`eventMemory` 由现存事件按模板取最大日序重建（不清会让旧档第一周被同一模板刷屏）；`migrateEventDays` 不消耗 RNG、不触碰时钟与 `pendingDayPlan`；末尾 `assertWorld` 把关；`world.version = 7` |
 
 迁移规则：
 
 - 迁移幂等，可重复执行；只前进不后退。
-- 旧档中未完成的关键回合保留：v1 报告走旧版 `final` 结算路径；v2 live 报告迁移后保留待处理回合（v5 起键名为 `pendingDayPlan`），可继续实时播放到终场；v3 live 报告补 `liveState` 后可继续播放；v4→v5 把时钟摆回 live 比赛那一天，读档后仍能踢完这场；v5→v6 只改名字与文案，不触碰 `roll`、时钟与首发 id，迁移后关键回合仍能按原判定结算。
+- 旧档中未完成的关键回合保留：v1 报告走旧版 `final` 结算路径；v2 live 报告迁移后保留待处理回合（v5 起键名为 `pendingDayPlan`），可继续实时播放到终场；v3 live 报告补 `liveState` 后可继续播放；v4→v5 把时钟摆回 live 比赛那一天，读档后仍能踢完这场；v5→v6 只改名字与文案，不触碰 `roll`、时钟与首发 id，迁移后关键回合仍能按原判定结算；v6→v7 只补事件字段与冷却表，不触碰时钟、`pendingDayPlan` 与任何 `roll`。
 - `loadWorld` 在 schema 校验后迁移；发生迁移时回写数据库并同步摘要。
-- `importWorld` 必须先校验 checksum，再做迁移；拒绝 `saveVersion > 6`。
-- 旧客户端遇到 v6 存档会按现有版本检查拒绝读取；不提供降级迁移。
+- `importWorld` 必须先校验 checksum，再做迁移；拒绝 `saveVersion > 7`。
+- 旧客户端遇到 v7 存档会按现有版本检查拒绝读取；不提供降级迁移。
 
 任何存档结构变化必须满足：
 
@@ -203,7 +207,8 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 
 | 数据 | 当前策略 | 位置 |
 |---|---|---|
-| 新闻 | 保留最近 120 条 | `endSeason` 截断 |
+| 新闻 | 保留最近 120 条；事件生成时先截到 80 条 | `endSeason` / `generateDailyEvents` 截断 |
+| 事件 | 不按条数截断，靠 `expiresDay` 过期与 `eventMemory` 冷却 | `expireEvents` / `eventsDaily`（一天最多一条，全季总量由 `tests/engine/eventCadence.test.ts` 锁在 40–80） |
 | AI 对话 | 保留最近 40 条 | `sendChat` 截断 |
 | 财务流水 | 保留最近 120 条 | `settleWeekFinance` / `applyEffects` 截断（一周一条，日步骤不写流水） |
 | 赛季总结 | 不截断 | `seasonSummaries` |
@@ -232,3 +237,4 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 2026-11-02 | 存档升 v5：日时钟 `day`、`weekPlan`、`pendingDayPlan`、`Fixture.day`、`Injury.daysLeft`、`NewsItem.day`；v4 迁移按轮次推导日并把 live 档摆回比赛日；engine 0.5.0 | M1.1/M1.2 日回合与快进 |
 | 2026-11-02 | 存档升 v6：实体 `nameZh` 与战报阵容 `nameZh`，历史文本按原名→中文名整词替换；`CURRENT_SAVE_VERSION`/`world.version` = 6；engine 0.5.1 | M1.4 中文人名 |
 | 2026-11-02 | 无存档结构变化：`Club.style` 从死字段变成选型与训练的输入（`domain/coachStyle.ts`），引擎语义变更令 `ENGINE_VERSION` 升 0.5.2 并重算回放基准（`91cb67aad3f2e45a`），世界里的 `engineVersion` 字符串随新世界写入 | M1.5 教练打法生效 |
+| 2026-11-02 | 存档升 v7：`eventMemory` 冷却表与事件 `day / createdAtDay / expiresDay / sender / blocking`，事件 id 加日段；v6 迁移回灌日字段并按模板重建冷却表；`ENGINE_VERSION` 升 0.6.0 并重算回放基准 | M1.7 每日事件 |
