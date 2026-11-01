@@ -4,6 +4,7 @@ import {
   absoluteDay,
   buildMatchLineups,
   dayForRound,
+  emptyAttrInvestment,
   eventTemplateById,
   fixtureDayOf,
   nameZhFor,
@@ -230,6 +231,22 @@ function migrateEventDays(world: WorldState): void {
   world.eventMemory = memory
 }
 
+/** v7 及更早的存档没有成长账本，三个字段整体缺失。 */
+type LegacyGrowthPlayer = { exp?: number; lifetimeExp?: number; attrInvestment?: Player['attrInvestment'] }
+
+/**
+ * v7→v8：经验与属性投资登场。
+ * 老档一律从零起步：已有值保持不变（脏档只抹一半时不能把玩家攒的经验清掉），
+ * `attrInvestment` 补成十字段全 0，好让投资曲线的第一点价格稳定在 6。
+ */
+function migrateGrowth(world: WorldState): void {
+  for (const player of Object.values(world.players) as LegacyGrowthPlayer[]) {
+    player.exp ??= 0
+    player.lifetimeExp ??= 0
+    player.attrInvestment ??= emptyAttrInvestment()
+  }
+}
+
 export function migrateWorld(input: WorldState): WorldState {
   if (input.version > CURRENT_SAVE_VERSION) {
     throw new Error('这个存档来自更新版本的游戏，请先更新。')
@@ -255,6 +272,7 @@ export function migrateWorld(input: WorldState): WorldState {
   if (sourceVersion < 5) migrateTimeModel(world)
   if (sourceVersion < 6) migrateNames(world)
   if (sourceVersion < 7) migrateEventDays(world)
+  if (sourceVersion < 8) migrateGrowth(world)
   if (sourceVersion < 2) world.pendingDayPlan = null
   world.version = CURRENT_SAVE_VERSION
   return assertWorld(world)
