@@ -1,7 +1,27 @@
 import type { AiChatMessage, AiNarrative, AiUsage } from './aiTypes'
 import type { Fixture, MatchReport } from './matchTypes'
+import type {
+  Archetype,
+  Attributes,
+  CareerBackground,
+  ExtraAction,
+  Foot,
+  Id,
+  Position,
+  TrainingFocus,
+} from './primitiveTypes'
 
-export type Id = string
+export type {
+  Archetype,
+  AttrKey,
+  Attributes,
+  CareerBackground,
+  ExtraAction,
+  Foot,
+  Id,
+  Position,
+  TrainingFocus,
+} from './primitiveTypes'
 
 export type {
   Fixture,
@@ -15,32 +35,6 @@ export type {
   MatchGoal,
   MatchReport,
 } from './matchTypes'
-
-export type Position = 'GK' | 'CB' | 'LB' | 'RB' | 'DM' | 'CM' | 'AM' | 'LW' | 'RW' | 'ST'
-
-export type AttrKey =
-  | 'pace'
-  | 'shooting'
-  | 'passing'
-  | 'dribbling'
-  | 'defending'
-  | 'physical'
-  | 'mental'
-  | 'technique'
-  | 'stamina'
-  | 'goalkeeping'
-
-export type Attributes = Record<AttrKey, number>
-
-export type Foot = 'L' | 'R' | 'B'
-
-export type TrainingFocus = 'physical' | 'technical' | 'tactical' | 'recovery'
-
-export type ExtraAction = 'media' | 'agent' | 'social' | 'rest' | 'family' | 'none'
-
-export type Archetype = 'speedster' | 'technician' | 'engine' | 'finisher' | 'wall'
-
-export type CareerBackground = 'academy' | 'lowerLeague' | 'overseas'
 
 export interface Contract {
   clubId: Id
