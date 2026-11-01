@@ -10,6 +10,7 @@ export type { LiveFrame, LivePhase, LivePlayback, LiveSpeed } from './livePlayba
 export type { LiveTrackStep } from '../domain'
 export {
   selectActionLabel,
+  selectCareerPreview,
   selectClubFixtures,
   selectPendingKeyMoments,
   selectProviderDefaults,

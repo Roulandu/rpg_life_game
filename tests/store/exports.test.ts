@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   selectActionLabel,
+  selectCareerPreview,
   selectClubFixtures,
   selectPendingKeyMoments,
   selectProviderDefaults,
@@ -9,6 +10,7 @@ import {
   useGameStore,
 } from '../../src/store'
 import type { GameStore } from '../../src/store'
+import { testOptions } from '../fixtures/career'
 
 describe('store public entry', () => {
   it('exports the store hook and selectors', () => {
@@ -16,6 +18,7 @@ describe('store public entry', () => {
     expect(typeof selectPendingKeyMoments).toBe('function')
     expect(typeof selectClubFixtures).toBe('function')
     expect(typeof selectStartingClubs).toBe('function')
+    expect(typeof selectCareerPreview(testOptions({ seed: 33557 })).budget).toBe('number')
     expect(typeof selectActionLabel).toBe('function')
     expect(typeof selectProviderDefaults('openai').model).toBe('string')
     expect(selectResolvedTheme({ themePreference: 'light', systemScheme: 'dark' })).toBe('light')

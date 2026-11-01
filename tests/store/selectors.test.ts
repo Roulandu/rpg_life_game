@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   selectActionLabel,
+  selectCareerPreview,
   selectClubFixtures,
   selectPendingKeyMoments,
   selectProviderDefaults,
@@ -28,6 +29,15 @@ describe('store selectors', () => {
     const clubs = selectStartingClubs()
     expect(clubs.length).toBeGreaterThan(0)
     expect(clubs[0]?.id).toBe('club:ENG:2:01')
+  })
+
+  it('给建号界面的预览与真正生成的存档数字一致', () => {
+    const options = testOptions({ seed: 33557, allocation: { shooting: 2 } })
+    const preview = selectCareerPreview(options)
+    const world = generateWorld(options, TEST_NOW)
+    expect(preview.attributes).toEqual(world.players[world.playerId].attributes)
+    expect(preview.budget).toBe(10)
+    expect(preview.overall).toBeGreaterThan(0)
   })
 
   it('resolves chat action labels', () => {
