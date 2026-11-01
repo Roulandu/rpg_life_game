@@ -1,10 +1,10 @@
 {
-  "engineVersion": "0.6.0",
+  "engineVersion": "0.7.0",
   "seed": 42,
   "plan": {
     "training": "technical",
     "extra": "none"
   },
   "weeks": 38,
-  "hash": "c11f736b834051db"
+  "hash": "5fdf2872b99372c2"
 }
