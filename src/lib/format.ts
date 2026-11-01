@@ -1,3 +1,9 @@
+import { WEEKDAY_LABELS, dateForSeasonWeekDay } from './calendar'
+
+function pad(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
 export function formatMoney(cents: number, compact = false): string {
   const pounds = Math.round(cents / 100)
   const sign = pounds < 0 ? '-' : ''
@@ -22,12 +28,18 @@ export function formatSeasonLabel(season: number): string {
   return `${season}/${String(season + 1).slice(-2)}`
 }
 
-export function formatDateLabel(season: number, week: number): string {
-  const date = new Date(Date.UTC(season, 7, 8 + (week - 1) * 7))
-  const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(date.getUTCDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+export function formatDateLabel(season: number, week: number, day = 1): string {
+  const date = dateForSeasonWeekDay(season, week, day)
+  return `${date.year}-${pad(date.month)}-${pad(date.day)}`
+}
+
+export function formatDateShort(season: number, week: number, day: number): string {
+  const date = dateForSeasonWeekDay(season, week, day)
+  return `${pad(date.month)}-${pad(date.day)}`
+}
+
+export function formatDayLabel(season: number, week: number, day: number): string {
+  return `第 ${week} 周 · ${WEEKDAY_LABELS[day - 1]} ${formatDateShort(season, week, day)}`
 }
 
 export function formatRating(rating: number | null): string {
