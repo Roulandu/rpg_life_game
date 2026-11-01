@@ -2,15 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../../store'
 import { WeekPlannerModal } from '../components/WeekPlannerModal'
-import { AdvanceAction } from './dashboard/AdvanceAction'
 import { DashboardFooter } from './dashboard/DashboardFooter'
 import { DashboardHeader } from './dashboard/DashboardHeader'
+import { DashboardMainColumn } from './dashboard/DashboardMainColumn'
 import { DashboardSideColumn } from './dashboard/DashboardSideColumn'
-import { LastMatchCard } from './dashboard/LastMatchCard'
-import { NextMatchPanel } from './dashboard/NextMatchPanel'
-import { WeekStatusBanner } from './dashboard/WeekStatusBanner'
 import { buildDashboardData } from './dashboard/dashboardData'
-import { daysUntilNextFixture } from '../gameHelpers'
 import { INBOX_CHAT_PATH } from './inbox/inboxTab'
 
 export function DashboardScreen() {
@@ -32,46 +28,18 @@ export function DashboardScreen() {
       <DashboardHeader world={world} user={data.user} club={data.club} league={data.league} position={data.position} />
 
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-6">
-        <div data-testid="dashboard-main" className="min-w-0">
-          {data.last ? (
-            <LastMatchCard
-              last={data.last}
-              pendingMatch={data.pendingMatch}
-              resolvedMoments={data.resolvedMoments}
-              totalMoments={data.totalMoments}
-            />
-          ) : null}
-
-          <WeekStatusBanner
-            pendingCount={data.pendingCount}
-            aiBusy={aiBusy}
-            aiError={aiError}
-            narrative={world.aiNarrative ?? null}
-            onDismiss={clearAiError}
-            onContinue={() => navigate(INBOX_CHAT_PATH)}
-          />
-
-          <NextMatchPanel
-            world={world}
-            club={data.club}
-            next={data.next}
-            opponent={data.opponent}
-            isHome={data.isHome}
-            opponentFormLabel={data.opponentFormLabel}
-          />
-
-          <AdvanceAction
-            retired={world.retired ?? false}
-            pendingMatch={data.pendingMatch}
-            resolvedMoments={data.resolvedMoments}
-            totalMoments={data.totalMoments}
-            busy={busy}
-            daysToMatch={daysUntilNextFixture(world)}
-            onFastForward={() => void advanceToNextEvent()}
-            onAdvanceDay={() => void advanceDay()}
-            onPlan={() => setPlannerOpen(true)}
-          />
-        </div>
+        <DashboardMainColumn
+          world={world}
+          data={data}
+          busy={busy}
+          aiBusy={aiBusy}
+          aiError={aiError}
+          onFastForward={() => void advanceToNextEvent()}
+          onAdvanceDay={() => void advanceDay()}
+          onPlan={() => setPlannerOpen(true)}
+          onDismissError={clearAiError}
+          onContinueNarrative={() => navigate(INBOX_CHAT_PATH)}
+        />
 
         <DashboardSideColumn world={world} data={data} />
       </div>
