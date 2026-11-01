@@ -9,6 +9,7 @@ import { MoreScreen } from './ui'
 import { ProfileScreen } from './ui'
 import { ScheduleScreen } from './ui'
 import { SettingsScreen } from './ui'
+import { TeamPlayerScreen } from './ui'
 import { TeamScreen } from './ui'
 import { TimelineScreen } from './ui'
 import { TitleScreen } from './ui'
@@ -28,6 +29,7 @@ export const router = createHashRouter([
           { path: 'schedule', element: <ScheduleScreen /> },
           { path: 'inbox', element: <InboxScreen /> },
           { path: 'team', element: <TeamScreen /> },
+          { path: 'team/:playerId', element: <TeamPlayerScreen /> },
           { path: 'profile', element: <ProfileScreen /> },
           { path: 'more', element: <MoreScreen /> },
           { path: 'settings', element: <SettingsScreen /> },
