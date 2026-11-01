@@ -1,4 +1,4 @@
-import { overall } from '../domain'
+import { displayName, overall } from '../domain'
 import {
   CURRENT_SAVE_VERSION,
   SAVE_FORMAT,
@@ -28,7 +28,7 @@ export function summarizeWorld(world: WorldState, id: string): SaveSummary {
   const club = world.clubs[world.clubId]
   return {
     id,
-    playerName: user?.name ?? '未知球员',
+    playerName: displayName(user) || '未知球员',
     clubName: club?.nameZh ?? '自由球员',
     season: world.season,
     week: world.week,

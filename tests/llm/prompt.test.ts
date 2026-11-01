@@ -18,8 +18,8 @@ describe('llm prompt snapshot', () => {
     const user = world.players[world.playerId]
     const club = world.clubs[world.clubId]
 
-    expect(snapshot).toContain(`赛季第 ${world.week} 周`)
-    expect(snapshot).toContain(user.name)
+    expect(snapshot).toContain(`第 ${world.week} 周 · `)
+    expect(snapshot).toContain(user.nameZh)
     expect(snapshot).toContain(club.nameZh)
     expect(snapshot).toContain('【上一场】本周没有比赛。')
     expect(snapshot).toContain('本周没有引擎事件。')

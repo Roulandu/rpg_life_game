@@ -7,6 +7,7 @@ import {
   loadWorld,
   saveWorld,
 } from '../db'
+import { displayName } from '../domain'
 import type { CareerCreateOptions, WorldState } from '../domain'
 import { loadApiKey } from '../platform'
 import { generateWorld } from '../world'
@@ -181,7 +182,7 @@ async function importFromText(set: StoreSet, get: StoreGet, text: string): Promi
       seasonTransition: null,
       livePlayback: IDLE_PLAYBACK,
       busy: false,
-      notice: `已导入 ${world.players[world.playerId]?.name ?? '球员'} 的生涯。`,
+      notice: `已导入 ${displayName(world.players[world.playerId]) || '球员'} 的生涯。`,
     })
     await get().refreshSaves()
     return true

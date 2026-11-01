@@ -1,7 +1,7 @@
-import { POSITION_LABELS, overall } from '../domain'
+import { POSITION_LABELS, displayName, overall } from '../domain'
 import type { AiChatMessage, GameEvent, MatchReport, WorldState } from '../domain'
 import { computeLeagueTable } from '../domain'
-import { formatMoneyShort, formatRating, formatSeasonLabel } from '../lib'
+import { formatDayLabel, formatMoneyShort, formatRating } from '../lib'
 
 type Density = WorldState['settings']['narrativeDensity']
 
@@ -61,7 +61,7 @@ export function buildWeekSnapshot(
     .slice(0, 5)
     .map(
       (relationship) =>
-        `${relationship.name}（${relationship.role}，信任 ${Math.round(relationship.trust)}，紧张 ${Math.round(
+        `${displayName(relationship)}（${relationship.role}，信任 ${Math.round(relationship.trust)}，紧张 ${Math.round(
           relationship.tension,
         )}）`,
     )
@@ -81,9 +81,9 @@ export function buildWeekSnapshot(
     : '本周没有引擎事件。'
 
   return [
-    `【时间】${formatSeasonLabel(world.season)} 赛季第 ${world.week} 周`,
+    `【时间】${formatDayLabel(world.season, world.week, world.day)}`,
     user
-      ? `【球员】${user.name}，${user.age} 岁，${POSITION_LABELS[user.position]}，能力 ${overall(user).toFixed(1)}，体能 ${Math.round(
+      ? `【球员】${displayName(user)}，${user.age} 岁，${POSITION_LABELS[user.position]}，能力 ${overall(user).toFixed(1)}，体能 ${Math.round(
           user.fitness,
         )}，锐度 ${Math.round(user.sharpness ?? 0)}，士气 ${Math.round(user.morale)}，信心 ${Math.round(
           user.confidence ?? 0,
