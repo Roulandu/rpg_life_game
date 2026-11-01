@@ -1,6 +1,4 @@
 import {
-  ATTR_KEYS,
-  POSITION_WEIGHTS,
   archetypeBonus,
   backgroundBonus,
   clamp,
@@ -9,9 +7,9 @@ import {
   nameZhFor,
   round1,
 } from '../domain'
+import { applyBonuses, makeAttributes } from './attributeFactory'
 import { draftUserAttributes, makeUserContract } from './userDraft'
 import type {
-  AttrKey,
   Attributes,
   CareerCreateOptions,
   Club,
@@ -58,56 +56,6 @@ function randomAge(rng: Rng): number {
   if (roll < 0.28) return rng.int(18, 21)
   if (roll < 0.78) return rng.int(22, 28)
   return rng.int(29, 34)
-}
-
-function gkAttributeValue(key: AttrKey, ability: number, rng: Rng): number {
-  if (key === 'goalkeeping') return clamp(ability + rng.normal(2, 4), 20, 95)
-  if (key === 'pace') return clamp(ability - 25 + rng.normal(0, 5), 20, 70)
-  if (key === 'shooting' || key === 'dribbling') {
-    return clamp(ability - 30 + rng.normal(0, 5), 15, 60)
-  }
-  if (key === 'passing' || key === 'technique') {
-    return clamp(ability - 12 + rng.normal(0, 5), 20, 85)
-  }
-  if (key === 'defending') return clamp(ability - 5 + rng.normal(0, 5), 20, 90)
-  return clamp(ability + rng.normal(0, 5), 30, 95)
-}
-
-function outfieldAttributeValue(
-  key: AttrKey,
-  position: Position,
-  ability: number,
-  rng: Rng,
-): number {
-  if (key === 'goalkeeping') return clamp(12 + rng.normal(0, 5), 5, 35)
-  const weight = POSITION_WEIGHTS[position][key] ?? 0
-  return clamp(ability + (weight > 0 ? 5 : -5) + rng.normal(0, 5), 20, 95)
-}
-
-function makeAttributes(position: Position, ability: number, rng: Rng): Attributes {
-  const attrs = {} as Attributes
-  for (const key of ATTR_KEYS) {
-    attrs[key] =
-      position === 'GK'
-        ? gkAttributeValue(key, ability, rng)
-        : outfieldAttributeValue(key, position, ability, rng)
-    attrs[key] = round1(attrs[key])
-  }
-  return attrs
-}
-
-export function applyBonuses(
-  attrs: Attributes,
-  position: Position,
-  bonuses: Array<Partial<Record<AttrKey, number>>>,
-): void {
-  for (const bonus of bonuses) {
-    for (const key of ATTR_KEYS) {
-      const delta = bonus[key]
-      if (delta) attrs[key] = clamp(round1(attrs[key] + delta), 10, 96)
-    }
-  }
-  if (position !== 'GK') attrs.goalkeeping = Math.min(attrs.goalkeeping, 35)
 }
 
 export function makeWeeklyWage(ability: number, tier: number, age: number): number {
