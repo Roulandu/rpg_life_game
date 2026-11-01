@@ -117,6 +117,28 @@ export function v5LiveWorld(seed = 2026): WorldState {
   return world
 }
 
+/**
+ * 进球组合不能押在引擎随机数上：关键回合概率一改，引擎产出的进球就可能全是「有助攻」的，
+ * 迁移里「无助攻」那条分支于是没人走。这里固定塞一枚无助攻与一枚有助攻的进球。
+ */
+export function v5GoalWorld(seed = 2026): WorldState {
+  const world = v5LiveWorld(seed)
+  const report = world.lastMatch
+  if (!report?.lineups) throw new Error('v5 fixture 需要一份带首发名单的战报')
+  const scorer = world.players[report.lineups.home[9]!.id]
+  const assister = world.players[report.lineups.home[10]!.id]
+  if (!scorer || !assister) throw new Error('v5 fixture 需要两名可回查的前锋')
+  report.goals = [
+    { minute: 12, side: 'home', scorerId: scorer.id, scorerName: scorer.name },
+    {
+      minute: 30, side: 'home', scorerId: assister.id, scorerName: assister.name,
+      assistId: scorer.id, assistName: scorer.name,
+    },
+  ]
+  report.homeGoals = 2
+  return world
+}
+
 export function latinNameOf(world: WorldState): string {
   const player = Object.values(world.players).find((item) => /[A-Za-z]/.test(item.name))
   if (!player) throw new Error('v5 fixture 需要一个拉丁原名球员')

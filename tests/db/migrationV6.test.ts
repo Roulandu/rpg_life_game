@@ -6,7 +6,7 @@ import { migrateWorld } from '../../src/db/migrate'
 import { exportWorld, importWorld } from '../../src/db/repository'
 import { LATIN, latinPlayerNames, leaks, reportTexts } from '../fixtures/naming'
 import { v4World } from '../fixtures/saveV4'
-import { latinNameOf, v5LiveWorld, v5World } from '../fixtures/saveV5'
+import { latinNameOf, v5GoalWorld, v5LiveWorld, v5World } from '../fixtures/saveV5'
 
 function everyNamed(world: WorldState): Array<{ name: string; nameZh: string }> {
   return [
@@ -69,6 +69,17 @@ describe('存档迁移 v5 -> v6 中文人名', () => {
     }
     expect(report.motmName).not.toMatch(LATIN)
     expect(leaks(reportTexts(report), latinRosterOf(migrated, report))).toEqual([])
+  })
+
+  it('无助攻进球不会被补上假助攻，有助攻的进球一并汉化', () => {
+    const migrated = migrateWorld(v5GoalWorld())
+    const goals = migrated.lastMatch!.goals
+
+    expect(goals).toHaveLength(2)
+    expect(goals[0].assistName).toBeUndefined()
+    expect(goals[0].scorerName).toBe(migrated.players[goals[0].scorerId].nameZh)
+    expect(goals[1].assistName).toBe(migrated.players[goals[1].assistId!].nameZh)
+    expect(goals[1].assistName).not.toMatch(LATIN)
   })
 
   it('关系摘要里的队友名字也被汉化', () => {
