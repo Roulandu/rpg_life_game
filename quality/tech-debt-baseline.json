@@ -2,26 +2,10 @@
   "version": 1,
   "tool": "oxlint",
   "entities": {
-    "src/domain/types.ts": {
-      "metrics": {
-        "lines": {
-          "value": 334,
-          "max": 300
-        }
-      }
-    },
     "src/engine/effects.ts::applyEffects": {
       "metrics": {
         "complexity": {
           "value": 16,
-          "max": 12
-        }
-      }
-    },
-    "src/engine/events.ts::generateWeeklyEvent": {
-      "metrics": {
-        "complexity": {
-          "value": 15,
           "max": 12
         }
       }
