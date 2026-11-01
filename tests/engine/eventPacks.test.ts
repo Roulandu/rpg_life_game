@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { EVENT_PACK_NAMES, eventTemplatesOfPack } from '../../src/domain/eventContent'
+import { EVENT_PACK_NAMES, EVENT_TEMPLATES, eventTemplatesOfPack } from '../../src/domain/eventContent'
 
 interface PackExpectation {
   name: string
@@ -61,4 +61,20 @@ describe('事件内容包的分类契约', () => {
       }
     })
   }
+})
+
+/** 数值契约：效果与条件都按各自的记账单位写，单位写错的条件在引擎里是「永远成立」。 */
+describe('事件内容包的数值契约', () => {
+  it('钱的效果按整英镑计价，没有半个便士的占位数值', () => {
+    for (const template of EVENT_TEMPLATES) {
+      for (const choice of template.choices) {
+        for (const effect of choice.effects) {
+          if (effect.op !== 'money') continue
+          const at = `${template.id}.${choice.id}`
+          expect(Number.isInteger(effect.delta), `${at} money=${effect.delta}`).toBe(true)
+          expect(Math.abs(effect.delta), `${at} 至少要动 1 英镑`).toBeGreaterThanOrEqual(1)
+        }
+      }
+    }
+  })
 })

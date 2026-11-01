@@ -181,7 +181,7 @@
         "id": "wait",
         "label": "用旧的撑两周",
         "description": "裂缝每天变长一点。",
-        "effects": [{ "op": "money", "delta": 0.01 }, { "op": "morale", "delta": -2 }, { "op": "confidence", "delta": -1 }]
+        "effects": [{ "op": "morale", "delta": -2 }, { "op": "confidence", "delta": -1 }]
       }
     ],
     "resultTexts": {
