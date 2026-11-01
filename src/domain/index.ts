@@ -38,6 +38,17 @@ export {
 export type { WeekDayRoles } from './calendar'
 export type { ChatActionProposal } from './chatAction'
 export type { AiChatMessage, AiNarrative, AiUsage } from './aiTypes'
+export {
+  STYLE_ATTRS,
+  STYLE_LABELS,
+  STYLE_TRAINING_BONUS,
+  styleAdvice,
+  styleFit,
+  styleFitLabel,
+  styleSynergy,
+  styleTopAttrs,
+} from './coachStyle'
+export type { ClubStyle } from './coachStyle'
 export { generateFixtures } from './fixtures'
 export { effectsSummary, successBasisText } from './keyMomentView'
 export { computeLeagueTable, goalDifference, leaguePosition } from './leagueTable'
