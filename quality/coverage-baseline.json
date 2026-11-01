@@ -2,24 +2,24 @@
   "version": 1,
   "global": {
     "lines": {
-      "total": 3416,
-      "covered": 2820,
-      "pct": 82.55
+      "total": 3581,
+      "covered": 2971,
+      "pct": 82.96
     },
     "statements": {
-      "total": 3989,
-      "covered": 3169,
-      "pct": 79.44
+      "total": 4188,
+      "covered": 3343,
+      "pct": 79.82
     },
     "functions": {
-      "total": 1069,
-      "covered": 855,
-      "pct": 79.98
+      "total": 1124,
+      "covered": 909,
+      "pct": 80.87
     },
     "branches": {
-      "total": 3016,
-      "covered": 2105,
-      "pct": 69.79
+      "total": 3146,
+      "covered": 2228,
+      "pct": 70.82
     }
   },
   "modules": {
@@ -47,41 +47,41 @@
     },
     "db": {
       "lines": {
-        "total": 86,
-        "covered": 82,
-        "pct": 95.35
+        "total": 103,
+        "covered": 99,
+        "pct": 96.12
       },
       "statements": {
-        "total": 96,
-        "covered": 92,
-        "pct": 95.83
+        "total": 115,
+        "covered": 111,
+        "pct": 96.52
       },
       "functions": {
-        "total": 20,
-        "covered": 20,
+        "total": 23,
+        "covered": 23,
         "pct": 100
       },
       "branches": {
-        "total": 69,
-        "covered": 51,
-        "pct": 73.91
+        "total": 89,
+        "covered": 70,
+        "pct": 78.65
       }
     },
     "domain": {
       "lines": {
-        "total": 352,
-        "covered": 326,
-        "pct": 92.61
+        "total": 356,
+        "covered": 330,
+        "pct": 92.7
       },
       "statements": {
-        "total": 408,
-        "covered": 370,
-        "pct": 90.69
+        "total": 412,
+        "covered": 374,
+        "pct": 90.78
       },
       "functions": {
-        "total": 95,
-        "covered": 90,
-        "pct": 94.74
+        "total": 96,
+        "covered": 91,
+        "pct": 94.79
       },
       "branches": {
         "total": 219,
@@ -91,24 +91,24 @@
     },
     "engine": {
       "lines": {
-        "total": 1128,
-        "covered": 1041,
-        "pct": 92.29
+        "total": 1193,
+        "covered": 1105,
+        "pct": 92.62
       },
       "statements": {
-        "total": 1290,
-        "covered": 1138,
-        "pct": 88.22
+        "total": 1369,
+        "covered": 1212,
+        "pct": 88.53
       },
       "functions": {
-        "total": 227,
-        "covered": 222,
-        "pct": 97.8
+        "total": 248,
+        "covered": 244,
+        "pct": 98.39
       },
       "branches": {
-        "total": 1066,
-        "covered": 839,
-        "pct": 78.71
+        "total": 1133,
+        "covered": 914,
+        "pct": 80.67
       }
     },
     "lib": {
@@ -179,44 +179,44 @@
     },
     "store": {
       "lines": {
-        "total": 402,
-        "covered": 291,
-        "pct": 72.39
+        "total": 462,
+        "covered": 343,
+        "pct": 74.24
       },
       "statements": {
-        "total": 456,
-        "covered": 316,
-        "pct": 69.3
+        "total": 528,
+        "covered": 374,
+        "pct": 70.83
       },
       "functions": {
-        "total": 102,
-        "covered": 83,
-        "pct": 81.37
+        "total": 119,
+        "covered": 100,
+        "pct": 84.03
       },
       "branches": {
-        "total": 274,
-        "covered": 168,
-        "pct": 61.31
+        "total": 315,
+        "covered": 197,
+        "pct": 62.54
       }
     },
     "ui": {
       "lines": {
-        "total": 698,
-        "covered": 504,
-        "pct": 72.21
+        "total": 717,
+        "covered": 518,
+        "pct": 72.25
       },
       "statements": {
-        "total": 875,
-        "covered": 610,
-        "pct": 69.71
+        "total": 900,
+        "covered": 629,
+        "pct": 69.89
       },
       "functions": {
-        "total": 403,
-        "covered": 266,
-        "pct": 66
+        "total": 416,
+        "covered": 277,
+        "pct": 66.59
       },
       "branches": {
-        "total": 813,
+        "total": 815,
         "covered": 488,
         "pct": 60.02
       }
