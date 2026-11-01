@@ -11,6 +11,7 @@ import {
   summarizeWorld,
 } from '../../src/db/repository'
 import type { SaveRecord } from '../../src/domain'
+import { CURRENT_SAVE_VERSION } from '../../src/domain'
 import { canonicalStringify } from '../../src/lib/json'
 import { hashString } from '../../src/lib/rng'
 import { generateWorld } from '../../src/world/generator'
@@ -133,6 +134,6 @@ describe('save list tolerance', () => {
     const saves = await listSaves()
 
     expect(saves[0].day).toBe(1)
-    expect(await loadWorld('save:v4-row')).toMatchObject({ day: 1, version: 5 })
+    expect(await loadWorld('save:v4-row')).toMatchObject({ day: 1, version: CURRENT_SAVE_VERSION })
   })
 })

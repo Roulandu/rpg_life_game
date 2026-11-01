@@ -1,5 +1,13 @@
-import { DEFAULT_WEEK_PLAN, buildMatchLineups, dayForRound, fixtureDayOf } from '../domain'
-import type { MatchReport, MatchStatLine, MatchStats, WorldState } from '../domain'
+import { DEFAULT_WEEK_PLAN, buildMatchLineups, dayForRound, fixtureDayOf, nameZhFor } from '../domain'
+import type {
+  KeyMoment,
+  MatchReport,
+  MatchStatLine,
+  MatchStats,
+  Player,
+  Relationship,
+  WorldState,
+} from '../domain'
 import { CURRENT_SAVE_VERSION, assertWorld } from '../domain/schema/save.schema'
 
 type LegacyReport = MatchReport & {
@@ -7,6 +15,12 @@ type LegacyReport = MatchReport & {
   currentMinute?: number
   goals?: MatchReport['goals']
 }
+
+/** v5 之前没有中文名：这些字段在 v6 里补齐，迁移前可能整体缺失。 */
+type LegacyNamed = { name: string; nameZh?: string }
+type LegacyPlayer = Player & LegacyNamed
+type LegacyRelationship = Relationship & LegacyNamed
+type LegacyLineupEntry = { id?: string; name: string; nameZh?: string }
 
 /** v4 只有周时钟：这些字段在 v5 里被日时钟取代，迁移后必须消失。 */
 type LegacyWeekClock = WorldState & {
@@ -87,6 +101,98 @@ function migrateTimeModel(world: WorldState): void {
   legacy.day = liveFixture ? fixtureDayOf(liveFixture) : 1
 }
 
+/**
+ * v5→v6：补中文名。实体字段按原名转写，历史文本（战报、新闻、事件、关系摘要）按
+ * 「原名 → 中文名」映射整词替换，避免旧存档里残留拉丁人名。
+ */
+function localizeText(value: string, aliases: Array<[string, string]>): string {
+  let text = value
+  for (const [original, localized] of aliases) {
+    if (original === localized) continue
+    text = text.replace(
+      new RegExp(`(?<![A-Za-z])${original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z])`, 'g'),
+      localized,
+    )
+  }
+  return text
+}
+
+interface Localizer {
+  aliases: Array<[string, string]>
+  byName: Map<string, string>
+  players: Record<string, Player>
+}
+
+function localizeEntities(world: WorldState): Localizer {
+  for (const player of Object.values(world.players) as LegacyPlayer[]) {
+    player.nameZh = player.nameZh || nameZhFor(player.name, player.nationality)
+  }
+  for (const club of Object.values(world.clubs)) {
+    const coach = club.coach as LegacyNamed
+    coach.nameZh = coach.nameZh || nameZhFor(coach.name, '英格兰')
+  }
+  const aliases: Array<[string, string]> = [
+    ...(Object.values(world.players) as LegacyPlayer[]).map(
+      (player) => [player.name, player.nameZh] as [string, string],
+    ),
+    ...Object.values(world.clubs).map((club) => [club.coach.name, club.coach.nameZh] as [string, string]),
+  ]
+  return { aliases, byName: new Map(aliases), players: world.players }
+}
+
+function localizeLineup(lineup: LegacyLineupEntry[] | undefined, localizer: Localizer): void {
+  for (const entry of lineup ?? []) {
+    entry.nameZh = entry.nameZh ?? localizer.players[entry.id ?? '']?.nameZh ?? entry.name
+  }
+}
+
+function localizeKeyMoment(moment: KeyMoment, aliases: Array<[string, string]>): void {
+  moment.titleZh = localizeText(moment.titleZh, aliases)
+  moment.promptZh = localizeText(moment.promptZh, aliases)
+  if (moment.triggerZh) moment.triggerZh = localizeText(moment.triggerZh, aliases)
+  if (moment.outcome) moment.outcome.textZh = localizeText(moment.outcome.textZh, aliases)
+}
+
+function localizeReport(report: MatchReport, localizer: Localizer): void {
+  const { aliases, byName } = localizer
+  for (const goal of report.goals) {
+    goal.scorerName = byName.get(goal.scorerName) ?? goal.scorerName
+    if (goal.assistName) goal.assistName = byName.get(goal.assistName) ?? goal.assistName
+  }
+  report.motmName = byName.get(report.motmName) ?? report.motmName
+  if (report.mediaReaction) report.mediaReaction = localizeText(report.mediaReaction, aliases)
+  for (const line of report.events) line.text = localizeText(line.text, aliases)
+  for (const moment of report.keyMoments ?? []) localizeKeyMoment(moment, aliases)
+  localizeLineup(report.lineups?.home, localizer)
+  localizeLineup(report.lineups?.away, localizer)
+}
+
+function migrateNames(world: WorldState): void {
+  const localizer = localizeEntities(world)
+  const { aliases } = localizer
+  for (const relationship of Object.values(world.relationships) as LegacyRelationship[]) {
+    relationship.nameZh = relationship.nameZh || nameZhFor(relationship.name, '英格兰')
+    relationship.summary = localizeText(relationship.summary, aliases)
+  }
+
+  const reports = [
+    world.lastMatch,
+    ...Object.values(world.fixtures).map((fixture) => fixture.report),
+  ].filter((report): report is MatchReport => Boolean(report))
+  for (const report of reports) localizeReport(report, localizer)
+
+  for (const item of world.news) {
+    item.title = localizeText(item.title, aliases)
+    item.body = localizeText(item.body, aliases)
+  }
+  for (const event of Object.values(world.events)) {
+    event.title = localizeText(event.title, aliases)
+    event.body = localizeText(event.body, aliases)
+    if (event.resultText) event.resultText = localizeText(event.resultText, aliases)
+    for (const choice of event.choices) choice.label = localizeText(choice.label, aliases)
+  }
+}
+
 export function migrateWorld(input: WorldState): WorldState {
   if (input.version > CURRENT_SAVE_VERSION) {
     throw new Error('这个存档来自更新版本的游戏，请先更新。')
@@ -110,7 +216,8 @@ export function migrateWorld(input: WorldState): WorldState {
   if (world.lastMatch) world.lastMatch = migrateReport(world.lastMatch)
 
   if (sourceVersion < 5) migrateTimeModel(world)
+  if (sourceVersion < 6) migrateNames(world)
   if (sourceVersion < 2) world.pendingDayPlan = null
   world.version = CURRENT_SAVE_VERSION
-  return sourceVersion < 5 ? assertWorld(world) : world
+  return assertWorld(world)
 }

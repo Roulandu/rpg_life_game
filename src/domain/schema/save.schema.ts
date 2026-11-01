@@ -22,6 +22,8 @@ const playerSchema = z
   .object({
     id: z.string().min(1),
     name: z.string(),
+    /** v6 起必有；v5 及更早存档缺字段，由迁移补齐，所以这里只能是可选。 */
+    nameZh: z.string().optional(),
     nationality: z.string(),
     age: z.number().int().min(14).max(60),
     position: z.string(),

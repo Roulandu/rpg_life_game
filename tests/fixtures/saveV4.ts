@@ -1,8 +1,9 @@
 import type { Injury, WorldState } from '../../src/domain/types'
 import { startWeek } from '../../src/engine/turn'
+import { stripNameZh } from './career'
 import { PLAN, readyWorld } from './matchday'
 
-/** v4 存档的形状：日时钟字段还不存在，待办计划叫 pendingWeekPlan。 */
+/** v4 存档的形状：日时钟字段还不存在，待办计划叫 pendingWeekPlan，也没有中文名。 */
 interface V4Shape extends WorldState {
   pendingWeekPlan?: unknown
 }
@@ -22,7 +23,7 @@ function toV4(world: V4Shape): WorldState {
   for (const fixture of Object.values(world.fixtures)) delete fixture.day
   world.version = 4
   world.pendingWeekPlan = pending ?? null
-  return world
+  return stripNameZh(world)
 }
 
 /**
