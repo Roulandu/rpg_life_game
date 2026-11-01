@@ -97,7 +97,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.7.0'`（与 `world.version = 7` 一起构成回放基准的身份）
+- `ENGINE_VERSION = '0.8.0'`（与 `world.version = 7` 一起构成回放基准的身份）
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -130,7 +130,7 @@ interface TurnResult {
 
 | 函数 | 签名 | 行为 |
 |---|---|---|
-| `generateKeyMoments` | `(player, rng, minutes, isHome, startMinute?) => KeyMoment[]` | 根据出场时间生成 5–7 个关键回合（12 类、每回合 5 选项），`roll` 在生成时固定 |
+| `generateKeyMoments` | `({ player, rng, minutes, isHome, startMinute?, opponents? }) => KeyMoment[]` | 根据出场时间生成 5–7 个关键回合（12 类、每回合 5 选项），`roll` 在生成时固定；`opponents` 决定每个选项读写哪三名对手，生成后概率不再变化 |
 | `pendingKeyMoments` | `(world) => KeyMoment[]` | 尚未处理的回合 |
 | `hasPendingKeyMoments` | `(world) => boolean` | 是否存在待处理回合 |
 | `resolveKeyMoment` | `(world, momentId, optionId, options?: { advance?: boolean }) => MatchReport \| null` | 按固定 `roll` 与选项结算；只能处理下一个待处理回合。live 报告立即改写比分，`advance` 默认 `true`，为 `false` 时停在当前分钟；赛季数据留到终场 |
@@ -140,10 +140,25 @@ interface TurnResult {
 不可变条件：
 
 - `roll` 生成后不得重抽。
+- 对手属性只能在 `generateKeyMoments` 之前读取并写死进选项，结算阶段不得重算概率。
 - 必须按数组顺序处理，不能跳回合。
 - 比分只通过 `appendGoal` 追加，不重算整场；live 回合的赛季进球/助攻/评分只在终场统计一次。
 - `finalizeMatchday` / `finalizeLiveMatch` 在仍有未处理回合时返回 `null`，不得提前生成媒体反应。
 - 终场结算幂等：`status === 'final'` 时直接返回，不重复统计或发布新闻。
+
+### 关键回合概率（引擎内部）
+
+`src/engine/data/scoreChance.ts` 与 `src/engine/matchOpponent.ts` 不进入 `src/engine` 公共入口，只被 `liveMatch`/`keyMomentGen` 与测试深引用。
+
+| 函数 | 签名 | 行为 |
+|---|---|---|
+| `scoreChance` | `(player, input: ScoreChanceInput, opponents?: OpponentPair \| null) => { successChance, successBasisZh }` | `clamp(base + Σ actorCoef×我的属性 + Σ move.delta − Σ opponentCoef×对手属性, low, high)`，0.1% 粒度取整；无项可加时回落到 `flatBasisZh` |
+| `buildOptionTable` | `(rows: OptionRow[], context: KindContext) => KeyMomentOption[]` | 把一类的选项表逐行套公式，产出恰好同样数量与顺序的选项 |
+| `resolveOpponents` | `(world, source: { homeId, awayId, lineups? }) => OpponentPair \| null` | 从对面首发回查 `world.players`，给出 `keeper/marker/shooter`；同分取先出现者；无阵容返回 `null`；纯读取不消耗 RNG |
+
+- `KindContext = { player, isHome, opponents? }` 是 12 类 builder 的唯一入参；`opponents` 缺失时选项退化为「只看自己属性」。
+- 系数单位是「每 1 点属性对概率的贡献」，`0.0012` = 每点 0.12%，因此表里的数字可与依据文本直接对账。
+- 绝技（M1.10）通过 `ScoreChanceInput.moves: { labelZh, delta }[]` 挂载，不需要改公式。
 
 ## 领域比赛辅助
 
@@ -152,7 +167,7 @@ interface TurnResult {
 | `selectLineup` | `(club, players, options?) => Player[]` | 选择 1-4-4-2 首发；同俱乐部输出稳定；可强制/排除指定球员 |
 | `buildMatchLineups` | `(world, report) => MatchLineups` | 为主客各生成 11 人首发摘要（姓名、号码、位置、是否用户） |
 | `buildPitchFrame` | `(input: PitchFrameInput) => PitchFrame` | 生成双方 11 人坐标、足球位置、传球路线、最近 4 帧轨迹、控球方、持球人与进球侧；控球方压上、防守方回撤逼抢、球贴持球人脚下；同一 seed/场次/分钟确定性 |
-| `successBasisText` | `(option) => string` | 成功率依据（属性名 + 百分比） |
+| `successBasisText` | `(option) => string` | 成功率依据：把 `successBasisZh`（我方属性项、对手对位项、绝技项，逐条「名称 值 ±百分比」）与最终成功率拼成一句；无依据时只显示成功率 |
 | `effectsSummary` | `(option) => string` | 选项效果摘要（进球、助攻、评分、士气、教练信任） |
 
 ## 事件
@@ -293,5 +308,6 @@ interface TurnResult {
 | 2026-11-01 | `buildPitchFrame` 的 `passPath` 跳过与当前分钟重复的历史帧；关键回合结算事件补写用户方 `side`；`ENGINE_VERSION` 0.4.1 与 golden 更新 | 缺陷修复：2D 画面细节 |
 | 2026-11-01 | 新增日回合接口（`startDay`/`advanceDay`/`advanceUntilDecision`/`playDay`/`isPendingDay`/`dayRng`/`dailyId`）与 `DayResult`/`FastForwardResult`；`startWeek`/`completeWeek`/`advanceWeek` 保留为周适配器；`recoverInjuries→advanceInjuries`、`applyTraining→applyDailyTraining`、`applyExtraAction→applyDailyAction`、`simulateWeekFixtures→simulateDayFixtures`、新增 `getUserFixtureOnDay`；领域赛历（`absoluteDay`/`dayForRound`/`fixtureDayOf`/`weekDayRoles`/`DEFAULT_WEEK_PLAN`）进入公共接口；`ENGINE_VERSION` 0.5.0 | 绿茵人生 M1.1 |
 | 2026-11-02 | 引擎产出的所有文本（直播事件、关键回合文案、新闻、教练评语、MOTM、射手榜）人名一律取 `displayName(entity)`；接口签名不变，但 `hashState` 因实体新增 `nameZh` 而变化，`ENGINE_VERSION` 升到 0.5.1 并重算 golden；转写本身不消耗 RNG，同种子结果仍可复现 | 绿茵人生 M1.4（中文人名） |
-| 2026-11-02 | 新增 `domain/coachStyle.ts` 打法模型；`matchUser` 抽出并导出 `selectionScore`，评分末项加 `(styleFit − 0.5) × 4`；`training` 抽出并导出 `dailyGrowth`，成长量乘 `styleSynergy`；`ENGINE_VERSION` 升到 0.5.2，重算 golden（种子 42 的回放计划不命中风格加成，哈希变化来自世界内的 `engineVersion` 字符串） | 绿茵人生 M1.5 || 2026-11-02 | 新增 `domain/coachStyle.ts` 打法模型；`matchUser` 抽出并导出 `selectionScore`，评分末项加 `(styleFit − 0.5) × 4`；`training` 抽出并导出 `dailyGrowth`，成长量乘 `styleSynergy`；`ENGINE_VERSION` 升到 0.5.2，重算 golden（种子 42 的回放计划不命中风格加成，哈希变化来自世界内的 `engineVersion` 字符串） | 绿茵人生 M1.5 |
+| 2026-11-02 | 新增 `domain/coachStyle.ts` 打法模型；`matchUser` 抽出并导出 `selectionScore`，评分末项加 `(styleFit − 0.5) × 4`；`training` 抽出并导出 `dailyGrowth`，成长量乘 `styleSynergy`；`ENGINE_VERSION` 升到 0.5.2，重算 golden（种子 42 的回放计划不命中风格加成，哈希变化来自世界内的 `engineVersion` 字符串） | 绿茵人生 M1.5 |
 | 2026-11-02 | 接口签名不变；`ENGINE_VERSION` 0.6.0 → 0.7.0 并重算 golden（事件内容从 11 条扩到 87 条，`world.events[*].choices` 参与哈希），`EffectOp` 新增 `injuryDays` | 绿茵人生 M1.8（事件内容扩容） |
+| 2026-11-02 | `generateKeyMoments` 改为 `KeyMomentRequest` 对象入参并随公共入口导出类型；新增引擎内部 `matchOpponent.resolveOpponents` 与 `data/scoreChance`（`scoreChance`/`buildOptionTable`/`OptionRow`/`KindContext`/`OpponentPair`），12 类选项全部改为公式表并读对手门将/后卫/前锋属性；删除 `data/optionUtils.ts`；`ENGINE_VERSION` 0.7.0 → 0.8.0，golden `5fdf2872b99372c2` → `43de8568604868f8` | 绿茵人生 M1.9（对手对抗） |

@@ -27,7 +27,7 @@ flowchart TD
 |---|---|---|
 | `version` | number | 世界结构版本，当前 `7` |
 | `seed` | number | 世界种子，决定生成、赛程、比赛与事件 |
-| `engineVersion` | string | 生成世界的引擎版本，当前 `0.7.0` |
+| `engineVersion` | string | 生成世界的引擎版本，当前 `0.8.0` |
 | `createdAt` / `updatedAt` | ISO string | 创建与最近更新时间 |
 | `playerId` | Id | 用户球员 ID |
 | `clubId` | Id | 用户当前俱乐部 ID |
@@ -69,7 +69,7 @@ flowchart TD
 | `MatchLineups` | `home / away: MatchLineupPlayer[]` | 每侧 11 人，1 门将 4 后卫 4 中场 2 前锋；同俱乐部落点稳定 |
 | `MatchLineupPlayer` | `id / name / nameZh? / number / position / isUser` | `id` 指向真实球员；用户出场时必须在首发中 |
 | `KeyMoment` | `minute / kind / roll / triggerZh? / options / outcome? / defaultOptionId` | 12 类；每场 5–7 次；每回合恰好 5 个选项；`roll` 生成后固定 |
-| `KeyMomentOption` | `labelZh / successChance / successBasisZh? / 效果字段` | `defaultOptionId` 指向成功率最高项；成功率依据必须含属性名与百分比 |
+| `KeyMomentOption` | `labelZh / successChance / successBasisZh? / 效果字段` | `defaultOptionId` 指向成功率最高项；`successChance` 由 `scoreChance` 公式（基线 + 我方属性 + 绝技 − 对手门将/后卫/前锋）在开场算定，`successBasisZh` 逐项写「名称 值 ±百分比」，结算只比 `roll < successChance` |
 | `Injury` | `kind / daysLeft / severity` | `daysLeft` 是**剩余天数**（1–7 天内可跨周），每天由 `advanceInjuries` 减 1；归零即伤愈并清空 |
 | `WeeklyPlan` | `training / extra` | 每周模板；`world.day` 决定当天是否执行训练或额外安排 |
 | `PendingDayPlan` | `training / extra / fixtureId` | 只在停在开球那天存在；当日收尾时清空；v4→v5 迁移由 `pendingWeekPlan` 改名并把时钟摆回比赛日 |
@@ -116,7 +116,7 @@ flowchart TD
 {
   "format": "pitch-life-save",
   "saveVersion": 7,
-  "engineVersion": "0.7.0",
+  "engineVersion": "0.8.0",
   "exportedAt": "2026-10-26T12:00:00.000Z",
   "checksum": "<hashString(canonicalStringify(world))>",
   "world": { "...": "WorldState" }
@@ -240,3 +240,4 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 2026-11-02 | 无存档结构变化：`Club.style` 从死字段变成选型与训练的输入（`domain/coachStyle.ts`），引擎语义变更令 `ENGINE_VERSION` 升 0.5.2 并重算回放基准（`91cb67aad3f2e45a`），世界里的 `engineVersion` 字符串随新世界写入 | M1.5 教练打法生效 |
 | 2026-11-02 | 存档升 v7：`eventMemory` 冷却表与事件 `day / createdAtDay / expiresDay / sender / blocking`，事件 id 加日段；v6 迁移回灌日字段并按模板重建冷却表；`ENGINE_VERSION` 升 0.6.0 并重算回放基准 | M1.7 每日事件 |
 | 2026-11-02 | 无存档结构变化：事件内容池从 11 条扩到 87 条（新增 7 个类别包），`EffectOp` 增加 `injuryDays`（单位＝天，只作用于已有伤病）并把 `money` 钉成整英镑；`ENGINE_VERSION` 升 0.7.0、回放基准 `c11f736b834051db` → `5fdf2872b99372c2` | M1.8 事件内容扩容 |
+| 2026-11-02 | 无存档结构变化：`KeyMomentOption.successChance / successBasisZh` 改由 `scoreChance` 公式表产出并读对面首发的门将/后卫/前锋属性（`resolveOpponents` 回查 `world.players`），`data/optionUtils.ts` 删除；这些字段嵌在 `MatchReport.keyMoments` 里参与 `hashState`，故 `ENGINE_VERSION` 升 0.8.0、回放基准 `5fdf2872b99372c2` → `43de8568604868f8`；`CURRENT_SAVE_VERSION` 仍为 7，旧档字段形状不变，只是同一场重放会得到新概率 | M1.9 对手对抗概率 |

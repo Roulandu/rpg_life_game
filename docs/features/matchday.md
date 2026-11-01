@@ -16,7 +16,9 @@ code:
   - src/engine/keyMoments.ts
   - src/engine/keyMomentGen.ts
   - src/engine/keyMomentNarrative.ts
+  - src/engine/matchOpponent.ts
   - src/engine/data/keyMomentOptions.ts
+  - src/engine/data/scoreChance.ts
   - src/engine/data/keyMomentOptionsAttack.ts
   - src/engine/data/keyMomentOptionsDefense.ts
   - src/engine/data/keyMomentOptionsSetPiece.ts
@@ -57,6 +59,11 @@ tests:
   - tests/engine/keyMoments.test.ts
   - tests/engine/keyMomentGeneration.test.ts
   - tests/engine/keyMomentOptions.test.ts
+  - tests/engine/scoreChance.test.ts
+  - tests/engine/matchOpponent.test.ts
+  - tests/engine/keyMomentOpponentAttack.test.ts
+  - tests/engine/keyMomentOpponentDefense.test.ts
+  - tests/engine/keyMomentWiring.test.ts
   - tests/engine/keyMomentNarrative.test.ts
   - tests/engine/motm.test.ts
   - tests/engine/season.test.ts
@@ -80,7 +87,7 @@ tests:
   - tests/ui/matchdayLive.test.tsx
   - tests/ui/matchdayOutcomes.test.tsx
 diagrams: [sequence, state]
-last_reviewed: 2026-10-31
+last_reviewed: 2026-11-02
 ---
 
 # 比赛日与关键回合
@@ -245,10 +252,39 @@ stateDiagram-v2
 - 位置池按门将、后卫、中场、前锋划分；分钟递增且不重复。
 - 每个回合恰好 5 个选项，`defaultOptionId` 指向成功率最高的稳妥选项。
 - 每个选项含 `successChance`、成功/失败评分、士气、教练信任、进球/助攻标记，以及：
-  - `successBasisZh`：成功率依据（属性名 + 百分比）。
+  - `successBasisZh`：成功率依据（逐项「属性 值 ±百分比」，对手项写成「对手门将 90 -10.8%」）。
   - 效果摘要：进球、助攻、评分、士气、教练信任。
 - 每个回合含 `triggerZh`：触发条件（场景描述）。
 - `roll` 在生成时固定为 0–1 的四位小数；后续只比较 `roll < successChance`，不得重抽或重算。
+
+#### 概率公式（scoreChance）
+
+- 12 类选项全部由 `src/engine/data/keyMomentOptions{Attack,Defense,SetPiece}.ts` 里的 `OptionRow` 表声明，一行一个选项，统一交给 `buildOptionTable` 走 `scoreChance`。
+- 公式：`successChance = clamp(base + Σ actorCoef × 我的属性 + Σ move.delta − Σ opponentCoef × 对手属性, low, high)`，结果按 0.1% 粒度取整。
+- 系数以「每 1 点属性」为单位（`0.0012` 即每点 0.12%），因此同一选项在高属性下会被 `high` 夹住，不会出现 >1 的概率。
+- 对手取三个对位角色：`keeper`（门将）、`marker`（盯人后卫）、`shooter`（出手前锋）；哪个选项读哪个角色由表声明，例如 `save` 只读 `shooter`，`penalty` 只读 `keeper`。
+- 确实不看对手的选项（护球、大脚解围、战术犯规等）写成 `base = low = high` 并给出 `flatBasisZh`，让「常量」是声明而不是巧合。
+- 绝技（M1.10）通过 `moves: MoveBonus[]` 挂进同一公式：`{ labelZh, delta }` 直接进概率并出现在依据文本里，公式本身不改。
+
+```mermaid
+sequenceDiagram
+  participant D as engine/day
+  participant L as engine/liveMatch
+  participant S as engine/liveSetup
+  participant O as engine/matchOpponent
+  participant G as engine/keyMomentGen
+  D->>L: startUserMatch(world, fixture)
+  L->>S: prepareUserFixture → 双方强度/xG/lineups
+  L->>O: resolveOpponents(world, {homeId, awayId, lineups})
+  O-->>L: keeper / marker / shooter（缺阵容则 null）
+  L->>G: generateKeyMoments({player, rng, minutes, isHome, startMinute, opponents})
+  Note over G: optionsFor 用对手属性锁死每个选项的 successChance，roll 同批预抽
+  G-->>L: KeyMoment[]
+  L-->>D: MatchReport(status=live)
+```
+
+- `resolveOpponents` 是纯读取：从对面首发的 id 回查 `world.players` 拿真实属性（首发条目本身不带属性），后卫取防守最强者、出手池优先前锋（无前锋时退到中场）取射门最强者，同分取先出现的人；不消耗随机数、不写状态。
+- 对位固定取**开场首发**。比赛中换人不刷新对手，因为 `roll` 与概率已在生成时锁死，中途改概率等于重算历史。
 
 ### 回合结算
 
@@ -317,6 +353,7 @@ stateDiagram-v2
 
 - 比赛不得预先确定终场比分；比分只能是“截至当前分钟”的累计。
 - `roll` 不得重抽、不得在结算时重新计算成功率。
+- 对手属性只能在 `generateKeyMoments` 之前读取并写死进选项；结算路径、UI 与自动处理都不得再查对手。
 - 关键回合顺序不可交换。
 - 比分只能由 `appendGoal` 写入；同一进球不得重复计数。
 - 未完成全部回合时不得生成媒体反应、评分或推进下一周。
@@ -327,8 +364,8 @@ stateDiagram-v2
 
 读写：
 
-- `world.lastMatch`：`MatchReport`，live 阶段 `userRating = null`、`motmName = ''`、`motmRating = 0`、无 `mediaReaction`；含 `stats`、`lineups` 与 live 阶段的 `liveState`（`possession / ballX / carrierId? / pendingKickoff?`）。
-- `world.pendingWeekPlan`：live 期间保存本周计划与 `fixtureId`，用于完成后继续结算。
+- `world.lastMatch`：`MatchReport`，live 阶段 `userRating = null`、`motmName = ''`、`motmRating = 0`、无 `mediaReaction`；含 `stats`、`lineups`、`keyMoments`（每个选项的 `successChance / successBasisZh` 在开场即写死对手对位结果）与 live 阶段的 `liveState`（`possession / ballX / carrierId? / pendingKickoff?`）。
+- `world.pendingDayPlan`：停在开球那天时保存当日的训练/活动计划与 `fixtureId`，用于踢完这场后继续当日收尾。
 - `world.fixtures[fixtureId]`：`status` 为 `scheduled / live / played`，比分实时同步。
 - 用户球员：`seasonStats`、`form`、`morale`、`confidence`、`reputation`、`injury`。
 - `world.relationships`：教练、媒体、球迷。
@@ -342,7 +379,8 @@ stateDiagram-v2
 - `engine.advanceLiveMinute(world)` / `engine.advanceLiveMatch(world)`
 - `engine.buildSpell(input)` / `engine.homePossessionShare(home, away)`
 - `engine.buildBeats(input)`
-- `engine.generateKeyMoments(player, rng, minutes, isHome, startMinute)`
+- `engine.generateKeyMoments({ player, rng, minutes, isHome, startMinute?, opponents? })`
+- 引擎内部（不进公共入口，测试按深路径引用）：`engine/matchOpponent.resolveOpponents(world, { homeId, awayId, lineups })`、`engine/data/scoreChance.scoreChance(player, row, opponents?)`、`engine/data/scoreChance.buildOptionTable(rows, context)`
 - `engine.resolveKeyMoment(world, momentId, optionId, { advance? })`
 - `engine.autoResolveKeyMoments(world)`
 - `engine.finalizeMatchday(world)` / `engine.finalizeLiveMatch(world)`
@@ -364,6 +402,7 @@ stateDiagram-v2
 | 页面刷新（弹窗中） | 回到同一待处理回合，重新弹出；掷骰结果本来就要重新选择，不恢复 |
 | 点击完成比赛但未到 90' 或仍有回合 | 拒绝并提示，不推周、不写库 |
 | 旧版存档未完成回合 | 保留旧结算路径，完成回合后不多推周 |
+| 阵容缺失或对面没有可解析的对位 | `resolveOpponents` 返回 `null`，选项退回「只看自己属性」的公式分支，仍保证 0<p<1 且依据非空 |
 | AI 叙事失败 | 比赛报告、媒体反应与新闻保留 |
 
 ## 平台差异
@@ -380,6 +419,7 @@ stateDiagram-v2
 - 半场不交换进攻方向，主队始终向 `x=1`、客队向 `x=0` 进攻。
 - 用户替补时球场仍显示首发 11 人，只显示“你将在第 X 分钟登场”提示，不动态换人。
 - 关键回合只有玩家一方；对手机会以双方攻防事件呈现。
+- 关键回合的对手对位取**开场首发**属性：比赛中换人、门将受伤下场都不会刷新压制值，因为 `roll` 与 `successChance` 已在生成时锁死，中途改概率等于重算历史。
 - 背景比赛仍即时结算，不逐分钟播放。
 
 ## 验收与测试映射
@@ -397,6 +437,11 @@ stateDiagram-v2
 | 关键回合成功/失败立即改写比分 | `tests/engine/liveMatch.test.ts` |
 | 关键回合数量、分钟递增、默认选项、替补窗口 | `tests/engine/keyMomentGeneration.test.ts` |
 | 12 类 × 5 选项、触发条件、成功率依据、收益 | `tests/engine/keyMomentOptions.test.ts` |
+| 概率公式：我方加成、对手压制、上下界夹取、依据文本、绝技位 | `tests/engine/scoreChance.test.ts` |
+| 对位解析：门将/后卫/前锋选择、只取对面、纯读取不改状态、空阵容返回 null | `tests/engine/matchOpponent.test.ts` |
+| 进攻类读对手（强门将压射门、强后卫压直塞、常量选项不变） | `tests/engine/keyMomentOpponentAttack.test.ts` |
+| 防守与定位球读对手（强前锋压扑救、强门将压点球）+ 全类合法性 | `tests/engine/keyMomentOpponentDefense.test.ts` |
+| 开场即锁定对手：盘口概率 = 同一对手重算结果、依据出现「对手」 | `tests/engine/keyMomentWiring.test.ts` |
 | 12 类成功/失败叙事 | `tests/engine/keyMomentNarrative.test.ts` |
 | 结算、终场评分、form、赛季统计、新闻 | `tests/engine/keyMoments.test.ts`、`tests/engine/motm.test.ts` |
 | 比赛模拟、出场判定、赛季统计 | `tests/engine/season.test.ts`、`tests/engine/match.test.ts` |
@@ -448,3 +493,4 @@ stateDiagram-v2
 | 2026-10-31 | 重做比赛实时引擎与 2D 画面：连续控球 Markov、球位推进、传球轨迹、射门/进球同源、射手=持球人；球场坐标改为控球压上/防守回撤/门将贴线，球贴持球人脚下；SVG 完整球场、足球图标、传球线、控球条、GOAL 徽标与速度自适应动画；`MatchReport.liveState` 持久化画面状态；存档升 v4；engine 0.4.0，golden 哈希更新 | 缺陷修复：比赛日 2D 画面不可读 |
 | 2026-11-01 | 传球线跳过与当前分钟重复的历史帧，始终从上一分钟球位出发；关键回合结算事件补写用户方 `side`，修复关键回合进球不显示 `GOAL` 徽标；engine 0.4.1 与 golden 更新；360/390px 与桌面验收通过 | 缺陷修复：2D 画面细节 |
 | 2026-11-02 | 出场评分接入教练打法契合度 `(styleFit − 0.5) × 4`，评分逻辑抽成可导出的 `selectionScore`；打法模型落在 `domain/coachStyle.ts`；engine 0.5.2 与 golden 重算（种子 42 的回放计划未命中风格加成，哈希变化只来自写进世界的 `engineVersion` 字符串） | 日回合与养成 M1.5 |
+| 2026-11-02 | 关键回合概率改为公式表驱动：12 类选项全部走 `scoreChance`（基线 + 我方属性 + 绝技位 − 对手门将/后卫/前锋），`resolveOpponents` 在开场从对面首发回查真实属性并锁进选项；`generateKeyMoments` 改对象入参；删除 `data/optionUtils.ts`；`ENGINE_VERSION` 0.7.0 → 0.8.0，golden `5fdf2872b99372c2` → `43de8568604868f8`；顺手修正文档里遗留的 `pendingWeekPlan` 现名 | 日回合与养成 M1.9 |
