@@ -1,4 +1,4 @@
-import { TRAINING_ATTRS, TRAINING_LABELS, clamp, displayName, overall, round1, roundAttr } from '../domain'
+import { TRAINING_ATTRS, TRAINING_LABELS, clamp, displayName, overall, round1, roundAttr, styleSynergy } from '../domain'
 import type { Club, ExtraAction, Player, TrainingFocus, WorldState } from '../domain'
 import type { Rng } from '../lib'
 import { dailyId, dayRng } from './dayContext'
@@ -59,7 +59,7 @@ function ageFactor(age: number): number {
 }
 
 /** 单次训练的成长量：潜力余量越大、设施与教练越好、年龄越小，长得越多。 */
-function dailyGrowth(user: Player, club: Club, focus: TrainingFocus): number {
+export function dailyGrowth(user: Player, club: Club, focus: TrainingFocus): number {
   const headroom = Math.max(0, user.potential - overall(user))
   const intensity = focus === 'recovery' ? 0.35 : 1
   const fitnessFactor = user.fitness < 40 ? 0.6 : 1
@@ -70,6 +70,7 @@ function dailyGrowth(user: Player, club: Club, focus: TrainingFocus): number {
     (0.88 + club.coach.quality / 60) *
     intensity *
     fitnessFactor *
+    styleSynergy(focus, club.style) *
     PER_DAY
   )
 }

@@ -1,4 +1,4 @@
-import { clamp, displayName, overall, positionGroup, round1 } from '../domain'
+import { clamp, displayName, overall, positionGroup, round1, styleFit } from '../domain'
 import type { Club, MatchEventLine, Player, WorldState } from '../domain'
 import type { Rng } from '../lib'
 import { computeClubStrength } from '../domain'
@@ -10,6 +10,23 @@ export interface SelectionResult {
   minutes: number
 }
 
+/** 入选评分：能力差、教练信任、身体状态与风格契合度共同决定，纯函数便于回归验证。 */
+export function selectionScore(
+  club: Club,
+  user: Player,
+  squadOverallWithoutUser: number,
+  trust: number,
+): number {
+  return (
+    (overall(user) - squadOverallWithoutUser) * 2.2 +
+    (trust - 50) * 0.22 +
+    (user.fitness - 70) * 0.2 +
+    (user.form - 50) * 0.12 +
+    (user.sharpness - 50) * 0.08 +
+    (styleFit(user, club.style) - 0.5) * 4
+  )
+}
+
 export function determineUserSelection(
   world: WorldState,
   club: Club,
@@ -19,13 +36,7 @@ export function determineUserSelection(
   if (!user || user.injury || user.fitness < 26) return { started: false, minutes: 0 }
 
   const withoutUser = computeClubStrength(club, world.players, { excludePlayerId: user.id })
-  const trust = coachTrust(world)
-  const score =
-    (overall(user) - withoutUser.overall) * 2.2 +
-    (trust - 50) * 0.22 +
-    (user.fitness - 70) * 0.2 +
-    (user.form - 50) * 0.12 +
-    (user.sharpness - 50) * 0.08
+  const score = selectionScore(club, user, withoutUser.overall, coachTrust(world))
 
   if (user.fitness >= 38 && (score >= -3.5 || (score >= -9 && rng.chance(0.55)))) {
     return { started: true, minutes: 90 }
