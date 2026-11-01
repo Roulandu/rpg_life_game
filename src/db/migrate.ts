@@ -1,5 +1,15 @@
-import { DEFAULT_WEEK_PLAN, buildMatchLineups, dayForRound, fixtureDayOf, nameZhFor } from '../domain'
+import {
+  DAYS_PER_WEEK,
+  DEFAULT_WEEK_PLAN,
+  absoluteDay,
+  buildMatchLineups,
+  dayForRound,
+  eventTemplateById,
+  fixtureDayOf,
+  nameZhFor,
+} from '../domain'
 import type {
+  GameEvent,
   KeyMoment,
   MatchReport,
   MatchStatLine,
@@ -31,6 +41,15 @@ type LegacyWeekClock = WorldState & {
 }
 
 type LegacyInjury = { kind: string; severity: number; weeksLeft?: number; daysLeft?: number }
+
+/** v6 事件只有周字段：日序与拦截性由 v7 迁移补齐。 */
+type LegacyEvent = GameEvent & {
+  day?: number
+  createdAtDay?: number
+  expiresDay?: number
+  blocking?: boolean
+  sender?: string
+}
 
 function normalizeReport(report: MatchReport): MatchReport {
   const legacy = report as LegacyReport
@@ -193,6 +212,24 @@ function migrateNames(world: WorldState): void {
   }
 }
 
+/**
+ * v6→v7：事件从「每周一条」改成「每天最多一条」。
+ * 老事件按周换算出日序，冷却表用事件本身重建，否则旧档读进来第一周就会被同一模板刷屏。
+ */
+function migrateEventDays(world: WorldState): void {
+  const memory: Record<string, number> = {}
+  for (const event of Object.values(world.events) as LegacyEvent[]) {
+    const template = eventTemplateById(event.templateId)
+    event.day ??= DAYS_PER_WEEK
+    event.createdAtDay ??= absoluteDay(event.createdAtWeek, event.day)
+    event.expiresDay ??= absoluteDay(event.expiresWeek, DAYS_PER_WEEK)
+    event.blocking ??= template?.blocking ?? true
+    event.sender ??= template?.sender ?? '俱乐部'
+    memory[event.templateId] = Math.max(memory[event.templateId] ?? 0, event.createdAtDay)
+  }
+  world.eventMemory = memory
+}
+
 export function migrateWorld(input: WorldState): WorldState {
   if (input.version > CURRENT_SAVE_VERSION) {
     throw new Error('这个存档来自更新版本的游戏，请先更新。')
@@ -217,6 +254,7 @@ export function migrateWorld(input: WorldState): WorldState {
 
   if (sourceVersion < 5) migrateTimeModel(world)
   if (sourceVersion < 6) migrateNames(world)
+  if (sourceVersion < 7) migrateEventDays(world)
   if (sourceVersion < 2) world.pendingDayPlan = null
   world.version = CURRENT_SAVE_VERSION
   return assertWorld(world)

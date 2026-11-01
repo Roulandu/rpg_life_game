@@ -110,6 +110,8 @@ export const worldSchema = z
     fixtures: z.record(z.string(), fixtureSchema),
     relationships: z.record(z.string(), z.object({ id: z.string(), role: z.string() }).passthrough()),
     events: z.record(z.string(), z.object({ id: z.string(), status: z.string() }).passthrough()),
+    // v7 之前没有事件冷却记忆：旧档缺字段时放行，由迁移补成空表。
+    eventMemory: z.record(z.string(), z.number()).optional(),
     finance: z
       .object({
         balance: z.number(),
