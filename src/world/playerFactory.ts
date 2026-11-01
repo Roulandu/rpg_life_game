@@ -1,14 +1,6 @@
-import {
-  archetypeBonus,
-  backgroundBonus,
-  clamp,
-  computeOverall,
-  emptyAttrInvestment,
-  nameZhFor,
-  round1,
-} from '../domain'
-import { applyBonuses, makeAttributes } from './attributeFactory'
-import { draftUserAttributes, makeUserContract } from './userDraft'
+import { clamp, computeOverall, emptyAttrInvestment, nameZhFor, round1 } from '../domain'
+import { makeAttributes } from './attributeFactory'
+import { draftUserBase, makeUserContract, resolveUserAttributes } from './userDraft'
 import type {
   Attributes,
   CareerCreateOptions,
@@ -170,20 +162,13 @@ export function makeUserPlayer(
   players: Record<Id, Player>,
   seed: number,
 ): Player {
-  const rng = createRng(seed, 'user', options.name, options.age, options.position)
-  const age = clamp(options.age, 16, 21)
-  const baseAbility = 46 + (age - 16) * 2 + rng.normal(0, 2.5)
-  const attributes = makeAttributes(options.position, baseAbility, rng)
-  applyBonuses(attributes, options.position, [
-    archetypeBonus(options.archetype),
-    backgroundBonus(options.background),
-  ])
-  // 点买不消耗随机数：种子流位置与加点前完全一致，潜力仍由 baseAbility 决定。
-  const potential = clamp(baseAbility + 24 + rng.int(0, 10) - (age - 16) * 2, 60, 92)
-  const finalAttributes = draftUserAttributes(options, attributes, age, potential)
+  const base = draftUserBase(options)
+  const { age, potential } = base
+  const draft = resolveUserAttributes(options, base)
+  const finalAttributes = draft.ok ? draft.applied : base.attributes
   const playerOverall = computeOverall(options.position, finalAttributes)
-  const wageWeekly = makeWeeklyWage(baseAbility, club.tier, age)
-  const foot = pickFoot(rng, 0.65, 0.93)
+  const wageWeekly = makeWeeklyWage(base.baseAbility, club.tier, age)
+  const foot = pickFoot(base.rng, 0.65, 0.93)
   const name = options.name.trim() || '林远'
   const player: Player = {
     id: `player:user:${seed}`,
