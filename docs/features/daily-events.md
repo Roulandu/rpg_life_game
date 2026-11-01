@@ -10,20 +10,34 @@ code:
   - src/engine/eventCondition.ts
   - src/engine/eventsDaily.ts
   - src/engine/events.ts
+  - src/engine/effects.ts
   - src/engine/data/eventTemplates.ts
   - src/engine/day.ts
   - src/engine/season.ts
+  - src/ui/labels.ts
   - src/ui/screens/dashboard/dashboardData.ts
   - src/ui/screens/dashboard/TodaySection.tsx
   - src/ui/screens/inbox/OpenEventCard.tsx
   - src/ui/screens/inbox/EventsTab.tsx
   - src/ui/screens/inbox/InboxTabBody.tsx
   - src/ui/screens/InboxScreen.tsx
+  - data/events/legacy.json
+  - data/events/matchweek.json
+  - data/events/daily-life.json
+  - data/events/media.json
+  - data/events/club.json
+  - data/events/finance.json
+  - data/events/staff.json
+  - data/events/milestones.json
+  - scripts/validate-data.ts
 tests:
   - tests/engine/eventConditions.test.ts
   - tests/engine/eventDaily.test.ts
   - tests/engine/eventCadence.test.ts
   - tests/engine/eventTemplates.test.ts
+  - tests/engine/eventPacks.test.ts
+  - tests/engine/eventEffects.test.ts
+  - tests/domain/eventContent.test.ts
   - tests/engine/day.test.ts
   - tests/engine/stopConditions.test.ts
   - tests/db/migrationV7.test.ts
@@ -43,7 +57,7 @@ last_reviewed: 2026-11-02
 
 三件事同时成立才算交付：
 
-1. **内容数据化**：事件模板进 `data/events/*.json`，由 `src/domain/eventContent.ts` 用 Zod 校验并硬白名单；新增一类生活事件只改 JSON，不改引擎。
+1. **内容数据化**：事件模板进 `data/events/*.json`，由 `src/domain/eventContent.ts` 用 Zod 校验并硬白名单；新增一类生活事件只改 JSON，不改引擎。当前 8 个数据包共 87 条模板。
 2. **可验证的触发条件**：条件是一个 27 字段白名单投影上的合取式（`{field, op, value}`），不是表达式语言；内容作者写不出图灵完备的东西，测试也能枚举。
 3. **频率重标定**：旧口径「周日 72% 出一条」摊成「每天一小概率 + 赛后/伤病当天必出」，全季总量由测试锁在 `[40, 80]` 区间。
 
@@ -119,6 +133,33 @@ sequenceDiagram
 | 每季上限 | `maxPerSeason` 按 `event.season === world.season` 计数 |
 | 抽取方式 | `dayRng(world, 'event').weighted(...)`，保证型内部仍按 `weight` 相对概率 |
 
+### 内容数据包与分类契约
+
+模板按类别分包，注册顺序即加载顺序，跨包 id 重复直接拒绝：
+
+| 包 | 前缀 | 条数 | 最长保留 | 主要发件人 |
+|---|---|---|---|---|
+| `legacy` | 混用 | 11 | 3 天 | 教练、队友、媒体、经纪人、家人、队医 |
+| `matchweek` | `mw_` | 12 | 2 天 | 教练、队医、媒体、体育总监、队友 |
+| `daily-life` | `dl_` | 12 | 4 天 | 家人、青训旧友、装备管理员、队友 |
+| `media` | `md_` | 12 | 5 天 | 转播记者、队报记者、球迷会、社交媒体 |
+| `club` | `cb_` | 10 | 4 天 | 董事会、体育总监、体能教练、装备管理员 |
+| `finance` | `fn_` | 10 | 6 天 | 银行、经纪人、房东、保险公司、赞助商 |
+| `staff` | `st_` | 10 | 5 天 | 队医、心理咨询师、私教、体能教练、营养师 |
+| `milestones` | `ms_` | 10 | 6 天 | 体育总监、经纪人、家人、青训旧友、队友 |
+
+契约由 `tests/engine/eventPacks.test.ts` 的 `PACK_ROWS` 驱动：每加一个类别就在这里加一行，断言「已注册、条数达标、id 前缀统一、`expiresDays` 不超该类别上限、`cooldownDays ≥ expiresDays`、每个选项至少一个效果、必备发件人出现」。`npm run validate:data` 再兜一层规模下限：包 ≥7、模板总数 ≥72、单包 ≥8——精简内容必须是一次显式决策，不能靠顺手删除。
+
+### 数值口径
+
+同一份 JSON 里有两套记账单位，写错不会报错，只会让机制失真，因此都由门禁锁住：
+
+| 字段 | 单位 | 约束 |
+|---|---|---|
+| `money` 效果 `delta` | 英镑 | 必须是整数且绝对值 ≥1；引擎内 `×100` 取整写进 `finance.balance`（分）与账本 |
+| `balance` / `weeklyWage` 条件 `value` | 分 | 必须 ≥10000（即 100 英镑）；按英镑写会让条件永远成立 |
+| `injuryDays` 效果 `delta` | 天 | 负值缩短、正值延长；只在已有伤病上生效，最低压到 1 天，事件不能凭空造伤 |
+
 ### 条件白名单
 
 `EventScope` 是每天构建一次的只读投影，27 个字段分四组：日历（`absoluteDay`/`weekday`/`isMatchDay`/`isDayAfterMatch`/`daysSinceMatch`）、身体（`injuryDaysLeft`/`morale`/`fitness`/`sharpness`/`confidence`）、身份与名气（`age`/`positionGroup`/`squadRole`/`mediaRep`/`fanRep`）、环境与关系（`balance`/`weeklyWage`/`coachTrust`/`teammateTrust`/`agentTrust`/`familyTrust`/`clubTier`/`seasonProgress`/`trainingFocus`/`extraAction`/`lastRating`/`lastPlayed`）。
@@ -132,12 +173,13 @@ sequenceDiagram
 ### 内容校验（Zod + validate-data）
 
 `data/events/*.json` 必须满足：`weight > 0`、`1 ≤ expiresDays ≤ 21`、`0 ≤ cooldownDays ≤ 120`、`choices ≥ 2` 且选项 id 唯一、拦截性事件不许有空效果选项、正文占位符只用 5 个白名单 token（`{coach}` `{teammate}` `{userName}` `{ratingSuffix}` `{restSuffix}`）。
-`npm run validate:data` 额外查：模板 id 不重复、标题不残留拉丁字母、`guaranteed` 必须带条件、`resultTexts` 的键必须指向真实选项 id。
+`npm run validate:data` 额外查：模板 id 不重复、标题不残留拉丁字母、`guaranteed` 必须带条件、`resultTexts` 的键必须指向真实选项 id，以及内容池规模下限（包 ≥7、模板 ≥72、单包 ≥8）。数值口径（`money` 整英镑、余额阈值按分）由 `tests/engine/eventPacks.test.ts` 的「数值契约」守。
 
 ### 过期与结算
 
 - 过期按天判定：`expiresDay < absoluteDay(world)` → `status = 'expired'`；旧存档缺 `expiresDay` 时回落为「那一周的最后一天过期」。
-- 结算仍走 `resolveEvent` → `applyEffects`；`injury_concern` 的 `rush` 选项额外把 `daysLeft − 7`，`lifestyle_purchase` 额外写入 `finance.assets`。
+- 结算仍走 `resolveEvent` → `applyEffects`；伤停增减完全由数据包的 `injuryDays` 效果表达（`injury_concern` 的 `rush` 选项写 `delta: -7`），引擎里不再留任何模板专属的 if。`lifestyle_purchase` 的购物选项仍额外把条目写进 `finance.assets`，因为「拥有某物」不是数值效果。
+- 结果文案与正文走同一套插值：`resultTexts` 里写的 `{coach}`、`{teammate}` 在结算时换成真实中文名，不会出现「{coach}给了你一个回答」这种残留占位符。
 - 事件 id 是 `event:${season}:${week}:${day}:${templateId}`，`day` 段保证同周多天撞同一模板时不会互相覆盖。
 
 ### 与 LLM 的边界
@@ -154,7 +196,9 @@ LLM 只重写**一条**被选中事件的标题与正文（`highlightEventId`）
 - `scopeMatches(scope, conditions): boolean`
 - `resolveEvent(world, eventId, choiceId): string | null`（语义不变）
 
-公开入口（`src/domain/index.ts`）：`EVENT_TEMPLATES`、`eventTemplateById`、`EVENT_SCOPE_FIELDS`、`EVENT_BODY_TOKENS`，类型 `GameEvent`、`EventCondition`、`EventScope`、`EventTemplateContent`、`Effect`、`EffectOp`、`EventChoice`（这四个类型已从 `src/domain/types.ts` 迁到 `src/domain/eventContent.ts`，`types.ts` 只做再导出）。
+公开入口（`src/domain/index.ts`）：`EVENT_TEMPLATES`、`eventTemplateById`、`EVENT_PACK_NAMES`、`eventTemplatesOfPack`、`EVENT_SCOPE_FIELDS`、`EVENT_BODY_TOKENS`，类型 `GameEvent`、`EventCondition`、`EventScope`、`EventTemplateContent`、`Effect`、`EffectOp`、`EventChoice`（这几个类型已从 `src/domain/types.ts` 迁到 `src/domain/eventContent.ts`，`types.ts` 只做再导出）。
+
+`EffectOp` 当前 12 个：`morale` `fitness` `sharpness` `confidence` `coachTrust` `teammateTrust` `agentTrust` `familyTrust` `mediaRep` `fanRep` `money` `injuryDays`。`applyEffects` 把 `money` 与 `injuryDays` 分别交给 `applyMoneyEffect`/`applyInjuryEffect`，其余走 `applyStatusEffect` 的 clamp 通道（单条效果增量限制在 ±15）。
 
 存档影响（v6 → v7）：
 
@@ -195,6 +239,11 @@ LLM 只重写**一条**被选中事件的标题与正文（`highlightEventId`）
 | 过期按 `expiresDay` 判定、旧字段回落 | `tests/engine/eventDaily.test.ts` |
 | 全季事件总数落在 `[40,80]`、存在空白日、种子间节奏相近、赛后事件数 > 5 | `tests/engine/eventCadence.test.ts` |
 | 11 个 legacy 模板标题/正文/选项/结果文案逐字不变 | `tests/engine/eventTemplates.test.ts` |
+| 8 个数据包的注册、条数、id 前缀、`expiresDays` 上限、冷却下限、必备发件人 | `tests/engine/eventPacks.test.ts` |
+| `money` 效果按整英镑、余额/周薪条件按分（写错单位即失败） | `tests/engine/eventPacks.test.ts`（数值契约） |
+| `injuryDays` 只改已有伤病、压到 1 天下限、`rush` 选项把 16 天压成 9 天 | `tests/engine/eventEffects.test.ts` |
+| 结果文案的 `{coach}` 在结算时被换成真实中文名 | `tests/engine/eventEffects.test.ts` |
+| 数据包注册表条目唯一、legacy 始终在册、注册第二包后池增长 | `tests/domain/eventContent.test.ts` |
 | 快进把新事件当合法停止点（停在 `matchday` 或 `event`） | `tests/engine/day.test.ts`、`tests/engine/stopConditions.test.ts` |
 | v6→v7 日字段回灌、`eventMemory` 重建、迁移后不重复生成、导出导入往返等值、幂等 | `tests/db/migrationV7.test.ts` |
 | store 快进把事件当停止点并汇总平静日 | `tests/store/dayStore.test.ts` |
@@ -214,3 +263,4 @@ LLM 只重写**一条**被选中事件的标题与正文（`highlightEventId`）
 | 日期 | 变更 | 关联 |
 |---|---|---|
 | 2026-11-02 | 初版：事件模板外迁 `data/events/legacy.json`（11 条逐字保留），新增条件白名单投影 `eventCondition.ts`、日生成器 `eventsDaily.ts`（一天最多一条 + 保证型赛后事件）、`world.eventMemory` 冷却，存档 v6→v7；`generateWeeklyEvent` 退役，主页「今天」与收件箱改按日口径 | 绿茵人生 M1.7 |
+| 2026-11-02 | 内容池从 11 条扩到 87 条：新增 `matchweek`(12)/`daily-life`(12)/`media`(12)/`club`(10)/`finance`(10)/`staff`(10)/`milestones`(10) 七个类别包，`EVENT_PACK_NAMES` + `eventTemplatesOfPack` 提供按类取包；`EffectOp` 增加 `injuryDays`，`injury_concern` 的提前复出从引擎硬编码改成数据声明；结果文案纳入同一套插值；`validate:data` 加规模下限（包 ≥7、模板 ≥72、单包 ≥8），分类与数值契约进 `tests/engine/eventPacks.test.ts`；`ENGINE_VERSION` 0.6.0 → 0.7.0 并重算回放基准（`c11f736b834051db` → `5fdf2872b99372c2`） | 绿茵人生 M1.8 |

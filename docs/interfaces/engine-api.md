@@ -97,7 +97,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.5.2'`
+- `ENGINE_VERSION = '0.7.0'`（与 `world.version = 7` 一起构成回放基准的身份）
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -280,6 +280,7 @@ interface TurnResult {
 - 存档 v5 把结算粒度从周改成天（训练/伤病/新闻按天执行、强度重算与身价评估改拍、比赛按日命中），引擎输出必然变化，因此 `ENGINE_VERSION` 升到 `0.5.0` 并重算 golden。
 - 基线由 `npm run quality:golden` 重新生成；脚本连续跑两次确认同 hash 后才写入。
 - 修改任何影响引擎输出的规则时，必须评估是否需要升 `ENGINE_VERSION` 并更新回放；哈希变化而版本未升会被 `check-anti-regression` 拦截。
+- 事件内容不参与接口签名：`data/events/*.json` 扩容只改 `world.events[*].choices` 的内容，因此接口文档里事件相关条目见 `docs/features/daily-events.md`，本文件只在引擎语义变化时升版本。
 
 ## 变更记录
 
@@ -292,4 +293,5 @@ interface TurnResult {
 | 2026-11-01 | `buildPitchFrame` 的 `passPath` 跳过与当前分钟重复的历史帧；关键回合结算事件补写用户方 `side`；`ENGINE_VERSION` 0.4.1 与 golden 更新 | 缺陷修复：2D 画面细节 |
 | 2026-11-01 | 新增日回合接口（`startDay`/`advanceDay`/`advanceUntilDecision`/`playDay`/`isPendingDay`/`dayRng`/`dailyId`）与 `DayResult`/`FastForwardResult`；`startWeek`/`completeWeek`/`advanceWeek` 保留为周适配器；`recoverInjuries→advanceInjuries`、`applyTraining→applyDailyTraining`、`applyExtraAction→applyDailyAction`、`simulateWeekFixtures→simulateDayFixtures`、新增 `getUserFixtureOnDay`；领域赛历（`absoluteDay`/`dayForRound`/`fixtureDayOf`/`weekDayRoles`/`DEFAULT_WEEK_PLAN`）进入公共接口；`ENGINE_VERSION` 0.5.0 | 绿茵人生 M1.1 |
 | 2026-11-02 | 引擎产出的所有文本（直播事件、关键回合文案、新闻、教练评语、MOTM、射手榜）人名一律取 `displayName(entity)`；接口签名不变，但 `hashState` 因实体新增 `nameZh` 而变化，`ENGINE_VERSION` 升到 0.5.1 并重算 golden；转写本身不消耗 RNG，同种子结果仍可复现 | 绿茵人生 M1.4（中文人名） |
-| 2026-11-02 | 新增 `domain/coachStyle.ts` 打法模型；`matchUser` 抽出并导出 `selectionScore`，评分末项加 `(styleFit − 0.5) × 4`；`training` 抽出并导出 `dailyGrowth`，成长量乘 `styleSynergy`；`ENGINE_VERSION` 升到 0.5.2，重算 golden（种子 42 的回放计划不命中风格加成，哈希变化来自世界内的 `engineVersion` 字符串） | 绿茵人生 M1.5 |
+| 2026-11-02 | 新增 `domain/coachStyle.ts` 打法模型；`matchUser` 抽出并导出 `selectionScore`，评分末项加 `(styleFit − 0.5) × 4`；`training` 抽出并导出 `dailyGrowth`，成长量乘 `styleSynergy`；`ENGINE_VERSION` 升到 0.5.2，重算 golden（种子 42 的回放计划不命中风格加成，哈希变化来自世界内的 `engineVersion` 字符串） | 绿茵人生 M1.5 || 2026-11-02 | 新增 `domain/coachStyle.ts` 打法模型；`matchUser` 抽出并导出 `selectionScore`，评分末项加 `(styleFit − 0.5) × 4`；`training` 抽出并导出 `dailyGrowth`，成长量乘 `styleSynergy`；`ENGINE_VERSION` 升到 0.5.2，重算 golden（种子 42 的回放计划不命中风格加成，哈希变化来自世界内的 `engineVersion` 字符串） | 绿茵人生 M1.5 |
+| 2026-11-02 | 接口签名不变；`ENGINE_VERSION` 0.6.0 → 0.7.0 并重算 golden（事件内容从 11 条扩到 87 条，`world.events[*].choices` 参与哈希），`EffectOp` 新增 `injuryDays` | 绿茵人生 M1.8（事件内容扩容） |

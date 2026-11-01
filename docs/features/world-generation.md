@@ -109,7 +109,7 @@ sequenceDiagram
 ### 设置与版本
 
 - 默认 LLM：`openai` / `gpt-4.1-mini` / `standard` / `template`，温度 0.85，`max_tokens`。
-- `world.version = CURRENT_SAVE_VERSION`（当前 `4`），`engineVersion = ENGINE_VERSION`（当前 `0.4.1`）。
+- `world.version = CURRENT_SAVE_VERSION`（当前 `7`），`engineVersion = ENGINE_VERSION`（当前 `0.7.0`）。这两个字段是回放基准的身份：`hashState` 把 `ENGINE_VERSION` 也算进去，所以只改版本号也会位移哈希。
 - 同一 seed、同一数据包、同一选项必须生成逐字节等价的世界（时间字段除外）。
 
 ### 不可变条件
@@ -192,3 +192,4 @@ sequenceDiagram
 | 2026-11-02 | `makeAiPlayer` / `makeUserPlayer` / `makeCoach` / 关系人物与初始新闻一律写 `nameZh`（`nameZhFor` 纯字符串运算，不消耗 RNG，抽样顺序不变）；引擎与新闻文本改取 `displayName`；存档 6 / 引擎 0.5.1，golden 重算 | 绿茵人生 M1.4（中文人名） |
 | 2026-11-02 | 生成侧不变：`Club.style` 仍由俱乐部 RNG 域抽样决定（种子 2026 的 40 家分布为控球 9 / 防反 12 / 高压 9 / 长传 10，四种打法都会出现）；该字段从"只存不用"变成引擎输入（选型 `(styleFit−0.5)×4`、训练 ×1.12），引擎 0.5.2、golden 重算 | 绿茵人生 M1.5 |
 | 2026-11-02 | 新世界额外写入 `eventMemory = {}`（v7 事件冷却表），`events` 仍为 `{}`；其余抽样顺序与生成内容不变，引擎 0.6.0 的重算来自每日事件生成器换轨 | 绿茵人生 M1.7 |
+| 2026-11-02 | 生成侧完全不变：抽样顺序、球员、教练、俱乐部、赛程、财务与关系一个字节都没动。引擎升到 0.7.0 是因为世界状态里嵌入的事件内容变了（`world.events[*].choices` 参与 `hashState`），而事件模板从 11 条扩到 87 条改变了当天抽到哪一条；golden `c11f736b834051db` → `5fdf2872b99372c2` | 绿茵人生 M1.8（事件内容扩容） |

@@ -27,7 +27,7 @@ flowchart TD
 |---|---|---|
 | `version` | number | 世界结构版本，当前 `7` |
 | `seed` | number | 世界种子，决定生成、赛程、比赛与事件 |
-| `engineVersion` | string | 生成世界的引擎版本，当前 `0.6.0` |
+| `engineVersion` | string | 生成世界的引擎版本，当前 `0.7.0` |
 | `createdAt` / `updatedAt` | ISO string | 创建与最近更新时间 |
 | `playerId` | Id | 用户球员 ID |
 | `clubId` | Id | 用户当前俱乐部 ID |
@@ -75,7 +75,8 @@ flowchart TD
 | `PendingDayPlan` | `training / extra / fixtureId` | 只在停在开球那天存在；当日收尾时清空；v4→v5 迁移由 `pendingWeekPlan` 改名并把时钟摆回比赛日 |
 | `NewsItem` | `id / season / week / day? / title / body / kind` | 日步骤产生的新闻带 `day`；`id` 由 `dailyId` 生成，同周七天不撞键 |
 | `GameEvent` | 模板、发件人 `sender?`、正文、`day / createdAtDay / expiresDay`、`blocking?`、选项、状态 | 一天最多一条（id 带日段）；`expiresDay` 早于当前绝对日必须过期；旧档缺 `expiresDay` 时回落 `expiresWeek` 那一周的最后一天；LLM 只能改标题与正文，不能改选项、效果与有效期。类型定义与数据包 Zod 模式同在 `src/domain/eventContent.ts` |
-| `EventTemplateContent` | `id / title / body / sender / weight / expiresDays / cooldownDays / blocking / guaranteed / once? / maxPerSeason? / weekdays? / when[] / choices / resultTexts?` | 来自 `data/events/*.json`；条件字段 ∈ `EVENT_SCOPE_FIELDS`（27 项白名单）、正文占位符 ∈ `EVENT_BODY_TOKENS`（5 项）；`weight > 0`、`1 ≤ expiresDays ≤ 21`、`0 ≤ cooldownDays ≤ 120`、`choices ≥ 2` 且选项 id 唯一、`blocking` 事件不许有空效果选项 |
+| `EventTemplateContent` | `id / title / body / sender / weight / expiresDays / cooldownDays / blocking / guaranteed / once? / maxPerSeason? / weekdays? / when[] / choices / resultTexts?` | 来自 `data/events/*.json`（8 个类别包共 87 条，`EVENT_PACK_NAMES` 注册、`eventTemplatesOfPack` 按类取）；条件字段 ∈ `EVENT_SCOPE_FIELDS`（27 项白名单）、正文占位符 ∈ `EVENT_BODY_TOKENS`（5 项）；`weight > 0`、`1 ≤ expiresDays ≤ 21`、`0 ≤ cooldownDays ≤ 120`、`choices ≥ 2` 且选项 id 唯一、`blocking` 事件不许有空效果选项 |
+| `Effect` | `op / delta` | `op` 共 12 个：8 项状态与关系走 `clamp(±15)`；`money` 的 `delta` 是**英镑整数**（引擎 `×100` 写进按分记价的 `balance` 与账本）；`injuryDays` 的 `delta` 是**天**，只作用在已有伤病上、最低 1 天，不能凭空造伤 |
 | `Relationship` | 角色、中文名 `nameZh`、信任、紧张、摘要 | 信任/紧张 0–100 |
 | `Finance` | 余额、周薪、支出、流水 | 流水金额带符号；结算后余额与流水一致 |
 
@@ -115,7 +116,7 @@ flowchart TD
 {
   "format": "pitch-life-save",
   "saveVersion": 7,
-  "engineVersion": "0.6.0",
+  "engineVersion": "0.7.0",
   "exportedAt": "2026-10-26T12:00:00.000Z",
   "checksum": "<hashString(canonicalStringify(world))>",
   "world": { "...": "WorldState" }
@@ -238,3 +239,4 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 2026-11-02 | 存档升 v6：实体 `nameZh` 与战报阵容 `nameZh`，历史文本按原名→中文名整词替换；`CURRENT_SAVE_VERSION`/`world.version` = 6；engine 0.5.1 | M1.4 中文人名 |
 | 2026-11-02 | 无存档结构变化：`Club.style` 从死字段变成选型与训练的输入（`domain/coachStyle.ts`），引擎语义变更令 `ENGINE_VERSION` 升 0.5.2 并重算回放基准（`91cb67aad3f2e45a`），世界里的 `engineVersion` 字符串随新世界写入 | M1.5 教练打法生效 |
 | 2026-11-02 | 存档升 v7：`eventMemory` 冷却表与事件 `day / createdAtDay / expiresDay / sender / blocking`，事件 id 加日段；v6 迁移回灌日字段并按模板重建冷却表；`ENGINE_VERSION` 升 0.6.0 并重算回放基准 | M1.7 每日事件 |
+| 2026-11-02 | 无存档结构变化：事件内容池从 11 条扩到 87 条（新增 7 个类别包），`EffectOp` 增加 `injuryDays`（单位＝天，只作用于已有伤病）并把 `money` 钉成整英镑；`ENGINE_VERSION` 升 0.7.0、回放基准 `c11f736b834051db` → `5fdf2872b99372c2` | M1.8 事件内容扩容 |
