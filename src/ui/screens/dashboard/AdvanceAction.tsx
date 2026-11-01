@@ -68,7 +68,11 @@ function DayAdvanceControls({
       </div>
       <p className="mt-2 flex items-center justify-between gap-2 text-[11px] text-muted">
         <span>{daysToMatch == null ? '本周没有比赛' : `距上场 ${daysToMatch} 天`}</span>
-        <button type="button" className="shrink-0 text-accent" onClick={onPlan}>
+        <button
+          type="button"
+          className="inline-flex min-h-[44px] shrink-0 items-center text-accent"
+          onClick={onPlan}
+        >
           安排本周
         </button>
       </p>

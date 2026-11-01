@@ -39,7 +39,7 @@ export function ScheduleScreen() {
         <button
           type="button"
           className={clsx(
-            'min-h-9 rounded-lg text-xs font-medium transition',
+            'min-h-11 rounded-lg text-xs font-medium transition',
             tab === 'fixtures' ? 'bg-accent text-accent-ink' : 'text-muted hover:text-text',
           )}
           onClick={() => setTab('fixtures')}
@@ -49,7 +49,7 @@ export function ScheduleScreen() {
         <button
           type="button"
           className={clsx(
-            'min-h-9 rounded-lg text-xs font-medium transition',
+            'min-h-11 rounded-lg text-xs font-medium transition',
             tab === 'table' ? 'bg-accent text-accent-ink' : 'text-muted hover:text-text',
           )}
           onClick={() => setTab('table')}

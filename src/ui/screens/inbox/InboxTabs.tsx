@@ -20,7 +20,7 @@ export function InboxTabs({ tab, onChange }: Props) {
           key={key}
           type="button"
           className={clsx(
-            'min-h-9 rounded-lg text-xs font-medium transition',
+            'min-h-11 rounded-lg text-xs font-medium transition',
             tab === key ? 'bg-accent text-accent-ink' : 'text-muted hover:text-text',
           )}
           onClick={() => onChange(key)}

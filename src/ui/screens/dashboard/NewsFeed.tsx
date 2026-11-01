@@ -19,7 +19,11 @@ export function NewsFeed({ news }: { news: NewsItem[] }) {
     <section data-dashboard-block="news">
       <SectionTitle
         right={
-          <button type="button" className="text-[11px] text-muted hover:text-text" onClick={() => navigate('/inbox')}>
+          <button
+            type="button"
+            className="inline-flex min-h-[44px] items-center text-[11px] text-muted hover:text-text"
+            onClick={() => navigate('/inbox')}
+          >
             全部消息
           </button>
         }

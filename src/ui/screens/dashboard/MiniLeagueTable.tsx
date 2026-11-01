@@ -27,7 +27,11 @@ export function MiniLeagueTable({
     <section className="mb-4" data-dashboard-block="league">
       <SectionTitle
         right={
-          <button type="button" className="text-[11px] text-muted hover:text-text" onClick={() => navigate('/schedule')}>
+          <button
+            type="button"
+            className="inline-flex min-h-[44px] items-center text-[11px] text-muted hover:text-text"
+            onClick={() => navigate('/schedule')}
+          >
             完整赛程
           </button>
         }
