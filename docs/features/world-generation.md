@@ -188,3 +188,4 @@ sequenceDiagram
 | 2026-10-31 | 存档/引擎升到 4 / 0.4.0，配合连续控球引擎与 `liveState` 持久化；生成内容本身除版本字段外不变 | 缺陷修复：比赛日 2D 画面不可读 |
 | 2026-11-01 | 引擎升到 0.4.1（关键回合事件补 `side`）；存档版本与生成内容不变 | 缺陷修复：2D 画面细节 |
 | 2026-11-01 | 新世界写入 `day = 1` / `weekPlan = DEFAULT_WEEK_PLAN` / `pendingDayPlan = null`，`generateFixtures` 为每场写 `Fixture.day`；存档 5 / 引擎 0.5.0 由常量带出，RNG 抽样顺序不变 | 绿茵人生 M1.1 |
+| 2026-11-02 | `makeAiPlayer` / `makeUserPlayer` / `makeCoach` / 关系人物与初始新闻一律写 `nameZh`（`nameZhFor` 纯字符串运算，不消耗 RNG，抽样顺序不变）；引擎与新闻文本改取 `displayName`；存档 6 / 引擎 0.5.1，golden 重算 | 绿茵人生 M1.4（中文人名） |

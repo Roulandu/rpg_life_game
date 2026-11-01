@@ -27,7 +27,7 @@ flowchart TD
 |---|---|---|
 | `version` | number | 世界结构版本，当前 `5` |
 | `seed` | number | 世界种子，决定生成、赛程、比赛与事件 |
-| `engineVersion` | string | 生成世界的引擎版本，当前 `0.5.0` |
+| `engineVersion` | string | 生成世界的引擎版本，当前 `0.5.1` |
 | `createdAt` / `updatedAt` | ISO string | 创建与最近更新时间 |
 | `playerId` | Id | 用户球员 ID |
 | `clubId` | Id | 用户当前俱乐部 ID |
@@ -55,7 +55,7 @@ flowchart TD
 
 | 类型 | 关键字段 | 不变量 |
 |---|---|---|
-| `Player` | 属性、潜力、状态、合同、声望、伤病、赛季/生涯统计 | 属性 10–96；年龄 14–60；用户球员必须存在于 `players` |
+| `Player` | 中文名 `nameZh`、属性、潜力、状态、合同、声望、伤病、赛季/生涯统计 | 属性 10–96；年龄 14–60；用户球员必须存在于 `players`；`name` 保留原名（存档 id、合同、导出文件名），`nameZh` 是展示名，取值只走 `displayName` |
 | `Club` | 联赛、层级、声望、预算、设施、阵容、教练、强度 | `squadIds` 指向真实球员；`leagueId` 指向真实联赛 |
 | `League` | 俱乐部列表、升降级名额 | `clubIds` 与俱乐部 `leagueId` 一致 |
 | `Fixture` | 赛季、周次、轮次、周内日、主客、状态、比分 | 状态为 `scheduled / live / played`；live 比分随分钟实时写入；已结束必须有比分；同一赛季每队 38 场；`day` 是 1–7 的周内日序，缺省时由 `fixtureDayOf = day ?? dayForRound(round)` 推导（v4→v5 迁移按轮次补齐，不改 `id`） |
@@ -66,7 +66,7 @@ flowchart TD
 | `MatchGoal` | `minute / side / scorerId / scorerName / assistId? / assistName? / isUser? / isUserAssist? / fromKeyMoment?` | 一条进球只出现一次；比分缓存必须等于进球列表按主客统计 |
 | `MatchStats` | `home / away: { possession, shots, shotsOnTarget, corners }` | 双方控球分钟之和 = 已模拟分钟数；射正 ≤ 射门；关键回合进球同步补记射门/射正 |
 | `MatchLineups` | `home / away: MatchLineupPlayer[]` | 每侧 11 人，1 门将 4 后卫 4 中场 2 前锋；同俱乐部落点稳定 |
-| `MatchLineupPlayer` | `id / name / number / position / isUser` | `id` 指向真实球员；用户出场时必须在首发中 |
+| `MatchLineupPlayer` | `id / name / nameZh? / number / position / isUser` | `id` 指向真实球员；用户出场时必须在首发中 |
 | `KeyMoment` | `minute / kind / roll / triggerZh? / options / outcome? / defaultOptionId` | 12 类；每场 5–7 次；每回合恰好 5 个选项；`roll` 生成后固定 |
 | `KeyMomentOption` | `labelZh / successChance / successBasisZh? / 效果字段` | `defaultOptionId` 指向成功率最高项；成功率依据必须含属性名与百分比 |
 | `Injury` | `kind / daysLeft / severity` | `daysLeft` 是**剩余天数**（1–7 天内可跨周），每天由 `advanceInjuries` 减 1；归零即伤愈并清空 |
@@ -74,7 +74,7 @@ flowchart TD
 | `PendingDayPlan` | `training / extra / fixtureId` | 只在停在开球那天存在；当日收尾时清空；v4→v5 迁移由 `pendingWeekPlan` 改名并把时钟摆回比赛日 |
 | `NewsItem` | `id / season / week / day? / title / body / kind` | 日步骤产生的新闻带 `day`；`id` 由 `dailyId` 生成，同周七天不撞键 |
 | `GameEvent` | 模板、正文、有效期、选项、状态 | `expiresWeek` 之后必须过期；LLM 只能改文案 |
-| `Relationship` | 角色、信任、紧张、摘要 | 信任/紧张 0–100 |
+| `Relationship` | 角色、中文名 `nameZh`、信任、紧张、摘要 | 信任/紧张 0–100 |
 | `Finance` | 余额、周薪、支出、流水 | 流水金额带符号；结算后余额与流水一致 |
 
 ### 常用枚举
@@ -113,7 +113,7 @@ flowchart TD
 {
   "format": "pitch-life-save",
   "saveVersion": 5,
-  "engineVersion": "0.5.0",
+  "engineVersion": "0.5.1",
   "exportedAt": "2026-10-26T12:00:00.000Z",
   "checksum": "<hashString(canonicalStringify(world))>",
   "world": { "...": "WorldState" }
@@ -123,15 +123,15 @@ flowchart TD
 规则：
 
 1. `format` 必须等于 `pitch-life-save`。
-2. `saveVersion` 来自 `CURRENT_SAVE_VERSION`，当前为 `5`。
+2. `saveVersion` 来自 `CURRENT_SAVE_VERSION`，当前为 `6`。
 3. `checksum` 按 `lib.canonicalStringify` 规范化后计算；对象键排序、`undefined` 视为 `null`。
 4. `importWorld` 依次执行：JSON 解析 → `saveEnvelopeSchema`（含 world 结构）→ 拒绝更高版本 → **用原始 world 重算 checksum 比对** → 迁移到当前版本。
 5. 任何一步失败都抛出中文错误，不写入 IndexedDB。
 
 `world.version` 与 envelope `saveVersion` 是两个维度：
 
-- `world.version` 描述世界结构本身，当前为 `5`。
-- `saveVersion` 描述存档封装与迁移契约，当前为 `5`。
+- `world.version` 描述世界结构本身，当前为 `6`。
+- `saveVersion` 描述存档封装与迁移契约，当前为 `6`。
 - 结构变化时必须同时评估；旧版本 world 在加载/导入时迁移到当前结构。
 - `day` / `weekPlan` / `pendingDayPlan` 在 `worldSchema` 里是**可选**字段：v5 之前的存档缺少它们，而校验发生在迁移之前，必填会让旧档直接被拒。迁移负责补齐，`assertWorld` 负责在补齐后把关。
 
@@ -164,7 +164,7 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 
 ## 迁移策略
 
-当前 `CURRENT_SAVE_VERSION = 5`，由 `src/db/migrate.ts` 提供 v1 → v2 → v3 → v4 → v5 连续迁移。
+当前 `CURRENT_SAVE_VERSION = 6`，由 `src/db/migrate.ts` 提供 v1 → v2 → v3 → v4 → v5 → v6 连续迁移。
 
 | 版本 | 变更 | 迁移 |
 |---|---|---|
@@ -173,14 +173,15 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 3 | 比赛日实时化；`MatchReport` 增加可选 `stats / lineups`；`KeyMoment` 增加 `triggerZh`、`KeyMomentOption` 增加 `successBasisZh` | live 报告补 `stats`（控球按 `currentMinute` 均分、射门=射正=进球、角球 0）与 `lineups`（主客各 11 人）；**保留** `pendingWeekPlan`；终场旧报告不伪造统计；`world.version = 3` |
 | 4 | 2D 比赛画面状态；`MatchReport` 增加可选 `liveState`（`possession / ballX / carrierId? / pendingKickoff?`） | 仅 live 报告补 `liveState = { possession: 'home', ballX: 0.5 }`；终场报告与 `lineups / stats` 不变；`world.version = 4` |
 | 5 | 时间粒度改为天：`WorldState.day` / `weekPlan` / `pendingDayPlan`（取代 `pendingWeekPlan`）、`Fixture.day`、`Injury.daysLeft`（取代 `weeksLeft`）、`NewsItem.day` | `fixtures[*].day = dayForRound(round)`（纯推导，不消耗 RNG）；`injury.daysLeft = max(1, round(weeksLeft × 7))` 并删除 `weeksLeft`；`pendingWeekPlan → pendingDayPlan`；`weekPlan` 缺省补 `DEFAULT_WEEK_PLAN`；停着的 live 比赛把时钟摆回它所在的那一天（`day = fixtureDayOf(liveFixture)`），否则 `day = 1`；末尾 `assertWorld` 把关；`world.version = 5` |
+| 6 | 中文人名：`Player.nameZh`、`Club.coach.nameZh`、`Relationship.nameZh`、`MatchLineupPlayer.nameZh`、`PitchPlayer.nameZh`（`name` 语义不变，仍用于存档 id、合同与导出文件名） | 实体按 `nameZhFor(name, nationality)` 补齐中文名，已有值不覆盖（幂等）；历史文本按「原名 → 中文名」整词替换：战报 `events[].text` / `mediaReaction` / 关键回合文案与结算文案、`scorerName` / `assistName` / `motmName`、新闻与事件的标题正文选项与结果文案、关系摘要；首发名单条目按 `playerId` 回查补 `nameZh`。不改动时钟与 `fixture.id`，停在关键回合的 live 档迁移后仍能踢完；`world.version = 6` |
 
 迁移规则：
 
 - 迁移幂等，可重复执行；只前进不后退。
-- 旧档中未完成的关键回合保留：v1 报告走旧版 `final` 结算路径；v2 live 报告迁移后保留待处理回合（v5 起键名为 `pendingDayPlan`），可继续实时播放到终场；v3 live 报告补 `liveState` 后可继续播放；v4→v5 把时钟摆回 live 比赛那一天，读档后仍能踢完这场。
+- 旧档中未完成的关键回合保留：v1 报告走旧版 `final` 结算路径；v2 live 报告迁移后保留待处理回合（v5 起键名为 `pendingDayPlan`），可继续实时播放到终场；v3 live 报告补 `liveState` 后可继续播放；v4→v5 把时钟摆回 live 比赛那一天，读档后仍能踢完这场；v5→v6 只改名字与文案，不触碰 `roll`、时钟与首发 id，迁移后关键回合仍能按原判定结算。
 - `loadWorld` 在 schema 校验后迁移；发生迁移时回写数据库并同步摘要。
-- `importWorld` 必须先校验 checksum，再做迁移；拒绝 `saveVersion > 5`。
-- 旧客户端遇到 v5 存档会按现有版本检查拒绝读取；不提供降级迁移。
+- `importWorld` 必须先校验 checksum，再做迁移；拒绝 `saveVersion > 6`。
+- 旧客户端遇到 v6 存档会按现有版本检查拒绝读取；不提供降级迁移。
 
 任何存档结构变化必须满足：
 
@@ -228,3 +229,5 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 2026-10-31 | 存档升 v3：报告可选 `stats / lineups`、关键回合 `triggerZh` 与选项 `successBasisZh`；v2 live 迁移保留待处理回合并补齐首发/统计；engine 0.3.0 | 比赛日实时化改造 |
 | 2026-10-31 | 存档升 v4：`MatchReport.liveState` 持久化控球/球位/持球人/开球方；v3 live 迁移补中圈状态；终场删除 `liveState`；engine 0.4.0 | 缺陷修复：比赛日 2D 画面不可读 |
 | 2026-11-01 | 关键回合结算事件补写 `side`；存档结构不变，engine 0.4.1 | 缺陷修复：2D 画面细节 |
+| 2026-11-02 | 存档升 v5：日时钟 `day`、`weekPlan`、`pendingDayPlan`、`Fixture.day`、`Injury.daysLeft`、`NewsItem.day`；v4 迁移按轮次推导日并把 live 档摆回比赛日；engine 0.5.0 | M1.1/M1.2 日回合与快进 |
+| 2026-11-02 | 存档升 v6：实体 `nameZh` 与战报阵容 `nameZh`，历史文本按原名→中文名整词替换；`CURRENT_SAVE_VERSION`/`world.version` = 6；engine 0.5.1 | M1.4 中文人名 |

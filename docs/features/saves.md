@@ -24,6 +24,7 @@ tests:
   - tests/db/migrationV3.test.ts
   - tests/db/migrationV4.test.ts
   - tests/db/migrationV5.test.ts
+  - tests/db/migrationV6.test.ts
   - tests/db/repository.test.ts
   - tests/store/store.test.ts
   - tests/store/dayStore.test.ts
@@ -138,14 +139,15 @@ sequenceDiagram
 5. **用迁移前的原始 world** 重新计算 checksum 并比对，失败 → “存档校验失败，文件可能已损坏”。
 6. 迁移到当前版本并生成新存档 ID 写入，不覆盖原存档。
 
-当前 `CURRENT_SAVE_VERSION = 5`，`src/db/migrate.ts` 提供 v1 → v2 → v3 → v4 → v5 连续迁移：
+当前 `CURRENT_SAVE_VERSION = 6`，`src/db/migrate.ts` 提供 v1 → v2 → v3 → v4 → v5 → v6 连续迁移：
 
 - v1 → v2：所有已有比赛报告补 `status: 'final'`、`currentMinute: 90`、`goals: []`；`pendingWeekPlan = null`。
 - v2 → v3：live 报告补 `stats`（控球按 `currentMinute` 均分、射门/射正=进球、角球 0）与 `lineups`（主客各 11 人）；**保留** `pendingWeekPlan`，旧 live 存档可继续播放到终场。
 - v3 → v4：live 报告补 `liveState = { possession: 'home', ballX: 0.5 }`（中圈开球），之后刷新/播放直接读取该状态；终场报告不补 `liveState`；`stats` 与 `lineups` 原样保留。
 - v4 → v5：周时钟换成日时钟。`fixtures[*].day` 由 `dayForRound(round)` 补齐（纯推导，不消耗 RNG）；`injury.weeksLeft` 换算成 `daysLeft = max(1, round(weeksLeft × 7))` 并删除旧字段；`pendingWeekPlan` 改名 `pendingDayPlan`；`weekPlan` 缺省补 `DEFAULT_WEEK_PLAN`；仍有 live 报告时把 `day` 摆回该场比赛所在的那一天，读档后可以接着踢完这场；迁移末尾用 `assertWorld` 把关。
+- v5 → v6：补中文人名。`Player.nameZh`、`Club.coach.nameZh`、`Relationship.nameZh` 由 `nameZhFor(name, nationality)` 生成（已有值不覆盖，所以重复执行是恒等变换）；战报里 `scorerName / assistName / motmName / events[].text / mediaReaction / 关键回合文案`、新闻与事件的标题正文与选项、关系摘要按「原名 → 中文名」整词替换；首发名单条目按 `playerId` 回查补 `nameZh`。只改文案，不动 `roll`、时钟与 `fixture.id`，停在关键回合的存档迁移后仍能踢完。
 - 终场旧报告不伪造统计与首发，UI 遇到缺失时隐藏对应面板。
-- 迁移幂等；只前进不后退；`saveVersion > 5` 直接拒绝。
+- 迁移幂等；只前进不后退；`saveVersion > 6` 直接拒绝。
 - `loadWorld` 在 schema 校验后迁移，发生迁移时回写数据库并同步摘要。
 - 导入顺序固定为“解析 → 版本检查 → checksum（原始数据）→ 迁移”，禁止先迁移后校验。
 
@@ -230,6 +232,7 @@ sequenceDiagram
 | v2 → v3 补齐统计/首发、保留待办回合、可继续完赛、终场不伪造 | `tests/db/migrationV3.test.ts` |
 | v3 → v4 补齐 `liveState`、可继续/完赛、导出导入往返、终场不补 | `tests/db/migrationV4.test.ts` |
 | v4 → v5 日时钟：`dayForRound` 反推赛程日序、`weeksLeft → daysLeft`、`pendingWeekPlan → pendingDayPlan`、live 比赛把时钟摆回开球日、默认 `weekPlan`、导出导入往返等值 | `tests/db/migrationV5.test.ts`、`tests/fixtures/saveV4.ts` |
+| v5 → v6 中文人名：实体补 `nameZh`、战报/新闻/事件/关系摘要整词汉化、阵容按 id 回查、live 档迁移后踢完、导出导入往返等值、重复迁移恒等、v4 沿链同样汉化 | `tests/db/migrationV6.test.ts`、`tests/fixtures/saveV5.ts` |
 | Zod 校验失败 | `tests/db/save.test.ts` |
 | store 自动保存与载入 | `tests/store/store.test.ts` |
 | 逐日推进与只存周计划的落盘（不推进时钟） | `tests/store/dayStore.test.ts` |
@@ -262,3 +265,4 @@ sequenceDiagram
 | 2026-10-31 | 存档升 v4：报告 `liveState` 随 checkpoint 落盘；新增 v3→v4 迁移补中圈状态；播放速度/轨迹/弹窗仍不持久化 | 缺陷修复：比赛日 2D 画面不可读 |
 | 2026-11-01 | 存档升 v5：`WorldState.day / weekPlan / pendingDayPlan`、`Fixture.day`、`Injury.daysLeft`；`save.schema.ts` 把三个新字段设为可选，因为 `loadWorld` / `importWorld` 先校验后迁移；v4→v5 迁移末尾 `assertWorld` 把关，导出文件名追加 `D<day>` | 绿茵人生 M1.1（日回合） |
 | 2026-11-02 | `summarizeWorld` 摘要补 `day`（旧行缺字段落回周一），`SaveSummary` / `SaveRecord` 抽到 `src/domain/saveTypes.ts`；摘要为只写派生投影，不升存档版本 | 绿茵人生 M1.3 |
+| 2026-11-02 | 存档升 v6：`Player / Club.coach / Relationship / MatchLineupPlayer` 补 `nameZh`，v5→v6 迁移把战报、新闻、事件、关系摘要里的拉丁原名整词换成中文名；`playerSchema.nameZh` 可选（校验先于迁移），迁移后 `assertWorld` 把关；live 档迁移后仍可踢完 | 绿茵人生 M1.4（中文人名） |

@@ -136,3 +136,4 @@ sequenceDiagram
 | 日期 | 变更 |
 |---|---|
 | 2026-11-01 | 首版：新增纯整数公历 `src/lib/calendar.ts`、周内角色规则 `src/domain/calendar.ts`；`formatDateLabel` 增可选 `day` 并新增 `formatDateShort`/`formatDayLabel`；`Fixture` 增可选 `day`；确定性守卫收紧为 `new Date(`。零行为变化。 |
+| 2026-11-02 | AI 周快照的【时间】行也切到 `formatDayLabel`，界面与 GM 提示词共用同一套日期口径。 |

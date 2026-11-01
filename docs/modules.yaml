@@ -31,6 +31,7 @@ modules:
       - docs/features/daily-turn.md
       - docs/features/matchday.md
       - docs/features/team-squad.md
+      - docs/features/names-i18n.md
       - docs/features/gm-agent.md
       - docs/features/saves.md
       - docs/features/appearance.md
@@ -61,6 +62,7 @@ modules:
     docs:
       - docs/features/daily-turn.md
       - docs/features/matchday.md
+      - docs/features/names-i18n.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []
@@ -73,7 +75,9 @@ modules:
       - tests/engine/world.test.ts
       - tests/db/save.test.ts
       - tests/world/**/*.test.ts
-    docs: [docs/features/world-generation.md]
+    docs:
+      - docs/features/world-generation.md
+      - docs/features/names-i18n.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []
@@ -83,7 +87,9 @@ modules:
     publicEntry: src/llm/index.ts
     allowedDeps: [domain, lib, platform]
     tests: [tests/llm/**/*.test.ts]
-    docs: [docs/features/gm-agent.md]
+    docs:
+      - docs/features/gm-agent.md
+      - docs/features/names-i18n.md
     testImpact: strict
     platformCapabilities: [http, secure-storage]
     knownViolations: []
@@ -95,6 +101,7 @@ modules:
     tests: [tests/db/**/*.test.ts]
     docs:
       - docs/features/saves.md
+      - docs/features/names-i18n.md
       - docs/data-model.md
     testImpact: strict
     platformCapabilities: [persistence]
@@ -130,6 +137,7 @@ modules:
       - docs/interfaces/engine-api.md
       - docs/features/calendar-dates.md
       - docs/features/team-squad.md
+      - docs/features/names-i18n.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []

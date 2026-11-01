@@ -97,7 +97,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.5.0'`
+- `ENGINE_VERSION = '0.5.1'`
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -274,3 +274,4 @@ interface TurnResult {
 | 2026-10-31 | 新增 `buildSpell`/`homePossessionShare`/`kickoffState`/`momentState`/`goalState`；`advanceLiveMinute` 返回 `carrierId/steps/goalSide`；`buildPitchFrame` 增加 `passPath/carrierId/goalSide` 与控球压上模型；`ENGINE_VERSION` 0.4.0 与 golden 更新 | 缺陷修复：比赛日 2D 画面不可读 |
 | 2026-11-01 | `buildPitchFrame` 的 `passPath` 跳过与当前分钟重复的历史帧；关键回合结算事件补写用户方 `side`；`ENGINE_VERSION` 0.4.1 与 golden 更新 | 缺陷修复：2D 画面细节 |
 | 2026-11-01 | 新增日回合接口（`startDay`/`advanceDay`/`advanceUntilDecision`/`playDay`/`isPendingDay`/`dayRng`/`dailyId`）与 `DayResult`/`FastForwardResult`；`startWeek`/`completeWeek`/`advanceWeek` 保留为周适配器；`recoverInjuries→advanceInjuries`、`applyTraining→applyDailyTraining`、`applyExtraAction→applyDailyAction`、`simulateWeekFixtures→simulateDayFixtures`、新增 `getUserFixtureOnDay`；领域赛历（`absoluteDay`/`dayForRound`/`fixtureDayOf`/`weekDayRoles`/`DEFAULT_WEEK_PLAN`）进入公共接口；`ENGINE_VERSION` 0.5.0 | 绿茵人生 M1.1 |
+| 2026-11-02 | 引擎产出的所有文本（直播事件、关键回合文案、新闻、教练评语、MOTM、射手榜）人名一律取 `displayName(entity)`；接口签名不变，但 `hashState` 因实体新增 `nameZh` 而变化，`ENGINE_VERSION` 升到 0.5.1 并重算 golden；转写本身不消耗 RNG，同种子结果仍可复现 | 绿茵人生 M1.4（中文人名） |
