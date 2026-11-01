@@ -5,7 +5,7 @@
     "src/domain/types.ts": {
       "metrics": {
         "lines": {
-          "value": 336,
+          "value": 334,
           "max": 300
         }
       }

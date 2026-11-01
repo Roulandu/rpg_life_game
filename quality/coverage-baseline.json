@@ -2,24 +2,24 @@
   "version": 1,
   "global": {
     "lines": {
-      "total": 3581,
-      "covered": 2971,
-      "pct": 82.96
+      "total": 3614,
+      "covered": 3012,
+      "pct": 83.34
     },
     "statements": {
-      "total": 4188,
-      "covered": 3343,
-      "pct": 79.82
+      "total": 4223,
+      "covered": 3389,
+      "pct": 80.25
     },
     "functions": {
-      "total": 1124,
-      "covered": 909,
-      "pct": 80.87
+      "total": 1137,
+      "covered": 933,
+      "pct": 82.05
     },
     "branches": {
-      "total": 3146,
-      "covered": 2228,
-      "pct": 70.82
+      "total": 3175,
+      "covered": 2269,
+      "pct": 71.46
     }
   },
   "modules": {
@@ -62,9 +62,9 @@
         "pct": 100
       },
       "branches": {
-        "total": 89,
-        "covered": 70,
-        "pct": 78.65
+        "total": 91,
+        "covered": 72,
+        "pct": 79.12
       }
     },
     "domain": {
@@ -201,24 +201,24 @@
     },
     "ui": {
       "lines": {
-        "total": 717,
-        "covered": 518,
-        "pct": 72.25
+        "total": 750,
+        "covered": 559,
+        "pct": 74.53
       },
       "statements": {
-        "total": 900,
-        "covered": 629,
-        "pct": 69.89
+        "total": 935,
+        "covered": 675,
+        "pct": 72.19
       },
       "functions": {
-        "total": 416,
-        "covered": 277,
-        "pct": 66.59
+        "total": 429,
+        "covered": 301,
+        "pct": 70.16
       },
       "branches": {
-        "total": 815,
-        "covered": 488,
-        "pct": 60.02
+        "total": 842,
+        "covered": 527,
+        "pct": 62.59
       }
     },
     "world": {
