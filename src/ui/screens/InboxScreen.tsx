@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import clsx from 'clsx'
+import { absoluteDay } from '../../domain'
 import { useGameStore } from '../../store'
 import { selectActionLabel } from '../../store'
 import { InboxHeader } from './inbox/InboxHeader'
@@ -20,7 +21,9 @@ export function InboxScreen() {
   const [tab, setTab] = useState<InboxTab>(() => parseInboxTab(params.get('tab')))
 
   if (!world) return null
-  const events = Object.values(world.events).sort((a, b) => b.week - a.week)
+  const events = Object.values(world.events).sort(
+    (a, b) => b.season - a.season || (b.createdAtDay ?? 0) - (a.createdAtDay ?? 0),
+  )
   const open = events.filter((event) => event.status === 'open')
   const history = events.filter((event) => event.status !== 'open').slice(0, 12)
   const actionUsed = world.aiAction?.season === world.season && world.aiAction.week === world.week
@@ -44,6 +47,7 @@ export function InboxScreen() {
         tab={tab}
         open={open}
         history={history}
+        today={absoluteDay(world.week, world.day)}
         onChoose={(eventId, choiceId) => void resolveChoice(eventId, choiceId)}
         aiEnabled={aiEnabled}
         canChat={canChat}

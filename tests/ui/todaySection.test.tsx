@@ -23,15 +23,21 @@ function renderDashboard() {
 }
 
 function makeEvent(world: WorldState, title: string): GameEvent {
+  const createdAtDay = (world.week - 1) * 7 + world.day
   return {
     id: `event:${world.season}:${world.week}:1:${title}`,
     templateId: 'test:today',
     title,
     body: '这是一条只需要出现在主页今天区的事件。',
+    sender: '队医',
     season: world.season,
     week: world.week,
+    day: world.day,
     createdAtWeek: world.week,
+    createdAtDay,
     expiresWeek: world.week + 1,
+    expiresDay: createdAtDay + 3,
+    blocking: true,
     status: 'open',
     choices: [{ id: 'c1', label: '好的', effects: [] }],
     source: 'template',
@@ -79,10 +85,24 @@ describe('主页今天区', () => {
     renderDashboard()
 
     expect(screen.getByText('教练的提醒')).toBeInTheDocument()
+    expect(screen.getByText('队医 ·')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '去处理事件' }))
 
     expect(screen.getByText('收件箱')).toBeInTheDocument()
+  })
+
+  it('今天卡把最新一天的消息排在前面', () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    world.day = 3
+    world.events['event:old'] = { ...makeEvent(world, '昨天的消息'), createdAtDay: 8 }
+    world.events['event:new'] = { ...makeEvent(world, '今天的消息'), createdAtDay: 17 }
+    setState(world)
+    renderDashboard()
+
+    const titles = screen.getAllByText(/的消息/).map((node) => node.textContent ?? '')
+    expect(titles[0]).toContain('今天的消息')
+    expect(titles[1]).toContain('昨天的消息')
   })
 
   it('今天没有事件时给出平静日文案', () => {

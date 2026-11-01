@@ -37,9 +37,10 @@ export function buildDashboardData(world: WorldState): DashboardData {
   const pendingMatch = selectPendingKeyMoments(world)
   const moments = last?.keyMoments ?? []
   const pendingCount = moments.filter((moment) => !moment.outcome).length
-  const todayEvents = Object.values(world.events).filter(
-    (event) => event.status === 'open' && event.week === world.week,
-  )
+  // 事件改成按天生成后，未处理的会挂两三天；这里取全部 open 事件，最新的排前面。
+  const todayEvents = Object.values(world.events)
+    .filter((event) => event.status === 'open')
+    .sort((a, b) => (b.createdAtDay ?? 0) - (a.createdAtDay ?? 0))
 
   return {
     user,

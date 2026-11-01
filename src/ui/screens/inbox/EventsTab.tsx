@@ -5,18 +5,19 @@ import { OpenEventCard } from './OpenEventCard'
 interface Props {
   open: GameEvent[]
   history: GameEvent[]
+  today: number
   onChoose: (eventId: string, choiceId: string) => void
 }
 
-export function EventsTab({ open, history, onChoose }: Props) {
+export function EventsTab({ open, history, today, onChoose }: Props) {
   return (
     <>
       {open.length === 0 ? (
-        <EmptyState title="没有待处理的事件" body="推进一周后，新的消息会出现在这里。事件会保留约两周。" />
+        <EmptyState title="没有待处理的事件" body="日子往前推，新的消息会出现在这里。事件一般保留两三天。" />
       ) : (
         <div className="space-y-3">
           {open.map((event) => (
-            <OpenEventCard key={event.id} event={event} onChoose={onChoose} />
+            <OpenEventCard key={event.id} event={event} today={today} onChoose={onChoose} />
           ))}
         </div>
       )}

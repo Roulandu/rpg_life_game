@@ -72,7 +72,10 @@ export function TodaySection({ world, events }: { world: WorldState; events: Gam
             {events.slice(0, 2).map((event) => (
               <div key={event.id} className="flex items-start gap-2">
                 <MessageSquare size={14} className="mt-0.5 shrink-0 text-accent" />
-                <p className="min-w-0 text-xs leading-relaxed text-text">{event.title}</p>
+                <p className="min-w-0 text-xs leading-relaxed text-text">
+                  {event.sender ? <span className="text-dim">{event.sender} · </span> : null}
+                  {event.title}
+                </p>
               </div>
             ))}
             <button type="button" className="btn-secondary mt-1 w-full" onClick={() => navigate('/inbox')}>

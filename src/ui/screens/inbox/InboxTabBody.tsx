@@ -8,6 +8,7 @@ interface Props {
   tab: InboxTab
   open: GameEvent[]
   history: GameEvent[]
+  today: number
   onChoose: (eventId: string, choiceId: string) => void
   aiEnabled: boolean
   canChat: boolean
@@ -23,7 +24,7 @@ interface Props {
 
 export function InboxTabBody(props: Props) {
   if (props.tab === 'events') {
-    return <EventsTab open={props.open} history={props.history} onChoose={props.onChoose} />
+    return <EventsTab open={props.open} history={props.history} today={props.today} onChoose={props.onChoose} />
   }
 
   if (props.tab === 'chat') {
