@@ -97,7 +97,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.5.1'`
+- `ENGINE_VERSION = '0.5.2'`
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -107,7 +107,8 @@ interface TurnResult {
 
 | 函数 | 签名 | 行为 |
 |---|---|---|
-| `determineUserSelection` | `(world, club, rng) => SelectionResult` | 根据能力差、教练信任、体能、状态、锐度决定首发/替补/不出场 |
+| `determineUserSelection` | `(world, club, rng) => SelectionResult` | 根据能力差、教练信任、体能、状态、锐度与**教练打法契合度**决定首发/替补/不出场 |
+| `selectionScore` | `(club, user, squadOverallWithoutUser, trust) => number` | 纯函数：入选评分的唯一算式，末项 `(styleFit − 0.5) × 4` 来自 `domain/coachStyle`，供选型与回归测试共用 |
 | `startUserMatch` | `(world, fixture) => MatchReport` | 创建 live 报告并停在 0'，初始化双方首发与全零统计；重复调用返回已有 live 报告 |
 | `advanceLiveMinute` | `(world) => LiveMinuteResult \| null` | 每次只推进一步；返回分钟、球权、球位、持球人、传球轨迹、事件与 `paused / finished / halfTime`；关键回合分钟先按归属写入进攻三区球位并计控球再暂停 |
 | `buildSpell` | `(input: SpellInput) => SpellResult` | 纯函数：Markov 控球连续、球位推进、1–3 段传球/带球轨迹、射门/进球判定；返回 `liveState` 供下一分钟与刷新恢复 |
@@ -170,7 +171,8 @@ interface TurnResult {
 | 函数 | 签名 | 行为 |
 |---|---|---|
 | `advanceInjuries` | `(world) => boolean` | 每天递减 `injury.daysLeft`；伤愈时清空伤病、体能 +10、写新闻并返回 `true`（日步进据此产生 `milestone`） |
-| `applyDailyTraining` | `(world, focus) => void` | 按年龄、设施、教练、体能计算**当日**成长与受伤概率；单次量 = 原周量 × `1/5` |
+| `applyDailyTraining` | `(world, focus) => void` | 按年龄、设施、教练、体能与**打法协同**计算**当日**成长与受伤概率；单次量 = 原周量 × `1/5` |
+| `dailyGrowth` | `(user, club, focus) => number` | 纯函数：单次训练成长量，末项乘 `styleSynergy(focus, club.style)`（命中打法偏好 1.12，否则 1），再乘 `PER_DAY` |
 | `applyDailyAction` | `(world, action) => void` | 应用媒体/经纪人/社交/休息/家庭效果（每周一次，落在活动日） |
 | `settleWeekFinance` | `(world) => WeeklyFinanceResult` | 结算周薪、支出、赞助，写流水 |
 | `updatePlayerValue` | `(world) => void` | 按表现与年龄更新身价 |
@@ -221,6 +223,17 @@ interface TurnResult {
 | `positionGroup(position)` | `GK / DEF / MID / FWD` |
 | `clamp` / `round1` / `round2` | 数值约束 |
 | `ATTR_KEYS` / `POSITION_WEIGHTS` / `TRAINING_ATTRS` | 属性与训练配置 |
+
+`src/domain/coachStyle.ts`（主教练打法模型，纯函数，不消耗 RNG、不读墙钟）：
+
+| 函数/常量 | 用途 |
+|---|---|
+| `STYLE_LABELS` | `possession / counter / highPress / direct` → 中文打法名 |
+| `STYLE_ATTRS` | 每种打法的属性权重（求和后归一到 0–1 的契合度） |
+| `STYLE_TRAINING_BONUS` | 每种打法偏好的训练重点（`TrainingFocus`） |
+| `styleFit(player, style)` | 契合度 0–1；阈值 0.62 / 0.45 切成契合 / 中性 / 不合三档 |
+| `styleFitLabel` / `styleAdvice` / `styleTopAttrs` | 档位标签、一句可读规则、看重的属性键 |
+| `styleSynergy(focus, style)` | 训练重点命中打法偏好时 1.12，否则 1 |
 
 `src/domain/calendar.ts`（赛历规则，纯整数推导，不读墙钟；日期与星期见 `docs/features/calendar-dates.md`）：
 
@@ -275,3 +288,4 @@ interface TurnResult {
 | 2026-11-01 | `buildPitchFrame` 的 `passPath` 跳过与当前分钟重复的历史帧；关键回合结算事件补写用户方 `side`；`ENGINE_VERSION` 0.4.1 与 golden 更新 | 缺陷修复：2D 画面细节 |
 | 2026-11-01 | 新增日回合接口（`startDay`/`advanceDay`/`advanceUntilDecision`/`playDay`/`isPendingDay`/`dayRng`/`dailyId`）与 `DayResult`/`FastForwardResult`；`startWeek`/`completeWeek`/`advanceWeek` 保留为周适配器；`recoverInjuries→advanceInjuries`、`applyTraining→applyDailyTraining`、`applyExtraAction→applyDailyAction`、`simulateWeekFixtures→simulateDayFixtures`、新增 `getUserFixtureOnDay`；领域赛历（`absoluteDay`/`dayForRound`/`fixtureDayOf`/`weekDayRoles`/`DEFAULT_WEEK_PLAN`）进入公共接口；`ENGINE_VERSION` 0.5.0 | 绿茵人生 M1.1 |
 | 2026-11-02 | 引擎产出的所有文本（直播事件、关键回合文案、新闻、教练评语、MOTM、射手榜）人名一律取 `displayName(entity)`；接口签名不变，但 `hashState` 因实体新增 `nameZh` 而变化，`ENGINE_VERSION` 升到 0.5.1 并重算 golden；转写本身不消耗 RNG，同种子结果仍可复现 | 绿茵人生 M1.4（中文人名） |
+| 2026-11-02 | 新增 `domain/coachStyle.ts` 打法模型；`matchUser` 抽出并导出 `selectionScore`，评分末项加 `(styleFit − 0.5) × 4`；`training` 抽出并导出 `dailyGrowth`，成长量乘 `styleSynergy`；`ENGINE_VERSION` 升到 0.5.2，重算 golden（种子 42 的回放计划不命中风格加成，哈希变化来自世界内的 `engineVersion` 字符串） | 绿茵人生 M1.5 |

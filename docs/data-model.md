@@ -27,7 +27,7 @@ flowchart TD
 |---|---|---|
 | `version` | number | 世界结构版本，当前 `5` |
 | `seed` | number | 世界种子，决定生成、赛程、比赛与事件 |
-| `engineVersion` | string | 生成世界的引擎版本，当前 `0.5.1` |
+| `engineVersion` | string | 生成世界的引擎版本，当前 `0.5.2` |
 | `createdAt` / `updatedAt` | ISO string | 创建与最近更新时间 |
 | `playerId` | Id | 用户球员 ID |
 | `clubId` | Id | 用户当前俱乐部 ID |
@@ -113,7 +113,7 @@ flowchart TD
 {
   "format": "pitch-life-save",
   "saveVersion": 5,
-  "engineVersion": "0.5.1",
+  "engineVersion": "0.5.2",
   "exportedAt": "2026-10-26T12:00:00.000Z",
   "checksum": "<hashString(canonicalStringify(world))>",
   "world": { "...": "WorldState" }
@@ -231,3 +231,4 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 2026-11-01 | 关键回合结算事件补写 `side`；存档结构不变，engine 0.4.1 | 缺陷修复：2D 画面细节 |
 | 2026-11-02 | 存档升 v5：日时钟 `day`、`weekPlan`、`pendingDayPlan`、`Fixture.day`、`Injury.daysLeft`、`NewsItem.day`；v4 迁移按轮次推导日并把 live 档摆回比赛日；engine 0.5.0 | M1.1/M1.2 日回合与快进 |
 | 2026-11-02 | 存档升 v6：实体 `nameZh` 与战报阵容 `nameZh`，历史文本按原名→中文名整词替换；`CURRENT_SAVE_VERSION`/`world.version` = 6；engine 0.5.1 | M1.4 中文人名 |
+| 2026-11-02 | 无存档结构变化：`Club.style` 从死字段变成选型与训练的输入（`domain/coachStyle.ts`），引擎语义变更令 `ENGINE_VERSION` 升 0.5.2 并重算回放基准（`91cb67aad3f2e45a`），世界里的 `engineVersion` 字符串随新世界写入 | M1.5 教练打法生效 |

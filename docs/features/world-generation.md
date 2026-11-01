@@ -189,3 +189,4 @@ sequenceDiagram
 | 2026-11-01 | 引擎升到 0.4.1（关键回合事件补 `side`）；存档版本与生成内容不变 | 缺陷修复：2D 画面细节 |
 | 2026-11-01 | 新世界写入 `day = 1` / `weekPlan = DEFAULT_WEEK_PLAN` / `pendingDayPlan = null`，`generateFixtures` 为每场写 `Fixture.day`；存档 5 / 引擎 0.5.0 由常量带出，RNG 抽样顺序不变 | 绿茵人生 M1.1 |
 | 2026-11-02 | `makeAiPlayer` / `makeUserPlayer` / `makeCoach` / 关系人物与初始新闻一律写 `nameZh`（`nameZhFor` 纯字符串运算，不消耗 RNG，抽样顺序不变）；引擎与新闻文本改取 `displayName`；存档 6 / 引擎 0.5.1，golden 重算 | 绿茵人生 M1.4（中文人名） |
+| 2026-11-02 | 生成侧不变：`Club.style` 仍由俱乐部 RNG 域抽样决定（种子 2026 的 40 家分布为控球 9 / 防反 12 / 高压 9 / 长传 10，四种打法都会出现）；该字段从"只存不用"变成引擎输入（选型 `(styleFit−0.5)×4`、训练 ×1.12），引擎 0.5.2、golden 重算 | 绿茵人生 M1.5 |

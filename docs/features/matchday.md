@@ -169,8 +169,10 @@ stateDiagram-v2
 `determineUserSelection`：
 
 - 受伤或体能 <26：不出场。
-- 综合评分：
-  `(能力 - 队友阵容能力) × 2.2 + (教练信任 - 50) × 0.22 + (体能 - 70) × 0.2 + (状态 - 50) × 0.12 + (锐度 - 50) × 0.08`
+- 综合评分（`selectionScore`，已导出为纯函数便于回归验证）：
+  `(能力 - 队友阵容能力) × 2.2 + (教练信任 - 50) × 0.22 + (体能 - 70) × 0.2 + (状态 - 50) × 0.12 + (锐度 - 50) × 0.08 + (styleFit - 0.5) × 4`
+- 最后一项是主教练打法契合度，量级 ±2，与 −3.5 的首发门槛同阶：边缘球员会因打法契合或冲突被推过 / 推离门槛。强度按既定决策取默认 `(styleFit − 0.5) × 4`，调整需重算回放基准。
+- 契合度与打法权重来自 `src/domain/coachStyle.ts`（纯函数，不消耗 RNG），玩家侧口径写在 `docs/features/team-squad.md` 的教练卡。
 - 体能 ≥38 且（评分 ≥−3.5，或评分 ≥−9 且 55% 概率）→ 首发 90 分钟。
 - 体能 ≥45 且评分 ≥−18 且 45% 概率 → 替补 15–30 分钟。
 - 其余不出场；不出场时 `startWeek` 在内部完整模拟 90 分钟并直接结算整周。
@@ -398,6 +400,7 @@ stateDiagram-v2
 | 12 类成功/失败叙事 | `tests/engine/keyMomentNarrative.test.ts` |
 | 结算、终场评分、form、赛季统计、新闻 | `tests/engine/keyMoments.test.ts`、`tests/engine/motm.test.ts` |
 | 比赛模拟、出场判定、赛季统计 | `tests/engine/season.test.ts`、`tests/engine/match.test.ts` |
+| 出场判定含打法项、换打法会改变首发数 | `tests/engine/coachStyle.test.ts` |
 | startWeek/completeWeek 两阶段 | `tests/engine/turn.test.ts` |
 | 首发选择稳定性、用户强制入选 | `tests/domain/lineup.test.ts` |
 | 球场坐标边界、控球压上、防守回撤、门将贴线、球贴脚、传球线、确定性 | `tests/domain/pitch.test.ts` |
@@ -444,3 +447,4 @@ stateDiagram-v2
 | 2026-10-31 | 触发条件文案只由 UI 添加“触发条件：”前缀，数据层不再重复携带前缀，避免弹窗出现双前缀 | 比赛日实时化改造 |
 | 2026-10-31 | 重做比赛实时引擎与 2D 画面：连续控球 Markov、球位推进、传球轨迹、射门/进球同源、射手=持球人；球场坐标改为控球压上/防守回撤/门将贴线，球贴持球人脚下；SVG 完整球场、足球图标、传球线、控球条、GOAL 徽标与速度自适应动画；`MatchReport.liveState` 持久化画面状态；存档升 v4；engine 0.4.0，golden 哈希更新 | 缺陷修复：比赛日 2D 画面不可读 |
 | 2026-11-01 | 传球线跳过与当前分钟重复的历史帧，始终从上一分钟球位出发；关键回合结算事件补写用户方 `side`，修复关键回合进球不显示 `GOAL` 徽标；engine 0.4.1 与 golden 更新；360/390px 与桌面验收通过 | 缺陷修复：2D 画面细节 |
+| 2026-11-02 | 出场评分接入教练打法契合度 `(styleFit − 0.5) × 4`，评分逻辑抽成可导出的 `selectionScore`；打法模型落在 `domain/coachStyle.ts`；engine 0.5.2 与 golden 重算（种子 42 的回放计划未命中风格加成，哈希变化只来自写进世界的 `engineVersion` 字符串） | 日回合与养成 M1.5 |
