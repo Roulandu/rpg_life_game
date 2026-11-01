@@ -1,4 +1,5 @@
 import type { AiChatMessage, AiNarrative, AiUsage } from './aiTypes'
+import type { GameEvent } from './eventContent'
 import type { Fixture, MatchReport } from './matchTypes'
 import type {
   Archetype,
@@ -35,6 +36,8 @@ export type {
   MatchGoal,
   MatchReport,
 } from './matchTypes'
+
+export type { Effect, EffectOp, EventChoice, GameEvent } from './eventContent'
 
 export interface Contract {
   clubId: Id
@@ -189,46 +192,6 @@ export interface Relationship {
   lastInteractionWeek?: number
 }
 
-export type EffectOp =
-  | 'morale'
-  | 'fitness'
-  | 'sharpness'
-  | 'confidence'
-  | 'coachTrust'
-  | 'teammateTrust'
-  | 'agentTrust'
-  | 'familyTrust'
-  | 'mediaRep'
-  | 'fanRep'
-  | 'money'
-
-export interface Effect {
-  op: EffectOp
-  delta: number
-}
-
-export interface EventChoice {
-  id: string
-  label: string
-  description?: string
-  effects: Effect[]
-}
-
-export interface GameEvent {
-  id: Id
-  templateId: string
-  title: string
-  body: string
-  season: number
-  week: number
-  createdAtWeek: number
-  expiresWeek: number
-  status: 'open' | 'resolved' | 'expired'
-  choices: EventChoice[]
-  resultText?: string
-  source: 'template' | 'llm'
-}
-
 export interface FinanceLedgerEntry {
   week: number
   season: number
@@ -284,6 +247,8 @@ export interface WorldState {
   fixtures: Record<Id, Fixture>
   relationships: Record<Id, Relationship>
   events: Record<Id, GameEvent>
+  /** 模板 id → 上次生成它的绝对日序；每日事件靠它做冷却，避免同一周内刷屏。 */
+  eventMemory: Record<string, number>
   finance: Finance
   news: NewsItem[]
   season: number

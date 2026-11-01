@@ -49,6 +49,22 @@ export {
   styleTopAttrs,
 } from './coachStyle'
 export type { ClubStyle } from './coachStyle'
+export {
+  EVENT_BODY_TOKENS,
+  EVENT_SCOPE_FIELDS,
+  EVENT_TEMPLATES,
+  eventTemplateById,
+} from './eventContent'
+export type {
+  Effect,
+  EffectOp,
+  EventChoice,
+  EventCondition,
+  EventScope,
+  EventScopeField,
+  EventTemplateContent,
+  GameEvent,
+} from './eventContent'
 export { generateFixtures } from './fixtures'
 export { effectsSummary, successBasisText } from './keyMomentView'
 export { computeLeagueTable, goalDifference, leaguePosition } from './leagueTable'
@@ -86,16 +102,12 @@ export type {
   ClubStrength,
   Coach,
   Contract,
-  Effect,
-  EffectOp,
-  EventChoice,
   ExtraAction,
   Fixture,
   FixtureStatus,
   Finance,
   FinanceLedgerEntry,
   Foot,
-  GameEvent,
   Id,
   Injury,
   KeyMoment,

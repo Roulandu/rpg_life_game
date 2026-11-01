@@ -72,6 +72,7 @@ export function generateWorld(options: CareerCreateOptions, now: string): WorldS
     fixtures,
     relationships,
     events: {},
+    eventMemory: {},
     finance,
     news: initialNews(user, chosenClub),
     season: START_SEASON,
