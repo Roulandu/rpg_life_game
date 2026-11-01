@@ -20,6 +20,18 @@ export {
   round1,
   round2,
 } from './attributes'
+export {
+  DAYS_PER_WEEK,
+  MATCH_DAY,
+  MATCH_DAY_ALT,
+  MIDWEEK_DAY,
+  TRAINING_DAYS,
+  absoluteDay,
+  dayForRound,
+  fixtureDayOf,
+  weekDayRoles,
+} from './calendar'
+export type { WeekDayRoles } from './calendar'
 export type { ChatActionProposal } from './chatAction'
 export { generateFixtures } from './fixtures'
 export { effectsSummary, successBasisText } from './keyMomentView'

@@ -8,6 +8,7 @@ export interface Fixture {
   season: number
   week: number
   round: number
+  day?: number
   homeId: Id
   awayId: Id
   status: FixtureStatus
