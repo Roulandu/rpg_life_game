@@ -1,107 +1,8 @@
-import type { GameEvent, MatchReport, WeeklyPlan, WorldState } from '../domain'
-import { displayName } from '../domain'
-import { createRng } from '../lib'
-import {
-  renderEventDraft,
-  resultTextFor,
-  type EventDraft,
-  type EventDraftContext,
-} from './data/eventTemplates'
+import type { GameEvent, WorldState } from '../domain'
+import { resultTextFor } from './data/eventTemplates'
 import { applyEffects } from './effects'
-import { getRelationshipByRole } from './relationships'
 
-function firstTeammateName(world: WorldState): string {
-  const relationship = Object.values(world.relationships).find((item) => item.role === 'teammate')
-  return displayName(relationship) || '队友'
-}
-
-function buildDraftContext(world: WorldState, match: MatchReport | null, plan: WeeklyPlan): EventDraftContext {
-  const user = world.players[world.playerId]
-  const rating = match?.userRating
-  return {
-    coach: displayName(getRelationshipByRole(world, 'coach')) || '主教练',
-    teammate: firstTeammateName(world),
-    userName: displayName(user),
-    ratingSuffix: rating != null ? `你上一场获得了 ${rating.toFixed(1)} 分。` : '',
-    restSuffix: plan.extra === 'rest' ? '你已经开始认真恢复。' : '',
-  }
-}
-
-function buildEventDraft(
-  templateId: string,
-  world: WorldState,
-  match: MatchReport | null,
-  plan: WeeklyPlan,
-): EventDraft {
-  return renderEventDraft(templateId, buildDraftContext(world, match, plan))
-}
-
-export function expireEvents(world: WorldState): void {
-  for (const event of Object.values(world.events)) {
-    if (event.status === 'open' && event.expiresWeek < world.week) {
-      event.status = 'expired'
-    }
-  }
-}
-
-export function generateWeeklyEvent(
-  world: WorldState,
-  match: MatchReport | null,
-  plan: WeeklyPlan,
-): GameEvent | null {
-  const user = world.players[world.playerId]
-  if (!user) return null
-  const rng = createRng(world.seed, 'event', world.season, world.week)
-  if (!rng.chance(0.72)) return null
-
-  let templateId: string
-  if (user.injury) {
-    const hasOpenInjuryEvent = Object.values(world.events).some(
-      (event) => event.status === 'open' && event.templateId === 'injury_concern',
-    )
-    if (hasOpenInjuryEvent) return null
-    templateId = 'injury_concern'
-  } else if (match && !match.userPlayed) {
-    templateId = rng.pick(['bench_frustration', 'bench_frustration', 'agent_call'])
-  } else if (match && match.userRating != null && match.userRating >= 7.3) {
-    templateId = rng.pick(['coach_praise', 'coach_praise', 'media_interview'])
-  } else if (match && match.userRating != null && match.userRating < 6.2) {
-    templateId = rng.pick(['coach_warning', 'media_criticism'])
-  } else if (plan.extra === 'media') {
-    templateId = rng.pick(['media_interview', 'agent_sponsor'])
-  } else {
-    templateId = rng.pick(['teammate_dinner', 'family_visit', 'agent_sponsor', 'lifestyle_purchase'])
-  }
-
-  const draft = buildEventDraft(templateId, world, match, plan)
-  const id = `event:${world.season}:${world.week}:${draft.templateId}`
-  if (world.events[id]) return world.events[id]
-  const event: GameEvent = {
-    id,
-    templateId: draft.templateId,
-    title: draft.title,
-    body: draft.body,
-    season: world.season,
-    week: world.week,
-    createdAtWeek: world.week,
-    expiresWeek: world.week + 2,
-    status: 'open',
-    choices: draft.choices,
-    source: 'template',
-  }
-  world.events[id] = event
-  world.news.unshift({
-    id: `news:event:${id}`,
-    season: world.season,
-    week: world.week,
-    title: `新消息：${event.title}`,
-    body: event.body,
-    kind: 'media',
-  })
-  world.news = world.news.slice(0, 80)
-  return event
-}
-
+/** 选项结算：效果落地 + 两条模板专属副作用（提前复出、生活方式购置）。 */
 export function resolveEvent(
   world: WorldState,
   eventId: string,
@@ -129,6 +30,7 @@ export function resolveEvent(
     id: `news:event:resolved:${event.id}`,
     season: world.season,
     week: world.week,
+    day: world.day,
     title: `已处理：${event.title}`,
     body: resultText,
     kind: 'media',

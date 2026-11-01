@@ -1,6 +1,8 @@
 export { applyChatActionProposal } from './chatAction'
 export { applyEffects } from './effects'
-export { expireEvents, generateWeeklyEvent, resolveEvent } from './events'
+export { resolveEvent } from './events'
+export { expireEvents, generateDailyEvents } from './eventsDaily'
+export { buildEventScope, scopeMatches } from './eventCondition'
 export {
   autoResolveKeyMoments,
   finalizeMatchday,

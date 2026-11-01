@@ -1,6 +1,6 @@
 import { DAYS_PER_WEEK, absoluteDay, computeClubStrength, weekDayRoles } from '../domain'
 import type { Fixture, GameEvent, MatchReport, WeekDayRoles, WorldState } from '../domain'
-import { expireEvents, generateWeeklyEvent } from './events'
+import { expireEvents, generateDailyEvents } from './eventsDaily'
 import { settleWeekFinance, updatePlayerValue } from './finance'
 import { autoResolveKeyMoments, finalizeMatchday, hasPendingKeyMoments } from './keyMoments'
 import { startUserMatch } from './liveMatch'
@@ -101,14 +101,13 @@ function advanceClock(world: WorldState): SeasonTransition | null {
 
 function closeDay(world: WorldState, match: MatchReport | null, stopReason: DayStopReason | null): DayResult {
   const dayPlayed = world.day
-  simulateDayFixtures(world)
+  const dayReport = simulateDayFixtures(world)
   const weeklyMatch = weekMatch(world, match)
-  let event: GameEvent | null = null
-  if (world.day === DAYS_PER_WEEK) {
-    settleWeekFinance(world)
-    event = generateWeeklyEvent(world, weeklyMatch, world.weekPlan)
-    if (!stopReason && event) stopReason = 'event'
-  }
+  if (world.day === DAYS_PER_WEEK) settleWeekFinance(world)
+  // 每日事件看的是「今天这场」，不是本周任意一场：赛后事件必须落在赛后当天。
+  const created = generateDailyEvents(world, dayReport ?? match)
+  const event = created[0] ?? null
+  if (!stopReason && created.some((item) => item.blocking)) stopReason = 'event'
   if (absoluteDay(world.week, world.day) % VALUE_REFRESH_DAYS === 0) updatePlayerValue(world)
   const seasonTransition = advanceClock(world)
   world.pendingDayPlan = null

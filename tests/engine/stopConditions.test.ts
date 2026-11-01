@@ -45,7 +45,11 @@ describe('日推进的停止条件', () => {
     const world = readyWorld()
     world.weekPlan = PLAN
 
-    const fast = advanceUntilDecision(world, 7)
+    // 每日事件也会成为停点：像玩家那样一路处理，直到停在比赛日。
+    let fast = advanceUntilDecision(world, 7)
+    for (let round = 0; round < 6 && fast.stopReason !== 'matchday'; round += 1) {
+      fast = advanceUntilDecision(fast.days.at(-1)!.world, 7)
+    }
     const pending = fast.days.at(-1)!.world
 
     expect(fast.stopReason).toBe('matchday')

@@ -63,12 +63,21 @@ describe('逐日时钟', () => {
     const world = readyWorld()
     world.weekPlan = PLAN
 
-    const fast = advanceUntilDecision(world, 7)
+    // 每日事件同样会让快进停下，所以按玩家的方式一路推到比赛日：中途停点只能是事件。
+    let fast = advanceUntilDecision(world, 7)
+    const stops = [fast.stopReason]
+    let quietDays = fast.quietDays
+    for (let round = 0; round < 6 && fast.stopReason !== 'matchday'; round += 1) {
+      fast = advanceUntilDecision(fast.days.at(-1)!.world, 7)
+      stops.push(fast.stopReason)
+      quietDays += fast.quietDays
+    }
     const last = fast.days.at(-1)!
 
     expect(fast.stopReason).toBe('matchday')
     expect(last.live).toBe(true)
     expect(last.world.day).toBe(7)
-    expect(fast.quietDays).toBeGreaterThan(0)
+    expect(quietDays).toBeGreaterThan(0)
+    expect(stops.every((reason) => reason === 'matchday' || reason === 'event')).toBe(true)
   })
 })

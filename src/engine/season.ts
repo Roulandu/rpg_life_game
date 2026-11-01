@@ -220,6 +220,8 @@ function prepareNextSeason(world: WorldState, nextSeason: number): void {
   world.season = nextSeason
   world.week = 1
   world.lastMatch = null
+  // 冷却记的是季内绝对日序，新赛季从第 1 天重新计数，不清空会让模板永久停在冷却里。
+  world.eventMemory = {}
   world.fixtures = { ...world.fixtures, ...generateFixtures(world.leagues, world.seed, nextSeason) }
   for (const club of Object.values(world.clubs)) {
     club.strength = computeClubStrength(club, world.players)

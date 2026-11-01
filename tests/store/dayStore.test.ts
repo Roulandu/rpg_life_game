@@ -7,6 +7,18 @@ import { clearStore } from '../fixtures/storeHarness'
 describe('逐日推进的 store', () => {
   beforeEach(clearStore)
 
+  /**
+   * 每日事件也会成为快进停点，所以「停在比赛日」要按玩家的方式连点：
+   * 每次停下处理完那一天，再推进，直到停在开球那天。
+   */
+  async function fastForwardToMatchday() {
+    let fast = await useGameStore.getState().advanceToNextEvent()
+    for (let round = 0; round < 8 && fast?.stopReason !== 'matchday'; round += 1) {
+      fast = await useGameStore.getState().advanceToNextEvent()
+    }
+    return fast
+  }
+
   it('推进一天只让日时钟加一天并落盘', async () => {
     await useGameStore.getState().createCareer(testOptions())
     expect(useGameStore.getState().world?.day).toBe(1)
@@ -22,7 +34,7 @@ describe('逐日推进的 store', () => {
   it('推进到下一件事停在比赛日并汇总平静日', async () => {
     await useGameStore.getState().createCareer(testOptions())
 
-    const fast = await useGameStore.getState().advanceToNextEvent()
+    const fast = await fastForwardToMatchday()
 
     const world = useGameStore.getState().world
     expect(fast?.stopReason).toBe('matchday')
@@ -45,7 +57,7 @@ describe('逐日推进的 store', () => {
 
   it('今天的比赛没踢完时拒绝继续往后推日子', async () => {
     await useGameStore.getState().createCareer(testOptions())
-    await useGameStore.getState().advanceToNextEvent()
+    await fastForwardToMatchday()
 
     const blocked = await useGameStore.getState().advanceDay()
 
