@@ -1,6 +1,7 @@
 import type { AiChatMessage, AiNarrative, AiUsage } from './aiTypes'
 import type { GameEvent } from './eventContent'
 import type { Fixture, MatchReport } from './matchTypes'
+import type { CareerEntry, Contract, Injury, Reputation, SeasonStat } from './playerTypes'
 import type {
   Archetype,
   Attributes,
@@ -39,56 +40,7 @@ export type {
 
 export type { Effect, EffectOp, EventChoice, GameEvent } from './eventContent'
 
-export interface Contract {
-  clubId: Id
-  wageWeekly: number
-  startSeason: number
-  endSeason: number
-  releaseClause?: number
-  signingBonus?: number
-}
-
-export interface Reputation {
-  local: number
-  national: number
-  continental: number
-  world: number
-  fanbase: number
-  media: number
-}
-
-export interface SeasonStat {
-  season: number
-  clubId: Id
-  appearances: number
-  starts: number
-  minutes: number
-  goals: number
-  assists: number
-  ratingSum: number
-  ratingCount: number
-  yellowCards: number
-  redCards: number
-}
-
-export interface CareerEntry {
-  season: number
-  age: number
-  clubId: Id
-  clubName: string
-  tier: number
-  appearances: number
-  goals: number
-  assists: number
-  averageRating: number
-  note?: string
-}
-
-export interface Injury {
-  kind: string
-  daysLeft: number
-  severity: number
-}
+export type { CareerEntry, Contract, Injury, Reputation, SeasonStat } from './playerTypes'
 
 export interface Player {
   id: Id
