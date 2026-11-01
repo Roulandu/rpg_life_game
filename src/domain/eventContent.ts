@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import legacyJson from '../../data/events/legacy.json'
 import matchweekJson from '../../data/events/matchweek.json'
+import dailyLifeJson from '../../data/events/daily-life.json'
 import type { Id } from './primitiveTypes'
 
 export type EffectOp =
@@ -215,27 +216,37 @@ function assertWhitelist(templates: EventTemplateContent[]): EventTemplateConten
  * 事件内容包按类别分文件：legacy 保持文案逐字不变，新类别一个文件一类，
  * 注册顺序即加载顺序，跨包 id 重复直接拒绝，避免出现「后一份覆盖前一份」。
  */
-export const EVENT_PACK_NAMES = ['legacy', 'matchweek'] as const
+export const EVENT_PACK_NAMES = ['legacy', 'matchweek', 'daily-life'] as const
 
 const EVENT_PACKS: { name: string; templates: unknown }[] = [
   { name: 'legacy', templates: legacyJson },
   { name: 'matchweek', templates: matchweekJson },
+  { name: 'daily-life', templates: dailyLifeJson },
 ]
+
+const PACK_INDEX = new Map<string, EventTemplateContent[]>()
 
 function parsePacks(): EventTemplateContent[] {
   const list: EventTemplateContent[] = []
   for (const pack of EVENT_PACKS) {
-    for (const template of templateSchema.array().parse(pack.templates)) {
+    const templates = templateSchema.array().parse(pack.templates)
+    for (const template of templates) {
       if (list.some((item) => item.id === template.id)) {
         throw new Error(`事件模板 id 在不同数据包里重复：${template.id}（${pack.name}）`)
       }
       list.push(template)
     }
+    PACK_INDEX.set(pack.name, templates)
   }
   return list
 }
 
 export const EVENT_TEMPLATES: EventTemplateContent[] = assertWhitelist(parsePacks())
+
+/** 按类别取包内模板：内容门禁与分类测试都用它，避免靠 id 前缀猜归属。 */
+export function eventTemplatesOfPack(name: string): EventTemplateContent[] {
+  return PACK_INDEX.get(name) ?? []
+}
 
 const TEMPLATE_INDEX = new Map(EVENT_TEMPLATES.map((template) => [template.id, template]))
 

@@ -55,6 +55,7 @@ export {
   EVENT_SCOPE_FIELDS,
   EVENT_TEMPLATES,
   eventTemplateById,
+  eventTemplatesOfPack,
 } from './eventContent'
 export type {
   Effect,

@@ -1,0 +1,384 @@
+[
+  {
+    "id": "dl_laundry_lost",
+    "title": "洗衣服的人不在",
+    "body": "装备管理员出差了，柜子里只剩一件没干的客场球衣和半袋没洗的护腿板。{teammate}说他可以借你一条球裤，但要你还一杯咖啡。",
+    "sender": "装备管理员",
+    "weight": 4,
+    "expiresDays": 1,
+    "cooldownDays": 12,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "weekday", "op": "in", "value": [1, 2, 3] },
+      { "field": "isMatchDay", "op": "eq", "value": false }
+    ],
+    "choices": [
+      {
+        "id": "borrow",
+        "label": "借一条并请咖啡",
+        "description": "省事，也欠个人情。",
+        "effects": [{ "op": "teammateTrust", "delta": 2 }, { "op": "money", "delta": -12 }]
+      },
+      {
+        "id": "wash",
+        "label": "自己手洗烘干",
+        "description": "多花四十分钟，谁也不欠。",
+        "effects": [{ "op": "morale", "delta": -1 }, { "op": "confidence", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "borrow": "那条球裤有点长，但你还是穿着它练完了整堂课。",
+      "wash": "你把球衣挂在暖气片上，第二天它是干的，也有点硬。"
+    }
+  },
+  {
+    "id": "dl_canteen_order",
+    "title": "食堂的新菜单",
+    "body": "食堂把炸物换成了清蒸，甜品改成了水果。排在你前面的三个人都把盘子推了回去，厨师看着你，等你先做决定。",
+    "sender": "队内厨师",
+    "weight": 4,
+    "expiresDays": 2,
+    "cooldownDays": 14,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [1, 2, 3, 4, 5] }],
+    "choices": [
+      {
+        "id": "follow",
+        "label": "按新菜单吃",
+        "description": "身体会记下这件事。",
+        "effects": [{ "op": "fitness", "delta": 3 }, { "op": "morale", "delta": -2 }]
+      },
+      {
+        "id": "old",
+        "label": "让厨师给老样子",
+        "description": "好吃，但第二天腿会沉。",
+        "effects": [{ "op": "morale", "delta": 3 }, { "op": "fitness", "delta": -3 }]
+      }
+    ],
+    "resultTexts": {
+      "follow": "一周以后你发现自己下午不再想睡。",
+      "old": "那盘东西很香，你在车里坐了十分钟才上楼。"
+    }
+  },
+  {
+    "id": "dl_neighbour_noise",
+    "title": "邻居的投诉",
+    "body": "有人在门缝里塞了一张纸条，说你凌晨的录像声音太大了。纸条没有署名，但你认得那台一直亮着灯的窗户。",
+    "sender": "邻居",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 25,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [1, 6, 7] }],
+    "choices": [
+      {
+        "id": "apologise",
+        "label": "上门道歉并改时间",
+        "description": "把声音挪到白天。",
+        "effects": [{ "op": "familyTrust", "delta": 1 }, { "op": "morale", "delta": -1 }, { "op": "confidence", "delta": 1 }]
+      },
+      {
+        "id": "ignore",
+        "label": "当作没看见",
+        "description": "你不想再解释自己是球员。",
+        "effects": [{ "op": "morale", "delta": 2 }, { "op": "fanRep", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "apologise": "对方开了半条缝，只说了一句：早点睡。",
+      "ignore": "第二天那扇窗户黑了，你反而没睡好。"
+    }
+  },
+  {
+    "id": "dl_family_dinner",
+    "title": "家里的那顿饭",
+    "body": "母亲打了三次电话，说菜已经凉过一次了。{userName}，她其实只想问你这个月还回不回得去。",
+    "sender": "家人",
+    "weight": 5,
+    "expiresDays": 3,
+    "cooldownDays": 18,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "familyTrust", "op": "lt", "value": 62 },
+      { "field": "isMatchDay", "op": "eq", "value": false }
+    ],
+    "choices": [
+      {
+        "id": "go",
+        "label": "今晚就回去",
+        "description": "车程两小时，饭两小时。",
+        "effects": [{ "op": "familyTrust", "delta": 5 }, { "op": "morale", "delta": 3 }, { "op": "fitness", "delta": -2 }]
+      },
+      {
+        "id": "promise",
+        "label": "答应下周回去",
+        "description": "先把手头这堂课练完。",
+        "effects": [{ "op": "familyTrust", "delta": -2 }, { "op": "sharpness", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "go": "你把凉掉的菜热了一遍，母亲说你瘦了，这是她今年第一次这么说。",
+      "promise": "她答应了，但挂电话前沉默了两秒。"
+    }
+  },
+  {
+    "id": "dl_old_friend_match",
+    "title": "青训旧友野球局",
+    "body": "当年一起住校的人发来一张野球场的照片，周六缺一个人，说赢了的买饮料。你上周才踢了九十分钟。",
+    "sender": "青训旧友",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 30,
+    "maxPerSeason": 3,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "weekday", "op": "in", "value": [4, 5] },
+      { "field": "fitness", "op": "gte", "value": 55 }
+    ],
+    "choices": [
+      {
+        "id": "play",
+        "label": "去踢一场",
+        "description": "开心，但没人给你冰。",
+        "effects": [{ "op": "morale", "delta": 4 }, { "op": "fitness", "delta": -4 }, { "op": "teammateTrust", "delta": -1 }]
+      },
+      {
+        "id": "decline",
+        "label": "回一句这周不行",
+        "description": "他们已经习惯你说这周不行。",
+        "effects": [{ "op": "fitness", "delta": 1 }, { "op": "morale", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "play": "你踢了六十分钟，回家路上腿在抖，但笑声是真的。",
+      "decline": "群里发了合照，少一个人，他们把你 P 了上去。"
+    }
+  },
+  {
+    "id": "dl_phone_cracked",
+    "title": "屏幕碎了",
+    "body": "训练时一跤摔在广告牌前，手机的角裂了。屏幕还能用，但教练组的群、家里的号码、赞助商的合同都在里面。",
+    "sender": "经纪人",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 40,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "isMatchDay", "op": "eq", "value": false }],
+    "choices": [
+      {
+        "id": "fix_now",
+        "label": "立刻换屏",
+        "description": "花钱买不耽误事。",
+        "effects": [{ "op": "money", "delta": -180 }, { "op": "morale", "delta": 1 }]
+      },
+      {
+        "id": "wait",
+        "label": "用旧的撑两周",
+        "description": "裂缝每天变长一点。",
+        "effects": [{ "op": "money", "delta": 0.01 }, { "op": "morale", "delta": -2 }, { "op": "confidence", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "fix_now": "修好后第一件事是给家里回了那条没发出去的语音。",
+      "wait": "第十天屏幕左半边开始不听话，你在训练场外面站了很久。"
+    }
+  },
+  {
+    "id": "dl_pet_vet",
+    "title": "狗的复查",
+    "body": "从青训时期陪你到现在的狗该复查了。预约在周三上午，而那天正好是特训日。队里没有规定不能请假，也没有规定可以。",
+    "sender": "家人",
+    "weight": 2,
+    "expiresDays": 4,
+    "cooldownDays": 45,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [1, 2] }],
+    "choices": [
+      {
+        "id": "take_it",
+        "label": "去诊所，缺席特训",
+        "description": "它等了你半年。",
+        "effects": [{ "op": "familyTrust", "delta": 3 }, { "op": "morale", "delta": 3 }, { "op": "coachTrust", "delta": -2 }]
+      },
+      {
+        "id": "reschedule",
+        "label": "改约到周末",
+        "description": "训练照常，心里挂着一件事。",
+        "effects": [{ "op": "coachTrust", "delta": 1 }, { "op": "morale", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "take_it": "医生说恢复得比想象好，你在走廊里给教练发了道歉的信息。",
+      "reschedule": "周末的复查排上了，那周的特训你一次没落。"
+    }
+  },
+  {
+    "id": "dl_night_insonmia",
+    "title": "凌晨三点的天花板",
+    "body": "明天是比赛日的前一天，你已经醒了两次。手机屏幕上是同一条还没发出的信息，收件人是{coach}。",
+    "sender": "自己",
+    "weight": 4,
+    "expiresDays": 1,
+    "cooldownDays": 8,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "isDayAfterMatch", "op": "eq", "value": false },
+      { "field": "daysSinceMatch", "op": "gte", "value": 4 }
+    ],
+    "choices": [
+      {
+        "id": "breathe",
+        "label": "放下手机做呼吸",
+        "description": "身体先安静，脑子才会安静。",
+        "effects": [{ "op": "fitness", "delta": 3 }, { "op": "confidence", "delta": 1 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "message",
+        "label": "把那条信息发出去",
+        "description": "凌晨的话，白天多半会后悔。",
+        "effects": [{ "op": "coachTrust", "delta": -1 }, { "op": "morale", "delta": 2 }, { "op": "fitness", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "breathe": "四点二十你睡着了，醒来时阳光已经很直。",
+      "message": "信息在凌晨三点发出，你在七点删掉了它，但已经读过了。"
+    }
+  },
+  {
+    "id": "dl_kids_clinic",
+    "title": "青训孩子的问卷",
+    "body": "俱乐部让一线队球员给青训营填一份问卷，问题是「你在他们这个年纪最后悔没做什么」。最后一栏是空的，等你写。",
+    "sender": "青训旧友",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 35,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "seasonProgress", "op": "between", "value": [0.1, 0.9] }],
+    "choices": [
+      {
+        "id": "honest",
+        "label": "写下真话",
+        "description": "包括那段你不想提的伤。",
+        "effects": [{ "op": "morale", "delta": 2 }, { "op": "fanRep", "delta": 1 }, { "op": "confidence", "delta": 2 }]
+      },
+      {
+        "id": "polite",
+        "label": "写安全的套话",
+        "description": "没人会因为套话生气。",
+        "effects": [{ "op": "mediaRep", "delta": 1 }, { "op": "morale", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "honest": "两周后有孩子给你寄了信，说他照着你写的那句话去做了。",
+      "polite": "问卷收上去时没人注意你的那一栏，你松了口气，也有点空。"
+    }
+  },
+  {
+    "id": "dl_car_ticket",
+    "title": "基地门口的罚单",
+    "body": "车把上夹了一张纸条，写着你占了大巴的转弯位。保安亭的人说，这条规定昨天才贴出来，纸在你背后那根柱子上。",
+    "sender": "俱乐部职员",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 20,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [1, 2, 3, 4] }],
+    "choices": [
+      {
+        "id": "pay_move",
+        "label": "交罚款并把车挪了",
+        "description": "二十块钱买一个不再发生。",
+        "effects": [{ "op": "money", "delta": -20 }, { "op": "teammateTrust", "delta": 1 }]
+      },
+      {
+        "id": "argue_post",
+        "label": "去问凭什么",
+        "description": "你想要一个正式的说明。",
+        "effects": [{ "op": "confidence", "delta": 2 }, { "op": "teammateTrust", "delta": -2 }, { "op": "mediaRep", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "pay_move": "第二天那个位置空着，保安冲你抬了抬手。",
+      "argue_post": "他们把通知重新打印并贴到了正门，你的车牌被念给全队听过一次。"
+    }
+  },
+  {
+    "id": "dl_language_class",
+    "title": "语言课的邀请",
+    "body": "俱乐部请了外教，一周两次，给不是本地语言的球员。教练组的助理问你为什么不报名，你的口语其实只是不敢开口。",
+    "sender": "体育总监",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 30,
+    "once": true,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "clubTier", "op": "gte", "value": 1 },
+      { "field": "age", "op": "lte", "value": 26 }
+    ],
+    "choices": [
+      {
+        "id": "enroll",
+        "label": "报名，从最差的课开始",
+        "description": "战术课上听得懂一半，就是进步。",
+        "effects": [{ "op": "confidence", "delta": 3 }, { "op": "coachTrust", "delta": 2 }, { "op": "fitness", "delta": -1 }]
+      },
+      {
+        "id": "skip",
+        "label": "用翻译软件撑一季",
+        "description": "省事，但永远慢半拍。",
+        "effects": [{ "op": "fitness", "delta": 1 }, { "op": "teammateTrust", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "enroll": "第三周你能自己举手问教练第二个中卫是谁了。",
+      "skip": "翻译软件在雨里卡住那一次，整条战术线你都没听懂。"
+    }
+  },
+  {
+    "id": "dl_supermarket_stare",
+    "title": "超市里的目光",
+    "body": "你在挑米，旁边一排人开始小声。有个小孩举着手机想合影，被他母亲按住，那一秒你们三个都僵在那里。",
+    "sender": "球迷会",
+    "weight": 4,
+    "expiresDays": 1,
+    "cooldownDays": 10,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "fanRep", "op": "gte", "value": 35 },
+      { "field": "isMatchDay", "op": "eq", "value": false }
+    ],
+    "choices": [
+      {
+        "id": "photo",
+        "label": "蹲下来和他拍一张",
+        "description": "两分钟，他会记很多年。",
+        "effects": [{ "op": "fanRep", "delta": 3 }, { "op": "morale", "delta": 2 }]
+      },
+      {
+        "id": "shake",
+        "label": "摆摆手快步走",
+        "description": "你只想买完米回家。",
+        "effects": [{ "op": "fanRep", "delta": -2 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "photo": "那张照片后来出现在青训营的墙上，孩子把它打印了出来。",
+      "shake": "第二天本地论坛有一条帖子，标题问你为什么现在架子这么大。"
+    }
+  }
+]
