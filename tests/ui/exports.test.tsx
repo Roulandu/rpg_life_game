@@ -10,6 +10,7 @@ import {
   ScheduleScreen,
   SeasonSummaryModal,
   SettingsScreen,
+  TeamScreen,
   TimelineScreen,
   TitleScreen,
   Toast,
@@ -26,6 +27,7 @@ describe('ui public entry', () => {
       ProfileScreen,
       ScheduleScreen,
       SettingsScreen,
+      TeamScreen,
       TimelineScreen,
       TitleScreen,
     ]) {

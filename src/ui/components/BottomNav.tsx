@@ -1,4 +1,4 @@
-import { CalendarDays, House, Inbox, Menu, UserRound } from 'lucide-react'
+import { CalendarDays, House, Menu, UserRound, Users } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useGameStore } from '../../store'
 import clsx from 'clsx'
@@ -6,7 +6,7 @@ import clsx from 'clsx'
 const ITEMS = [
   { to: '/game', label: '主页', icon: House },
   { to: '/schedule', label: '赛程', icon: CalendarDays },
-  { to: '/inbox', label: '收件箱', icon: Inbox },
+  { to: '/team', label: '队伍', icon: Users },
   { to: '/profile', label: '生涯', icon: UserRound },
   { to: '/more', label: '更多', icon: Menu },
 ]
@@ -39,7 +39,7 @@ export function BottomNav() {
             >
               <span className="relative">
                 <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
-                {item.to === '/inbox' && openEvents > 0 ? (
+                {item.to === '/game' && openEvents > 0 ? (
                   <span className="absolute -right-2 -top-1 grid min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-bold leading-4 text-accent-ink">
                     {openEvents > 9 ? '9+' : openEvents}
                   </span>

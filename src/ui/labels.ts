@@ -1,5 +1,12 @@
-import type { Effect, EffectOp, ExtraAction } from '../domain'
+import type { Effect, EffectOp, ExtraAction, Player } from '../domain'
 import { formatMoneyShort } from '../lib'
+
+export const SQUAD_ROLE_LABELS: Record<Player['squadRole'], string> = {
+  youth: '青训',
+  rotation: '轮换',
+  starter: '主力',
+  star: '核心',
+}
 
 export const EFFECT_LABELS: Record<EffectOp, string> = {
   morale: '士气',

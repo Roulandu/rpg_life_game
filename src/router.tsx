@@ -9,6 +9,7 @@ import { MoreScreen } from './ui'
 import { ProfileScreen } from './ui'
 import { ScheduleScreen } from './ui'
 import { SettingsScreen } from './ui'
+import { TeamScreen } from './ui'
 import { TimelineScreen } from './ui'
 import { TitleScreen } from './ui'
 
@@ -26,6 +27,7 @@ export const router = createHashRouter([
           { path: 'match', element: <MatchdayScreen /> },
           { path: 'schedule', element: <ScheduleScreen /> },
           { path: 'inbox', element: <InboxScreen /> },
+          { path: 'team', element: <TeamScreen /> },
           { path: 'profile', element: <ProfileScreen /> },
           { path: 'more', element: <MoreScreen /> },
           { path: 'settings', element: <SettingsScreen /> },
