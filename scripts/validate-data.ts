@@ -1,7 +1,7 @@
 import denylistJson from '../data/denylist/england.json'
 import knownNamesJson from '../data/names/known.json'
 import transliterationJson from '../data/names/transliteration.json'
-import { EVENT_TEMPLATES, hasCjk, nameZhFor } from '../src/domain'
+import { EVENT_PACK_NAMES, EVENT_TEMPLATES, eventTemplatesOfPack, hasCjk, nameZhFor } from '../src/domain'
 import { COUNTRY_PACKS, NAME_POOLS, NATIONALITY_WEIGHTS } from '../src/world/datapack'
 import { STARTING_CLUBS } from '../src/world/data/england'
 
@@ -141,6 +141,27 @@ for (const template of EVENT_TEMPLATES) {
   const choiceIds = new Set(template.choices.map((choice) => choice.id))
   for (const key of Object.keys(template.resultTexts ?? {})) {
     if (!choiceIds.has(key)) errors.push(`事件 ${template.id} 的结果文案指向不存在的选项：${key}`)
+  }
+}
+
+/**
+ * 事件内容池的规模下限：类别包数量、总条数与单包密度一起守。
+ * 门槛写在门禁里，是为了让「删掉一整包」这类改动必须先解释，而不是悄悄把内容密度降下来。
+ */
+const MIN_EVENT_PACKS = 7
+const MIN_EVENT_TEMPLATES = 72
+const MIN_TEMPLATES_PER_PACK = 8
+
+if (EVENT_PACK_NAMES.length < MIN_EVENT_PACKS) {
+  errors.push(`事件数据包少于 ${MIN_EVENT_PACKS} 个：当前 ${EVENT_PACK_NAMES.length}`)
+}
+if (EVENT_TEMPLATES.length < MIN_EVENT_TEMPLATES) {
+  errors.push(`事件模板总数少于 ${MIN_EVENT_TEMPLATES} 条：当前 ${EVENT_TEMPLATES.length}`)
+}
+for (const packName of EVENT_PACK_NAMES) {
+  const count = eventTemplatesOfPack(packName).length
+  if (count < MIN_TEMPLATES_PER_PACK) {
+    errors.push(`事件包 ${packName} 模板少于 ${MIN_TEMPLATES_PER_PACK} 条：当前 ${count}`)
   }
 }
 
