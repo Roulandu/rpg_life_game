@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { useGameStore } from '../../store'
 import { CareerHistory } from './profile/CareerHistory'
 import { ProfileFinance } from './profile/ProfileFinance'
+import { ProfileGrowth } from './profile/ProfileGrowth'
 import { ProfileOverview } from './profile/ProfileOverview'
 import { ProfileSeason } from './profile/ProfileSeason'
 
@@ -21,7 +22,10 @@ export function ProfileScreen() {
       </button>
 
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
-        <ProfileOverview user={user} clubName={club.nameZh} />
+        <div className="min-w-0">
+          <ProfileOverview user={user} clubName={club.nameZh} />
+          <ProfileGrowth world={world} user={user} />
+        </div>
         <div className="min-w-0">
           <ProfileFinance world={world} user={user} />
           <ProfileSeason world={world} user={user} />
