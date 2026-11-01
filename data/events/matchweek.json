@@ -1,0 +1,404 @@
+[
+  {
+    "id": "mw_coach_role_call",
+    "title": "赛前的定位讲话",
+    "body": "{coach}在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
+    "sender": "教练",
+    "weight": 6,
+    "expiresDays": 1,
+    "cooldownDays": 5,
+    "blocking": true,
+    "guaranteed": true,
+    "when": [{ "field": "isMatchDay", "op": "eq", "value": true }],
+    "choices": [
+      {
+        "id": "discipline",
+        "label": "按安排踢",
+        "description": "少冒险，多安全出球。",
+        "effects": [{ "op": "coachTrust", "delta": 2 }, { "op": "confidence", "delta": 1 }]
+      },
+      {
+        "id": "freedom",
+        "label": "要自由权",
+        "description": "他让你自己决定什么时候压上。",
+        "effects": [{ "op": "coachTrust", "delta": -1 }, { "op": "confidence", "delta": 3 }, { "op": "sharpness", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "discipline": "你把讲话里的每一条都记住了，场上没再做多余的决定。",
+      "freedom": "{coach}耸了耸肩，把右半边场地交给了你。"
+    }
+  },
+  {
+    "id": "mw_bench_name",
+    "title": "大名单里没有你",
+    "body": "名单贴出来时你找到了自己的名字——在替补席那一栏的最下面。{teammate}拍了拍你的肩膀，什么也没说。",
+    "sender": "队友",
+    "weight": 5,
+    "expiresDays": 2,
+    "cooldownDays": 10,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "lastPlayed", "op": "eq", "value": 0 },
+      { "field": "daysSinceMatch", "op": "between", "value": [1, 2] }
+    ],
+    "choices": [
+      {
+        "id": "train_harder",
+        "label": "加练到闭馆",
+        "description": "把火气用在身体上。",
+        "effects": [{ "op": "sharpness", "delta": 3 }, { "op": "fitness", "delta": -3 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "talk_coach",
+        "label": "去找教练问清楚",
+        "description": "要一个说法，而不是暗示。",
+        "effects": [{ "op": "coachTrust", "delta": 1 }, { "op": "confidence", "delta": 2 }]
+      },
+      {
+        "id": "goquietly",
+        "label": "什么都不说",
+        "description": "把情绪咽下去。",
+        "effects": [{ "op": "morale", "delta": -3 }, { "op": "confidence", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "train_harder": "训练基地的灯最后只留在你那一侧。",
+      "talk_coach": "{coach}给了你一个很短的回答：看训练。",
+      "goquietly": "你回到宿舍，把名单的照片存了下来，没给任何人看。"
+    }
+  },
+  {
+    "id": "mw_video_lesson",
+    "title": "赛后的录像课",
+    "body": "分析室只开了一盏灯。屏幕上停在你那次丢球的前一秒，{coach}没有按下播放键。",
+    "sender": "教练",
+    "weight": 4,
+    "expiresDays": 2,
+    "cooldownDays": 12,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "daysSinceMatch", "op": "eq", "value": 1 },
+      { "field": "lastRating", "op": "lt", "value": 6.4 }
+    ],
+    "choices": [
+      {
+        "id": "accept",
+        "label": "承认判断错了",
+        "description": "把责任写在自己身上。",
+        "effects": [{ "op": "coachTrust", "delta": 2 }, { "op": "confidence", "delta": -1 }, { "op": "morale", "delta": 1 }]
+      },
+      {
+        "id": "argue",
+        "label": "解释当时的空间",
+        "description": "你觉得自己被误判了。",
+        "effects": [{ "op": "coachTrust", "delta": -2 }, { "op": "confidence", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "accept": "录像课提前结束了。{coach}只说了一句：下周照这个练。",
+      "argue": "他把进度条拖回去，让你自己讲完那三秒。"
+    }
+  },
+  {
+    "id": "mw_mixed_zone",
+    "title": "混合采访区",
+    "body": "结束哨响后，记者把你堵在通道口，问题只有一个：那场失利到底是谁的责任。{ratingSuffix}",
+    "sender": "媒体",
+    "weight": 5,
+    "expiresDays": 1,
+    "cooldownDays": 8,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "isMatchDay", "op": "eq", "value": true },
+      { "field": "lastPlayed", "op": "gte", "value": 1 }
+    ],
+    "choices": [
+      {
+        "id": "protect_team",
+        "label": "把话揽到自己身上",
+        "description": "不说队友，不说教练。",
+        "effects": [{ "op": "teammateTrust", "delta": 2 }, { "op": "mediaRep", "delta": 1 }, { "op": "fanRep", "delta": 2 }]
+      },
+      {
+        "id": "blame_situation",
+        "label": "怪场地和赛程",
+        "description": "听起来像借口，但很好卖稿。",
+        "effects": [{ "op": "mediaRep", "delta": -1 }, { "op": "fanRep", "delta": -2 }, { "op": "coachTrust", "delta": -1 }]
+      },
+      {
+        "id": "say_nothing",
+        "label": "一句都不说",
+        "description": "直接走过采访区。",
+        "effects": [{ "op": "mediaRep", "delta": -2 }, { "op": "confidence", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "protect_team": "第二天的标题写的是「他来承担」。",
+      "blame_situation": "那段采访被剪成十五秒，配着看台的嘘声。",
+      "say_nothing": "你走过采访区，身后有人喊你的名字，你没回头。"
+    }
+  },
+  {
+    "id": "mw_ice_bath",
+    "title": "赛后的冰浴",
+    "body": "恢复室里摆好了两个桶。{restSuffix}队医说这一步不能省，但你更想直接回家。",
+    "sender": "队医",
+    "weight": 6,
+    "expiresDays": 1,
+    "cooldownDays": 4,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "daysSinceMatch", "op": "between", "value": [0, 1] },
+      { "field": "lastPlayed", "op": "gte", "value": 1 }
+    ],
+    "choices": [
+      {
+        "id": "full",
+        "label": "做满二十分钟",
+        "description": "难受，但第二天身体会回答。",
+        "effects": [{ "op": "fitness", "delta": 4 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "skip",
+        "label": "跳过",
+        "description": "让身体自己恢复。",
+        "effects": [{ "op": "fitness", "delta": -3 }, { "op": "morale", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "full": "你数着瓷砖把时间熬完，站起来时腿是木的，第二场却是轻的。",
+      "skip": "第二天早上你差点连楼梯都下不去。"
+    }
+  },
+  {
+    "id": "mw_tactics_late",
+    "title": "迟到的战术会议",
+    "body": "走廊里贴着新的对位表，会议已经开始三分钟。门口有把空椅子，{coach}没抬头。",
+    "sender": "教练",
+    "weight": 4,
+    "expiresDays": 1,
+    "cooldownDays": 9,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [2, 3, 4] }],
+    "choices": [
+      {
+        "id": "sit",
+        "label": "悄悄坐下",
+        "description": "先听完，再解释。",
+        "effects": [{ "op": "coachTrust", "delta": -1 }, { "op": "morale", "delta": 1 }]
+      },
+      {
+        "id": "explain",
+        "label": "当场说明原因",
+        "description": "不想让迟到变成印象。",
+        "effects": [{ "op": "coachTrust", "delta": 1 }, { "op": "confidence", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "sit": "你把那三分钟补抄在笔记本最后一页。",
+      "explain": "会议室安静了一下，然后{coach}让你把结论讲完。"
+    }
+  },
+  {
+    "id": "mw_scout_note",
+    "title": "对手球探的笔记",
+    "body": "体育总监把一张打印纸推给你：对面把你最近的三次触球路线全画了出来，最后一行写着一个疑问。",
+    "sender": "体育总监",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 20,
+    "maxPerSeason": 3,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "weekday", "op": "in", "value": [4, 5] },
+      { "field": "daysSinceMatch", "op": "gte", "value": 2 }
+    ],
+    "choices": [
+      {
+        "id": "change_habit",
+        "label": "改掉一个习惯",
+        "description": "让他们画错一次。",
+        "effects": [{ "op": "sharpness", "delta": 2 }, { "op": "confidence", "delta": 1 }, { "op": "fitness", "delta": -1 }]
+      },
+      {
+        "id": "keep_going",
+        "label": "继续踢自己的",
+        "description": "被研究说明你有用。",
+        "effects": [{ "op": "confidence", "delta": 3 }, { "op": "coachTrust", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "change_habit": "那场比赛你第一次往反方向跑，场边的笔记本合上了。",
+      "keep_going": "你把那张纸折好放进球衣口袋，整场都在被同一个人盯着。"
+    }
+  },
+  {
+    "id": "mw_kit_room_cake",
+    "title": "更衣室的生日蛋糕",
+    "body": "{teammate}从装备柜后面拿出一个不太完整的蛋糕，上面写着你的名字，字是昨晚用牙签描的。",
+    "sender": "队友",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 25,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [1, 2, 5] }],
+    "choices": [
+      {
+        "id": "share",
+        "label": "整块切给全队",
+        "description": "让这一天不属于你一个人。",
+        "effects": [{ "op": "teammateTrust", "delta": 3 }, { "op": "morale", "delta": 2 }]
+      },
+      {
+        "id": "photo",
+        "label": "先拍照发给家人",
+        "description": "这个更想留久一点。",
+        "effects": [{ "op": "familyTrust", "delta": 3 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "share": "蛋糕被切得歪歪扭扭，但没人抱怨。",
+      "photo": "你母亲回了三条语音，第一条只说了你的名字。"
+    }
+  },
+  {
+    "id": "mw_away_night",
+    "title": "客场过夜",
+    "body": "大巴在夜里两点到酒店。房间隔壁是球场，能听见清洁车在空看台上开过去。{restSuffix}",
+    "sender": "队友",
+    "weight": 4,
+    "expiresDays": 1,
+    "cooldownDays": 7,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [5, 6] }],
+    "choices": [
+      {
+        "id": "sleep",
+        "label": "拉上窗帘睡觉",
+        "description": "把明晚留给身体。",
+        "effects": [{ "op": "fitness", "delta": 3 }, { "op": "sharpness", "delta": 1 }]
+      },
+      {
+        "id": "walk",
+        "label": "出去走一圈",
+        "description": "这座城市的球场外面看看不一样。",
+        "effects": [{ "op": "morale", "delta": 3 }, { "op": "fitness", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "sleep": "你睡了七个小时，醒来时窗外还在下雨。",
+      "walk": "你在场外站到闭园，第二天腿有点沉，但眼睛是亮的。"
+    }
+  },
+  {
+    "id": "mw_extra_request",
+    "title": "加练的提议",
+    "body": "训练结束后，{coach}问你愿不愿意多加一组定位球。你的腿还有力气，但明天还有课。",
+    "sender": "教练",
+    "weight": 5,
+    "expiresDays": 1,
+    "cooldownDays": 6,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "fitness", "op": "gte", "value": 68 },
+      { "field": "isMatchDay", "op": "eq", "value": false }
+    ],
+    "choices": [
+      {
+        "id": "yes",
+        "label": "留下加练",
+        "description": "一组二十脚，练到自己满意。",
+        "effects": [{ "op": "sharpness", "delta": 3 }, { "op": "fitness", "delta": -3 }, { "op": "coachTrust", "delta": 2 }]
+      },
+      {
+        "id": "no",
+        "label": "按点收工",
+        "description": "状态比努力重要。",
+        "effects": [{ "op": "fitness", "delta": 2 }, { "op": "coachTrust", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "yes": "最后五脚你都打在了同一个角上，{coach}第一次在场边点头。",
+      "no": "你走出球场时，灯刚关掉一半。"
+    }
+  },
+  {
+    "id": "mw_man_of_match_note",
+    "title": "赛后评选的单子",
+    "body": "俱乐部的月度最佳评选需要球员互投。{teammate}把票递给你，让你别写自己的名字。",
+    "sender": "队友",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 30,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "lastRating", "op": "gte", "value": 7.4 },
+      { "field": "daysSinceMatch", "op": "between", "value": [1, 3] }
+    ],
+    "choices": [
+      {
+        "id": "vote_teammate",
+        "label": "投给队友",
+        "description": "把机会让给更需要的人。",
+        "effects": [{ "op": "teammateTrust", "delta": 3 }, { "op": "morale", "delta": 1 }]
+      },
+      {
+        "id": "vote_self",
+        "label": "按表现投自己",
+        "description": "你觉得自己配得上。",
+        "effects": [{ "op": "confidence", "delta": 3 }, { "op": "teammateTrust", "delta": -2 }, { "op": "mediaRep", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "vote_teammate": "票箱盖上的时候，旁边有人冲你抬了抬下巴。",
+      "vote_self": "那张纸条被你写得很慢，慢到有人看见了。"
+    }
+  },
+  {
+    "id": "mw_derby_week",
+    "title": "德比周的第一课",
+    "body": "训练基地外面拉起了两条横幅，一蓝一白。{coach}开场只说了一句：这周没有人会替你们挨骂。",
+    "sender": "教练",
+    "weight": 2,
+    "expiresDays": 2,
+    "cooldownDays": 40,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "fanRep", "op": "gte", "value": 40 },
+      { "field": "seasonProgress", "op": "between", "value": [0.15, 0.95] }
+    ],
+    "choices": [
+      {
+        "id": "focus",
+        "label": "把日程收紧",
+        "description": "少说话，多睡觉。",
+        "effects": [{ "op": "sharpness", "delta": 2 }, { "op": "confidence", "delta": 2 }, { "op": "fitness", "delta": -1 }]
+      },
+      {
+        "id": "fan_meet",
+        "label": "去球迷会露个面",
+        "description": "让看台认得你。",
+        "effects": [{ "op": "fanRep", "delta": 4 }, { "op": "morale", "delta": 2 }, { "op": "coachTrust", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "focus": "那周你只去了三个地方：训练场、恢复室、宿舍。",
+      "fan_meet": "你在看台下讲了五分钟，回去的路上手机里全是那段视频。"
+    }
+  }
+]

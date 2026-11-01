@@ -13,7 +13,7 @@ const LEGACY_IDS = [
   'media_criticism', 'agent_sponsor', 'agent_call', 'family_visit', 'lifestyle_purchase', 'injury_concern',
 ]
 
-describe('事件数据包', () => {
+describe('事件数据包的 legacy 契约', () => {
   it('legacy 十一条模板全部进入数据包并带权重、冷却与过期天数', () => {
     expect((legacyJson as { id: string }[]).map((template) => template.id).sort()).toEqual(
       [...LEGACY_IDS].sort(),
@@ -39,7 +39,9 @@ describe('事件数据包', () => {
     expect(template?.choices.map((choice) => choice.id)).toEqual(['listen', 'rush'])
     expect(template?.resultTexts?.rush).toBe('你坚持提前复出。风险会由你的身体来承担。')
   })
+})
 
+describe('事件数据包的白名单与注册表', () => {
   it('条件字段与插值占位符都落在白名单里', () => {
     for (const template of EVENT_TEMPLATES) {
       for (const condition of template.when) {
@@ -73,5 +75,12 @@ describe('事件数据包', () => {
   it('数据包注册表条目唯一，legacy 包始终在册', () => {
     expect(new Set<string>(EVENT_PACK_NAMES).size).toBe(EVENT_PACK_NAMES.length)
     expect(EVENT_PACK_NAMES).toContain('legacy')
+  })
+
+  it('注册第二个数据包后模板池增长且 id 仍全局唯一', () => {
+    expect(EVENT_PACK_NAMES.length).toBeGreaterThanOrEqual(2)
+    expect(EVENT_TEMPLATES.length).toBeGreaterThan((legacyJson as { id: string }[]).length)
+    const ids = EVENT_TEMPLATES.map((template) => template.id)
+    expect(new Set(ids).size).toBe(ids.length)
   })
 })

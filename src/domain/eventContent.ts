@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import legacyJson from '../../data/events/legacy.json'
+import matchweekJson from '../../data/events/matchweek.json'
 import type { Id } from './primitiveTypes'
 
 export type EffectOp =
@@ -214,10 +215,11 @@ function assertWhitelist(templates: EventTemplateContent[]): EventTemplateConten
  * 事件内容包按类别分文件：legacy 保持文案逐字不变，新类别一个文件一类，
  * 注册顺序即加载顺序，跨包 id 重复直接拒绝，避免出现「后一份覆盖前一份」。
  */
-export const EVENT_PACK_NAMES = ['legacy'] as const
+export const EVENT_PACK_NAMES = ['legacy', 'matchweek'] as const
 
 const EVENT_PACKS: { name: string; templates: unknown }[] = [
   { name: 'legacy', templates: legacyJson },
+  { name: 'matchweek', templates: matchweekJson },
 ]
 
 function parsePacks(): EventTemplateContent[] {

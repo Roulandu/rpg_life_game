@@ -1,5 +1,8 @@
 import { eventTemplateById } from '../../domain'
+import type { MatchReport, WorldState } from '../../domain'
 import type { EventChoice } from '../../domain'
+import { displayName } from '../../domain'
+import { getRelationshipByRole } from '../relationships'
 
 export interface EventDraftContext {
   coach: string
@@ -14,6 +17,25 @@ export interface EventDraft {
   title: string
   body: string
   choices: EventChoice[]
+}
+
+/** 模板插值口径与旧周事件一致：教练、队友、主角名与赛后评分/恢复副句。 */
+export function buildDraftContext(
+  world: WorldState,
+  match: MatchReport | null,
+): EventDraftContext {
+  const user = world.players[world.playerId]
+  const rating = match?.userRating
+  const teammate = displayName(
+    Object.values(world.relationships).find((item) => item.role === 'teammate'),
+  ) || '队友'
+  return {
+    coach: displayName(getRelationshipByRole(world, 'coach')) || '主教练',
+    teammate,
+    userName: displayName(user),
+    ratingSuffix: rating != null ? `你上一场获得了 ${rating.toFixed(1)} 分。` : '',
+    restSuffix: world.weekPlan.extra === 'rest' ? '你已经开始认真恢复。' : '',
+  }
 }
 
 /**

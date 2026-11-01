@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { WorldState } from '../../src/domain'
-import { EVENT_PACK_NAMES, EVENT_TEMPLATES, eventTemplateById } from '../../src/domain'
+import { displayName, EVENT_PACK_NAMES, EVENT_TEMPLATES, eventTemplateById } from '../../src/domain'
+import { getRelationshipByRole } from '../../src/engine/relationships'
 import { resolveEvent } from '../../src/engine/events'
 import { applyEffects } from '../../src/engine/effects'
+import { buildDraftContext, renderEventDraft } from '../../src/engine/data/eventTemplates'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
 
@@ -77,12 +79,36 @@ describe('事件结算走数据驱动效果', () => {
   })
 })
 
+describe('事件结果文案插值', () => {
+  it('结果文案里的占位符在结算时被换成真实人名', () => {
+    const world = generateWorld(testOptions({ seed: 2026 }), TEST_NOW)
+    openTemplateEvent(world, 'mw_coach_role_call', 'event:resolve:token')
+
+    const resolved = resolveEvent(world, 'event:resolve:token', 'freedom')
+
+    expect(resolved?.resultText).toBeTruthy()
+    expect(resolved?.resultText).not.toContain('{coach}')
+    expect(resolved?.resultText).toContain(displayName(getRelationshipByRole(world, 'coach')))
+  })
+
+  it('正文与结果文案共用同一套插值口径', () => {
+    const world = generateWorld(testOptions({ seed: 2026 }), TEST_NOW)
+    const ctx = buildDraftContext(world, null)
+
+    const draft = renderEventDraft('mw_bench_name', ctx)
+
+    expect(draft.body).not.toContain('{teammate}')
+    expect(draft.body).toContain(ctx.teammate)
+  })
+})
+
 describe('事件数据包注册表', () => {
   it('模板按数据包加载，跨包 id 不允许重复', () => {
     const ids = EVENT_TEMPLATES.map((template) => template.id)
     expect(new Set(ids).size).toBe(ids.length)
-    expect(EVENT_PACK_NAMES.length).toBeGreaterThanOrEqual(1)
+    expect(EVENT_PACK_NAMES.length).toBeGreaterThanOrEqual(2)
     expect(ids).toContain('injury_concern')
+    expect(ids).toContain('mw_coach_role_call')
   })
 
   it('每个模板的结果文案键都指向真实选项，正文占位符都在白名单内', () => {

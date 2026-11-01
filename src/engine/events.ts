@@ -1,5 +1,5 @@
 import type { GameEvent, WorldState } from '../domain'
-import { resultTextFor } from './data/eventTemplates'
+import { buildDraftContext, interpolate, resultTextFor } from './data/eventTemplates'
 import { applyEffects } from './effects'
 
 /** 选项结算：效果落地 + 生活方式购置的资产登记。 */
@@ -19,7 +19,11 @@ export function resolveEvent(
     if (choice.id === 'apartment') world.finance.assets.push('一套小公寓')
   }
 
-  const resultText = `${resultTextFor(event.templateId, choice.id) ?? choice.label + '。'}`
+  // 结果文案也走同一套插值：数据包里写 {coach}，落地时必须是真人的中文名。
+  const resultText = interpolate(
+    resultTextFor(event.templateId, choice.id) ?? `${choice.label}。`,
+    buildDraftContext(world, null),
+  )
   event.status = 'resolved'
   event.resultText = resultText
   world.news.unshift({

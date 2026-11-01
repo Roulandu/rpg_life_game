@@ -1,41 +1,14 @@
-import { DAYS_PER_WEEK, EVENT_TEMPLATES, absoluteDay, displayName } from '../domain'
-import type {
-  EventTemplateContent,
-  GameEvent,
-  MatchReport,
-  WorldState,
-} from '../domain'
+import { DAYS_PER_WEEK, EVENT_TEMPLATES, absoluteDay } from '../domain'
+import type { EventTemplateContent, GameEvent, MatchReport, WorldState } from '../domain'
 import { dayRng } from './dayContext'
-import { renderEventDraft, type EventDraftContext } from './data/eventTemplates'
+import { buildDraftContext, renderEventDraft } from './data/eventTemplates'
 import { buildEventScope, scopeMatches } from './eventCondition'
-import { getRelationshipByRole } from './relationships'
 
 /**
  * 无保证候选时的日掷骰概率。周粒度时代是 0.72，摊到七天约 0.103；
  * 因为保证型赛后/伤病事件不掷骰，这里略高于均摊值，全季总量由 eventCadence 锁死。
  */
 const DAILY_BASE_CHANCE = 0.13
-
-function firstTeammateName(world: WorldState): string {
-  const relationship = Object.values(world.relationships).find((item) => item.role === 'teammate')
-  return displayName(relationship) || '队友'
-}
-
-/** 模板插值口径与旧周事件一致：教练、队友、主角名与赛后评分/恢复副句。 */
-export function buildDraftContext(
-  world: WorldState,
-  match: MatchReport | null,
-): EventDraftContext {
-  const user = world.players[world.playerId]
-  const rating = match?.userRating
-  return {
-    coach: displayName(getRelationshipByRole(world, 'coach')) || '主教练',
-    teammate: firstTeammateName(world),
-    userName: displayName(user),
-    ratingSuffix: rating != null ? `你上一场获得了 ${rating.toFixed(1)} 分。` : '',
-    restSuffix: world.weekPlan.extra === 'rest' ? '你已经开始认真恢复。' : '',
-  }
-}
 
 /** 冷却看的是绝对日序，跨周、跨赛季都不会把同一个模板连成刷屏。 */
 function isReady(world: WorldState, template: EventTemplateContent, today: number): boolean {
