@@ -1,9 +1,11 @@
+import type { AttrAllocation } from './allocation'
 import type { AiChatMessage, AiNarrative, AiUsage } from './aiTypes'
 import type { GameEvent } from './eventContent'
 import type { Fixture, MatchReport } from './matchTypes'
 import type { CareerEntry, Contract, Injury, Reputation, SeasonStat } from './playerTypes'
 import type {
   Archetype,
+  AttrInvestment,
   Attributes,
   CareerBackground,
   ExtraAction,
@@ -15,6 +17,7 @@ import type {
 
 export type {
   Archetype,
+  AttrInvestment,
   AttrKey,
   Attributes,
   CareerBackground,
@@ -54,6 +57,12 @@ export interface Player {
   foot: Foot
   attributes: Attributes
   potential: number
+  /** 没花掉的经验：唯一可支配的成长货币，只有引擎的 `grantExp` 能加。 */
+  exp: number
+  /** 累计拿到过的经验，不随花费减少，用来抬高单属性投资上限。 */
+  lifetimeExp: number
+  /** 各属性已投点数，决定下一点的价格。 */
+  attrInvestment: AttrInvestment
   form: number
   fitness: number
   sharpness: number
@@ -238,6 +247,8 @@ export interface CareerCreateOptions {
   background: CareerBackground
   clubId: Id
   seed: number
+  /** 建号点买：可选，缺省等价于空对象，旧调用点与旧测试不必改。 */
+  allocation?: AttrAllocation
 }
 
 export interface WeeklyPlan {

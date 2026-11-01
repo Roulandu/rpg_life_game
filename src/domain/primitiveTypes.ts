@@ -21,6 +21,9 @@ export type AttrKey =
 
 export type Attributes = Record<AttrKey, number>
 
+/** 每个属性已经花掉的经验点数：决定下一点的价格。 */
+export type AttrInvestment = Record<AttrKey, number>
+
 export type Foot = 'L' | 'R' | 'B'
 
 export type TrainingFocus = 'physical' | 'technical' | 'tactical' | 'recovery'

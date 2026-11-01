@@ -22,6 +22,31 @@ export {
   roundAttr,
 } from './attributes'
 export {
+  ALLOCATION_ACADEMY_BONUS,
+  ALLOCATION_BASE,
+  ALLOCATION_MAX_PER_ATTR,
+  ALLOCATION_PER_AGE_YEAR,
+  allocationBudget,
+  allocationTotal,
+  applyAllocation,
+  checkAllocation,
+} from './allocation'
+export type { AllocationIssue, AllocationRequest, AllocationResult, AttrAllocation } from './allocation'
+export {
+  INVEST_CAP_BASE,
+  INVEST_CAP_PER_EXP,
+  INVEST_FIRST_COST,
+  INVEST_HARD_CAP,
+  INVEST_STEP_COST,
+  attributeCap,
+  canInvestAttribute,
+  emptyAttrInvestment,
+  fitsPotential,
+  investmentCost,
+  investmentSeriesCost,
+  maxInvestable,
+} from './growth'
+export {
   DAYS_PER_WEEK,
   DEFAULT_EXTRA_ACTION,
   DEFAULT_TRAINING_FOCUS,
