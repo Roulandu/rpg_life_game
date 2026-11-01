@@ -19,7 +19,7 @@ tests:
   - tests/world/queries.test.ts
   - tests/world/generation.test.ts
 diagrams: [sequence]
-last_reviewed: 2026-10-29
+last_reviewed: 2026-11-01
 ---
 
 # 世界生成
@@ -128,14 +128,15 @@ sequenceDiagram
 写入 `WorldState`：
 
 - `players` / `clubs` / `leagues` / `fixtures` / `relationships` / `finance` / `news`
-- `playerId` / `clubId` / `seed` / `season` / `week` / `totalWeeks`
+- `playerId` / `clubId` / `seed` / `season` / `week` / `day` / `totalWeeks`
+- `weekPlan`（`DEFAULT_WEEK_PLAN`：训练重点 + 额外安排，日步进按它自动执行这一周）与 `pendingDayPlan`（开局为 `null`，只在停在开球的那一天写入）
 - `settings`、`engineVersion`、`createdAt`、`updatedAt`
 
 调用：
 
 - `generateWorld(options, now)`（`src/world/generator.ts`）
 - `getPlayerWorldClub` / `getUserPlayer` / `getLeague` / `getClubFixtures` / `getWeekFixtures` / `ageGroupWeight`（`src/world/queries.ts`）
-- `generateFixtures(leagues, seed, season)`（`src/domain/fixtures.ts`）
+- `generateFixtures(leagues, seed, season)`（`src/domain/fixtures.ts`）：每场 `Fixture.day = dayForRound(round)`，纯推导不消耗 RNG，因此生成结果与日粒度改造前一致
 - `computeClubStrength(club, players, options?)`（`src/domain/strength.ts`）
 - `db.saveWorld`（由 store 调用）
 
@@ -186,3 +187,4 @@ sequenceDiagram
 | 2026-10-31 | 版本字段改由 `CURRENT_SAVE_VERSION` / `ENGINE_VERSION` 常量写入，当前为存档 3、引擎 0.3.0；生成内容本身除版本字段外不变 | 比赛日实时化 |
 | 2026-10-31 | 存档/引擎升到 4 / 0.4.0，配合连续控球引擎与 `liveState` 持久化；生成内容本身除版本字段外不变 | 缺陷修复：比赛日 2D 画面不可读 |
 | 2026-11-01 | 引擎升到 0.4.1（关键回合事件补 `side`）；存档版本与生成内容不变 | 缺陷修复：2D 画面细节 |
+| 2026-11-01 | 新世界写入 `day = 1` / `weekPlan = DEFAULT_WEEK_PLAN` / `pendingDayPlan = null`，`generateFixtures` 为每场写 `Fixture.day`；存档 5 / 引擎 0.5.0 由常量带出，RNG 抽样顺序不变 | 绿茵人生 M1.1 |

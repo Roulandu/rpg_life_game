@@ -130,7 +130,7 @@ feat(engine): 训练结算加入伤病概率
 修改范围:
 - src/engine/training.ts
 - tests/engine/training.test.ts
-- docs/features/weekly-turn.md
+- docs/features/daily-turn.md
 
 修改点:
 - 新增 injuryRisk 纯函数，由 applyTraining 调用
@@ -145,7 +145,7 @@ feat(engine): 训练结算加入伤病概率
 - 验证：tests/engine/golden.test.ts 已更新哈希并说明；赛季模拟测试通过
 
 文档影响:
-- 更新 docs/features/weekly-turn.md 的规则与伤病接口
+- 更新 docs/features/daily-turn.md 的规则与伤病接口
 
 Docs-Impact: updated
 Test-Impact: updated

@@ -8,6 +8,7 @@ code:
   - src/db/migrate.ts
   - src/domain/schema/save.schema.ts
   - src/store/gameStore.ts
+  - src/store/daySlice.ts
   - src/store/careerSlice.ts
   - src/store/helpers.ts
   - src/store/exportSave.ts
@@ -21,12 +22,14 @@ tests:
   - tests/db/migration.test.ts
   - tests/db/migrationV3.test.ts
   - tests/db/migrationV4.test.ts
+  - tests/db/migrationV5.test.ts
   - tests/db/repository.test.ts
   - tests/store/store.test.ts
+  - tests/store/dayStore.test.ts
   - tests/store/exportSave.test.ts
   - tests/store/secretStore.test.ts
   - tests/ui/settings.test.tsx
-last_reviewed: 2026-10-31
+last_reviewed: 2026-11-01
 diagrams: [sequence]
 ---
 
@@ -41,7 +44,7 @@ diagrams: [sequence]
 1. 创建生涯后自动保存；每次推进、处理关键回合、生成叙事、修改设置、发送 AI 对话后自动保存。
 2. 打开游戏时读取 `lastSaveId`，自动载入上次存档；失败则回到标题页。
 3. 玩家在标题页/设置页查看存档列表，可载入或删除。
-4. 玩家可导出当前生涯为 JSON 文件；文件名包含球员名、赛季与周次。
+4. 玩家可导出当前生涯为 JSON 文件；文件名包含球员名、赛季、周次与周内日序。
 5. 玩家可导入 JSON 文件；校验通过后作为新存档写入，不覆盖现有存档。
 6. API Key 单独保存在平台安全存储；清除 Key 不影响存档。
 
@@ -117,7 +120,7 @@ sequenceDiagram
 
 ### 导出
 
-- 文件名：`pitch-life-<球员名>-<season>-W<week>.json`，非法字符替换为下划线。
+- 文件名：`pitch-life-<球员名>-<season>-W<week>D<day>.json`，非法字符替换为下划线。
 - Envelope 字段：`format`、`saveVersion`、`engineVersion`、`exportedAt`、`checksum`、`world`。
 - `checksum = hashString(canonicalStringify(world))`。
 - 导出不包含 API Key、`secrets` 表或任何平台密钥材料。
@@ -133,13 +136,14 @@ sequenceDiagram
 5. **用迁移前的原始 world** 重新计算 checksum 并比对，失败 → “存档校验失败，文件可能已损坏”。
 6. 迁移到当前版本并生成新存档 ID 写入，不覆盖原存档。
 
-当前 `CURRENT_SAVE_VERSION = 4`，`src/db/migrate.ts` 提供 v1 → v2 → v3 → v4 连续迁移：
+当前 `CURRENT_SAVE_VERSION = 5`，`src/db/migrate.ts` 提供 v1 → v2 → v3 → v4 → v5 连续迁移：
 
 - v1 → v2：所有已有比赛报告补 `status: 'final'`、`currentMinute: 90`、`goals: []`；`pendingWeekPlan = null`。
 - v2 → v3：live 报告补 `stats`（控球按 `currentMinute` 均分、射门/射正=进球、角球 0）与 `lineups`（主客各 11 人）；**保留** `pendingWeekPlan`，旧 live 存档可继续播放到终场。
 - v3 → v4：live 报告补 `liveState = { possession: 'home', ballX: 0.5 }`（中圈开球），之后刷新/播放直接读取该状态；终场报告不补 `liveState`；`stats` 与 `lineups` 原样保留。
+- v4 → v5：周时钟换成日时钟。`fixtures[*].day` 由 `dayForRound(round)` 补齐（纯推导，不消耗 RNG）；`injury.weeksLeft` 换算成 `daysLeft = max(1, round(weeksLeft × 7))` 并删除旧字段；`pendingWeekPlan` 改名 `pendingDayPlan`；`weekPlan` 缺省补 `DEFAULT_WEEK_PLAN`；仍有 live 报告时把 `day` 摆回该场比赛所在的那一天，读档后可以接着踢完这场；迁移末尾用 `assertWorld` 把关。
 - 终场旧报告不伪造统计与首发，UI 遇到缺失时隐藏对应面板。
-- 迁移幂等；只前进不后退；`saveVersion > 4` 直接拒绝。
+- 迁移幂等；只前进不后退；`saveVersion > 5` 直接拒绝。
 - `loadWorld` 在 schema 校验后迁移，发生迁移时回写数据库并同步摘要。
 - 导入顺序固定为“解析 → 版本检查 → checksum（原始数据）→ 迁移”，禁止先迁移后校验。
 
@@ -223,8 +227,10 @@ sequenceDiagram
 | v1 存档迁移、幂等与 checksum 顺序 | `tests/db/save.test.ts`、`tests/store/import-failure.test.ts` |
 | v2 → v3 补齐统计/首发、保留待办回合、可继续完赛、终场不伪造 | `tests/db/migrationV3.test.ts` |
 | v3 → v4 补齐 `liveState`、可继续/完赛、导出导入往返、终场不补 | `tests/db/migrationV4.test.ts` |
+| v4 → v5 日时钟：`dayForRound` 反推赛程日序、`weeksLeft → daysLeft`、`pendingWeekPlan → pendingDayPlan`、live 比赛把时钟摆回开球日、默认 `weekPlan`、导出导入往返等值 | `tests/db/migrationV5.test.ts`、`tests/fixtures/saveV4.ts` |
 | Zod 校验失败 | `tests/db/save.test.ts` |
 | store 自动保存与载入 | `tests/store/store.test.ts` |
+| 逐日推进与只存周计划的落盘（不推进时钟） | `tests/store/dayStore.test.ts` |
 | 保存失败反馈（返回 false + 提示原因） | `tests/store/persist-failure.test.ts` |
 | 单条损坏存档跳过 | `tests/db/save.test.ts` |
 | 载入/导入/删除返回值与失败不跳转 | `tests/store/import-failure.test.ts`、`tests/ui/settings.test.tsx` |
@@ -252,3 +258,4 @@ sequenceDiagram
 | 2026-10-31 | 存档升 v2：fixture `live`、报告实时字段、`pendingWeekPlan`；新增 v1→v2 幂等迁移，checksum 在迁移前校验；载入后自动回写迁移结果 | 缺陷修复：比赛日比分穿越 |
 | 2026-10-31 | 存档升 v3：报告可选 `stats / lineups`；新增 v2→v3 迁移补齐 live 统计与首发并保留待办回合；播放状态不持久化 | 比赛日实时化改造 |
 | 2026-10-31 | 存档升 v4：报告 `liveState` 随 checkpoint 落盘；新增 v3→v4 迁移补中圈状态；播放速度/轨迹/弹窗仍不持久化 | 缺陷修复：比赛日 2D 画面不可读 |
+| 2026-11-01 | 存档升 v5：`WorldState.day / weekPlan / pendingDayPlan`、`Fixture.day`、`Injury.daysLeft`；`save.schema.ts` 把三个新字段设为可选，因为 `loadWorld` / `importWorld` 先校验后迁移；v4→v5 迁移末尾 `assertWorld` 把关，导出文件名追加 `D<day>` | 绿茵人生 M1.1（日回合） |

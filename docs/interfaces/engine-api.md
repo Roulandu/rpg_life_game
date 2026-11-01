@@ -4,20 +4,61 @@
 
 ## 调用约定
 
-- **纯计算优先**：`advanceWeek`、`generateWorld`、`computeLeagueTable` 等接收输入、返回结果，不读写全局状态。
-- **显式变更**：`applyTraining`、`resolveEvent`、`resolveKeyMoment` 等会直接修改传入的 `WorldState`，调用方负责先 `structuredClone`。
+- **纯计算优先**：`advanceWeek`、`startDay`、`generateWorld`、`computeLeagueTable` 等接收输入、返回结果，不读写全局状态。
+- **显式变更**：`applyDailyTraining`、`resolveEvent`、`resolveKeyMoment`、`playDay` 等会直接修改传入的 `WorldState`，调用方负责先 `structuredClone`。
 - **确定性**：所有随机性通过 `createRng(seed, domain, ...parts)` 获得；同一输入必须得到同一输出。
 - **无平台依赖**：这些函数不得 import UI、db、platform、llm、Capacitor 或 DOM API。
 - **失败语义**：参数缺失/状态不一致时返回 `null` 或抛错；不会静默写半成品。
 
-## 回合
+## 日回合
+
+位于 `src/engine/day.ts`（快进与单日结算的唯一入口）与 `src/engine/dayContext.ts`（日维度 RNG/id）。
 
 | 函数 | 签名 | 行为 |
 |---|---|---|
-| `startWeek` | `(input: WorldState, plan: WeeklyPlan) => TurnResult` | 克隆输入，执行恢复、训练、额外行动、事件过期；用户出场且有关键回合时创建 live 报告并停在开球 0'，周次不变；否则完整结算本周 |
-| `completeWeek` | `(world: WorldState) => TurnResult` | 仅处理存在 `pendingWeekPlan` 的周；终场结算、背景比赛、财务、事件、身价与周次推进；未完成 live 时拒绝 |
-| `advanceWeek` | `(input: WorldState, plan: WeeklyPlan) => TurnResult` | 兼容入口：`startWeek` + 自动处理关键回合 + `finalizeMatchday` + `completeWeek`，保持“一次推进一周”的旧语义 |
-| `advanceWeeks` | `(world: WorldState, plan: WeeklyPlan, count: number) => TurnResult[]` | 连续推进，遇到退役或赛季切换提前停止 |
+| `startDay` | `(input: WorldState) => DayResult` | 克隆输入并就地走一天；需要玩家参与时停在开球并写 `pendingDayPlan`，时钟不动 |
+| `advanceDay` | `(input: WorldState) => DayResult` | 同一天步进，但把停住的比赛按默认选项踢完；晨间步骤不会重跑（时钟仍钉在这天） |
+| `advanceUntilDecision` | `(input: WorldState, limit: number) => FastForwardResult` | 一份克隆上连续走日，跳过平静日，停在第一件 `matchday / event / milestone`；`limit` 为空转兜底 |
+| `playDay` | `(world: WorldState, options: { autoResolve: boolean }) => DayResult` | 内部原语：一天只结算一次，**就地修改**，只给快进与周适配器用 |
+| `isPendingDay` | `(world) => boolean` | 时钟是否仍钉在未完成的一天（`pendingDayPlan` / live 报告 / 待处理回合） |
+| `dayRng` | `(world, tag) => Rng` | `createRng(seed, tag, season, week, day)`：同标签逐日走不同随机流 |
+| `dailyId` | `(world, prefix, suffix?) => string` | `<prefix>:<season>:<week>:<day>[:<suffix>]`：同周七天不撞键 |
+
+`DayResult` / `FastForwardResult`：
+
+```ts
+interface DayResult {
+  world: WorldState
+  dayPlayed: number
+  live: boolean
+  quiet: boolean
+  stopReason: 'matchday' | 'event' | 'milestone' | null
+  match: MatchReport | null
+  event: GameEvent | null
+  seasonTransition: SeasonTransition | null
+}
+
+interface FastForwardResult {
+  days: DayResult[]
+  stopReason: 'matchday' | 'event' | 'milestone' | null
+  quietDays: number
+}
+```
+
+`days[*].world` 指向同一份对象，只有末项是最新状态；调用方只应使用 `fast.days.at(-1)`。
+
+一天的顺序（`playDay`，不可交换）：`day === 1` 刷新用户俱乐部强度 → `advanceInjuries` → 训练日 `applyDailyTraining` → 活动日 `applyDailyAction` → `expireEvents` → 今天有场次则 `startUserMatch`/`finalizeMatchday` → `simulateDayFixtures` → `day === 7` 时 `settleWeekFinance` + `generateWeeklyEvent` → `absoluteDay % 21 === 0` 时 `updatePlayerValue` → 时钟 +1 天（跨周/跨赛季时进位）→ 清空 `pendingDayPlan`。
+
+## 周回合（日步进的适配器）
+
+`src/engine/turn.ts` 保留同名同签名，内部把一周走成 7 次 `playDay`，让旧测试、golden 与非交互调用保持「一次推进一整周」的语义。
+
+| 函数 | 签名 | 行为 |
+|---|---|---|
+| `startWeek` | `(input: WorldState, plan: WeeklyPlan) => TurnResult` | 写 `world.weekPlan = plan` 后逐日推进；停在开球时 `live = true` 且周次不变 |
+| `completeWeek` | `(world: WorldState) => TurnResult` | 仅处理存在 `pendingDayPlan` 的那一天；仍有待处理回合时拒绝；否则自动踢完并走完剩余日子 |
+| `advanceWeek` | `(input: WorldState, plan: WeeklyPlan) => TurnResult` | 兼容入口：`startWeek` + 自动处理关键回合 + `completeWeek` |
+| `advanceWeeks` | `(world: WorldState, plan: WeeklyPlan, count: number) => TurnResult[]` | 连续推进整周，遇到退役或赛季切换提前停止 |
 | `endSeason` | `(world: WorldState) => SeasonTransition` | 结算排名、奖项、奖金、声望、升降级、年龄、退役、合同、新赛季赛程；**原地修改** world |
 
 `TurnResult`：
@@ -34,13 +75,11 @@ interface TurnResult {
 }
 ```
 
-两阶段顺序（`src/engine/turn.ts`）：
-
-1. `startWeek`：`recomputeAllStrengths → recoverInjuries → applyTraining → applyExtraAction → expireEvents →` 开始用户比赛。
-2. live：停在关键回合，写 `pendingWeekPlan`，不增加周次。
-3. `completeWeek`：`simulateWeekFixtures → settleWeekFinance → generateWeeklyEvent → updatePlayerValue（每 3 周）→ week += 1 → endSeason（必要时）→` 清空 `pendingWeekPlan`。
+「一次推进一周」的旧顺序（`src/engine/turn.ts`）现在等价于：`startWeek` 写 `weekPlan` → 七天 `playDay`（每天按上面的日顺序）→ 停在开球时保留 `pendingDayPlan` 且周次不变 → `completeWeek` 踢完那天并走完剩余日子。
 
 `weekPlayed` / `seasonPlayed` 是“刚踢完的那一周”，不是推进后的周次。LLM 叙事必须使用这两个字段，否则会把新一周误写成已结束的一周。
+
+叙事仍按周触发：store 只在**非 live 且周次跨过去**的一天结束后调用 `narrateTurn`，快进不会把它放大成每天一次。
 
 ## 世界生成
 
@@ -58,7 +97,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.4.1'`
+- `ENGINE_VERSION = '0.5.0'`
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -79,8 +118,9 @@ interface TurnResult {
 | `finalizeLiveMatch` | `(world) => MatchReport \| null` | 终场唯一结算入口：评分、赛季统计、MOTM、媒体、新闻、黄牌/伤病；幂等 |
 | `simulateUserFixture` | `(world, fixture) => MatchReport` | 兼容包装：`startUserMatch` → 自动处理回合 → `finalizeMatchday` |
 | `simulateBackgroundFixture` | `(world, fixture) => void` | 模拟其他比赛，写入比分与射手统计 |
-| `simulateWeekFixtures` | `(world) => MatchReport \| null` | 模拟本周全部比赛，返回用户比赛报告 |
-| `getUserMatchFixture` | `(world, week?) => Fixture \| undefined` | 取用户本周赛程 |
+| `simulateDayFixtures` | `(world) => MatchReport \| null` | 模拟**今天**其余比赛，写入比分与射手统计 |
+| `getUserMatchFixture` | `(world, week?) => Fixture \| undefined` | 取用户本周赛程（周适配器与旧调用保留） |
+| `getUserFixtureOnDay` | `(world, day?) => Fixture \| undefined` | 取用户某天赛程，缺省用 `world.day` |
 | `opponentOf` | `(world, fixture) => Club \| undefined` | 取对手俱乐部 |
 
 用户比赛从 `0-0` 开始逐分钟模拟：控球方以 0.64–0.83 的概率保持控球（中场强度差修正），球位在同侧控球时朝对方球门推进 0.04–0.18；进球概率为 `clamp(xG / 90 / 控球份额 × 势头, 0, 0.35)`，非进球分钟射门概率 0.12、射正率 38%。进球与射门共用同一持球人，`appendGoal` 唯一写入比分与射门统计。随机流为 `spell / move / chance / beat-actor / goal / pitch / pitch-lane / pitch-carrier`；势头由最近 10 分钟内已结算回合推导，不落盘，因此读档可重放。
@@ -129,9 +169,9 @@ interface TurnResult {
 
 | 函数 | 签名 | 行为 |
 |---|---|---|
-| `recoverInjuries` | `(world) => void` | 伤病周数递减，恢复后清空 |
-| `applyTraining` | `(world, focus) => void` | 按年龄、设施、教练、体能计算成长与受伤概率 |
-| `applyExtraAction` | `(world, action) => void` | 应用媒体/经纪人/社交/休息/家庭效果 |
+| `advanceInjuries` | `(world) => boolean` | 每天递减 `injury.daysLeft`；伤愈时清空伤病、体能 +10、写新闻并返回 `true`（日步进据此产生 `milestone`） |
+| `applyDailyTraining` | `(world, focus) => void` | 按年龄、设施、教练、体能计算**当日**成长与受伤概率；单次量 = 原周量 × `1/5` |
+| `applyDailyAction` | `(world, action) => void` | 应用媒体/经纪人/社交/休息/家庭效果（每周一次，落在活动日） |
 | `settleWeekFinance` | `(world) => WeeklyFinanceResult` | 结算周薪、支出、赞助，写流水 |
 | `updatePlayerValue` | `(world) => void` | 按表现与年龄更新身价 |
 | `paySeasonBonuses` | `(world, summary) => void` | 赛季奖金与升级/夺冠奖励 |
@@ -166,7 +206,9 @@ interface TurnResult {
 | `hashState` | `(value) => string` | 状态哈希 |
 | `seededId` | `(seed, ...parts) => string` | 确定性 ID |
 
-不同业务域必须使用不同的 `parts`，避免新增逻辑改变旧随机流。例如 `createRng(seed, 'match', fixture.id)` 与 `createRng(seed, 'events', world.season, world.week)` 相互独立。
+不同业务域必须使用不同的 `parts`，避免新增逻辑改变旧随机流。例如 `createRng(seed, 'match', fixture.id)` 与 `createRng(seed, 'event', world.season, world.week)` 相互独立。
+
+按天执行的步骤（训练与伤病、每日新闻、事件选项副作用）走 `dayRng(world, tag)` 与 `dailyId(world, prefix)`（`src/engine/dayContext.ts`，域尾追加 `season/week/day`）——id 不带日会让同周七天撞键，新闻与副作用记录因此互相覆盖。仍按周拍的一步（`generateWeeklyEvent`、余额告急新闻）继续用 `season/week` 作键，因为它们设计上每周只产出一条。`Fixture.id` 保持 `fixture:<leagueId>:<season>:<week>:<index>`：它同时是比赛随机盐，日粒度改造不得改其结构。
 
 ## 领域工具
 
@@ -180,6 +222,17 @@ interface TurnResult {
 | `clamp` / `round1` / `round2` | 数值约束 |
 | `ATTR_KEYS` / `POSITION_WEIGHTS` / `TRAINING_ATTRS` | 属性与训练配置 |
 
+`src/domain/calendar.ts`（赛历规则，纯整数推导，不读墙钟；日期与星期见 `docs/features/calendar-dates.md`）：
+
+| 函数/常量 | 用途 |
+|---|---|
+| `DAYS_PER_WEEK` / `MATCH_DAY` / `MATCH_DAY_ALT` / `MIDWEEK_DAY` / `TRAINING_DAYS` | 日序常量（周一 = 1） |
+| `DEFAULT_WEEK_PLAN` / `DEFAULT_TRAINING_FOCUS` / `DEFAULT_EXTRA_ACTION` | v5 迁移与新世界使用的默认周模板 |
+| `absoluteDay(week, day)` | 跨周比较用的绝对日序 `(week-1)*7+day`，不落盘 |
+| `dayForRound(round)` | 轮次 → 星期几：每第 5 轮周三，偶数轮周六，奇数轮周日 |
+| `fixtureDayOf(fixture)` | `fixture.day ?? dayForRound(fixture.round)`，旧档无 `day` 也能推导 |
+| `weekDayRoles(fixtures, season, week, clubId?)` | 该周的比赛日/活动日/特训日/训练日/决策日划分 |
+
 ## 持久化接口
 
 虽然不属于 engine，store 通过这些函数读写世界：
@@ -190,7 +243,7 @@ interface TurnResult {
 | `loadWorld` | `(id) => Promise<WorldState \| null>` | 读取、schema 校验并迁移旧版本；迁移后回写数据库 |
 | `listSaves` | `() => Promise<SaveSummary[]>` | 按更新时间倒序 |
 | `deleteSave` | `(id) => Promise<void>` | 删除并清理 `lastSaveId` |
-| `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON（v2 envelope） |
+| `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON（`saveVersion` 取 `CURRENT_SAVE_VERSION`，当前 5） |
 | `importWorld` | `(text) => WorldState` | 校验原始 checksum 后迁移到当前版本；不落库 |
 
 `downloadWorld`（`(world) => void`，触发浏览器下载）已从 `db/repository` 迁到 `store/exportSave`，经 `platform/fileExport.downloadTextFile` 落地。
@@ -206,7 +259,8 @@ interface TurnResult {
 ## Golden 回放
 
 - `quality/golden/season-seed-42.json` 记录 seed 42 赛季回放的 `engineVersion` 与最终状态哈希。
-- 连续控球、球位推进、射门/进球同源、球场位置模型与存档 v4 都会改变引擎输出，因此本次将 `ENGINE_VERSION` 升到 `0.4.0` 并更新哈希。
+- 连续控球、球位推进、射门/进球同源、球场位置模型与存档 v4 都改变过引擎输出，因此 `ENGINE_VERSION` 一路升到 `0.4.1`。
+- 存档 v5 把结算粒度从周改成天（训练/伤病/新闻按天执行、强度重算与身价评估改拍、比赛按日命中），引擎输出必然变化，因此 `ENGINE_VERSION` 升到 `0.5.0` 并重算 golden。
 - 基线由 `npm run quality:golden` 重新生成；脚本连续跑两次确认同 hash 后才写入。
 - 修改任何影响引擎输出的规则时，必须评估是否需要升 `ENGINE_VERSION` 并更新回放；哈希变化而版本未升会被 `check-anti-regression` 拦截。
 
@@ -219,3 +273,4 @@ interface TurnResult {
 | 2026-10-31 | `advanceLiveMinute`、`buildBeats`、`startUserMatch` 停在 0'、`resolveKeyMoment` 增加 `advance` 选项、`selectLineup`/`buildMatchLineups`/`buildPitchFrame`；关键回合 5–7 次；engine 0.3.0 与 golden 更新 | 比赛日实时化改造 |
 | 2026-10-31 | 新增 `buildSpell`/`homePossessionShare`/`kickoffState`/`momentState`/`goalState`；`advanceLiveMinute` 返回 `carrierId/steps/goalSide`；`buildPitchFrame` 增加 `passPath/carrierId/goalSide` 与控球压上模型；`ENGINE_VERSION` 0.4.0 与 golden 更新 | 缺陷修复：比赛日 2D 画面不可读 |
 | 2026-11-01 | `buildPitchFrame` 的 `passPath` 跳过与当前分钟重复的历史帧；关键回合结算事件补写用户方 `side`；`ENGINE_VERSION` 0.4.1 与 golden 更新 | 缺陷修复：2D 画面细节 |
+| 2026-11-01 | 新增日回合接口（`startDay`/`advanceDay`/`advanceUntilDecision`/`playDay`/`isPendingDay`/`dayRng`/`dailyId`）与 `DayResult`/`FastForwardResult`；`startWeek`/`completeWeek`/`advanceWeek` 保留为周适配器；`recoverInjuries→advanceInjuries`、`applyTraining→applyDailyTraining`、`applyExtraAction→applyDailyAction`、`simulateWeekFixtures→simulateDayFixtures`、新增 `getUserFixtureOnDay`；领域赛历（`absoluteDay`/`dayForRound`/`fixtureDayOf`/`weekDayRoles`/`DEFAULT_WEEK_PLAN`）进入公共接口；`ENGINE_VERSION` 0.5.0 | 绿茵人生 M1.1 |

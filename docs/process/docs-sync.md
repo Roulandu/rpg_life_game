@@ -28,7 +28,7 @@
 
 ```markdown
 ---
-feature: weekly-turn
+feature: daily-turn
 status: implemented        # implemented | planned | deprecated
 modules: [engine, store]
 code: [src/engine/turn.ts]
@@ -111,7 +111,7 @@ last_reviewed: 2026-10-26
 
 模块的文档列表在 `docs/modules.yaml`。例如：
 
-- `src/engine/**` → `docs/features/weekly-turn.md`、`docs/features/matchday.md`
+- `src/engine/**` → `docs/features/daily-turn.md`、`docs/features/matchday.md`
 - `src/world/**` → `docs/features/world-generation.md`
 - `src/llm/**` → `docs/features/gm-agent.md`
 - `src/db/**`、`src/store/**` → `docs/features/saves.md`

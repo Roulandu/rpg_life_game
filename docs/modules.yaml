@@ -28,7 +28,7 @@ modules:
     allowedDeps: [store, domain, lib, platform]
     tests: [tests/ui/**/*.test.tsx]
     docs:
-      - docs/features/weekly-turn.md
+      - docs/features/daily-turn.md
       - docs/features/matchday.md
       - docs/features/gm-agent.md
       - docs/features/saves.md
@@ -43,7 +43,7 @@ modules:
     allowedDeps: [engine, world, llm, db, platform, domain, lib]
     tests: [tests/store/**/*.test.ts]
     docs:
-      - docs/features/weekly-turn.md
+      - docs/features/daily-turn.md
       - docs/features/saves.md
       - docs/features/gm-agent.md
       - docs/features/appearance.md
@@ -58,7 +58,7 @@ modules:
     allowedDeps: [domain, lib]
     tests: [tests/engine/**/*.test.ts]
     docs:
-      - docs/features/weekly-turn.md
+      - docs/features/daily-turn.md
       - docs/features/matchday.md
     testImpact: strict
     platformCapabilities: [core]
