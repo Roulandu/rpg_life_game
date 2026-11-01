@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { WorldState } from '../../src/domain/types'
 import { autoResolveKeyMoments, hasPendingKeyMoments } from '../../src/engine/keyMoments'
-import { advanceWeek, completeWeek, startWeek, type TurnResult } from '../../src/engine/turn'
+import { advanceWeek, advanceWeeks, completeWeek, startWeek, type TurnResult } from '../../src/engine/turn'
 import { hashState } from '../../src/lib'
 import { PLAN, readyWorld } from '../fixtures/matchday'
 
@@ -116,5 +116,23 @@ describe('season rollover', () => {
     expect(last?.match?.status).toBe('final')
     expect(last?.match?.currentMinute).toBe(90)
     expect(last?.world.season).toBe(last!.seasonTransition!.newSeason)
+  })
+})
+
+describe('周适配器批量推进', () => {
+  it('advanceWeeks 按次数推进并在赛季结束时停下', () => {
+    const world = readyWorld()
+    const results = advanceWeeks(world, PLAN, 3)
+
+    expect(results).toHaveLength(3)
+    expect(results[0]!.world.week).toBe(world.week + 1)
+    expect(results[2]!.world.week).toBe(world.week + 3)
+    expect(results.every((result) => !result.live)).toBe(true)
+  })
+
+  it('已经退役的世界不再推进，返回空结果而不是报错', () => {
+    const retired = { ...readyWorld(), retired: true }
+
+    expect(advanceWeeks(retired, PLAN, 4)).toEqual([])
   })
 })

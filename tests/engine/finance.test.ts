@@ -5,6 +5,7 @@ import {
   paySeasonBonuses,
   recomputeWeeklyExpenses,
   reputationAfterSeason,
+  settleWeekFinance,
   weeklySuffix,
 } from '../../src/engine/finance'
 import { generateWorld } from '../../src/world/generator'
@@ -74,5 +75,61 @@ describe('engine finance helpers', () => {
     const next = withReputation(world, 3, 50)
     reputationAfterSeason(next, 7.5)
     expect(next.players[next.playerId].reputation.local).toBe(50)
+  })
+})
+
+describe('周账目结算', () => {
+  it('赞助合同在有效期内计入周收入，过期后只剩周薪', () => {
+    const base = generateWorld(testOptions(), TEST_NOW)
+    const withDeal: WorldState = {
+      ...base,
+      finance: {
+        ...base.finance,
+        sponsorships: [{ name: '本地品牌', weekly: 5000, endSeason: base.season }],
+        ledger: [],
+        balance: 0,
+      },
+    }
+    const expiredDeal: WorldState = {
+      ...withDeal,
+      finance: { ...withDeal.finance, sponsorships: [{ name: '本地品牌', weekly: 5000, endSeason: base.season - 1 }], ledger: [], balance: 0 },
+    }
+
+    const active = settleWeekFinance(withDeal)
+    const stale = settleWeekFinance(expiredDeal)
+
+    expect(active.income).toBe(withDeal.finance.weeklyWage + 5000)
+    expect(stale.income).toBe(expiredDeal.finance.weeklyWage)
+    expect(withDeal.finance.ledger[0]!.label).toBe('周薪、赞助与开销')
+    expect(expiredDeal.finance.ledger[0]!.label).toBe('周薪与开销')
+  })
+
+  it('余额为负时掉士气，并在整四周写一条告急新闻', () => {
+    const base = generateWorld(testOptions(), TEST_NOW)
+    const makeWorld = (week: number): WorldState => {
+      const user = base.players[base.playerId]
+      return {
+        ...base,
+        week,
+        players: {
+          ...base.players,
+          [base.playerId]: { ...user, contract: { ...user.contract, wageWeekly: 0 }, morale: 60 },
+        },
+        finance: { ...base.finance, sponsorships: [], ledger: [], balance: -20000 },
+        news: [],
+      }
+    }
+
+    const mid = settleWeekFinance(makeWorld(4))
+    const debtWorld = makeWorld(4)
+    settleWeekFinance(debtWorld)
+
+    expect(mid.net).toBeLessThan(0)
+    expect(debtWorld.players[debtWorld.playerId].morale).toBeLessThan(60)
+    expect(debtWorld.news.some((item) => item.id.startsWith('news:finance:debt:'))).toBe(true)
+
+    const offCycle = makeWorld(5)
+    settleWeekFinance(offCycle)
+    expect(offCycle.news.some((item) => item.id.startsWith('news:finance:debt:'))).toBe(false)
   })
 })

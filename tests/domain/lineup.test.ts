@@ -69,3 +69,52 @@ describe('buildMatchLineups', () => {
     }
   })
 })
+
+describe('阵容边界', () => {
+  const world = generateWorld(testOptions({ seed: 2026 }), TEST_NOW)
+  const pool = Object.values(world.players).filter((player) => player.id !== world.playerId)
+
+  /** 用同一批中场拼一个「没有门将、没有前锋」的阵容，逼出补位与号码顺延分支。 */
+  function midOnlyClub(count: number, id: string) {
+    const squad = pool.filter((player) => player.position === 'CM').slice(0, count)
+    expect(squad.length).toBe(count)
+    return { ...world.clubs[id]!, squadIds: squad.map((player) => player.id) }
+  }
+
+  it('没有门将的阵容靠剩余球员补满 11 人，号码冲突时顺延到 12 以后', () => {
+    const club = midOnlyClub(12, world.clubId)
+
+    const lineup = selectLineup(club, world.players)
+    expect(lineup).toHaveLength(11)
+    expect(lineup.some((player) => player.position === 'GK')).toBe(false)
+
+    const lineups = buildMatchLineups(
+      { ...world, clubs: { ...world.clubs, [club.id]: club } },
+      { homeId: club.id, awayId: club.id, userPlayed: false } as MatchReport,
+    )
+    const numbers = lineups.home.map((player) => player.number)
+    expect(new Set(numbers).size).toBe(numbers.length)
+    expect(Math.max(...numbers)).toBeGreaterThanOrEqual(12)
+  })
+
+  it('强制选入阵容里没有的位置时，替换掉评分最低的首发', () => {
+    const club = midOnlyClub(11, world.clubId)
+    const striker = pool.find((player) => player.position === 'ST' && !club.squadIds.includes(player.id))!
+
+    const lineup = selectLineup(club, world.players, { forcePlayerId: striker.id })
+
+    expect(lineup).toHaveLength(11)
+    expect(lineup.some((player) => player.id === striker.id)).toBe(true)
+  })
+
+  it('空阵容返回空首发，俱乐部缺失时该侧首发为空而不是报错', () => {
+    const empty = { ...world.clubs[world.clubId]!, squadIds: [] }
+    expect(selectLineup(empty, world.players)).toEqual([])
+
+    const lineups = buildMatchLineups(
+      world,
+      { homeId: 'club:missing', awayId: empty.id, userPlayed: false } as MatchReport,
+    )
+    expect(lineups.home).toEqual([])
+  })
+})

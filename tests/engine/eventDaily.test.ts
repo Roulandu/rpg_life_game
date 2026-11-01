@@ -41,11 +41,12 @@ describe('每日事件生成', () => {
 
   it('同一天重复调用不会再生成，也不会写出两条新闻', () => {
     const world = freshWorld(6)
-    const before = world.news.length
-    generateDailyEvents(world, report({ userRating: 8.1, userPlayed: true }))
+    const created = generateDailyEvents(world, report({ userRating: 8.1, userPlayed: true }))
     const again = generateDailyEvents(world, report({ userRating: 8.1, userPlayed: true }))
+    expect(created).toHaveLength(1)
     expect(again).toHaveLength(0)
-    expect(world.news.length).toBe(before + 1)
+    const eventNews = world.news.filter((item) => item.id === `news:event:${created[0]!.id}`)
+    expect(eventNews).toHaveLength(1)
   })
 
   it('同一周七天写出的事件 id 互不相同', () => {
