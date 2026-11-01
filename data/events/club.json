@@ -1,0 +1,333 @@
+[
+  {
+    "id": "cb_board_walkout",
+    "title": "董事会来看训练",
+    "body": "看台上多了三个人，衬衫外面套着俱乐部围巾。{coach}临时把对抗赛缩短到六分钟，说是「让节奏清楚一点」。",
+    "sender": "董事会",
+    "weight": 3,
+    "expiresDays": 1,
+    "cooldownDays": 25,
+    "maxPerSeason": 3,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "weekday", "op": "in", "value": [2, 3, 4] },
+      { "field": "isMatchDay", "op": "eq", "value": false }
+    ],
+    "choices": [
+      {
+        "id": "show",
+        "label": "把活都揽到自己这边",
+        "description": "六分钟里跑两次全力回追。",
+        "effects": [{ "op": "coachTrust", "delta": 1 }, { "op": "fitness", "delta": -3 }, { "op": "mediaRep", "delta": 1 }]
+      },
+      {
+        "id": "steady",
+        "label": "按平时的量踢完",
+        "description": "不看台，只看球。",
+        "effects": [{ "op": "confidence", "delta": 2 }, { "op": "sharpness", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "show": "结束后体育总监在通道里叫住你，只问了一句：那个回追是常态吗。",
+      "steady": "三个人在中途就走了一位，{coach}收战术板时心情明显好了。"
+    }
+  },
+  {
+    "id": "cb_captain_meeting",
+    "title": "队长关上门的会",
+    "body": "更衣室的门关上，没有教练组。{teammate}说这次要谈的是工资延迟发放和训练服尺码，但真正的问题是：要不要一起去找董事会。",
+    "sender": "队友",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 30,
+    "maxPerSeason": 2,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "teammateTrust", "op": "gte", "value": 55 },
+      { "field": "seasonProgress", "op": "between", "value": [0.2, 0.9] }
+    ],
+    "choices": [
+      {
+        "id": "join",
+        "label": "署名一起提",
+        "description": "有用，也会被记住。",
+        "effects": [{ "op": "teammateTrust", "delta": 4 }, { "op": "coachTrust", "delta": -2 }, { "op": "mediaRep", "delta": 1 }]
+      },
+      {
+        "id": "support",
+        "label": "口头支持，不署名",
+        "description": "站在门后面。",
+        "effects": [{ "op": "teammateTrust", "delta": -1 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "join": "名单交上去的第二天，训练服的问题解决了，工资的问题没人提。",
+      "support": "会议结束时{teammate}看了你一眼，那一眼里没有责怪，只有记账。"
+    }
+  },
+  {
+    "id": "cb_youth_callup",
+    "title": "预备队的召回",
+    "body": "青年队缺人，教练组问你能不能下去踢四十五分钟，帮一个十七岁的孩子稳住后场。你的膝盖最近不太安静。",
+    "sender": "教练",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 20,
+    "maxPerSeason": 3,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "age", "op": "lte", "value": 24 },
+      { "field": "squadRole", "op": "in", "value": ["youth", "rotation"] }
+    ],
+    "choices": [
+      {
+        "id": "go_down",
+        "label": "下去踢半场",
+        "description": "孩子会记一辈子。",
+        "effects": [{ "op": "teammateTrust", "delta": 3 }, { "op": "fitness", "delta": -3 }, { "op": "sharpness", "delta": 2 }]
+      },
+      {
+        "id": "stay",
+        "label": "留在一线队恢复",
+        "description": "身体优先，也显得不合群。",
+        "effects": [{ "op": "fitness", "delta": 3 }, { "op": "teammateTrust", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "go_down": "你被换下时，那个十七岁的人在通道里等你，想说点什么最后只说了谢谢。",
+      "stay": "预备队输了两个球，训练基地里有人把比分打印出来贴在你柜门上。"
+    }
+  },
+  {
+    "id": "cb_gym_upgrade",
+    "title": "健身房的申请",
+    "body": "体能教练说可以帮你申请一台你自己在用的那台髋部稳定器，但要走两周的采购流程，还要你写一份「为什么别人也需要它」。",
+    "sender": "体能教练",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 40,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [1, 2, 3, 4] }],
+    "choices": [
+      {
+        "id": "write",
+        "label": "认真写这份申请",
+        "description": "麻烦，但全队都会用上。",
+        "effects": [{ "op": "fitness", "delta": 2 }, { "op": "teammateTrust", "delta": 2 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "self_pay",
+        "label": "自己买一台放队里",
+        "description": "快，但钱是你的。",
+        "effects": [{ "op": "money", "delta": -1200 }, { "op": "fitness", "delta": 3 }, { "op": "teammateTrust", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "write": "第五周设备到货，铭牌上写着你的名，没人再开你的玩笑。",
+      "self_pay": "第二天全队都在试那台器械，队务把它编进了正式器材清单。"
+    }
+  },
+  {
+    "id": "cb_squad_talk",
+    "title": "只有球员的谈话",
+    "body": "输球后的第二天，教练组不在。有人把战术板从墙上摘下来放到你手里，说要听你怎么讲这五场的问题。",
+    "sender": "队友",
+    "weight": 3,
+    "expiresDays": 1,
+    "cooldownDays": 16,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "daysSinceMatch", "op": "eq", "value": 1 },
+      { "field": "lastRating", "op": "lt", "value": 6.5 }
+    ],
+    "choices": [
+      {
+        "id": "take",
+        "label": "接过板子讲清楚",
+        "description": "把责任拆开说，也把自己放进去。",
+        "effects": [{ "op": "teammateTrust", "delta": 3 }, { "op": "confidence", "delta": 3 }, { "op": "coachTrust", "delta": -1 }]
+      },
+      {
+        "id": "pass",
+        "label": "把板子递给更老的球员",
+        "description": "你还没到说话的位置。",
+        "effects": [{ "op": "teammateTrust", "delta": -1 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "take": "你讲了三分钟，没有人打断，散会时有人在白板上补了一条你的意思。",
+      "pass": "板子被递到队长手里，那晚的结论你听了一遍，第二天忘了大半。"
+    }
+  },
+  {
+    "id": "cb_director_chat",
+    "title": "体育总监的走廊",
+    "body": "体育总监在走廊堵住你，问的不是场上表现，而是你上一次和{coach}单独说话是什么时候。他手里有一张训练安排表。",
+    "sender": "体育总监",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 28,
+    "maxPerSeason": 3,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "coachTrust", "op": "lt", "value": 52 },
+      { "field": "seasonProgress", "op": "gte", "value": 0.25 }
+    ],
+    "choices": [
+      {
+        "id": "open",
+        "label": "把话说清楚",
+        "description": "不抱怨，只讲事实。",
+        "effects": [{ "op": "coachTrust", "delta": 2 }, { "op": "confidence", "delta": 2 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "close",
+        "label": "说一切都好",
+        "description": "别让走廊变成会议室。",
+        "effects": [{ "op": "coachTrust", "delta": 1 }, { "op": "morale", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "open": "第三天{coach}把你叫到办公室，桌上是那张训练安排表，上面你的名字被圈了两次。",
+      "close": "体育总监点点头就走了，两周后你听见他和别人重复了同一个问题。"
+    }
+  },
+  {
+    "id": "cb_lost_boots",
+    "title": "不见了的那双鞋",
+    "body": "装备柜里那双专用于硬地的鞋不见了，里面还塞着一卷你从青训用到现在的旧鞋带。队务说没有登记，也没人承认。",
+    "sender": "装备管理员",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 22,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "isMatchDay", "op": "eq", "value": false }],
+    "choices": [
+      {
+        "id": "replace",
+        "label": "买一双新的，旧鞋带算了",
+        "description": "省事，但那卷鞋带跟了你六年。",
+        "effects": [{ "op": "money", "delta": -160 }, { "op": "morale", "delta": -2 }, { "op": "sharpness", "delta": 1 }]
+      },
+      {
+        "id": "search",
+        "label": "翻遍洗衣房找回来",
+        "description": "占用睡前的一小时。",
+        "effects": [{ "op": "morale", "delta": 2 }, { "op": "fitness", "delta": -1 }, { "op": "teammateTrust", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "replace": "新鞋很合脚，只是再也没有那卷洗不干净的鞋带。",
+      "search": "鞋在烘干机的夹层里，队务把它擦干净放回你柜子里，附带一句抱歉。"
+    }
+  },
+  {
+    "id": "cb_travel_change",
+    "title": "客场行程改了",
+    "body": "大巴因天气改走山路，比计划晚三小时到。队医担心睡眠，教练担心热身时间，两个人都来问你的意见。",
+    "sender": "俱乐部职员",
+    "weight": 3,
+    "expiresDays": 1,
+    "cooldownDays": 18,
+    "maxPerSeason": 4,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "weekday", "op": "in", "value": [5, 6] },
+      { "field": "isMatchDay", "op": "eq", "value": false }
+    ],
+    "choices": [
+      {
+        "id": "sleep",
+        "label": "支持先到就睡",
+        "description": "放弃场地适应。",
+        "effects": [{ "op": "fitness", "delta": 3 }, { "op": "sharpness", "delta": -2 }]
+      },
+      {
+        "id": "warm",
+        "label": "坚持去场地走一圈",
+        "description": "三小时后再换鞋出门。",
+        "effects": [{ "op": "sharpness", "delta": 3 }, { "op": "fitness", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "sleep": "你睡了七个小时，开场十五分钟才找到节奏。",
+      "warm": "场地那圈让你早热开了，下半场腿开始发沉。"
+    }
+  },
+  {
+    "id": "cb_armband_offer",
+    "title": "队长袖标的暗示",
+    "body": "{coach}在训练后留下你，问下个月那场你能不能戴袖标——不是正式的，只是那一天的。队里比你资历老的人还有三个。",
+    "sender": "教练",
+    "weight": 2,
+    "expiresDays": 3,
+    "cooldownDays": 50,
+    "maxPerSeason": 1,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "coachTrust", "op": "gte", "value": 58 },
+      { "field": "teammateTrust", "op": "gte", "value": 55 }
+    ],
+    "choices": [
+      {
+        "id": "accept",
+        "label": "接下那一天的袖标",
+        "description": "该说话的时候得说。",
+        "effects": [{ "op": "confidence", "delta": 4 }, { "op": "teammateTrust", "delta": -1 }, { "op": "coachTrust", "delta": 2 }]
+      },
+      {
+        "id": "name_other",
+        "label": "推荐资历更老的人",
+        "description": "把机会让出去。",
+        "effects": [{ "op": "teammateTrust", "delta": 3 }, { "op": "coachTrust", "delta": -1 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "accept": "那天你在通道里说了两句，声音比自己想象的稳。",
+      "name_other": "袖标到了别人手臂上，他在赛前把队长手册翻给了你看。"
+    }
+  },
+  {
+    "id": "cb_facility_shutdown",
+    "title": "训练基地提前关门",
+    "body": "锅炉坏了，热水和理疗室今晚全停。队务问谁还需要用恢复室，你明天有一堂对抗课，膝盖正好需要那二十分钟。",
+    "sender": "俱乐部职员",
+    "weight": 3,
+    "expiresDays": 1,
+    "cooldownDays": 26,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "weekday", "op": "in", "value": [3, 4, 5] },
+      { "field": "fitness", "op": "lte", "value": 74 }
+    ],
+    "choices": [
+      {
+        "id": "claim",
+        "label": "申请破例使用理疗室",
+        "description": "该要的时候要说出口。",
+        "effects": [{ "op": "fitness", "delta": 3 }, { "op": "teammateTrust", "delta": -1 }, { "op": "confidence", "delta": 1 }]
+      },
+      {
+        "id": "home",
+        "label": "回家用冰袋对付",
+        "description": "不打扰任何人。",
+        "effects": [{ "op": "fitness", "delta": 1 }, { "op": "morale", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "claim": "队务把钥匙给你时说了句「你是第一个开口的」，那间房这周都是你的。",
+      "home": "冰袋化了两次，第二天上楼梯时你还是想起了那间没用的理疗室。"
+    }
+  }
+]
