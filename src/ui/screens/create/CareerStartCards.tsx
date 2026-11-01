@@ -1,0 +1,62 @@
+import { Dices } from 'lucide-react'
+import { Card, SectionTitle } from '../../components/Card'
+import { CAREER_CLUB_OPTIONS } from './useCareerDraft'
+import type { CareerDraft } from './useCareerDraft'
+import clsx from 'clsx'
+
+export function CareerClubCard({ draft }: { draft: CareerDraft }) {
+  return (
+    <Card>
+      <SectionTitle>起点俱乐部</SectionTitle>
+      <div className="space-y-1.5">
+        {CAREER_CLUB_OPTIONS.map((club) => (
+          <button
+            key={club.id}
+            type="button"
+            onClick={() => draft.setClubId(club.id)}
+            className={clsx(
+              'w-full rounded-xl border px-3 py-3 text-left transition',
+              draft.clubId === club.id ? 'border-accent bg-accent/10' : 'border-line bg-card-2',
+            )}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className={clsx('text-sm font-medium', draft.clubId === club.id ? 'text-accent' : 'text-text')}>
+                {club.name}
+              </span>
+              <span className="chip">{club.difficulty}</span>
+            </div>
+            <p className="mt-1 text-[11px] leading-relaxed text-muted">{club.description}</p>
+            <p className="mt-1 text-[10px] text-dim">目标：{club.expectation}</p>
+          </button>
+        ))}
+      </div>
+    </Card>
+  )
+}
+
+export function CareerSeedCard({ draft }: { draft: CareerDraft }) {
+  return (
+    <Card>
+      <SectionTitle
+        right={
+          <button type="button" className="chip text-accent" onClick={draft.rollSeed}>
+            <Dices size={12} /> 随机
+          </button>
+        }
+      >
+        世界种子
+      </SectionTitle>
+      <input
+        className="input font-mono"
+        type="number"
+        min={1}
+        value={draft.seed}
+        onChange={(event) => draft.setSeed(Math.max(1, Number(event.target.value) || 1))}
+        aria-label="世界种子"
+      />
+      <p className="mt-2 text-[11px] leading-relaxed text-dim">
+        相同种子与相同选择会产生相同的比赛结果。种子只影响世界，不影响你的自由选择。
+      </p>
+    </Card>
+  )
+}
