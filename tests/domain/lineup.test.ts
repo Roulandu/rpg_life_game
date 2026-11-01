@@ -58,4 +58,14 @@ describe('buildMatchLineups', () => {
 
     expect(lineups.home.every((player) => !player.isUser)).toBe(true)
   })
+
+  it('首发条目同时带原名与中文名，中文名取自球员本人', () => {
+    const lineups = buildMatchLineups(world, reportFor(homeClub.id, awayClub.id))
+
+    for (const entry of [...lineups.home, ...lineups.away]) {
+      const player = world.players[entry.id]!
+      expect(entry.name).toBe(player.name)
+      expect(entry.nameZh).toBe(player.nameZh)
+    }
+  })
 })

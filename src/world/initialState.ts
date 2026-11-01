@@ -1,4 +1,4 @@
-import { overall } from '../domain'
+import { displayName, nameZhFor, overall } from '../domain'
 import type { Club, Finance, Id, Player, Relationship, WorldState } from '../domain'
 import { createRng, type Rng } from '../lib'
 import { START_SEASON } from './constants'
@@ -18,6 +18,7 @@ function addCoachRelationship(context: RelationshipContext): void {
   relationships[`rel:coach:${user.id}`] = {
     id: `rel:coach:${user.id}`,
     name: club.coach.name,
+    nameZh: club.coach.nameZh,
     role: 'coach',
     trust: coachTrust,
     tension: 8,
@@ -37,12 +38,13 @@ function addTeammateRelationships(context: RelationshipContext): void {
     relationships[`rel:teammate:${mate.id}`] = {
       id: `rel:teammate:${mate.id}`,
       name: mate.name,
+      nameZh: mate.nameZh,
       role: 'teammate',
       trust: 50 + rng.int(-4, 10) - (index === 0 ? 4 : 0),
       tension: index === 0 ? 12 : 3,
       summary:
         index === 0
-          ? `球队核心，和你竞争同一个位置。${mate.name} 会密切关注你的表现。`
+          ? `球队核心，和你竞争同一个位置。${mate.nameZh} 会密切关注你的表现。`
           : `更衣室里的${index === 1 ? '老将' : '同龄人'}，关系从日常相处开始。`,
       lastInteractionWeek: 0,
     }
@@ -51,9 +53,11 @@ function addTeammateRelationships(context: RelationshipContext): void {
 
 function addAgentRelationship(context: RelationshipContext): void {
   const { user, rng, relationships } = context
+  const name = makeName(rng, '英格兰')
   relationships[`rel:agent:${user.id}`] = {
     id: `rel:agent:${user.id}`,
-    name: makeName(rng, '英格兰'),
+    name,
+    nameZh: nameZhFor(name, '英格兰'),
     role: 'agent',
     trust: 55,
     tension: 0,
@@ -67,6 +71,7 @@ function addFixedRelationships(context: RelationshipContext): void {
   relationships[`rel:family:${user.id}`] = {
     id: `rel:family:${user.id}`,
     name: '家人',
+    nameZh: '家人',
     role: 'family',
     trust: 78,
     tension: 0,
@@ -76,6 +81,7 @@ function addFixedRelationships(context: RelationshipContext): void {
   relationships[`rel:media:${user.id}`] = {
     id: `rel:media:${user.id}`,
     name: '英伦体育报',
+    nameZh: '英伦体育报',
     role: 'media',
     trust: 42,
     tension: 0,
@@ -85,6 +91,7 @@ function addFixedRelationships(context: RelationshipContext): void {
   relationships[`rel:fan:${user.id}`] = {
     id: `rel:fan:${user.id}`,
     name: '看台',
+    nameZh: '看台',
     role: 'fan',
     trust: 45,
     tension: 0,
@@ -152,7 +159,7 @@ export function initialNews(user: Player, club: Club): WorldState['news'] {
       season: START_SEASON,
       week: 1,
       title: `欢迎来到 ${club.nameZh}`,
-      body: `${user.name} 与 ${club.nameZh} 签下了第一份职业合同。教练组希望你在训练中证明自己。`,
+      body: `${displayName(user)} 与 ${club.nameZh} 签下了第一份职业合同。教练组希望你在训练中证明自己。`,
       kind: 'club',
     },
     {
@@ -160,7 +167,7 @@ export function initialNews(user: Player, club: Club): WorldState['news'] {
       season: START_SEASON,
       week: 1,
       title: '主教练的第一句话',
-      body: `${club.coach.name}：“我不看年龄，只看训练和比赛。想上场，就先让我看到你。”`,
+      body: `${displayName(club.coach)}：“我不看年龄，只看训练和比赛。想上场，就先让我看到你。”`,
       kind: 'club',
     },
   ]

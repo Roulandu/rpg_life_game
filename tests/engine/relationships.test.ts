@@ -12,7 +12,7 @@ import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
 
 function makeRelationship(role: Relationship['role'], trust: number, tension: number): Relationship {
-  return { id: `rel:${role}`, role, name: role, trust, tension, summary: '' }
+  return { id: `rel:${role}`, role, name: role, nameZh: role, trust, tension, summary: '' }
 }
 
 describe('engine relationships', () => {

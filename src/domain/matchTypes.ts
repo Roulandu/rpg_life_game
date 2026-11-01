@@ -56,6 +56,8 @@ export interface MatchStats {
 export interface MatchLineupPlayer {
   id: Id
   name: string
+  /** 中文显示名；旧存档的报告里没有该字段，显示时回落 name。 */
+  nameZh?: string
   number: number
   position: Position
   isUser: boolean

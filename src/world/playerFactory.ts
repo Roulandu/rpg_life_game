@@ -5,6 +5,7 @@ import {
   backgroundBonus,
   clamp,
   computeOverall,
+  nameZhFor,
   round1,
 } from '../domain'
 import type {
@@ -167,6 +168,7 @@ export function makeAiPlayer(
   const rng = createRng(seed, 'player', club.id, index)
   const nationality = pickNationality(rng)
   const name = makeName(rng, nationality)
+  const nameZh = nameZhFor(name, nationality)
   const age = randomAge(rng)
   const ability = clamp(club.reputation - 5 + rng.normal(0, 6), 30, 88)
   const potential = clamp(age <= 21 ? ability + rng.int(6, 19) : ability + rng.int(0, 4), 35, 95)
@@ -182,6 +184,7 @@ export function makeAiPlayer(
   return {
     id: `player:${club.id}:${String(index + 1).padStart(2, '0')}`,
     name,
+    nameZh,
     nationality,
     birthYear: START_SEASON - age,
     age,
@@ -233,9 +236,11 @@ export function makeUserPlayer(
     signingBonus: Math.round(wageWeekly * 4),
   }
   const foot = pickFoot(rng, 0.65, 0.93)
+  const name = options.name.trim() || '林远'
   const player: Player = {
     id: `player:user:${seed}`,
-    name: options.name.trim() || '林远',
+    name,
+    nameZh: nameZhFor(name, options.nationality),
     nationality: options.nationality,
     birthYear: START_SEASON - age,
     age,

@@ -90,6 +90,8 @@ export interface Injury {
 export interface Player {
   id: Id
   name: string
+  /** 中文显示名：界面与直播一律取它；name 仍用于存档 id、合同与导出文件名。 */
+  nameZh: string
   nationality: string
   birthYear: number
   age: number
@@ -125,6 +127,7 @@ export interface ClubStrength {
 export interface Coach {
   id: Id
   name: string
+  nameZh: string
   age: number
   style: string
   quality: number
@@ -178,6 +181,7 @@ export type RelationshipRole = 'coach' | 'teammate' | 'agent' | 'family' | 'medi
 export interface Relationship {
   id: Id
   name: string
+  nameZh: string
   role: RelationshipRole
   trust: number
   tension: number

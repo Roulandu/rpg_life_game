@@ -16,6 +16,7 @@ export type { PitchPoint } from './pitchShape'
 export interface PitchPlayer extends PitchPoint {
   id: string
   name: string
+  nameZh?: string
   number: number
   position: Position
   side: MatchSide
@@ -78,6 +79,7 @@ function sidePlayers(input: PitchFrameInput, side: MatchSide): PitchPlayer[] {
       ...point,
       id: player.id,
       name: player.name,
+      nameZh: player.nameZh,
       number: player.number,
       position: player.position,
       side,

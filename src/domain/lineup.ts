@@ -96,6 +96,7 @@ function lineupPlayer(player: Player, number: number): MatchLineupPlayer {
   return {
     id: player.id,
     name: player.name,
+    nameZh: player.nameZh,
     number,
     position: player.position,
     isUser: player.isUser,

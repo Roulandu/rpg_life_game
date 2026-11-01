@@ -1,3 +1,4 @@
+import { nameZhFor } from '../domain'
 import type { Club, Coach, Id, Player } from '../domain'
 import { createRng } from '../lib'
 import type { ClubSeed } from './data/england'
@@ -10,9 +11,11 @@ function clubStylePlaceholder(): Club['style'] {
 
 export function makeCoach(club: Club, seed: number): Coach {
   const rng = createRng(seed, 'coach', club.id)
+  const name = makeName(rng, '英格兰')
   return {
     id: `coach:${club.id}`,
-    name: makeName(rng, '英格兰'),
+    name,
+    nameZh: nameZhFor(name, '英格兰'),
     age: rng.int(38, 62),
     style: club.style,
     quality: rng.int(10, 18),
@@ -39,7 +42,7 @@ export function createClub(seedClub: ClubSeed, seed: number, players: Record<Id,
     colors: seedClub.colors,
     stadium: seedClub.stadium,
     squadIds: [],
-    coach: { id: '', name: '', age: 0, style: clubStylePlaceholder(), quality: 0 },
+    coach: { id: '', name: '', nameZh: '', age: 0, style: clubStylePlaceholder(), quality: 0 },
     strength: { attack: 50, midfield: 50, defense: 50, overall: 50 },
   }
   club.coach = makeCoach(club, seed)
