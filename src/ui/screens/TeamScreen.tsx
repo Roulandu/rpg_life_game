@@ -22,7 +22,7 @@ export function TeamScreen() {
         subtitle={club.nameZh}
       />
 
-      <CoachCard club={club} />
+      <CoachCard club={club} user={world.players[world.playerId]} />
 
       <SquadList squad={squad} userId={world.playerId} />
     </div>

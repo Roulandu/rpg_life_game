@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import type { GameEvent, WorldState } from '../../src/domain'
-import { computeOverall } from '../../src/domain'
+import { STYLE_LABELS, computeOverall } from '../../src/domain'
 import { BottomNav } from '../../src/ui/components/BottomNav'
 import { TeamScreen } from '../../src/ui/screens/TeamScreen'
 import { useGameStore } from '../../src/store/gameStore'
@@ -40,6 +40,16 @@ function renderNav(world: WorldState) {
   )
 }
 
+// 名单行现在是指向详情页的链接，所以队伍页必须跑在路由器里。
+function renderTeam(world: WorldState) {
+  useGameStore.setState({ world, hydrated: true, saves: [] })
+  return render(
+    <MemoryRouter initialEntries={['/team']}>
+      <TeamScreen />
+    </MemoryRouter>,
+  )
+}
+
 afterEach(() => {
   cleanup()
   resetUiStore()
@@ -48,8 +58,7 @@ afterEach(() => {
 describe('队伍页', () => {
   it('按能力排序列出本队球员并标注位置与角色', () => {
     const world = withSquad()
-    useGameStore.setState({ world, hydrated: true, saves: [] })
-    render(<TeamScreen />)
+    renderTeam(world)
 
     const squad = world.clubs[world.clubId].squadIds.map((id) => world.players[id])
     const top = [...squad]
@@ -68,22 +77,42 @@ describe('队伍页', () => {
     const world = withSquad()
     const teammateId = world.clubs[world.clubId].squadIds.find((id) => id !== world.playerId)!
     world.players[teammateId]!.injury = { kind: '大腿后侧拉伤', daysLeft: 14, severity: 2 }
-    useGameStore.setState({ world, hydrated: true, saves: [] })
-    render(<TeamScreen />)
+    renderTeam(world)
 
     expect(screen.getByText(/预计缺阵 14 天/)).toBeInTheDocument()
   })
 
   it('教练卡显示教练与执教评分', () => {
     const world = withSquad()
-    useGameStore.setState({ world, hydrated: true, saves: [] })
-    render(<TeamScreen />)
+    renderTeam(world)
 
     const coach = world.clubs[world.clubId].coach
     expect(screen.getByText('教练组')).toBeInTheDocument()
     expect(screen.getByText(coach.nameZh)).toBeInTheDocument()
     expect(/[A-Za-z]/.test(coach.nameZh)).toBe(false)
     expect(screen.getByText(`${coach.quality}`)).toBeInTheDocument()
+  })
+
+  it('教练卡把打法、训练偏好与我的契合度写成一句人话', () => {
+    const world = withSquad()
+    renderTeam(world)
+
+    const club = world.clubs[world.clubId]
+    expect(screen.getByText(STYLE_LABELS[club.style])).toBeInTheDocument()
+    expect(screen.getByText(/训练偏好「/)).toBeInTheDocument()
+    expect(screen.getByText(/风格(契合|中性|不合)/)).toBeInTheDocument()
+    expect(screen.getByText(/更难首发/)).toBeInTheDocument()
+  })
+
+  it('名单里的每一行都是指向详情页的链接', () => {
+    const world = withSquad()
+    renderTeam(world)
+
+    const teammateId = world.clubs[world.clubId].squadIds.find((id) => id !== world.playerId)!
+    const player = world.players[teammateId]!
+    const link = screen.getByRole('link', { name: new RegExp(player.nameZh) })
+
+    expect(link.getAttribute('href')).toContain(`/team/${teammateId}`)
   })
 })
 
