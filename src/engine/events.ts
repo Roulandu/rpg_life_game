@@ -2,7 +2,7 @@ import type { GameEvent, WorldState } from '../domain'
 import { resultTextFor } from './data/eventTemplates'
 import { applyEffects } from './effects'
 
-/** 选项结算：效果落地 + 两条模板专属副作用（提前复出、生活方式购置）。 */
+/** 选项结算：效果落地 + 生活方式购置的资产登记。 */
 export function resolveEvent(
   world: WorldState,
   eventId: string,
@@ -14,10 +14,6 @@ export function resolveEvent(
   if (!choice) return null
 
   applyEffects(world, choice.effects, event.title)
-  if (event.templateId === 'injury_concern' && choice.id === 'rush') {
-    const injury = world.players[world.playerId]?.injury
-    if (injury) injury.daysLeft = Math.max(1, injury.daysLeft - 7)
-  }
   if (event.templateId === 'lifestyle_purchase') {
     if (choice.id === 'car') world.finance.assets.push('一辆跑车')
     if (choice.id === 'apartment') world.finance.assets.push('一套小公寓')

@@ -242,7 +242,7 @@
     "when": [{ "field": "injuryDaysLeft", "op": "gte", "value": 1 }],
     "choices": [
       { "id": "listen", "label": "听从队医", "description": "把身体放在第一位。", "effects": [{ "op": "fitness", "delta": 5 }, { "op": "morale", "delta": 2 }, { "op": "coachTrust", "delta": 1 }] },
-      { "id": "rush", "label": "提前一周复出", "description": "缩短康复时间，但风险很高。", "effects": [{ "op": "fitness", "delta": -5 }, { "op": "morale", "delta": 3 }, { "op": "coachTrust", "delta": -2 }] }
+      { "id": "rush", "label": "提前一周复出", "description": "缩短康复时间，但风险很高。", "effects": [{ "op": "injuryDays", "delta": -7 }, { "op": "fitness", "delta": -5 }, { "op": "morale", "delta": 3 }, { "op": "coachTrust", "delta": -2 }] }
     ],
     "resultTexts": {
       "listen": "你选择相信队医。康复计划被重新安排。",

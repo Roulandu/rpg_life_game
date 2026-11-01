@@ -20,12 +20,17 @@ export const EFFECT_LABELS: Record<EffectOp, string> = {
   mediaRep: '媒体声望',
   fanRep: '球迷好感',
   money: '金钱',
+  injuryDays: '伤停天数',
 }
 
 export function effectText(effect: Effect): string {
   if (effect.op === 'money') {
     const amount = formatMoneyShort(effect.delta * 100)
     return `${EFFECT_LABELS.money} ${effect.delta >= 0 ? '+' : ''}${amount}`
+  }
+  if (effect.op === 'injuryDays') {
+    const days = Math.abs(effect.delta)
+    return effect.delta < 0 ? `伤停缩短 ${days} 天` : `伤停延长 ${days} 天`
   }
   return `${EFFECT_LABELS[effect.op]} ${effect.delta >= 0 ? '+' : ''}${effect.delta}`
 }

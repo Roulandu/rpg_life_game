@@ -51,6 +51,7 @@ export {
 export type { ClubStyle } from './coachStyle'
 export {
   EVENT_BODY_TOKENS,
+  EVENT_PACK_NAMES,
   EVENT_SCOPE_FIELDS,
   EVENT_TEMPLATES,
   eventTemplateById,

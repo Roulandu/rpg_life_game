@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import legacyJson from '../../data/events/legacy.json'
 import {
   EVENT_BODY_TOKENS,
+  EVENT_PACK_NAMES,
   EVENT_SCOPE_FIELDS,
   EVENT_TEMPLATES,
   eventTemplateById,
@@ -13,7 +15,12 @@ const LEGACY_IDS = [
 
 describe('事件数据包', () => {
   it('legacy 十一条模板全部进入数据包并带权重、冷却与过期天数', () => {
-    expect(EVENT_TEMPLATES.map((template) => template.id).sort()).toEqual([...LEGACY_IDS].sort())
+    expect((legacyJson as { id: string }[]).map((template) => template.id).sort()).toEqual(
+      [...LEGACY_IDS].sort(),
+    )
+    const ids = EVENT_TEMPLATES.map((template) => template.id)
+    expect(ids).toEqual(expect.arrayContaining(LEGACY_IDS))
+    expect(new Set(ids).size, '模板 id 全局唯一').toBe(ids.length)
     for (const id of LEGACY_IDS) {
       const template = eventTemplateById(id)
       expect(template, id).toBeTruthy()
@@ -61,5 +68,10 @@ describe('事件数据包', () => {
       if (template.guaranteed) expect(template.when.length, template.id).toBeGreaterThan(0)
       expect(/[A-Za-z]/.test(template.title), template.title).toBe(false)
     }
+  })
+
+  it('数据包注册表条目唯一，legacy 包始终在册', () => {
+    expect(new Set<string>(EVENT_PACK_NAMES).size).toBe(EVENT_PACK_NAMES.length)
+    expect(EVENT_PACK_NAMES).toContain('legacy')
   })
 })

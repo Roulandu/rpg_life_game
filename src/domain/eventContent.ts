@@ -14,6 +14,7 @@ export type EffectOp =
   | 'mediaRep'
   | 'fanRep'
   | 'money'
+  | 'injuryDays'
 
 export interface Effect {
   op: EffectOp
@@ -128,6 +129,7 @@ const effectSchema = z.object({
     'mediaRep',
     'fanRep',
     'money',
+    'injuryDays',
   ]),
   delta: z.number(),
 })
@@ -208,9 +210,30 @@ function assertWhitelist(templates: EventTemplateContent[]): EventTemplateConten
   return templates
 }
 
-export const EVENT_TEMPLATES: EventTemplateContent[] = assertWhitelist(
-  templateSchema.array().parse(legacyJson),
-)
+/**
+ * 事件内容包按类别分文件：legacy 保持文案逐字不变，新类别一个文件一类，
+ * 注册顺序即加载顺序，跨包 id 重复直接拒绝，避免出现「后一份覆盖前一份」。
+ */
+export const EVENT_PACK_NAMES = ['legacy'] as const
+
+const EVENT_PACKS: { name: string; templates: unknown }[] = [
+  { name: 'legacy', templates: legacyJson },
+]
+
+function parsePacks(): EventTemplateContent[] {
+  const list: EventTemplateContent[] = []
+  for (const pack of EVENT_PACKS) {
+    for (const template of templateSchema.array().parse(pack.templates)) {
+      if (list.some((item) => item.id === template.id)) {
+        throw new Error(`事件模板 id 在不同数据包里重复：${template.id}（${pack.name}）`)
+      }
+      list.push(template)
+    }
+  }
+  return list
+}
+
+export const EVENT_TEMPLATES: EventTemplateContent[] = assertWhitelist(parsePacks())
 
 const TEMPLATE_INDEX = new Map(EVENT_TEMPLATES.map((template) => [template.id, template]))
 
