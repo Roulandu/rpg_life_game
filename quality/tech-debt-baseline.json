@@ -5,7 +5,7 @@
     "src/domain/types.ts": {
       "metrics": {
         "lines": {
-          "value": 372,
+          "value": 353,
           "max": 300
         }
       }
@@ -22,22 +22,6 @@
       "metrics": {
         "complexity": {
           "value": 15,
-          "max": 12
-        }
-      }
-    },
-    "src/engine/training.ts::applyExtraAction": {
-      "metrics": {
-        "functionLines": {
-          "value": 75,
-          "max": 60
-        }
-      }
-    },
-    "src/engine/training.ts::applyTraining": {
-      "metrics": {
-        "complexity": {
-          "value": 24,
           "max": 12
         }
       }
@@ -86,14 +70,6 @@
       "metrics": {
         "functionLines": {
           "value": 73,
-          "max": 60
-        }
-      }
-    },
-    "src/ui/components/WeekPlannerModal.tsx::WeekPlannerModal": {
-      "metrics": {
-        "functionLines": {
-          "value": 89,
           "max": 60
         }
       }
