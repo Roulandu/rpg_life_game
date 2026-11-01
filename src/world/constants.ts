@@ -1,6 +1,6 @@
 import type { Position } from '../domain'
 
-export const ENGINE_VERSION = '0.5.1'
+export const ENGINE_VERSION = '0.5.2'
 export const START_SEASON = 2026
 export const TOTAL_WEEKS = 38
 export const TOTAL_CLUBS_PER_LEAGUE = 20
