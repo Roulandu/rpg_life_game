@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { createAiSlice } from './aiSlice'
 import { createCareerSlice } from './careerSlice'
+import { createDaySlice } from './daySlice'
 import { createLiveSlice } from './liveSlice'
 import { createMatchSlice } from './matchSlice'
 import { createPreferenceSlice } from './preferenceSlice'
@@ -10,6 +11,7 @@ import type { GameStore } from './types'
 export const useGameStore = create<GameStore>()((...args) => ({
   ...createCareerSlice(...args),
   ...createMatchSlice(...args),
+  ...createDaySlice(...args),
   ...createLiveSlice(...args),
   ...createAiSlice(...args),
   ...createPreferenceSlice(...args),

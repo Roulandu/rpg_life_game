@@ -5,7 +5,7 @@ import type {
   WeeklyPlan,
   WorldState,
 } from '../domain'
-import type { SeasonTransition, TurnResult } from '../engine'
+import type { DayResult, FastForwardResult, SeasonTransition, TurnResult } from '../engine'
 import type { ConnectionTestResult } from '../llm'
 import type { ColorScheme, ThemePreference } from '../platform'
 import type { LivePlayback, LiveSpeed } from './livePlayback'
@@ -38,6 +38,9 @@ export interface GameStore {
   saveNow: () => Promise<boolean>
   removeSave: (id: string) => Promise<boolean>
   advance: (plan: WeeklyPlan) => Promise<TurnResult | null>
+  advanceDay: () => Promise<DayResult | null>
+  advanceToNextEvent: () => Promise<FastForwardResult | null>
+  setWeekPlan: (plan: WeeklyPlan) => Promise<boolean>
   resolveKeyMoment: (momentId: string, optionId: string) => Promise<void>
   skipKeyMoments: () => Promise<void>
   finishLiveMatch: () => Promise<void>

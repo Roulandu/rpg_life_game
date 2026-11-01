@@ -16,7 +16,7 @@ describe('downloadWorld', () => {
 
     expect(downloadTextFile).toHaveBeenCalledOnce()
     const [content, filename] = vi.mocked(downloadTextFile).mock.calls[0]!
-    expect(filename).toBe(`pitch-life-测试球员-${world.season}-W${world.week}.json`)
+    expect(filename).toBe(`pitch-life-测试球员-${world.season}-W${world.week}D${world.day}.json`)
     const parsed = JSON.parse(content as string) as { world?: unknown }
     expect(parsed.world).toBeTruthy()
   })

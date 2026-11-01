@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { db } from '../../src/db/db'
 import { listSaves } from '../../src/db/repository'
 import { useGameStore } from '../../src/store/gameStore'
 import { testOptions } from '../fixtures/career'
+import { clearStore, EMPTY_STORE_STATE } from '../fixtures/storeHarness'
 
 vi.mock('../../src/platform/keyStore', async (importActual) => {
   const actual = await importActual<typeof import('../../src/platform/keyStore')>()
@@ -22,24 +22,8 @@ vi.mock('../../src/llm/generate', async (importActual) => {
   }
 })
 
-const INITIAL_STATE = {
-  world: null,
-  saveId: null,
-  saves: [],
-  lastTurn: null,
-  seasonTransition: null,
-  busy: false,
-  hydrated: false,
-  notice: null,
-  error: null,
-}
-
 describe('game store', () => {
-  beforeEach(async () => {
-    await db.saves.clear()
-    await db.meta.clear()
-    useGameStore.setState(INITIAL_STATE)
-  })
+  beforeEach(clearStore)
 
   it('creates, advances and autosaves a career', async () => {
     await useGameStore.getState().init()
@@ -66,7 +50,7 @@ describe('game store', () => {
     await useGameStore.getState().createCareer(testOptions())
     const saveId = useGameStore.getState().saveId
 
-    useGameStore.setState(INITIAL_STATE)
+    useGameStore.setState(EMPTY_STORE_STATE)
     await useGameStore.getState().init()
 
     expect(useGameStore.getState().hydrated).toBe(true)

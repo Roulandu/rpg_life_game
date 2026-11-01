@@ -5,5 +5,5 @@ import { downloadTextFile } from '../platform'
 export function downloadWorld(world: WorldState): void {
   const user = world.players[world.playerId]
   const safeName = (user?.name ?? 'career').replace(/[\\/:*?"<>|\s]+/g, '_')
-  downloadTextFile(exportWorld(world), `pitch-life-${safeName}-${world.season}-W${world.week}.json`)
+  downloadTextFile(exportWorld(world), `pitch-life-${safeName}-${world.season}-W${world.week}D${world.day}.json`)
 }

@@ -21,10 +21,15 @@ export const EMPTY_STORE_STATE: Partial<GameStore> = {
   systemScheme: 'dark',
 }
 
-export async function resetStore(saveWorldMock: Mock, init = false): Promise<void> {
+/** 只清库与 store，不劫持 saveWorld：给不需要断言存档调用的用例复用。 */
+export async function clearStore(): Promise<void> {
   await db.saves.clear()
   await db.meta.clear()
   useGameStore.setState(EMPTY_STORE_STATE)
+}
+
+export async function resetStore(saveWorldMock: Mock, init = false): Promise<void> {
+  await clearStore()
   const repository = await import('../../src/db/repository')
   saveWorldMock.mockReset()
   saveWorldMock.mockImplementation(repository.saveWorld)
