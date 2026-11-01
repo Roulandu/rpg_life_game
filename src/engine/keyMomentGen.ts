@@ -7,6 +7,7 @@ import {
   KIND_TRIGGERS,
   optionsFor,
 } from './data/keyMomentOptions'
+import type { OpponentPair } from './data/scoreChance'
 
 function kindPool(player: Player): KeyMomentKind[] {
   switch (positionGroup(player.position)) {
@@ -46,13 +47,18 @@ function countCap(minutes: number): number {
   return 3
 }
 
-export function generateKeyMoments(
-  player: Player,
-  rng: Rng,
-  minutes: number,
-  isHome: boolean,
-  startMinute = 0,
-): KeyMoment[] {
+/** 一次关键回合生成的全部输入；`opponents` 必须在这里备齐，之后不再改概率。 */
+export interface KeyMomentRequest {
+  player: Player
+  rng: Rng
+  minutes: number
+  isHome: boolean
+  startMinute?: number
+  opponents?: OpponentPair | null
+}
+
+export function generateKeyMoments(request: KeyMomentRequest): KeyMoment[] {
+  const { player, rng, minutes, isHome, startMinute = 0, opponents = null } = request
   if (minutes <= 0) return []
   const windowStart = Math.max(1, startMinute + 2)
   const windowEnd = Math.min(89, startMinute + minutes - 1)
@@ -71,7 +77,7 @@ export function generateKeyMoments(
     const minute = Math.max(lastMinute + 1, Math.min(windowEnd, target))
     if (minute <= lastMinute) break
     lastMinute = minute
-    const options = optionsFor(kind, { player, isHome })
+    const options = optionsFor(kind, { player, isHome, opponents })
     const safest = [...options].sort((a, b) => b.successChance - a.successChance)[0] as KeyMomentOption
     moments.push({
       id: `km:${player.id}:${index}`,

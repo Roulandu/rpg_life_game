@@ -5,6 +5,7 @@ import { generateKeyMoments } from './keyMomentGen'
 import { advanceLiveMinute } from './liveMinute'
 import { goalState } from './liveSpell'
 import { pickScorer } from './matchGoals'
+import { resolveOpponents } from './matchOpponent'
 import { appendGoal, computeAttendance, createLiveReport } from './matchReport'
 import { prepareUserFixture } from './liveSetup'
 
@@ -15,14 +16,21 @@ export function startUserMatch(world: WorldState, fixture: Fixture): MatchReport
   }
   const setup = prepareUserFixture(world, fixture)
   const rng = createRng(world.seed, 'keymoments', fixture.id)
+  // 关键回合的概率要在生成时就锁死对手：roll 已经预抽，结算阶段不允许再改算法。
+  const opponents = resolveOpponents(world, {
+    homeId: fixture.homeId,
+    awayId: fixture.awayId,
+    lineups: setup.lineups,
+  })
   const keyMoments = setup.userPlayed
-    ? generateKeyMoments(
-        setup.user,
+    ? generateKeyMoments({
+        player: setup.user,
         rng,
-        setup.userMinutes,
-        setup.isHome,
-        setup.userStarted ? 0 : 90 - setup.userMinutes,
-      )
+        minutes: setup.userMinutes,
+        isHome: setup.isHome,
+        startMinute: setup.userStarted ? 0 : 90 - setup.userMinutes,
+        opponents,
+      })
     : []
   const attendance = computeAttendance(setup.homeClub, rng)
   const report = createLiveReport(fixture, setup, keyMoments, attendance)

@@ -30,13 +30,13 @@ describe('key moment generation', () => {
 
   it('替补窗口按出场分钟缩放数量并限制在登场之后', () => {
     const world = readyWorld()
-    const moments = generateKeyMoments(
-      world.players[world.playerId]!,
-      createRng(world.seed, 'sub-window'),
-      20,
-      true,
-      70,
-    )
+    const moments = generateKeyMoments({
+      player: world.players[world.playerId]!,
+      rng: createRng(world.seed, 'sub-window'),
+      minutes: 20,
+      isHome: true,
+      startMinute: 70,
+    })
 
     expect(moments.length).toBeLessThanOrEqual(3)
     expect(moments.every((moment) => moment.minute >= 72 && moment.minute <= 89)).toBe(true)
@@ -45,8 +45,8 @@ describe('key moment generation', () => {
   it('同一 seed 生成相同回合与选项', () => {
     const world = readyWorld()
     const player = world.players[world.playerId]!
-    const first = generateKeyMoments(player, createRng(7, 'km'), 90, true)
-    const second = generateKeyMoments(player, createRng(7, 'km'), 90, true)
+    const first = generateKeyMoments({ player, rng: createRng(7, 'km'), minutes: 90, isHome: true })
+    const second = generateKeyMoments({ player, rng: createRng(7, 'km'), minutes: 90, isHome: true })
     expect(first.map((moment) => moment.id)).toEqual(second.map((moment) => moment.id))
     expect(first.map((moment) => moment.kind)).toEqual(second.map((moment) => moment.kind))
     expect(first[0]!.options.map((option: KeyMomentOption) => option.id)).toEqual(
