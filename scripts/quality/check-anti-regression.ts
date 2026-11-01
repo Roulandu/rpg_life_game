@@ -4,21 +4,22 @@ import { changedFiles, commitsSince, mergeBase, resolveBase, showAt } from './li
 import { repoRoot } from './lib/manifest'
 import { scanSecrets } from './lib/secrets'
 import { countTests, hasAddedTestCases, isTestSourceFile, scanTestDirectives } from './lib/test-scan'
+import {
+  ENGINE_VERSION_SOURCES,
+  readEngineVersion,
+  readSaveVersion,
+  saveVersionProblems,
+  type FileRead,
+} from './lib/version-sources'
 
 const SAVE_SCHEMA = 'src/domain/schema/save.schema.ts'
-const VERSION_PATTERN = /CURRENT_SAVE_VERSION\s*=\s*(\d+)/
 const GOLDEN_FIXTURE = 'quality/golden/season-seed-42.json'
-const GENERATOR = 'src/world/generator.ts'
-const CONSTANTS = 'src/world/constants.ts'
-const ENGINE_SOURCES = [GENERATOR, CONSTANTS]
-const ENGINE_VERSION_PATTERN = /ENGINE_VERSION\s*=\s*['"]([^'"]+)['"]/
 
-function engineVersion(read: (file: string) => string | null | undefined): string | undefined {
-  for (const file of ENGINE_SOURCES) {
-    const version = read(file)?.match(ENGINE_VERSION_PATTERN)?.[1]
-    if (version) return version
+function worktreeRead(): FileRead {
+  return (file) => {
+    const path = resolve(repoRoot, file)
+    return existsSync(path) ? readFileSync(path, 'utf8') : null
   }
-  return undefined
 }
 
 function argValue(name: string): string | undefined {
@@ -48,18 +49,11 @@ function main(): void {
   const problems: string[] = []
 
   if (changed.includes(SAVE_SCHEMA)) {
-    const before = showAt(baseCommit, SAVE_SCHEMA)
-    const afterPath = resolve(repoRoot, SAVE_SCHEMA)
-    if (before && existsSync(afterPath)) {
-      const beforeVersion = Number(before.match(VERSION_PATTERN)?.[1] ?? 0)
-      const afterVersion = Number(readFileSync(afterPath, 'utf8').match(VERSION_PATTERN)?.[1] ?? 0)
-      if (beforeVersion === afterVersion) {
-        problems.push(
-          `存档结构文件已修改，但 CURRENT_SAVE_VERSION 未变化（仍为 ${afterVersion}）；必须升版本并提供迁移。`,
-        )
-      }
-    } else if (!existsSync(afterPath)) {
+    if (!existsSync(resolve(repoRoot, SAVE_SCHEMA))) {
       problems.push('存档结构文件被删除；如确需删除必须提供迁移方案与基线说明。')
+    } else {
+      const before = readSaveVersion((file) => showAt(baseCommit, file))
+      problems.push(...saveVersionProblems(before, readSaveVersion(worktreeRead())))
     }
     if (!changed.some((file) => file.startsWith('tests/'))) {
       problems.push('存档结构变化必须同时更新测试（旧版本 fixture + 导出/导入往返）。')
@@ -73,12 +67,9 @@ function main(): void {
       const beforeHash = (JSON.parse(before) as { hash?: string }).hash
       const afterHash = (JSON.parse(readFileSync(afterPath, 'utf8')) as { hash?: string }).hash
       if (beforeHash !== afterHash) {
-        const beforeVersion = engineVersion((file) => showAt(baseCommit, file))
-        const afterVersion = engineVersion((file) => {
-          const path = resolve(repoRoot, file)
-          return existsSync(path) ? readFileSync(path, 'utf8') : undefined
-        })
-        const engineTouched = ENGINE_SOURCES.some((file) => changed.includes(file))
+        const beforeVersion = readEngineVersion((file) => showAt(baseCommit, file))
+        const afterVersion = readEngineVersion(worktreeRead())
+        const engineTouched = ENGINE_VERSION_SOURCES.some((file) => changed.includes(file))
         if (!engineTouched || beforeVersion === afterVersion) {
           problems.push(
             `golden 哈希已变化，但 ENGINE_VERSION 未升级（${afterVersion ?? '未知'}）；引擎输出变化必须升版本并说明。`,

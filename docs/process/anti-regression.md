@@ -89,6 +89,8 @@ npm run quality:file -- src/engine/match.ts
 
 `check-anti-regression` 检测到 schema 文件变化但版本号未变时失败。
 
+版本号的字面量定义在 `src/domain/version.ts`，`src/domain/schema/save.schema.ts` 只做再导出。门禁按 `scripts/quality/lib/version-sources.ts` 的候选清单依次读取两处，因此把常量搬家不会让检查失明；两边都读不到时按“无法确认存档版本已升级”失败，而不是退化成 `0 == 0` 的假通过。`ENGINE_VERSION` 同理走 `src/world/constants.ts` → `src/world/generator.ts` 的候选顺序。
+
 ## 确定性
 
 `tests/engine/determinism.test.ts` 扫描 `src/engine`、`src/world`，禁止：
