@@ -3,6 +3,7 @@ import { AdvanceAction } from './AdvanceAction'
 import type { DashboardData } from './dashboardData'
 import { LastMatchCard } from './LastMatchCard'
 import { NextMatchPanel } from './NextMatchPanel'
+import { TodaySection } from './TodaySection'
 import { WeekStatusBanner } from './WeekStatusBanner'
 import { daysUntilNextFixture } from '../../gameHelpers'
 
@@ -19,7 +20,7 @@ interface MainColumnProps {
   onContinueNarrative: () => void
 }
 
-/** 主页主列：上一场 → 本周状态 → 下一场 → 推进。 */
+/** 主页主列：上一场 → 本周状态 → 今天 → 下一场 → 推进。 */
 export function DashboardMainColumn({
   world,
   data,
@@ -51,6 +52,8 @@ export function DashboardMainColumn({
         onDismiss={onDismissError}
         onContinue={onContinueNarrative}
       />
+
+      <TodaySection world={world} events={data.todayEvents} />
 
       <NextMatchPanel
         world={world}

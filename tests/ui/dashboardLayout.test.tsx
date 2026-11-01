@@ -26,15 +26,15 @@ describe('dashboard responsive layout', () => {
       'header',
       'last',
       'week',
+      'today',
       'next',
       'advance',
       'form',
       'league',
-      'inbox',
       'news',
       'footer',
     ])
-    expect(blockOrder(screen.getByTestId('dashboard-main'))).toEqual(['last', 'week', 'next', 'advance'])
-    expect(blockOrder(screen.getByTestId('dashboard-side'))).toEqual(['form', 'league', 'inbox', 'news'])
+    expect(blockOrder(screen.getByTestId('dashboard-main'))).toEqual(['last', 'week', 'today', 'next', 'advance'])
+    expect(blockOrder(screen.getByTestId('dashboard-side'))).toEqual(['form', 'league', 'news'])
   })
 })

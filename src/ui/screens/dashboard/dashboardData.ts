@@ -18,8 +18,7 @@ export interface DashboardData {
   pendingCount: number
   resolvedMoments: number
   totalMoments: number
-  openEvents: GameEvent[]
-  latestEvent: GameEvent | undefined
+  todayEvents: GameEvent[]
   news: NewsItem[]
 }
 
@@ -38,9 +37,9 @@ export function buildDashboardData(world: WorldState): DashboardData {
   const pendingMatch = selectPendingKeyMoments(world)
   const moments = last?.keyMoments ?? []
   const pendingCount = moments.filter((moment) => !moment.outcome).length
-  const openEvents = Object.values(world.events)
-    .filter((event) => event.status === 'open')
-    .sort((a, b) => b.week - a.week)
+  const todayEvents = Object.values(world.events).filter(
+    (event) => event.status === 'open' && event.week === world.week,
+  )
 
   return {
     user,
@@ -57,8 +56,7 @@ export function buildDashboardData(world: WorldState): DashboardData {
     pendingCount,
     resolvedMoments: moments.length - pendingCount,
     totalMoments: moments.length,
-    openEvents,
-    latestEvent: openEvents[0],
+    todayEvents,
     news: world.news.slice(0, 3),
   }
 }
