@@ -1,4 +1,11 @@
-import type { Fixture, Id } from './types'
+import type { ExtraAction, Fixture, Id, TrainingFocus, WeeklyPlan } from './types'
+
+export const DEFAULT_TRAINING_FOCUS: TrainingFocus = 'technical'
+export const DEFAULT_EXTRA_ACTION: ExtraAction = 'none'
+export const DEFAULT_WEEK_PLAN: WeeklyPlan = {
+  training: DEFAULT_TRAINING_FOCUS,
+  extra: DEFAULT_EXTRA_ACTION,
+}
 
 export const DAYS_PER_WEEK = 7
 export const MATCH_DAY = 6

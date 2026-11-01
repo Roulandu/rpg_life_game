@@ -1,4 +1,5 @@
 import { createRng, type Rng } from '../lib'
+import { dayForRound } from './calendar'
 import type { Fixture, Id, League } from './types'
 
 interface RoundPair {
@@ -105,6 +106,7 @@ export function generateFixtures(
           season,
           week,
           round: roundIndex + 1,
+          day: dayForRound(roundIndex + 1),
           homeId: pair.homeId,
           awayId: pair.awayId,
           status: 'scheduled',

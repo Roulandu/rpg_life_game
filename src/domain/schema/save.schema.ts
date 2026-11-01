@@ -86,6 +86,7 @@ const fixtureSchema = z
     competitionId: z.string(),
     season: z.number().int(),
     week: z.number().int(),
+    day: z.number().int().min(1).max(7).optional(),
     homeId: z.string(),
     awayId: z.string(),
     status: z.enum(['scheduled', 'live', 'played']),
@@ -120,7 +121,25 @@ export const worldSchema = z
     news: z.array(z.unknown()),
     season: z.number().int().positive(),
     week: z.number().int().positive(),
+    // v5 之前没有日时钟：校验要放行旧结构，缺失字段由迁移补齐，不能在这里卡住导入。
+    day: z.number().int().min(1).max(7).optional(),
     totalWeeks: z.number().int().positive(),
+    weekPlan: z
+      .object({ training: z.string().min(1), extra: z.string().min(1) })
+      .passthrough()
+      .optional(),
+    pendingDayPlan: z
+      .union([
+        z.null(),
+        z
+          .object({
+            training: z.string().min(1),
+            extra: z.string().min(1),
+            fixtureId: z.string().nullable(),
+          })
+          .passthrough(),
+      ])
+      .optional(),
     lastMatch: z.unknown().nullable(),
     seasonSummaries: z.array(z.unknown()),
     settings: z

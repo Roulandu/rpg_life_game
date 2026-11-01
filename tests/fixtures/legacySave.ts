@@ -74,7 +74,13 @@ export function legacyWorld(seed = 424242): WorldState {
   fixture.report = report
   world.lastMatch = report
   world.version = LEGACY_SAVE_VERSION
-  delete (world as { pendingWeekPlan?: unknown }).pendingWeekPlan
 
+  // v1 存档没有日时钟：把它们剥掉，才真正压到迁移分支上。
+  const legacy = world as unknown as Record<string, unknown>
+  delete legacy.pendingWeekPlan
+  delete legacy.pendingDayPlan
+  delete legacy.day
+  delete legacy.weekPlan
+  for (const item of Object.values(world.fixtures)) delete item.day
   return world
 }

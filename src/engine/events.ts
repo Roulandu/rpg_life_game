@@ -113,7 +113,7 @@ export function resolveEvent(
   applyEffects(world, choice.effects, event.title)
   if (event.templateId === 'injury_concern' && choice.id === 'rush') {
     const injury = world.players[world.playerId]?.injury
-    if (injury) injury.weeksLeft = Math.max(1, injury.weeksLeft - 1)
+    if (injury) injury.daysLeft = Math.max(1, injury.daysLeft - 7)
   }
   if (event.templateId === 'lifestyle_purchase') {
     if (choice.id === 'car') world.finance.assets.push('一辆跑车')

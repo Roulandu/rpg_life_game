@@ -1,4 +1,5 @@
-import type { Fixture, MatchReport, PendingWeekPlan } from './matchTypes'
+import type { AiChatMessage, AiNarrative, AiUsage } from './aiTypes'
+import type { Fixture, MatchReport } from './matchTypes'
 
 export type Id = string
 
@@ -13,7 +14,6 @@ export type {
   MatchEventType,
   MatchGoal,
   MatchReport,
-  PendingWeekPlan,
 } from './matchTypes'
 
 export type Position = 'GK' | 'CB' | 'LB' | 'RB' | 'DM' | 'CM' | 'AM' | 'LW' | 'RW' | 'ST'
@@ -89,7 +89,7 @@ export interface CareerEntry {
 
 export interface Injury {
   kind: string
-  weeksLeft: number
+  daysLeft: number
   severity: number
 }
 
@@ -266,6 +266,7 @@ export interface NewsItem {
   id: Id
   season: number
   week: number
+  day?: number
   title: string
   body: string
   kind: 'match' | 'transfer' | 'media' | 'club' | 'award' | 'system'
@@ -289,9 +290,11 @@ export interface WorldState {
   news: NewsItem[]
   season: number
   week: number
+  day: number
   totalWeeks: number
   lastMatch: MatchReport | null
-  pendingWeekPlan?: PendingWeekPlan | null
+  weekPlan: WeeklyPlan
+  pendingDayPlan?: PendingDayPlan | null
   seasonSummaries: SeasonSummary[]
   retired?: boolean
   settings: {
@@ -311,33 +314,6 @@ export interface WorldState {
   aiAction?: { season: number; week: number; actionId: string }
 }
 
-export interface AiNarrative {
-  season: number
-  week: number
-  headline: string
-  body: string
-  npcNote?: string
-  suggestedAction?: string
-  createdAt: string
-}
-
-export interface AiChatMessage {
-  id: string
-  role: 'user' | 'assistant'
-  text: string
-  season: number
-  week: number
-  actionLabel?: string
-  createdAt: string
-}
-
-export interface AiUsage {
-  promptTokens: number
-  completionTokens: number
-  calls: number
-  costUsd: number
-}
-
 export interface CareerCreateOptions {
   name: string
   nationality: string
@@ -352,6 +328,11 @@ export interface CareerCreateOptions {
 export interface WeeklyPlan {
   training: TrainingFocus
   extra: ExtraAction
+}
+
+/** 比赛日停下来等玩家处理时保存的当日计划；其余时间恒为 null。 */
+export interface PendingDayPlan extends WeeklyPlan {
+  fixtureId: Id | null
 }
 
 export interface SaveSummary {

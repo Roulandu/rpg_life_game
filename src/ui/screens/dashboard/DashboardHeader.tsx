@@ -59,7 +59,7 @@ export function DashboardHeader({
       </div>
       <p className="mt-2 text-xs text-muted">
         {user.name} · {POSITION_LABELS[user.position]} · {user.age} 岁
-        {user.injury ? <span className="ml-2 text-danger">伤停 {user.injury.weeksLeft} 周</span> : null}
+        {user.injury ? <span className="ml-2 text-danger">伤停 {user.injury.daysLeft} 天</span> : null}
       </p>
     </header>
   )

@@ -9,8 +9,13 @@ export {
   pendingKeyMoments,
   resolveKeyMoment,
 } from './keyMoments'
-export { advanceWeek, advanceWeeks, completeWeek, endSeason, startWeek } from './turn'
-export type { SeasonTransition, TurnResult } from './turn'
+export { advanceDay, advanceUntilDecision, isPendingDay, playDay, startDay } from './day'
+export type { DayResult, DayStopReason, FastForwardResult } from './day'
+export { getUserFixtureOnDay, opponentOf } from './match'
+export { endSeason } from './season'
+export type { SeasonTransition } from './season'
+export { advanceWeek, advanceWeeks, completeWeek, startWeek } from './turn'
+export type { TurnResult } from './turn'
 export { advanceLiveMatch, startUserMatch } from './liveMatch'
 export { advanceLiveMinute } from './liveMinute'
 export type { LiveMinuteResult } from './liveMinute'

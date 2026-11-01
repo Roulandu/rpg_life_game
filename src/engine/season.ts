@@ -36,6 +36,18 @@ export interface SeasonRetirement {
   retirementReason: string | null
 }
 
+export interface SeasonTransition {
+  season: number
+  newSeason: number
+  summary: SeasonSummary
+  champion: boolean
+  promoted: boolean
+  relegated: boolean
+  retired: boolean
+  retirementReason: string | null
+  awards: string[]
+}
+
 function emptySeasonStat(season: number, clubId: Id): SeasonStat {
   return {
     season,
@@ -254,4 +266,28 @@ export function applySeasonTransition(
     reason: retirement.retirementReason,
   })
   return retirement
+}
+
+/** 赛季终点：评估、转会/ aging、退役判定与新闻播报都发生在这里，日时钟只负责调用它。 */
+export function endSeason(world: WorldState): SeasonTransition {
+  const endedSeason = world.season
+  const nextSeason = endedSeason + 1
+  const user = world.players[world.playerId]
+  if (!user) throw new Error('User player not found')
+
+  world.clubId = user.clubId
+  const evaluation = evaluateSeason(world, endedSeason, nextSeason)
+  const retirement = applySeasonTransition(world, user, evaluation)
+
+  return {
+    season: endedSeason,
+    newSeason: nextSeason,
+    summary: evaluation.summary,
+    champion: evaluation.champion,
+    promoted: evaluation.promoted,
+    relegated: evaluation.relegated,
+    retired: retirement.retired,
+    retirementReason: retirement.retirementReason,
+    awards: evaluation.awards,
+  }
 }

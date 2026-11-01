@@ -21,7 +21,7 @@ describe('two-phase week', () => {
     expect(result.match?.status).toBe('live')
     expect(result.match?.currentMinute).toBe(0)
     expect(hasPendingKeyMoments(result.world)).toBe(true)
-    expect(result.world.pendingWeekPlan?.fixtureId).toBe(result.match?.fixtureId)
+    expect(result.world.pendingDayPlan?.fixtureId).toBe(result.match?.fixtureId)
     const fixture = result.world.fixtures[result.match!.fixtureId]!
     expect(fixture.status).toBe('live')
     expect(fixture.homeGoals).toBe(result.match?.homeGoals)
@@ -48,7 +48,7 @@ describe('two-phase week', () => {
 
     expect(rejected.live).toBe(true)
     expect(rejected.world.week).toBe(started.world.week)
-    expect(rejected.world.pendingWeekPlan).not.toBeNull()
+    expect(rejected.world.pendingDayPlan).not.toBeNull()
     expect(rejected.world.lastMatch?.status).toBe('live')
   })
 })
@@ -71,7 +71,7 @@ describe('week completion', () => {
     expect(completed).not.toBeNull()
     expect(completed!.live).toBe(false)
     expect(completed!.world.week).toBe(week + 1)
-    expect(completed!.world.pendingWeekPlan).toBeNull()
+    expect(completed!.world.pendingDayPlan).toBeNull()
     expect(completed!.match?.status).toBe('final')
     expect(completed!.world.lastMatch?.status).toBe('final')
     expect(completed!.world.fixtures[completed!.match!.fixtureId]!.status).toBe('played')
@@ -86,14 +86,14 @@ describe('week completion', () => {
     expect(result.live).toBe(false)
     expect(result.world.week).toBe(world.week + 1)
     expect(result.match?.status).toBe('final')
-    expect(result.world.pendingWeekPlan).toBeNull()
+    expect(result.world.pendingDayPlan).toBeNull()
     expect(hasPendingKeyMoments(result.world)).toBe(false)
   })
 
-  it('没有 pendingWeekPlan 的旧档完成回合后不会多推一周', () => {
+  it('没有 pendingDayPlan 的旧档完成回合后不会多推一周', () => {
     const started = startWeek(readyWorld(), PLAN)
     const legacy = structuredClone(started.world)
-    legacy.pendingWeekPlan = null
+    legacy.pendingDayPlan = null
 
     const result = completeWeek(legacy)
 

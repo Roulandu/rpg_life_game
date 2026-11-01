@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { db } from '../../src/db/db'
 import { migrateWorld } from '../../src/db/migrate'
 import { exportWorld, importWorld, loadWorld, summarizeWorld } from '../../src/db/repository'
+import { CURRENT_SAVE_VERSION } from '../../src/domain'
 import type { SaveRecord, WorldState } from '../../src/domain'
 import { SAVE_FORMAT } from '../../src/domain/schema/save.schema'
 import { canonicalStringify } from '../../src/lib/json'
@@ -20,17 +21,17 @@ function v1Envelope(world: WorldState): string {
   })
 }
 
-describe('save migration v1 -> v3', () => {
+describe('save migration v1 -> 当前版本', () => {
   it('回归: v1 存档导入后报告变为终场，未完成关键回合仍保留', () => {
     const legacy = legacyWorld()
     const migrated = importWorld(v1Envelope(legacy))
 
-    expect(migrated.version).toBe(4)
+    expect(migrated.version).toBe(CURRENT_SAVE_VERSION)
     expect(migrated.lastMatch?.status).toBe('final')
     expect(migrated.lastMatch?.currentMinute).toBe(90)
     expect(migrated.lastMatch?.goals).toEqual([])
     expect(migrated.lastMatch?.keyMoments?.[0]?.outcome).toBeUndefined()
-    expect(migrated.pendingWeekPlan ?? null).toBeNull()
+    expect(migrated.pendingDayPlan ?? null).toBeNull()
     expect(legacy.version).toBe(1)
   })
 
@@ -47,11 +48,11 @@ describe('save migration v1 -> v3', () => {
     expect(() => importWorld(JSON.stringify(broken))).toThrow(/校验失败/)
   })
 
-  it('迁移后 v3 世界可深度往返', () => {
+  it('迁移后当前版本世界可深度往返', () => {
     const migrated = migrateWorld(legacyWorld())
     const roundTripped = importWorld(exportWorld(migrated))
 
-    expect(migrated.version).toBe(4)
+    expect(migrated.version).toBe(CURRENT_SAVE_VERSION)
     expect(roundTripped).toEqual(migrated)
   })
 })
@@ -74,13 +75,13 @@ describe('save migration on load', () => {
     const loaded = await loadWorld('save:legacy')
     const stored = await db.saves.get('save:legacy')
 
-    expect(loaded?.version).toBe(4)
-    expect(stored?.world.version).toBe(4)
+    expect(loaded?.version).toBe(CURRENT_SAVE_VERSION)
+    expect(stored?.world.version).toBe(CURRENT_SAVE_VERSION)
   })
 
   it('拒绝来自更新版本的世界数据', async () => {
     const future = legacyWorld()
-    future.version = 5
+    future.version = CURRENT_SAVE_VERSION + 1
     const record: SaveRecord = {
       id: 'save:future',
       summary: summarizeWorld(future, 'save:future'),

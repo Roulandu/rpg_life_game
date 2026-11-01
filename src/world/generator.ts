@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, computeClubStrength, generateFixtures } from '../domain'
+import { CURRENT_SAVE_VERSION, DEFAULT_WEEK_PLAN, computeClubStrength, generateFixtures } from '../domain'
 import type { CareerCreateOptions, Club, Id, League, Player, WorldState } from '../domain'
 import { ENGLAND_CLUBS, ENGLAND_LEAGUES } from './data/england'
 import { ENGINE_VERSION, START_SEASON, TOTAL_CLUBS_PER_LEAGUE, TOTAL_WEEKS } from './constants'
@@ -76,8 +76,11 @@ export function generateWorld(options: CareerCreateOptions, now: string): WorldS
     news: initialNews(user, chosenClub),
     season: START_SEASON,
     week: 1,
+    day: 1,
     totalWeeks: TOTAL_WEEKS,
     lastMatch: null,
+    weekPlan: DEFAULT_WEEK_PLAN,
+    pendingDayPlan: null,
     seasonSummaries: [],
     settings: createSettings(),
   }

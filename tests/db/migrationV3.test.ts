@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { migrateWorld } from '../../src/db/migrate'
 import { exportWorld, importWorld } from '../../src/db/repository'
 import { autoResolveKeyMoments, finalizeMatchday, hasPendingKeyMoments } from '../../src/engine'
-import { CURRENT_SAVE_VERSION } from '../../src/domain'
+import { CURRENT_SAVE_VERSION, fixtureDayOf } from '../../src/domain'
 import { finalV2World, liveV2World } from '../fixtures/saveV2'
 import { legacyWorld } from '../fixtures/legacySave'
 
-describe('save migration v2 -> v3', () => {
-  it('v2 live 存档迁移到 v3 保留待处理回合并补齐首发与统计', () => {
+describe('save migration v2 -> 当前版本', () => {
+  it('v2 live 存档迁移后保留待处理回合并补齐首发与统计', () => {
     const { world } = liveV2World()
-    const pending = world.pendingWeekPlan
+    const pending = world.pendingDayPlan
     expect(world.version).toBe(2)
     expect(pending).toBeTruthy()
     expect(world.lastMatch?.stats).toBeUndefined()
@@ -18,7 +18,8 @@ describe('save migration v2 -> v3', () => {
     const report = migrated.lastMatch!
 
     expect(migrated.version).toBe(CURRENT_SAVE_VERSION)
-    expect(migrated.pendingWeekPlan).toEqual(pending)
+    expect(migrated.pendingDayPlan).toEqual(pending)
+    expect(migrated.day).toBe(fixtureDayOf(migrated.fixtures[report.fixtureId]!))
     expect(report.status).toBe('live')
     expect(report.stats).toBeDefined()
     const stats = report.stats!
@@ -54,13 +55,15 @@ describe('save migration v2 -> v3', () => {
     expect(importWorld(exportWorld(migrated))).toEqual(migrated)
   })
 
-  it('v1 存档连续迁移到 v3 且只清空一次待办周计划', () => {
+  it('v1 存档连续迁移到当前版本且只清空一次待办日计划', () => {
     const legacy = legacyWorld()
-    legacy.pendingWeekPlan = { training: 'technical', extra: 'none', fixtureId: null }
+    const withLegacyPlan = legacy as unknown as { pendingWeekPlan?: unknown }
+    withLegacyPlan.pendingWeekPlan = { training: 'technical', extra: 'none', fixtureId: null }
 
     const once = migrateWorld(legacy)
     expect(once.version).toBe(CURRENT_SAVE_VERSION)
-    expect(once.pendingWeekPlan ?? null).toBeNull()
+    expect(once.pendingDayPlan ?? null).toBeNull()
+    expect(once.day).toBe(1)
 
     const twice = migrateWorld(once)
     expect(twice).toBe(once)

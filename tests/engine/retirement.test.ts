@@ -42,7 +42,7 @@ describe('engine retirement', () => {
   })
 
   it('retires on a severe injury when older', () => {
-    const injured = withUser(world, { age: 32, injury: { kind: 'knee', weeksLeft: 8, severity: 3 } })
+    const injured = withUser(world, { age: 32, injury: { kind: 'knee', daysLeft: 56, severity: 3 } })
     expect(retirementReason(injured)).toBe('伤病')
   })
 })

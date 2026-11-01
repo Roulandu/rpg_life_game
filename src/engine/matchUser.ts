@@ -92,7 +92,7 @@ export function rollUserMatchEvents(
     injured = true
     user.injury = {
       kind: pickInjuryKind(rng),
-      weeksLeft: rng.int(2, 8),
+      daysLeft: rng.int(14, 56),
       severity: rng.int(1, 3),
     }
     events.push({

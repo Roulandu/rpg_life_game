@@ -125,6 +125,14 @@ export function computeOverall(position: Position, attributes: Attributes): numb
   return Math.round(total * 10) / 10
 }
 
+/**
+ * 属性值落盘前的三位小数量化。
+ * 日训练的单次成长不到 0.1，一位小数会把它直接抹成 0，一整周就白练了。
+ */
+export function roundAttr(value: number): number {
+  return Math.round(value * 1000) / 1000
+}
+
 export function overall(player: Player): number {
   return computeOverall(player.position, player.attributes)
 }

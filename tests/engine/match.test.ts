@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { ATTR_KEYS } from '../../src/domain/attributes'
+import { fixtureDayOf } from '../../src/domain/calendar'
 import type { WorldState } from '../../src/domain/types'
-import { getUserMatchFixture, simulateUserFixture, simulateWeekFixtures } from '../../src/engine/match'
+import { getUserMatchFixture, simulateDayFixtures, simulateUserFixture } from '../../src/engine/match'
 import { hashState } from '../../src/lib/rng'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
@@ -46,12 +47,17 @@ describe('simulateUserFixture', () => {
     expect(hashState(a)).toBe(hashState(b))
   })
 
-  it('plays every scheduled fixture of the current week', () => {
-    const { world } = worldWithUserFixture()
-    const report = simulateWeekFixtures(world)
+  it('plays every scheduled fixture of the current day', () => {
+    const { world, fixtureId } = worldWithUserFixture()
+    world.day = fixtureDayOf(world.fixtures[fixtureId]!)
+    const report = simulateDayFixtures(world)
     expect(report).not.toBeNull()
     const scheduled = Object.values(world.fixtures).filter(
-      (fixture) => fixture.season === world.season && fixture.week === world.week && fixture.status === 'scheduled',
+      (fixture) =>
+        fixture.season === world.season &&
+        fixture.week === world.week &&
+        fixtureDayOf(fixture) === world.day &&
+        fixture.status === 'scheduled',
     )
     expect(scheduled).toHaveLength(0)
   })

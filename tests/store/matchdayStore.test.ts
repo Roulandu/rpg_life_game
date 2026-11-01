@@ -70,7 +70,7 @@ describe('matchday store completion', () => {
 
     const state = useGameStore.getState()
     expect(state.world?.week).toBe(week + 1)
-    expect(state.world?.pendingWeekPlan).toBeNull()
+    expect(state.world?.pendingDayPlan).toBeNull()
     expect(state.lastTurn?.match?.status).toBe('final')
     expect(state.lastTurn?.live).toBe(false)
     expect(state.aiError).toContain('还没有保存 API Key')
@@ -117,7 +117,7 @@ describe('matchday store failure and legacy', () => {
     expect(useGameStore.getState().world?.week).toBe(week + 1)
   })
 
-  it('旧档没有 pendingWeekPlan 时完成回合不会多推一周', async () => {
+  it('旧档没有 pendingDayPlan 时完成回合不会多推一周', async () => {
     const legacy = migrateWorld(legacyWorld())
     useGameStore.setState({ world: legacy, saveId: 'legacy-save', hydrated: true })
     const week = legacy.week
@@ -127,13 +127,13 @@ describe('matchday store failure and legacy', () => {
 
     expect(useGameStore.getState().world?.week).toBe(week)
     expect(useGameStore.getState().world?.lastMatch?.status).toBe('final')
-    expect(useGameStore.getState().world?.pendingWeekPlan).toBeFalsy()
+    expect(useGameStore.getState().world?.pendingDayPlan).toBeFalsy()
   })
 
-  it('旧档缺少 pendingWeekPlan 的 live 比赛在 skip 后同样不会多推一周', async () => {
+  it('旧档缺少 pendingDayPlan 的 live 比赛在 skip 后同样不会多推一周', async () => {
     const started = startWeek(readyWorld(), plan)
     const world = structuredClone(started.world)
-    world.pendingWeekPlan = null
+    world.pendingDayPlan = null
     useGameStore.setState({ world, saveId: 'live-save', hydrated: true })
     const week = world.week
 

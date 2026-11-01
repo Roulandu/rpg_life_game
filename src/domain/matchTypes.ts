@@ -1,4 +1,4 @@
-import type { Id, Position, WeeklyPlan } from './types'
+import type { Id, Position } from './types'
 
 export type FixtureStatus = 'scheduled' | 'live' | 'played'
 
@@ -181,6 +181,3 @@ export interface KeyMoment {
   outcome?: KeyMomentOutcome
 }
 
-export interface PendingWeekPlan extends WeeklyPlan {
-  fixtureId: Id | null
-}

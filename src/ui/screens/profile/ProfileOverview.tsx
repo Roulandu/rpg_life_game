@@ -38,7 +38,7 @@ export function ProfileOverview({ user, clubName }: { user: Player; clubName: st
         ) : null}
         {user.injury ? (
           <p className="mt-3 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-[11px] text-danger">
-            {user.injury.kind} · 预计缺阵 {user.injury.weeksLeft} 周
+            {user.injury.kind} · 预计缺阵 {user.injury.daysLeft} 天
           </p>
         ) : null}
       </Card>

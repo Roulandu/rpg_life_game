@@ -19,9 +19,13 @@ export {
   positionGroup,
   round1,
   round2,
+  roundAttr,
 } from './attributes'
 export {
   DAYS_PER_WEEK,
+  DEFAULT_EXTRA_ACTION,
+  DEFAULT_TRAINING_FOCUS,
+  DEFAULT_WEEK_PLAN,
   MATCH_DAY,
   MATCH_DAY_ALT,
   MIDWEEK_DAY,
@@ -33,6 +37,7 @@ export {
 } from './calendar'
 export type { WeekDayRoles } from './calendar'
 export type { ChatActionProposal } from './chatAction'
+export type { AiChatMessage, AiNarrative, AiUsage } from './aiTypes'
 export { generateFixtures } from './fixtures'
 export { effectsSummary, successBasisText } from './keyMomentView'
 export { computeLeagueTable, goalDifference, leaguePosition } from './leagueTable'
@@ -60,9 +65,6 @@ export type {
   MatchStats,
 } from './matchTypes'
 export type {
-  AiChatMessage,
-  AiNarrative,
-  AiUsage,
   Archetype,
   AttrKey,
   Attributes,
@@ -96,7 +98,7 @@ export type {
   MatchGoal,
   MatchReport,
   NewsItem,
-  PendingWeekPlan,
+  PendingDayPlan,
   Player,
   Position,
   Relationship,

@@ -1,3 +1,4 @@
+import { fixtureDayOf } from '../domain'
 import type { Club, Fixture, MatchReport, WorldState } from '../domain'
 import { createRng } from '../lib'
 import { autoResolveKeyMoments, finalizeMatchday } from './keyMoments'
@@ -26,12 +27,13 @@ export function simulateBackgroundFixture(world: WorldState, fixture: Fixture): 
   fixture.status = 'played'
 }
 
-export function simulateWeekFixtures(world: WorldState): MatchReport | null {
+export function simulateDayFixtures(world: WorldState): MatchReport | null {
   const fixtures = Object.values(world.fixtures)
     .filter(
       (fixture) =>
         fixture.season === world.season &&
         fixture.week === world.week &&
+        fixtureDayOf(fixture) === world.day &&
         (fixture.status === 'scheduled' || fixture.status === 'live'),
     )
     .sort((a, b) => a.competitionId.localeCompare(b.competitionId) || a.id.localeCompare(b.id))
@@ -52,6 +54,16 @@ export function getUserMatchFixture(world: WorldState, week = world.week): Fixtu
     (fixture) =>
       fixture.season === world.season &&
       fixture.week === week &&
+      (fixture.homeId === world.clubId || fixture.awayId === world.clubId),
+  )
+}
+
+export function getUserFixtureOnDay(world: WorldState, day = world.day): Fixture | undefined {
+  return Object.values(world.fixtures).find(
+    (fixture) =>
+      fixture.season === world.season &&
+      fixture.week === world.week &&
+      fixtureDayOf(fixture) === day &&
       (fixture.homeId === world.clubId || fixture.awayId === world.clubId),
   )
 }

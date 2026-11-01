@@ -36,7 +36,7 @@ function narrateCompletedMatch(get: StoreGet, result: TurnResult): void {
 function settleWorld(get: StoreGet, world: WorldState): TurnResult {
   const latest = get().lastTurn
   finalizeMatchday(world)
-  if (world.pendingWeekPlan) return completeWeek(world)
+  if (world.pendingDayPlan) return completeWeek(world)
   return {
     world,
     match: world.lastMatch,
