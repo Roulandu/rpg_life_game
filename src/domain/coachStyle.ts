@@ -28,18 +28,17 @@ export const STYLE_TRAINING_BONUS: Record<ClubStyle, TrainingFocus> = {
 const FIT_MATCH = 0.62
 const FIT_NEUTRAL = 0.45
 
-/** 球员与球队风格的契合度：加权属性 / 100，纯函数，不消耗随机数。 */
+/** 球员与球队打法的契合度：加权属性 / 100，属性区间 10–96 决定结果天然落在 0–1。纯函数，不消耗随机数。 */
 export function styleFit(player: Player, style: ClubStyle): number {
   const entries = Object.entries(STYLE_ATTRS[style]) as [AttrKey, number][]
 
   let total = 0
   let sum = 0
   for (const [key, weight] of entries) {
-    sum += (player.attributes[key] ?? 0) * weight
+    sum += player.attributes[key] * weight
     total += weight
   }
-  const fit = sum / total / 100
-  return fit < 0 ? 0 : fit > 1 ? 1 : fit
+  return sum / total / 100
 }
 
 export function styleFitLabel(fit: number): '风格契合' | '风格中性' | '风格不合' {
