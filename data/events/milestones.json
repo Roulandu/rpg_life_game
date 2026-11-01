@@ -1,0 +1,358 @@
+[
+  {
+    "id": "ms_youth_callup",
+    "title": "一线队名单上第一次出现你的名字",
+    "body": "装备管理员把比赛日的背心递给你，号码那一栏写着你的数字。他说这是教练让改的，原来的那个年轻人这个月没来训练。",
+    "sender": "装备管理员",
+    "weight": 4,
+    "expiresDays": 3,
+    "cooldownDays": 45,
+    "once": true,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [{ "field": "squadRole", "op": "eq", "value": "youth" }],
+    "choices": [
+      {
+        "id": "quiet",
+        "label": "把背心收好，什么都不说",
+        "description": "让表现替你说。",
+        "effects": [{ "op": "confidence", "delta": 2 }, { "op": "morale", "delta": 2 }]
+      },
+      {
+        "id": "ask",
+        "label": "去问教练这是不是真的",
+        "description": "你想要一个明确的答案。",
+        "effects": [{ "op": "coachTrust", "delta": 2 }, { "op": "confidence", "delta": 1 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "tell_home",
+        "label": "先打电话回家",
+        "description": "这件事得有人先知道。",
+        "effects": [{ "op": "familyTrust", "delta": 4 }, { "op": "morale", "delta": 3 }]
+      }
+    ],
+    "resultTexts": {
+      "quiet": "那天晚上你把背心叠好放进包里，第二天训练你第一个到场。",
+      "ask": "教练说是真的，然后加了一句：别把它当成奖励。",
+      "tell_home": "你母亲在电话那头安静了两秒，然后问你吃过了没有。"
+    }
+  },
+  {
+    "id": "ms_home_debut",
+    "title": "主场第一次听见自己的名字",
+    "body": "广播念出首发名单时，看台某一处爆出的声音比别处大。{userName}——你花了半秒才确认那是在念你。",
+    "sender": "家人",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 60,
+    "once": true,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "isMatchDay", "op": "eq", "value": true },
+      { "field": "lastPlayed", "op": "gte", "value": 1 },
+      { "field": "fanRep", "op": "lte", "value": 50 }
+    ],
+    "choices": [
+      {
+        "id": "wave",
+        "label": "朝那个看台挥手",
+        "description": "他们会拍下来，会留一辈子。",
+        "effects": [{ "op": "fanRep", "delta": 4 }, { "op": "familyTrust", "delta": 4 }, { "op": "confidence", "delta": 1 }]
+      },
+      {
+        "id": "focus",
+        "label": "只当没听见",
+        "description": "把这一天当成普通的一场。",
+        "effects": [{ "op": "confidence", "delta": 3 }, { "op": "sharpness", "delta": 1 }, { "op": "morale", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "wave": "赛后那一段视频在家里传了整整一周，你父亲第一次把你的进球回放存了下来。",
+      "focus": "你踢完了一场干净的比赛，回家才发现他们举的那张横幅你没看见。"
+    }
+  },
+  {
+    "id": "ms_agent_watcher",
+    "title": "看台上的陌生人",
+    "body": "经纪人发来一条消息：坐在第二排左侧那位是某某俱乐部的球探，别回头看他。你抬头时，正好和那个人对上视线。",
+    "sender": "经纪人",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 35,
+    "maxPerSeason": 3,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "mediaRep", "op": "gte", "value": 50 },
+      { "field": "seasonProgress", "op": "gte", "value": 0.3 }
+    ],
+    "choices": [
+      {
+        "id": "play_simple",
+        "label": "按平时踢，不刻意表现",
+        "description": "被看见的是真实的你。",
+        "effects": [{ "op": "confidence", "delta": 2 }, { "op": "coachTrust", "delta": 1 }]
+      },
+      {
+        "id": "show_off",
+        "label": "多带两次球",
+        "description": "数据好看，风险也好看。",
+        "effects": [{ "op": "fanRep", "delta": 3 }, { "op": "mediaRep", "delta": 2 }, { "op": "fitness", "delta": -3 }, { "op": "coachTrust", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "play_simple": "赛后那位球探没有来找你，但他在名单上停留了三周。",
+      "show_off": "你完成了两次漂亮的过人，也在第七十分钟被换下——教练说这不是他要看的东西。"
+    }
+  },
+  {
+    "id": "ms_transfer_rumor",
+    "title": "你的名字被写进转会名单",
+    "body": "体育总监把平板推过来，屏幕上是两家小报的同一条消息：某某球员进入引援名单。他没有问你想法，只问了一句「这条要不要我们出面否认」。",
+    "sender": "体育总监",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 30,
+    "maxPerSeason": 2,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "seasonProgress", "op": "between", "value": [0.4, 0.95] },
+      { "field": "mediaRep", "op": "gte", "value": 45 }
+    ],
+    "choices": [
+      {
+        "id": "deny",
+        "label": "让俱乐部出面否认",
+        "description": "干净，但会被解读成多种意思。",
+        "effects": [{ "op": "mediaRep", "delta": 2 }, { "op": "fanRep", "delta": 2 }, { "op": "confidence", "delta": -1 }]
+      },
+      {
+        "id": "silence",
+        "label": "什么都不说",
+        "description": "让流言自己饿死。",
+        "effects": [{ "op": "agentTrust", "delta": 2 }, { "op": "fanRep", "delta": -2 }]
+      },
+      {
+        "id": "tell_coach",
+        "label": "先去找主教练谈",
+        "description": "把不确定性交给最该知道的人。",
+        "effects": [{ "op": "coachTrust", "delta": 3 }, { "op": "mediaRep", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "deny": "声明发在下午四点，第二天的标题变成了「俱乐部坚决留人」，你第一次发现否认也是一种标价。",
+      "silence": "两周后没人再提，只是每次你触球，看台都会有一小阵议论。",
+      "tell_coach": "教练听完只问了一句：你想走吗。你说不想，那周的名单就再也没有争议。"
+    }
+  },
+  {
+    "id": "ms_first_armband",
+    "title": "第一次拿到队长袖标",
+    "body": "队长赛前发烧留在家。{teammate}把袖标递过来的时候手有点抖，像是不好意思：他说按资历应该是你，按人缘也应该是你。",
+    "sender": "队友",
+    "weight": 3,
+    "expiresDays": 1,
+    "cooldownDays": 60,
+    "once": true,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "lastRating", "op": "gte", "value": 7.0 },
+      { "field": "teammateTrust", "op": "gte", "value": 60 }
+    ],
+    "choices": [
+      {
+        "id": "wear",
+        "label": "戴上，并在开球前说两句",
+        "description": "你会被拿这个标准衡量一整场。",
+        "effects": [{ "op": "teammateTrust", "delta": 4 }, { "op": "confidence", "delta": 3 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "pass_on",
+        "label": "转给队里更老的人",
+        "description": "安全，但机会不会再来第二次。",
+        "effects": [{ "op": "teammateTrust", "delta": 1 }, { "op": "coachTrust", "delta": 1 }, { "op": "confidence", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "wear": "那两句你只讲了二十秒，但下半场有三次是别人主动来问你站位。",
+      "pass_on": "袖标去了老将手臂上，他在赛后把它挂回你衣柜的钩子上。"
+    }
+  },
+  {
+    "id": "ms_scout_visit",
+    "title": "青训旧友来看你训练",
+    "body": "青训时和你睡同一间宿舍的人来看了一堂课。他现在在低两级联赛当助教。他说你看起来比当年累，然后问了句：后悔留在职业里吗。",
+    "sender": "青训旧友",
+    "weight": 3,
+    "expiresDays": 5,
+    "cooldownDays": 70,
+    "once": true,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "absoluteDay", "op": "gte", "value": 30 },
+      { "field": "age", "op": "lte", "value": 30 }
+    ],
+    "choices": [
+      {
+        "id": "honest",
+        "label": "照实说这一年的代价",
+        "description": "把钱、伤和孤独都讲一遍。",
+        "effects": [{ "op": "familyTrust", "delta": 2 }, { "op": "confidence", "delta": 2 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "invite",
+        "label": "邀请他一起带一次青少年课",
+        "description": "回到当初练球的地方。",
+        "effects": [{ "op": "fanRep", "delta": 4 }, { "op": "morale", "delta": 4 }, { "op": "fitness", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "honest": "他走的时候说：那你还剩三年，别浪费在解释上。这句话你记了半个月。",
+      "invite": "那堂课有十九个孩子，一个叫你把动作拆开讲了三遍，第三遍才有人听懂。"
+    }
+  },
+  {
+    "id": "ms_contract_photo",
+    "title": "续约签字前的一张合影",
+    "body": "体育总监说合同已经改到最后一版，先别急着读条款：记者只在门外等三分钟，拍一张握手照就好。他知道你想看完再签。",
+    "sender": "体育总监",
+    "weight": 2,
+    "expiresDays": 4,
+    "cooldownDays": 80,
+    "once": true,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "seasonProgress", "op": "gte", "value": 0.65 },
+      { "field": "coachTrust", "op": "gte", "value": 55 }
+    ],
+    "choices": [
+      {
+        "id": "photo_first",
+        "label": "先拍照，条款慢慢谈",
+        "description": "把姿态摆在前面，谈判就少了退路。",
+        "effects": [{ "op": "mediaRep", "delta": 3 }, { "op": "fanRep", "delta": 3 }, { "op": "agentTrust", "delta": -2 }]
+      },
+      {
+        "id": "read_first",
+        "label": "让经纪人先读完每一页",
+        "description": "照片可以补，条款不能。",
+        "effects": [{ "op": "agentTrust", "delta": 3 }, { "op": "confidence", "delta": 2 }, { "op": "mediaRep", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "photo_first": "那张照片上了本地体育版头版，第二周你才发现奖金条款还空着一格。",
+      "read_first": "签字拖到深夜，多争取到的那一格后来值半赛季的出场奖金。"
+    }
+  },
+  {
+    "id": "ms_old_injury_anniversary",
+    "title": "去年今天的同一处伤",
+    "body": "队医在录入本季病历时停了一下：同一个位置，去年也是这个日期前后。他没有暗示什么，只是把上一次的康复表打印了出来。",
+    "sender": "队医",
+    "weight": 2,
+    "expiresDays": 5,
+    "cooldownDays": 90,
+    "maxPerSeason": 1,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "absoluteDay", "op": "gte", "value": 60 },
+      { "field": "fitness", "op": "lte", "value": 75 }
+    ],
+    "choices": [
+      {
+        "id": "prevent",
+        "label": "照去年的表做一次预防",
+        "description": "花钱花时间，但知道边界在哪。",
+        "effects": [{ "op": "fitness", "delta": 4 }, { "op": "morale", "delta": -1 }, { "op": "confidence", "delta": 2 }]
+      },
+      {
+        "id": "ignore",
+        "label": "去年是去年",
+        "description": "你不喜欢被一张表格定义。",
+        "effects": [{ "op": "confidence", "delta": 2 }, { "op": "fitness", "delta": -3 }]
+      }
+    ],
+    "resultTexts": {
+      "prevent": "三周后同一位置只是发紧，没有肿。队医在病历上写：提前处理。",
+      "ignore": "第八轮那次冲撞之后，你在同一处贴上了和去年一样的号码牌。"
+    }
+  },
+  {
+    "id": "ms_last_day_of_window",
+    "title": "转会窗关闭的最后一晚",
+    "body": "经纪人的电话在晚上十点半打进来：还有一家球队愿意谈，条件是明早六点前答复。他说他不想替你决定，但他已经把行李收拾好了。",
+    "sender": "经纪人",
+    "weight": 2,
+    "expiresDays": 1,
+    "cooldownDays": 100,
+    "maxPerSeason": 1,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "seasonProgress", "op": "lte", "value": 0.12 },
+      { "field": "mediaRep", "op": "gte", "value": 35 }
+    ],
+    "choices": [
+      {
+        "id": "stay",
+        "label": "拒绝，把这一季踢完",
+        "description": "留在这里，位置是你现在挣的。",
+        "effects": [{ "op": "coachTrust", "delta": 3 }, { "op": "morale", "delta": 2 }, { "op": "agentTrust", "delta": -2 }]
+      },
+      {
+        "id": "listen",
+        "label": "先听条件，再决定",
+        "description": "知道价码不等于卖掉自己。",
+        "effects": [{ "op": "confidence", "delta": 2 }, { "op": "mediaRep", "delta": 2 }, { "op": "coachTrust", "delta": -1 }]
+      },
+      {
+        "id": "go",
+        "label": "答应谈下去",
+        "description": "一扇门开了，另一扇就会关上。",
+        "effects": [{ "op": "agentTrust", "delta": 4 }, { "op": "fanRep", "delta": -3 }, { "op": "coachTrust", "delta": -3 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "stay": "你把手机关了机，第二天训练时教练第一次在场边叫你他的名字。",
+      "listen": "条件确实更好，但你知道那份合同里写着「首季出场不足则降档」。",
+      "go": "谈判在凌晨两点终止。俱乐部没说什么，看台替他们说了。"
+    }
+  },
+  {
+    "id": "ms_family_visit",
+    "title": "家人第一次来看你住的地方",
+    "body": "母亲站在你的公寓门口，先看了冰箱，再看了你的脚踝。她没有问钱，只问了一句：这里有人给你做饭吗。",
+    "sender": "家人",
+    "weight": 3,
+    "expiresDays": 6,
+    "cooldownDays": 50,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "familyTrust", "op": "lte", "value": 68 }],
+    "choices": [
+      {
+        "id": "stay_long",
+        "label": "让他们住满一周",
+        "description": "训练日程会被打乱，饭不会。",
+        "effects": [{ "op": "familyTrust", "delta": 5 }, { "op": "morale", "delta": 3 }, { "op": "sharpness", "delta": -1 }]
+      },
+      {
+        "id": "one_day",
+        "label": "只留一天，剩下的时间给他们钱",
+        "description": "干净、省事，也有点冷。",
+        "effects": [{ "op": "money", "delta": -200 }, { "op": "familyTrust", "delta": 1 }, { "op": "fitness", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "stay_long": "第三天她摸清了你所有的训练时间，第五天你把那周的加练取消了。",
+      "one_day": "送走他们以后，你在冰箱上贴了一张自己的购物清单，一直没买齐。"
+    }
+  }
+]
