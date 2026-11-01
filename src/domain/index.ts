@@ -104,11 +104,10 @@ export type {
   Relationship,
   RelationshipRole,
   Reputation,
-  SaveRecord,
-  SaveSummary,
   SeasonStat,
   SeasonSummary,
   TrainingFocus,
   WeeklyPlan,
   WorldState,
 } from './types'
+export type { SaveRecord, SaveSummary } from './saveTypes'

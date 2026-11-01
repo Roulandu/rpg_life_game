@@ -20,4 +20,12 @@ describe('repository 摘要与存档 id', () => {
     expect(first).toMatch(/^save:/)
     expect(first).not.toBe(createSaveId(world))
   })
+
+  it('摘要带上日时钟，存档列表能说清停在星期几', () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    const midweek = { ...world, day: 3 }
+
+    expect(summarizeWorld(midweek, 'save:x').day).toBe(3)
+    expect(summarizeWorld(world, 'save:x').day).toBe(world.day)
+  })
 })

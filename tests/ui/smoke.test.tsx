@@ -28,6 +28,16 @@ describe('ui smoke tests', () => {
     expect(screen.getByRole('button', { name: /新建生涯/ })).toBeInTheDocument()
   })
 
+  it('存档列表一行说清停在第几周的星期几', async () => {
+    const { summarizeWorld } = await import('../../src/db/repository')
+    const world = { ...generateWorld(testOptions(), TEST_NOW), week: 4, day: 3 }
+    useGameStore.setState({ world, hydrated: true, saves: [summarizeWorld(world, 'save:x')] })
+
+    renderWithRouter(<TitleScreen />)
+
+    expect(screen.getByText(/第 4 周 · 周三/)).toBeInTheDocument()
+  })
+
   it('renders the dashboard for an active career', () => {
     const world = generateWorld(testOptions(), TEST_NOW)
     useGameStore.setState({ world, hydrated: true, saves: [] })

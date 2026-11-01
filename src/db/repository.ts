@@ -32,6 +32,7 @@ export function summarizeWorld(world: WorldState, id: string): SaveSummary {
     clubName: club?.nameZh ?? '自由球员',
     season: world.season,
     week: world.week,
+    day: world.day ?? 1,
     age: user?.age ?? 0,
     overall: user ? overall(user) : 0,
     updatedAt: world.updatedAt,

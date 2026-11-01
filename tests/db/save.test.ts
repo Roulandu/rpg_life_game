@@ -103,4 +103,36 @@ describe('save list tolerance', () => {
 
     expect(saves.map((save) => save.id)).toEqual(['save:good', 'save:good-2'])
   })
+
+  it('摘要只是从 world 重算的投影：旧存档行里没有 day 也能列出正确的日', async () => {
+    const world = { ...generateWorld(testOptions(), TEST_NOW), day: 5 }
+    const legacySummary = {
+      id: 'save:legacy-summary',
+      playerName: '写入时的名字',
+      clubName: '写入时的俱乐部',
+      season: world.season,
+      week: world.week,
+      age: 17,
+      overall: 50,
+      updatedAt: world.updatedAt,
+    }
+    await db.saves.put({ id: 'save:legacy-summary', summary: legacySummary, world } as unknown as SaveRecord)
+
+    const saves = await listSaves()
+
+    expect(saves[0].day).toBe(5)
+    expect(saves[0].playerName).toBe(world.players[world.playerId].name)
+  })
+
+  it('列表不跑迁移：还没载入过的 v4 存档行摘要落回周一', async () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    delete (world as { day?: number }).day
+    world.version = 4
+    await saveWorld(world, 'save:v4-row')
+
+    const saves = await listSaves()
+
+    expect(saves[0].day).toBe(1)
+    expect(await loadWorld('save:v4-row')).toMatchObject({ day: 1, version: 5 })
+  })
 })

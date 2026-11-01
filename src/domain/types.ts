@@ -334,20 +334,3 @@ export interface WeeklyPlan {
 export interface PendingDayPlan extends WeeklyPlan {
   fixtureId: Id | null
 }
-
-export interface SaveSummary {
-  id: string
-  playerName: string
-  clubName: string
-  season: number
-  week: number
-  age: number
-  overall: number
-  updatedAt: string
-}
-
-export interface SaveRecord {
-  id: string
-  summary: SaveSummary
-  world: WorldState
-}
