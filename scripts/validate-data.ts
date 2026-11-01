@@ -1,8 +1,12 @@
 import denylistJson from '../data/denylist/england.json'
+import knownNamesJson from '../data/names/known.json'
+import transliterationJson from '../data/names/transliteration.json'
+import { hasCjk, nameZhFor } from '../src/domain'
 import { COUNTRY_PACKS, NAME_POOLS, NATIONALITY_WEIGHTS } from '../src/world/datapack'
 import { STARTING_CLUBS } from '../src/world/data/england'
 
 const errors: string[] = []
+const LATIN = /[A-Za-z]/
 
 function normalize(value: string): string {
   return value
@@ -97,6 +101,29 @@ for (const weight of NATIONALITY_WEIGHTS) {
 
 for (const club of STARTING_CLUBS) {
   if (!clubIds.has(club.id)) errors.push(`可选起点不存在：${club.id}`)
+}
+
+/** 人名表：姓名池每个词条都必须能给出纯汉字中文名，且命中常用译名表。 */
+const knownTokens = knownNamesJson.tokens as Record<string, string>
+for (const [nationality, pool] of Object.entries(NAME_POOLS)) {
+  for (const token of [...pool.first, ...pool.last]) {
+    const localized = nameZhFor(token, nationality)
+    if (!hasCjk(localized)) errors.push(`中文名转写为空：${nationality} / ${token}`)
+    if (LATIN.test(localized)) errors.push(`中文名残留拉丁字母：${nationality} / ${token} → ${localized}`)
+    if (!LATIN.test(token)) continue
+    const known = knownTokens[token]
+    if (!known) errors.push(`姓名池词条缺少常用译名：${token}`)
+    else if (known !== localized) errors.push(`常用译名与转写结果不一致：${token} → ${known} / ${localized}`)
+  }
+}
+
+for (const [token, value] of Object.entries(knownTokens)) {
+  if (LATIN.test(value)) errors.push(`常用译名表残留拉丁字母：${token} → ${value}`)
+}
+for (const letter of 'abcdefghijklmnopqrstuvwxyz') {
+  const value = (transliterationJson.letters as Record<string, string>)[letter]
+  if (!value) errors.push(`字母转写表缺少字母：${letter}`)
+  else if (!hasCjk(value)) errors.push(`字母转写结果不是汉字：${letter} → ${value}`)
 }
 
 const clubCount = COUNTRY_PACKS.reduce((sum, pack) => sum + pack.clubs.length, 0)

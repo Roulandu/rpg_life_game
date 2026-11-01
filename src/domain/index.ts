@@ -111,3 +111,4 @@ export type {
   WorldState,
 } from './types'
 export type { SaveRecord, SaveSummary } from './saveTypes'
+export { displayName, hasCjk, nameZhFor } from './names'
