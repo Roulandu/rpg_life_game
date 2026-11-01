@@ -1,4 +1,6 @@
 import type { Club, Fixture, WorldState } from '../../../domain'
+import { fixtureDayOf } from '../../../domain'
+import { WEEKDAY_LABELS, formatDateShort } from '../../../lib'
 import { Card } from '../../components/Card'
 import { fixtureResultForClub, formClass, formLabel } from '../../gameHelpers'
 import clsx from 'clsx'
@@ -33,12 +35,16 @@ function FixtureRow({ world, club, fixture }: { world: WorldState; club: Club; f
   const isHome = fixture.homeId === club.id
   const opponent = world.clubs[isHome ? fixture.awayId : fixture.homeId]
   const result = fixtureResultForClub(fixture, club.id)
-  const current =
-    fixture.week === world.week && (fixture.status === 'scheduled' || fixture.status === 'live')
+  const day = fixtureDayOf(fixture)
+  const isToday = fixture.week === world.week && day === world.day
+  const current = isToday && (fixture.status === 'scheduled' || fixture.status === 'live')
 
   return (
     <div className={clsx('flex items-center gap-2 px-3 py-2.5 text-[11px]', current && 'bg-accent/5')}>
-      <span className="w-7 shrink-0 font-mono text-[10px] text-dim">{fixture.week}</span>
+      <span className="w-9 shrink-0 font-mono text-[9px] leading-tight text-dim">
+        <span className="block">{WEEKDAY_LABELS[day - 1]}</span>
+        <span className="block">{formatDateShort(world.season, fixture.week, day)}</span>
+      </span>
       <span className={clsx('w-8 shrink-0 text-[10px]', isHome ? 'text-teal' : 'text-dim')}>
         {isHome ? '主' : '客'}
       </span>
@@ -90,7 +96,7 @@ function FixtureOutcome({
 
   return (
     <span className={clsx('w-12 text-center text-[10px]', current ? 'text-accent' : 'text-dim')}>
-      {current ? '本周' : '未赛'}
+      {current ? '今天' : '未赛'}
     </span>
   )
 }

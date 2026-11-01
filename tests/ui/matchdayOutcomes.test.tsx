@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import type { Fixture } from '../../src/domain'
+import { dayForRound } from '../../src/domain'
 import { FixtureListCard } from '../../src/ui/screens/schedule/FixtureListCard'
 import { MatchReview } from '../../src/ui/screens/matchday/MatchReview'
 import { generateWorld } from '../../src/world/generator'
@@ -51,6 +52,8 @@ describe('fixture list outcomes', () => {
   it('renders played, live, current and future fixtures', () => {
     const world = generateWorld(testOptions(), TEST_NOW)
     const club = world.clubs[world.clubId]!
+    // 夹具的 round 与 week 同步，比赛日由 dayForRound 推导；把时钟摆到那一天才能命中「今天」。
+    world.day = dayForRound(world.week)
     const opponentIds = Object.values(world.clubs)
       .filter((item) => item.id !== club.id && item.leagueId === club.leagueId)
       .slice(0, 4)
@@ -64,7 +67,7 @@ describe('fixture list outcomes', () => {
     expect(screen.getByText('1-1')).toBeInTheDocument()
     expect(screen.getByText('0-2')).toBeInTheDocument()
     expect(screen.getByText('进行中')).toBeInTheDocument()
-    expect(screen.getByText('本周')).toBeInTheDocument()
+    expect(screen.getByText('今天')).toBeInTheDocument()
     expect(screen.getAllByText('未赛')).toHaveLength(2)
     expect(screen.getByText('未知球队')).toBeInTheDocument()
     expect(screen.getAllByText('胜')).toHaveLength(1)
