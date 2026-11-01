@@ -9,37 +9,23 @@ interface PackExpectation {
   senders: string[]
 }
 
-/** 每加一个类别包就在这里加一行：条数、id 前缀、最长保留天数与必须出现的发件人都是契约。 */
-const EXPECTATIONS: PackExpectation[] = [
-  {
-    name: 'daily-life',
-    prefix: 'dl_',
-    minCount: 12,
-    maxExpiresDays: 4,
-    senders: ['家人', '青训旧友', '装备管理员'],
-  },
-  {
-    name: 'media',
-    prefix: 'md_',
-    minCount: 12,
-    maxExpiresDays: 5,
-    senders: ['转播记者', '队报记者', '球迷会', '社交媒体'],
-  },
-  {
-    name: 'club',
-    prefix: 'cb_',
-    minCount: 10,
-    maxExpiresDays: 4,
-    senders: ['董事会', '体育总监', '体能教练', '装备管理员'],
-  },
-  {
-    name: 'finance',
-    prefix: 'fn_',
-    minCount: 10,
-    maxExpiresDays: 6,
-    senders: ['银行', '经纪人', '房东', '保险公司'],
-  },
+/** 每加一个类别包就在这里加一行：包名、id 前缀、最少条数、最长保留天数、必须出现的发件人。 */
+const PACK_ROWS: readonly [
+  name: string,
+  prefix: string,
+  minCount: number,
+  maxExpiresDays: number,
+  senders: string[],
+][] = [
+  ['daily-life', 'dl_', 12, 4, ['家人', '青训旧友', '装备管理员']],
+  ['media', 'md_', 12, 5, ['转播记者', '队报记者', '球迷会', '社交媒体']],
+  ['club', 'cb_', 10, 4, ['董事会', '体育总监', '体能教练', '装备管理员']],
+  ['finance', 'fn_', 10, 6, ['银行', '经纪人', '房东', '保险公司']],
 ]
+
+const EXPECTATIONS: PackExpectation[] = PACK_ROWS.map(
+  ([name, prefix, minCount, maxExpiresDays, senders]) => ({ name, prefix, minCount, maxExpiresDays, senders }),
+)
 
 /** 条件值在 schema 里是 unknown：between/in 用数组，其余用标量，这里统一收成数字。 */
 function conditionNumbers(value: unknown): number[] {
