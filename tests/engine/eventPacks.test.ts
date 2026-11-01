@@ -32,6 +32,13 @@ const EXPECTATIONS: PackExpectation[] = [
     maxExpiresDays: 4,
     senders: ['董事会', '体育总监', '体能教练', '装备管理员'],
   },
+  {
+    name: 'finance',
+    prefix: 'fn_',
+    minCount: 10,
+    maxExpiresDays: 6,
+    senders: ['银行', '经纪人', '房东', '保险公司'],
+  },
 ]
 
 describe('事件内容包的分类契约', () => {

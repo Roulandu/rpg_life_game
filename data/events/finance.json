@@ -1,0 +1,351 @@
+[
+  {
+    "id": "fn_first_statement",
+    "title": "第一份对账单",
+    "body": "银行寄来的月度对账单上，税那一栏第一次超过了你的周薪。客服说这是正常代扣，建议你「找专业人士看一次」。",
+    "sender": "银行",
+    "weight": 4,
+    "expiresDays": 5,
+    "cooldownDays": 40,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "balance", "op": "gte", "value": 200000 }],
+    "choices": [
+      {
+        "id": "advisor",
+        "label": "付钱请一次税务咨询",
+        "description": "花掉一小笔，换一张能看懂的表。",
+        "effects": [{ "op": "money", "delta": -300 }, { "op": "confidence", "delta": 2 }, { "op": "morale", "delta": 1 }]
+      },
+      {
+        "id": "ignore",
+        "label": "先放着不管",
+        "description": "反正钱是自动扣的。",
+        "effects": [{ "op": "morale", "delta": -2 }, { "op": "familyTrust", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "advisor": "咨询结束时你第一次知道，自己每场球的税后到手是多少。",
+      "ignore": "三个月后同一封信变成了催缴，金额比当初那笔税还大。"
+    }
+  },
+  {
+    "id": "fn_agent_deal",
+    "title": "经纪人的新合同",
+    "body": "经纪人把续约条款推到你面前：佣金从 5% 涨到 8%，但对方承诺下周带来一份地区代言。他补了一句，不签也没关系。",
+    "sender": "经纪人",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 60,
+    "maxPerSeason": 2,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "agentTrust", "op": "gte", "value": 45 },
+      { "field": "seasonProgress", "op": "gte", "value": 0.2 }
+    ],
+    "choices": [
+      {
+        "id": "sign",
+        "label": "签下来换代言机会",
+        "description": "佣金高，但事情有人在跑。",
+        "effects": [{ "op": "money", "delta": 1200 }, { "op": "agentTrust", "delta": 3 }, { "op": "mediaRep", "delta": 2 }]
+      },
+      {
+        "id": "negotiate",
+        "label": "把佣金压回 5%，代言不签",
+        "description": "他会有点不高兴。",
+        "effects": [{ "op": "agentTrust", "delta": -2 }, { "op": "confidence", "delta": 3 }, { "op": "money", "delta": 60 }]
+      },
+      {
+        "id": "wait",
+        "label": "说要看几天",
+        "description": "把主动权留在手里。",
+        "effects": [{ "op": "morale", "delta": 1 }, { "op": "agentTrust", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "sign": "代言签得不大，但那是你第一个有人主动来找你签字的下午。",
+      "negotiate": "他改了条款，速度慢了两周，你才意识到佣金差的那 3% 是真的。",
+      "wait": "四天以后他带来的是另一个人的签约消息。"
+    }
+  },
+  {
+    "id": "fn_family_request",
+    "title": "家里的第一个明确的请求",
+    "body": "父亲第一次在电话里说清楚要多少：翻修屋顶，折下来大约是你两个月的工资。他说完就后悔了，开始说「其实也没那么急」。",
+    "sender": "家人",
+    "weight": 3,
+    "expiresDays": 6,
+    "cooldownDays": 70,
+    "once": true,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [{ "field": "balance", "op": "gte", "value": 400000 }],
+    "choices": [
+      {
+        "id": "pay_all",
+        "label": "全额汇过去",
+        "description": "他们会觉得这钱来得容易。",
+        "effects": [{ "op": "money", "delta": -2000 }, { "op": "familyTrust", "delta": 6 }, { "op": "morale", "delta": 2 }]
+      },
+      {
+        "id": "half_plan",
+        "label": "先付一半并说明余下的计划",
+        "description": "把钱和界限一起讲清楚。",
+        "effects": [{ "op": "money", "delta": -1000 }, { "op": "familyTrust", "delta": 3 }, { "op": "confidence", "delta": 2 }]
+      },
+      {
+        "id": "loan",
+        "label": "以借款方式记账",
+        "description": "冷，但没有人会误解。",
+        "effects": [{ "op": "money", "delta": -2000 }, { "op": "familyTrust", "delta": -3 }, { "op": "confidence", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "pay_all": "屋顶换完那天他们拍了照片，照片里没有人看镜头。",
+      "half_plan": "父亲过了两周才回话，说剩下的他自己解决了。",
+      "loan": "钱到了，借条也被收下了，之后每次通话都短了一分钟。"
+    }
+  },
+  {
+    "id": "fn_teammate_loan",
+    "title": "队友的借款",
+    "body": "{teammate}在停车场拦住你，说要借一笔不大但对他很大的钱，下周工资到账就还。他说这话时没有看你。",
+    "sender": "队友",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 45,
+    "maxPerSeason": 2,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "teammateTrust", "op": "gte", "value": 50 },
+      { "field": "balance", "op": "gte", "value": 300000 }
+    ],
+    "choices": [
+      {
+        "id": "lend",
+        "label": "借，不提还的时间",
+        "description": "更衣室会知道这件事。",
+        "effects": [{ "op": "money", "delta": -600 }, { "op": "teammateTrust", "delta": 5 }, { "op": "morale", "delta": 1 }]
+      },
+      {
+        "id": "half_gift",
+        "label": "给一半，另一半说是送的",
+        "description": "少一点尴尬，也少一点回收。",
+        "effects": [{ "op": "money", "delta": -300 }, { "op": "teammateTrust", "delta": 3 }, { "op": "confidence", "delta": 1 }]
+      },
+      {
+        "id": "refuse",
+        "label": "说不方便",
+        "description": "边界清楚，代价是关系。",
+        "effects": [{ "op": "teammateTrust", "delta": -4 }, { "op": "morale", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "lend": "他没在下周还，但在赛季最后一场给你让了队长手套的位置。",
+      "half_gift": "那三百块他后来硬塞回给你，多给了五十。",
+      "refuse": "第二天的传球练习里，他找别人配合了。"
+    }
+  },
+  {
+    "id": "fn_sponsor_advance",
+    "title": "赞助商的预付",
+    "body": "一家你没听过的品牌愿意预付三个月的推广费，条件是你把合同里的一条改写成「可代为发布训练内容」，配图由他们决定。",
+    "sender": "赞助商",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 35,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "clubTier", "op": "lte", "value": 2 },
+      { "field": "mediaRep", "op": "gte", "value": 30 }
+    ],
+    "choices": [
+      {
+        "id": "take",
+        "label": "收下预付",
+        "description": "现金现在就有，内容是他们的。",
+        "effects": [{ "op": "money", "delta": 2400 }, { "op": "mediaRep", "delta": -2 }, { "op": "coachTrust", "delta": -2 }]
+      },
+      {
+        "id": "decline",
+        "label": "只接需要审核的合作",
+        "description": "慢，但照片由你说得算。",
+        "effects": [{ "op": "money", "delta": 300 }, { "op": "confidence", "delta": 2 }, { "op": "mediaRep", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "take": "那张合成图被挂在本地论坛上，标题问你身上那件是不是别的队的球衣。",
+      "decline": "俱乐部市场部记下了你这条回复，两周后主动送来另一份合同。"
+    }
+  },
+  {
+    "id": "fn_rent_surprise",
+    "title": "涨租通知",
+    "body": "房东把续租合同塞进门缝，涨幅是你没预料到的那种。同一条街上，俱乐部另一名球员的租约也一并涨了。",
+    "sender": "房东",
+    "weight": 3,
+    "expiresDays": 5,
+    "cooldownDays": 50,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "balance", "op": "gte", "value": 150000 }],
+    "choices": [
+      {
+        "id": "accept",
+        "label": "签下来，少折腾",
+        "description": "钱多花，但离训练基地近。",
+        "effects": [{ "op": "money", "delta": -700 }, { "op": "fitness", "delta": 2 }]
+      },
+      {
+        "id": "move",
+        "label": "换更远的房子",
+        "description": "省下的钱会变成通勤时间。",
+        "effects": [{ "op": "money", "delta": 400 }, { "op": "fitness", "delta": -3 }, { "op": "morale", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "accept": "新合同签了一年，你第一次算清楚了每个月固定要交出去多少。",
+      "move": "搬家的箱子是队务帮你抬的，早上多出的四十分钟你用来补觉。"
+    }
+  },
+  {
+    "id": "fn_club_pay_delay",
+    "title": "工资晚到",
+    "body": "财务部门承认这个月的工资要晚三天，理由是一段银行流程没走完。队里有人的房租就在这三天里。",
+    "sender": "俱乐部财务",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 55,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weeklyWage", "op": "gte", "value": 150000 }],
+    "choices": [
+      {
+        "id": "cover",
+        "label": "先替队里两个年轻人垫上",
+        "description": "你有余额，他们只有到期日。",
+        "effects": [{ "op": "money", "delta": -500 }, { "op": "teammateTrust", "delta": 4 }, { "op": "morale", "delta": 2 }]
+      },
+      {
+        "id": "push",
+        "label": "和队长一起去财务室问",
+        "description": "把事变成制度问题。",
+        "effects": [{ "op": "teammateTrust", "delta": 2 }, { "op": "coachTrust", "delta": -1 }, { "op": "mediaRep", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "cover": "工资到账那天两个人一起把钱还了，其中一个多买了两杯咖啡。",
+      "push": "第四天钱到了，之后每个赛季初俱乐部都会提前发一封时间说明。"
+    }
+  },
+  {
+    "id": "fn_car_accident",
+    "title": "停车场的那次剐蹭",
+    "body": "你的车把另一辆车的保险杠蹭了一道。对方不在，摄像头在，保险公司要报案号，而俱乐部门口已经有人在拍照。",
+    "sender": "保险公司",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 60,
+    "maxPerSeason": 2,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [{ "field": "balance", "op": "gte", "value": 100000 }],
+    "choices": [
+      {
+        "id": "report",
+        "label": "正常报案并留纸条",
+        "description": "麻烦，但没有后续。",
+        "effects": [{ "op": "money", "delta": -250 }, { "op": "morale", "delta": -1 }, { "op": "confidence", "delta": 1 }]
+      },
+      {
+        "id": "cash",
+        "label": "私下赔钱私了",
+        "description": "快，前提是对方讲信用。",
+        "effects": [{ "op": "money", "delta": -400 }, { "op": "fanRep", "delta": -1 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "report": "对方第二天联系俱乐部，说照片里的那个人是他。",
+      "cash": "现金给出去以后，那张照片还是上了本地小报的一角。"
+    }
+  },
+  {
+    "id": "fn_agent_invest_pitch",
+    "title": "饭桌上的投资项目",
+    "body": "经纪人的朋友在饭局上打开一份演示稿：三家健身房、一个加密货币钱包、一个「稳的」餐厅加盟。他说球员就该有人帮钱跑腿。",
+    "sender": "经纪人",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 45,
+    "maxPerSeason": 3,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "balance", "op": "gte", "value": 500000 },
+      { "field": "age", "op": "lte", "value": 29 }
+    ],
+    "choices": [
+      {
+        "id": "small",
+        "label": "只投能承受亏损的一小笔",
+        "description": "当作学费。",
+        "effects": [{ "op": "money", "delta": -800 }, { "op": "confidence", "delta": 1 }, { "op": "agentTrust", "delta": 1 }]
+      },
+      {
+        "id": "refuse",
+        "label": "一分不投，并问他为什么推荐",
+        "description": "把动机问出来。",
+        "effects": [{ "op": "agentTrust", "delta": -2 }, { "op": "confidence", "delta": 3 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "small": "半年后那三家健身房少了两家，你把剩下的钱拿回来，把它当成一次很贵的课。",
+      "refuse": "他愣了一下，说了一句「你是对的」，之后推荐前会先讲他自己的收益。"
+    }
+  },
+  {
+    "id": "fn_charity_ask",
+    "title": "母校的募捐",
+    "body": "青训营旧友寄来一封公开信，请一线队球员为伤病基金捐款，金额区间印在最后一段。你的名字已经被写进了「首批响应」的草稿里。",
+    "sender": "青训旧友",
+    "weight": 2,
+    "expiresDays": 6,
+    "cooldownDays": 80,
+    "once": true,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "balance", "op": "gte", "value": 250000 }],
+    "choices": [
+      {
+        "id": "donate",
+        "label": "按草稿金额捐出去",
+        "description": "名字会被印出来。",
+        "effects": [{ "op": "money", "delta": -1000 }, { "op": "fanRep", "delta": 4 }, { "op": "morale", "delta": 3 }]
+      },
+      {
+        "id": "silent",
+        "label": "匿名捐一半",
+        "description": "钱到，名字不到。",
+        "effects": [{ "op": "money", "delta": -500 }, { "op": "confidence", "delta": 2 }, { "op": "mediaRep", "delta": -1 }]
+      },
+      {
+        "id": "visit",
+        "label": "不捐钱，去带一次训练课",
+        "description": "时间比钱难给。",
+        "effects": [{ "op": "fitness", "delta": -2 }, { "op": "fanRep", "delta": 3 }, { "op": "teammateTrust", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "donate": "名单公布那天，队里有人把截图发进群，只写了一句：做得对。",
+      "silent": "基金半年后寄来一张孩子们画的卡片，没人知道那张卡是给你的。",
+      "visit": "那堂课上有一个孩子问你同一句话问了三次，你回答了三遍。"
+    }
+  }
+]
