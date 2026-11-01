@@ -9,6 +9,7 @@ import {
   nameZhFor,
   round1,
 } from '../domain'
+import { draftUserAttributes, makeUserContract } from './userDraft'
 import type {
   AttrKey,
   Attributes,
@@ -229,16 +230,11 @@ export function makeUserPlayer(
     archetypeBonus(options.archetype),
     backgroundBonus(options.background),
   ])
-  const playerOverall = computeOverall(options.position, attributes)
+  // 点买不消耗随机数：种子流位置与加点前完全一致，潜力仍由 baseAbility 决定。
   const potential = clamp(baseAbility + 24 + rng.int(0, 10) - (age - 16) * 2, 60, 92)
+  const finalAttributes = draftUserAttributes(options, attributes, age, potential)
+  const playerOverall = computeOverall(options.position, finalAttributes)
   const wageWeekly = makeWeeklyWage(baseAbility, club.tier, age)
-  const contract: Contract = {
-    clubId: club.id,
-    wageWeekly,
-    startSeason: START_SEASON,
-    endSeason: START_SEASON + (age <= 18 ? 3 : 2),
-    signingBonus: Math.round(wageWeekly * 4),
-  }
   const foot = pickFoot(rng, 0.65, 0.93)
   const name = options.name.trim() || '林远'
   const player: Player = {
@@ -250,7 +246,7 @@ export function makeUserPlayer(
     age,
     position: options.position,
     foot,
-    attributes,
+    attributes: finalAttributes,
     potential: round1(potential),
     exp: 0,
     lifetimeExp: 0,
@@ -262,10 +258,10 @@ export function makeUserPlayer(
     confidence: 58,
     clubId: club.id,
     squadRole: squadRoleFor(playerOverall, club.reputation, age),
-    contract,
+    contract: makeUserContract(club, wageWeekly, age),
     value: makeValue(wageWeekly, potential),
     reputation: initialUserReputation(),
-    traits: deriveTraits(attributes, options.position),
+    traits: deriveTraits(finalAttributes, options.position),
     injury: null,
     seasonStats: zeroSeasonStat(START_SEASON, club.id),
     careerStats: [],
