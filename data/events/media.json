@@ -1,0 +1,427 @@
+[
+  {
+    "id": "md_post_match_mic",
+    "title": "赛后直麦",
+    "body": "转播方把麦克风递到你面前，场上还响着对面看台的歌声。主持人只给了你二十秒。{ratingSuffix}",
+    "sender": "转播记者",
+    "weight": 6,
+    "expiresDays": 1,
+    "cooldownDays": 6,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "isMatchDay", "op": "eq", "value": true },
+      { "field": "lastPlayed", "op": "gte", "value": 1 }
+    ],
+    "choices": [
+      {
+        "id": "honest",
+        "label": "说真的：这场我们踢得不聪明",
+        "description": "诚实会被剪，也会被记住。",
+        "effects": [{ "op": "mediaRep", "delta": 2 }, { "op": "coachTrust", "delta": -2 }, { "op": "fanRep", "delta": 1 }]
+      },
+      {
+        "id": "script",
+        "label": "背一句标准答案",
+        "description": "安全，但没人会引用你。",
+        "effects": [{ "op": "mediaRep", "delta": -1 }, { "op": "coachTrust", "delta": 1 }]
+      },
+      {
+        "id": "name_team",
+        "label": "把功劳推给队友",
+        "description": "让{teammate}去接受提问。",
+        "effects": [{ "op": "teammateTrust", "delta": 2 }, { "op": "mediaRep", "delta": 1 }, { "op": "confidence", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "honest": "那二十秒上了当晚的头条，教练组第二天没有主动找你说话。",
+      "script": "主持人道谢，镜头切走，你的话没有出现任何一条标题里。",
+      "name_team": "{teammate}在通道里拍了一下你的背，什么也没说。"
+    }
+  },
+  {
+    "id": "md_rumor_transfer",
+    "title": "转会传闻的草稿",
+    "body": "经纪人转来一条链接：某小报写你「已进入三家球探的观察名单」，日期是上周，消息来源写的是「俱乐部内部人士」。",
+    "sender": "经纪人",
+    "weight": 4,
+    "expiresDays": 2,
+    "cooldownDays": 24,
+    "maxPerSeason": 4,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "lastRating", "op": "gte", "value": 6.8 },
+      { "field": "seasonProgress", "op": "between", "value": [0.2, 0.85] }
+    ],
+    "choices": [
+      {
+        "id": "deny",
+        "label": "让经纪人发否认声明",
+        "description": "把火压下去，也把自己钉在原地。",
+        "effects": [{ "op": "mediaRep", "delta": -1 }, { "op": "agentTrust", "delta": 2 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "leak_more",
+        "label": "放一点真的出去",
+        "description": "让下一份合同有谈的余地。",
+        "effects": [{ "op": "agentTrust", "delta": 3 }, { "op": "coachTrust", "delta": -2 }, { "op": "fanRep", "delta": -2 }]
+      },
+      {
+        "id": "silence",
+        "label": "不回任何消息",
+        "description": "两天后没人记得这条新闻。",
+        "effects": [{ "op": "morale", "delta": 1 }, { "op": "confidence", "delta": 1 }, { "op": "mediaRep", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "deny": "声明发在夜里十一点，第二天训练场边有人拿它开你的玩笑。",
+      "leak_more": "三天后同一张报纸换了标题，写的是「他想要出场保证」。",
+      "silence": "那条传闻活了四十个小时，最后被一场雨战新闻顶掉。"
+    }
+  },
+  {
+    "id": "md_podcast_invite",
+    "title": "播客的深夜邀请",
+    "body": "一个球迷做的播客想请你讲青训那段日子。他们只有两百个订阅者，但每期都做到两个小时。",
+    "sender": "球迷自媒体",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 30,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "weekday", "op": "in", "value": [6, 7] },
+      { "field": "daysSinceMatch", "op": "gte", "value": 2 }
+    ],
+    "choices": [
+      {
+        "id": "accept",
+        "label": "去录这一期",
+        "description": "说点真的，代价是第二天有引语。",
+        "effects": [{ "op": "fanRep", "delta": 4 }, { "op": "mediaRep", "delta": 2 }, { "op": "coachTrust", "delta": -1 }, { "op": "fitness", "delta": -1 }]
+      },
+      {
+        "id": "polite_no",
+        "label": "推荐别人去",
+        "description": "把话筒让给更能说的人。",
+        "effects": [{ "op": "fanRep", "delta": -1 }, { "op": "teammateTrust", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "accept": "那期节目下面最热的一条评论是：第一次听见他把那半年讲完。",
+      "polite_no": "两周后{teammate}录了那期节目，讲得比你好，你替他高兴了一半。"
+    }
+  },
+  {
+    "id": "md_photo_leak",
+    "title": "深夜的照片",
+    "body": "有人在社交平台发了张你在便利店门口的照片，配文在猜你刚从哪儿出来。拍摄时间是你该睡觉的那个点。",
+    "sender": "球迷论坛",
+    "weight": 3,
+    "expiresDays": 1,
+    "cooldownDays": 18,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [5, 6, 7] }],
+    "choices": [
+      {
+        "id": "clarify",
+        "label": "回一句只是去买水",
+        "description": "把话说明，也把事情闹大。",
+        "effects": [{ "op": "mediaRep", "delta": -1 }, { "op": "fanRep", "delta": 1 }, { "op": "confidence", "delta": 1 }]
+      },
+      {
+        "id": "delete",
+        "label": "让俱乐部要求下架",
+        "description": "干净，但以后你更难出门。",
+        "effects": [{ "op": "fanRep", "delta": -3 }, { "op": "mediaRep", "delta": 1 }, { "op": "morale", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "clarify": "你那条回复被截图转发，最后连便利店都来凑热闹。",
+      "delete": "照片在两小时内消失了，评论区开始讨论你为什么不让人说话。"
+    }
+  },
+  {
+    "id": "md_tactical_column",
+    "title": "专栏里的名字",
+    "body": "本地报纸的战术专栏把你单独画了一格，说你在左半区第三次回撤时才想起自己是几号位。写得不客气，但画的路线是对的。",
+    "sender": "队报记者",
+    "weight": 4,
+    "expiresDays": 2,
+    "cooldownDays": 12,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "daysSinceMatch", "op": "between", "value": [1, 2] },
+      { "field": "lastRating", "op": "lt", "value": 6.9 }
+    ],
+    "choices": [
+      {
+        "id": "read",
+        "label": "把那一格带去录像课",
+        "description": "让分析师一起看那条路线。",
+        "effects": [{ "op": "sharpness", "delta": 3 }, { "op": "confidence", "delta": -1 }, { "op": "coachTrust", "delta": 1 }]
+      },
+      {
+        "id": "ignore",
+        "label": "不读任何专栏",
+        "description": "保护情绪，也保护盲区。",
+        "effects": [{ "op": "morale", "delta": 2 }, { "op": "sharpness", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "read": "那一格后来被贴在分析室的白板上，写了三周才换下来。",
+      "ignore": "你整个星期都没再想起那篇专栏，直到下一场同一个位置又丢了一次球。"
+    }
+  },
+  {
+    "id": "md_sponsor_shoot",
+    "title": "赞助商的拍摄日",
+    "body": "赞助方要一组「训练之外」的照片：系鞋带、背包、走出通道。摄影师说需要哭一点的表情，因为你最近一次上镜太硬。",
+    "sender": "赞助商",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 35,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "weekday", "op": "in", "value": [2, 3, 4] },
+      { "field": "clubTier", "op": "gte", "value": 1 }
+    ],
+    "choices": [
+      {
+        "id": "perform",
+        "label": "配合做出那种表情",
+        "description": "钱与曝光都在这张照片里。",
+        "effects": [{ "op": "money", "delta": 900 }, { "op": "mediaRep", "delta": 3 }, { "op": "teammateTrust", "delta": -2 }]
+      },
+      {
+        "id": "own_way",
+        "label": "只拍你真实的样子",
+        "description": "照片能用，但不会爆。",
+        "effects": [{ "op": "money", "delta": 200 }, { "op": "teammateTrust", "delta": 2 }, { "op": "confidence", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "perform": "广告上线那周，更衣室有人把那张照片打印出来贴在储物柜内侧。",
+      "own_way": "赞助方留下一张你在通道里回头的照片，说这个不够「燃」，但还是用了。"
+    }
+  },
+  {
+    "id": "md_old_quote",
+    "title": "两年前的一句话",
+    "body": "有人把你两年前说的「我不在乎出场时间」翻出来，配上下周可能轮休的消息。那句话是真心的，当时的你也确实这么想。",
+    "sender": "媒体",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 28,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "mediaRep", "op": "gte", "value": 40 },
+      { "field": "squadRole", "op": "in", "value": ["rotation", "starter"] }
+    ],
+    "choices": [
+      {
+        "id": "own_it",
+        "label": "承认那时的自己",
+        "description": "也承认现在变了。",
+        "effects": [{ "op": "mediaRep", "delta": 2 }, { "op": "confidence", "delta": 2 }, { "op": "fanRep", "delta": 1 }]
+      },
+      {
+        "id": "distanced",
+        "label": "说那是年轻时的话",
+        "description": "安全，但听起来像撤回。",
+        "effects": [{ "op": "mediaRep", "delta": -1 }, { "op": "coachTrust", "delta": 1 }, { "op": "fanRep", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "own_it": "第二天有记者写：他第一次没有否认过去的自己。",
+      "distanced": "那段引语被缩成一行，标题用了「他改口了」。"
+    }
+  },
+  {
+    "id": "md_award_nomination",
+    "title": "月度最佳的提名",
+    "body": "联赛把月度最佳候选名单发来了，需要你确认是否出席颁奖晚宴。同一晚是队内晚餐，{coach}也会去。",
+    "sender": "联赛官方",
+    "weight": 2,
+    "expiresDays": 4,
+    "cooldownDays": 45,
+    "maxPerSeason": 2,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "lastRating", "op": "gte", "value": 7.4 },
+      { "field": "seasonProgress", "op": "between", "value": [0.15, 0.9] }
+    ],
+    "choices": [
+      {
+        "id": "go_solo",
+        "label": "去领，一个人去",
+        "description": "属于你的夜晚。",
+        "effects": [{ "op": "mediaRep", "delta": 3 }, { "op": "confidence", "delta": 3 }, { "op": "teammateTrust", "delta": -3 }]
+      },
+      {
+        "id": "bring_team",
+        "label": "申请带两名队友",
+        "description": "把名单上其他人都念一遍。",
+        "effects": [{ "op": "teammateTrust", "delta": 4 }, { "op": "mediaRep", "delta": 1 }, { "op": "money", "delta": -60 }]
+      },
+      {
+        "id": "skip_dinner",
+        "label": "不去，留在队内晚餐",
+        "description": "更衣室会记住这个选择。",
+        "effects": [{ "op": "teammateTrust", "delta": 3 }, { "op": "coachTrust", "delta": 2 }, { "op": "mediaRep", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "go_solo": "你握着奖杯拍照，回来时更衣室的灯已经关了。",
+      "bring_team": "两个队友站在你身后鼓掌，那张照片后来挂在青训走廊。",
+      "skip_dinner": "俱乐部对外说你没空，队内晚餐上那把空椅子被填上了。"
+    }
+  },
+  {
+    "id": "md_injury_rumor",
+    "title": "伤情被提前写出",
+    "body": "队记的稿子写你「大概率缺席下周」，来源是你自己还没看过的核磁结果。俱乐部医疗规定不许外传，但稿子已经有了细节。",
+    "sender": "队报记者",
+    "weight": 3,
+    "expiresDays": 1,
+    "cooldownDays": 30,
+    "maxPerSeason": 2,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "injuryDaysLeft", "op": "gte", "value": 4 },
+      { "field": "isMatchDay", "op": "eq", "value": false }
+    ],
+    "choices": [
+      {
+        "id": "correct",
+        "label": "公开更正天数",
+        "description": "把真实康复计划讲出来。",
+        "effects": [{ "op": "fanRep", "delta": 2 }, { "op": "mediaRep", "delta": -1 }, { "op": "confidence", "delta": 2 }]
+      },
+      {
+        "id": "use_pressure",
+        "label": "让稿子替你说",
+        "description": "外界压力可以推教练组的决定。",
+        "effects": [{ "op": "coachTrust", "delta": -2 }, { "op": "mediaRep", "delta": 2 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "correct": "你贴出了康复表，之后每次训练都能看见那张纸被复印贴在看台入口。",
+      "use_pressure": "{coach}在记者会上只回了一句：他的身体由我们负责。"
+    }
+  },
+  {
+    "id": "md_supporters_letter",
+    "title": "球迷会的一封信",
+    "body": "客队球迷会寄来一封手写信，感谢你上次在通道里扶起他们摔倒的孩子。信里夹着一张下赛季的球票，问你敢不敢坐那个看台。",
+    "sender": "球迷会",
+    "weight": 2,
+    "expiresDays": 5,
+    "cooldownDays": 60,
+    "once": true,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "fanRep", "op": "gte", "value": 45 }],
+    "choices": [
+      {
+        "id": "accept_seat",
+        "label": "收下票，客场坐对面看台",
+        "description": "有人会嘘，有人会沉默。",
+        "effects": [{ "op": "fanRep", "delta": 5 }, { "op": "mediaRep", "delta": 2 }, { "op": "coachTrust", "delta": -1 }, { "op": "confidence", "delta": 2 }]
+      },
+      {
+        "id": "return",
+        "label": "回信但把票退回",
+        "description": "好意收下，位置不能要。",
+        "effects": [{ "op": "fanRep", "delta": 2 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "accept_seat": "那场比赛你坐在对面看台的第三排，全场只有你旁边那一小块没人骂。",
+      "return": "回信写了三行，对方又寄回一张手写卡片，说理解。"
+    }
+  },
+  {
+    "id": "md_press_duty",
+    "title": "强制媒体日",
+    "body": "俱乐部排定的媒体日在你最累的这天：六家媒体、每家五分钟、一个问题都不能躲。宣传部门说这是合同里的义务。",
+    "sender": "俱乐部职员",
+    "weight": 4,
+    "expiresDays": 1,
+    "cooldownDays": 15,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "fitness", "op": "lt", "value": 62 },
+      { "field": "weekday", "op": "in", "value": [2, 3, 4] }
+    ],
+    "choices": [
+      {
+        "id": "full",
+        "label": "老老实实答完六家",
+        "description": "累，但没有留话柄。",
+        "effects": [{ "op": "mediaRep", "delta": 3 }, { "op": "fitness", "delta": -4 }, { "op": "morale", "delta": -2 }]
+      },
+      {
+        "id": "short",
+        "label": "每家只答三分钟",
+        "description": "保住身体，代价是标题。",
+        "effects": [{ "op": "mediaRep", "delta": -3 }, { "op": "fitness", "delta": -1 }, { "op": "confidence", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "full": "第七家临时加进来时，你已经把同一句话说了三遍，还是说完了。",
+      "short": "当晚的标题是「他拒绝回答第三个问题」，其实你只是没力气。"
+    }
+  },
+  {
+    "id": "md_comment_attack",
+    "title": "评论区的围攻",
+    "body": "一次失误之后，你的社交账号下面涌进三百条消息，其中十几条带着家人的名字。截图已经存好了，是否上报由你决定。",
+    "sender": "社交媒体",
+    "weight": 4,
+    "expiresDays": 1,
+    "cooldownDays": 14,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "lastRating", "op": "lt", "value": 6.2 },
+      { "field": "daysSinceMatch", "op": "between", "value": [0, 2] }
+    ],
+    "choices": [
+      {
+        "id": "report",
+        "label": "把带名字的截图交给俱乐部",
+        "description": "走流程，慢，但有效。",
+        "effects": [{ "op": "familyTrust", "delta": 2 }, { "op": "morale", "delta": -1 }, { "op": "mediaRep", "delta": 1 }]
+      },
+      {
+        "id": "reply",
+        "label": "自己回一条",
+        "description": "会被继续放大。",
+        "effects": [{ "op": "fanRep", "delta": 2 }, { "op": "mediaRep", "delta": -2 }, { "op": "confidence", "delta": 2 }]
+      },
+      {
+        "id": "offline",
+        "label": "关掉账号一周",
+        "description": "世界安静，声音也传不到。",
+        "effects": [{ "op": "morale", "delta": 3 }, { "op": "fanRep", "delta": -2 }, { "op": "confidence", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "report": "俱乐部发了声明，删帖用了两天，但那十几条里有三条至今还在。",
+      "reply": "你那条回复获得了八百个赞，也被置顶在最难堪的位置。",
+      "offline": "一周后打开账号，未读数字变得很安静，你踢了本季最好的一场。"
+    }
+  }
+]
