@@ -1,3 +1,4 @@
+import { displayName } from '../domain'
 import type { Fixture, MatchReport, Player, WorldState } from '../domain'
 import type { Rng } from '../lib'
 import { createRng } from '../lib'
@@ -31,8 +32,8 @@ function publishMatchNews(world: WorldState, report: MatchReport, injured: boole
   const user = world.players[world.playerId]
   if (!user) return
   const summary = report.userPlayed
-    ? `${user.name} ${report.userStarted ? '首发' : '替补'}出场 ${report.userMinutes} 分钟，获得 ${report.userRating?.toFixed(1)} 分，${report.userGoals} 球 ${report.userAssists} 助攻。`
-    : `${user.name} 未获得出场机会。`
+    ? `${displayName(user)} ${report.userStarted ? '首发' : '替补'}出场 ${report.userMinutes} 分钟，获得 ${report.userRating?.toFixed(1)} 分，${report.userGoals} 球 ${report.userAssists} 助攻。`
+    : `${displayName(user)} 未获得出场机会。`
   world.news.unshift({
     id: `news:match:${report.fixtureId}`,
     season: report.season,
@@ -94,7 +95,7 @@ function settleUser(ctx: FinalizeContext): boolean {
   report.userRating = rating
   report.userPosition = user.position
   const motm = pickManOfTheMatch(report, user, rating, rng)
-  report.motmName = motm.name
+  report.motmName = displayName(motm)
   report.motmRating = motm.rating
   updateUserAfterMatch({
     world,
@@ -119,7 +120,7 @@ function closeReport(ctx: FinalizeContext, injured: boolean): void {
   const moments = report.keyMoments ?? []
   report.mediaReaction = buildMediaReaction(
     report,
-    user.name,
+    displayName(user),
     moments.filter((moment) => moment.outcome?.success).length,
     moments.length,
     report.homeId === world.clubId,

@@ -1,3 +1,4 @@
+import { displayName } from '../domain'
 import type {
   Id,
   KeyMoment,
@@ -115,9 +116,9 @@ function scoreGoal(
     minute,
     side,
     scorerId: scorer.id,
-    scorerName: scorer.name,
+    scorerName: displayName(scorer),
     assistId: assist?.id,
-    assistName: assist?.name,
+    assistName: assist ? displayName(assist) : undefined,
     isUser: scorer.id === world.playerId,
     isUserAssist: assist?.id === world.playerId,
   }

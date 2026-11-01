@@ -1,4 +1,4 @@
-import { TRAINING_ATTRS, TRAINING_LABELS, clamp, overall, round1, roundAttr } from '../domain'
+import { TRAINING_ATTRS, TRAINING_LABELS, clamp, displayName, overall, round1, roundAttr } from '../domain'
 import type { Club, ExtraAction, Player, TrainingFocus, WorldState } from '../domain'
 import type { Rng } from '../lib'
 import { dailyId, dayRng } from './dayContext'
@@ -22,7 +22,7 @@ export function advanceInjuries(world: WorldState): boolean {
     week: world.week,
     day: world.day,
     title: '伤愈复出',
-    body: `${user.name} 已经从${kind}中恢复，重新加入球队合练。`,
+    body: `${displayName(user)} 已经从${kind}中恢复，重新加入球队合练。`,
     kind: 'club',
   })
   return true
@@ -46,7 +46,7 @@ function trainInjury(world: WorldState, focus: TrainingFocus, rng: Rng): void {
     week: world.week,
     day: world.day,
     title: '训练中受伤',
-    body: `${user.name} 在${TRAINING_LABELS[focus]}中${kind}，预计缺阵 ${days} 天。`,
+    body: `${displayName(user)} 在${TRAINING_LABELS[focus]}中${kind}，预计缺阵 ${days} 天。`,
     kind: 'club',
   })
 }
@@ -124,7 +124,7 @@ export function applyDailyAction(world: WorldState, action: ExtraAction): void {
   switch (action) {
     case 'media':
       applyEffects(world, [{ op: 'mediaRep', delta: 1.5 }, { op: 'fanRep', delta: 1 }], '媒体活动')
-      announce(world, 'news:extra:media', '接受本地媒体采访', `${user.name} 在训练基地接受了《英伦体育报》的简短采访，表达了对出场机会的渴望。`, 'media')
+      announce(world, 'news:extra:media', '接受本地媒体采访', `${displayName(user)} 在训练基地接受了《英伦体育报》的简短采访，表达了对出场机会的渴望。`, 'media')
       break
     case 'agent':
       applyEffects(world, [{ op: 'agentTrust', delta: 2 }, { op: 'money', delta: 200 }], '商业活动')

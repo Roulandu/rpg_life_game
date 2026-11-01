@@ -1,4 +1,4 @@
-import { clamp, overall, positionGroup, round1 } from '../domain'
+import { clamp, displayName, overall, positionGroup, round1 } from '../domain'
 import type { Club, MatchEventLine, Player, WorldState } from '../domain'
 import type { Rng } from '../lib'
 import { computeClubStrength } from '../domain'
@@ -83,7 +83,7 @@ export function rollUserMatchEvents(
     events.push({
       minute: rng.int(15, 85),
       type: 'card',
-      text: `${user.name} 因一次战术犯规吃到黄牌。`,
+      text: `${displayName(user)} 因一次战术犯规吃到黄牌。`,
       isUser: true,
     })
   }
@@ -98,7 +98,7 @@ export function rollUserMatchEvents(
     events.push({
       minute: rng.int(20, 88),
       type: 'injury',
-      text: `${user.name} 在对抗中受伤，无法坚持比赛。`,
+      text: `${displayName(user)} 在对抗中受伤，无法坚持比赛。`,
       isUser: true,
     })
   }
@@ -108,8 +108,8 @@ export function rollUserMatchEvents(
       type: 'chance',
       text:
         user.position === 'GK'
-          ? `${user.name} 做出一次关键扑救，阻止了对手的必进球。`
-          : `${user.name} 在禁区内制造威胁，可惜射门稍稍偏出。`,
+          ? `${displayName(user)} 做出一次关键扑救，阻止了对手的必进球。`
+          : `${displayName(user)} 在禁区内制造威胁，可惜射门稍稍偏出。`,
       isUser: true,
     })
   }

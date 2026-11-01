@@ -1,4 +1,4 @@
-import { positionGroup } from '../domain'
+import { displayName, positionGroup } from '../domain'
 import type {
   BeatKind,
   Club,
@@ -91,7 +91,7 @@ function carrierActor(
 
 function shotLines(input: BeatInput, shot: SpellShot, variant: number): MatchEventLine[] {
   const actor = carrierActor(input, shot.side, shot.carrierId)
-  const context = textContext(input, shot.side, actor?.name ?? teamName(input, shot.side))
+  const context = textContext(input, shot.side, displayName(actor) || teamName(input, shot.side))
   return [{
     minute: input.minute,
     type: 'shot',
@@ -113,7 +113,7 @@ function saveLine(
     type: 'save',
     side: otherSide(side),
     isUser: false,
-    text: saveText(textContext(input, side, actor?.name ?? teamName(input, side)), variant),
+    text: saveText(textContext(input, side, displayName(actor) || teamName(input, side)), variant),
   }
 }
 
@@ -140,7 +140,7 @@ function rareEvent(
     fixtureId: input.fixtureId,
     minute: input.minute,
   })
-  const context = textContext(input, side, actor?.name ?? teamName(input, side))
+  const context = textContext(input, side, displayName(actor) || teamName(input, side))
   return {
     event: {
       minute: input.minute,

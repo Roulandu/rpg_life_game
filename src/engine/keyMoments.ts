@@ -1,4 +1,4 @@
-import { clamp, round1 } from '../domain'
+import { clamp, displayName, round1 } from '../domain'
 import type { KeyMoment, KeyMomentOption, MatchReport, MatchSide, Player, WorldState } from '../domain'
 import { buildMediaReaction, outcomeText, refreshMatchNews, refreshScoreTimeline } from './keyMomentNarrative'
 import { hasPendingKeyMoments } from './keyMomentGen'
@@ -85,7 +85,7 @@ function applyPlayerEffects(report: MatchReport, user: Player, outcome: AppliedO
     user.seasonStats.ratingSum += report.userRating - previous
     user.form = clamp(round1(user.form + outcome.ratingDelta * 4), 0, 100)
     if (report.userRating >= 8.3) {
-      report.motmName = user.name
+      report.motmName = displayName(user)
       report.motmRating = report.userRating
     }
   }
@@ -187,7 +187,7 @@ function settleFinalMoment(settlement: MomentSettlement): MatchReport {
   }
   applyPlayerEffects(report, user, outcome)
   adjustMatchRelationships(world, outcome)
-  appendTimeline(world, report, moment, user.name, outcome)
+  appendTimeline(world, report, moment, displayName(user), outcome)
   return report
 }
 
@@ -208,7 +208,7 @@ export function resolveKeyMoment(
   moment.outcome = {
     optionId,
     ...outcome,
-    textZh: outcomeText(moment, choice, outcome.success, user.name),
+    textZh: outcomeText(moment, choice, outcome.success, displayName(user)),
   }
   const settlement = { world, report, moment, user, outcome }
   return report.status === 'live'
@@ -242,12 +242,12 @@ export function finalizeMatchday(world: WorldState): MatchReport | null {
   const outcomes = moments.map((moment) => moment.outcome).filter((outcome) => Boolean(outcome))
   report.mediaReaction = buildMediaReaction(
     report,
-    user.name,
+    displayName(user),
     outcomes.filter((outcome) => outcome?.success).length,
     outcomes.length,
     report.homeId === world.clubId,
   )
-  refreshMatchNews(world, report, user.name)
+  refreshMatchNews(world, report, displayName(user))
   refreshScoreTimeline(report)
   return report
 }

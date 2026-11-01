@@ -1,3 +1,4 @@
+import { displayName } from '../domain'
 import type { CareerEntry, Club, Id, League, Player, SeasonStat, SeasonSummary, WorldState } from '../domain'
 
 export function leagueTopScorer(world: WorldState, leagueId: Id): Player | null {
@@ -133,7 +134,7 @@ export function publishSeasonNews(input: SeasonNewsInput): void {
       season: endedSeason,
       week: world.totalWeeks,
       title: '挂靴时刻',
-      body: `${input.user.name} 宣布结束球员生涯。${input.reason}让他做出了这个决定。`,
+      body: `${displayName(input.user)} 宣布结束球员生涯。${input.reason}让他做出了这个决定。`,
       kind: 'award',
     })
   } else {

@@ -1,4 +1,5 @@
 import type { GameEvent, MatchReport, WeeklyPlan, WorldState } from '../domain'
+import { displayName } from '../domain'
 import { createRng } from '../lib'
 import {
   renderEventDraft,
@@ -10,16 +11,17 @@ import { applyEffects } from './effects'
 import { getRelationshipByRole } from './relationships'
 
 function firstTeammateName(world: WorldState): string {
-  return Object.values(world.relationships).find((relationship) => relationship.role === 'teammate')?.name ?? '队友'
+  const relationship = Object.values(world.relationships).find((item) => item.role === 'teammate')
+  return displayName(relationship) || '队友'
 }
 
 function buildDraftContext(world: WorldState, match: MatchReport | null, plan: WeeklyPlan): EventDraftContext {
   const user = world.players[world.playerId]
   const rating = match?.userRating
   return {
-    coach: getRelationshipByRole(world, 'coach')?.name ?? '主教练',
+    coach: displayName(getRelationshipByRole(world, 'coach')) || '主教练',
     teammate: firstTeammateName(world),
-    userName: user.name,
+    userName: displayName(user),
     ratingSuffix: rating != null ? `你上一场获得了 ${rating.toFixed(1)} 分。` : '',
     restSuffix: plan.extra === 'rest' ? '你已经开始认真恢复。' : '',
   }

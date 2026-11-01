@@ -1,4 +1,4 @@
-import { clamp, round1 } from '../domain'
+import { clamp, displayName, round1 } from '../domain'
 import type {
   Club,
   Fixture,
@@ -157,7 +157,7 @@ export function pickManOfTheMatch(
   const userHighlighted =
     userRating != null && (userRating >= 8.3 || topScorer?.id === user.id)
   const teamName = report.homeId === user.clubId ? report.homeName : report.awayName
-  const name = userHighlighted ? user.name : (topScorer?.name ?? teamName)
+  const name = userHighlighted ? displayName(user) : (topScorer?.name ?? teamName)
   const rating = userHighlighted ? (userRating ?? 0) : round1(rng.float(7.2, 8.5))
   return { name, rating }
 }

@@ -1,3 +1,4 @@
+import { displayName } from '../domain'
 import type { Fixture, KeyMomentOutcome, MatchReport, MatchSide, WorldState } from '../domain'
 import { createRng } from '../lib'
 import { generateKeyMoments } from './keyMomentGen'
@@ -64,7 +65,7 @@ export function applyLiveKeyMomentOutcome(
       minute: momentMinute,
       side,
       scorerId: user.id,
-      scorerName: user.name,
+      scorerName: displayName(user),
       isUser: true,
       fromKeyMoment: true,
     })
@@ -89,9 +90,9 @@ export function applyLiveKeyMomentOutcome(
     minute: momentMinute,
     side,
     scorerId: scorer.id,
-    scorerName: scorer.name,
+    scorerName: displayName(scorer),
     assistId: user.id,
-    assistName: user.name,
+    assistName: displayName(user),
     isUser: false,
     isUserAssist: true,
     fromKeyMoment: true,
