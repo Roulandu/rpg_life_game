@@ -116,7 +116,8 @@ last_reviewed: 2026-10-26
 - `src/llm/**` → `docs/features/gm-agent.md`
 - `src/db/**`、`src/store/**` → `docs/features/saves.md`
 - `src/platform/**` → `docs/architecture/platform-strategy.md`
-- `src/domain/**` → `docs/data-model.md`
+- `src/domain/**` → `docs/data-model.md`、`docs/features/calendar-dates.md`
+- `src/lib/**` → `docs/features/calendar-dates.md`（日期/格式化）、`docs/architecture/overview.md`
 - `src/ui/**` → 相关功能文档
 - `src/app/**` → `docs/architecture/overview.md`
 

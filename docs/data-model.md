@@ -57,7 +57,7 @@ flowchart TD
 | `Player` | 属性、潜力、状态、合同、声望、伤病、赛季/生涯统计 | 属性 10–96；年龄 14–60；用户球员必须存在于 `players` |
 | `Club` | 联赛、层级、声望、预算、设施、阵容、教练、强度 | `squadIds` 指向真实球员；`leagueId` 指向真实联赛 |
 | `League` | 俱乐部列表、升降级名额 | `clubIds` 与俱乐部 `leagueId` 一致 |
-| `Fixture` | 赛季、周次、主客、状态、比分 | 状态为 `scheduled / live / played`；live 比分随分钟实时写入；已结束必须有比分；同一赛季每队 38 场 |
+| `Fixture` | 赛季、周次、轮次、周内日、主客、状态、比分 | 状态为 `scheduled / live / played`；live 比分随分钟实时写入；已结束必须有比分；同一赛季每队 38 场；`day` 可选，缺失时由 `dayForRound(round)` 推导，落盘前不参与任何结算 |
 | `MatchReport` | 状态、当前分钟、比分、进球列表、用户出场、评分、事件、关键回合、媒体反应、`stats?`、`lineups?`、`liveState?` | `status` 为 `live / final`；live 阶段评分/MOTM/媒体为空；live 阶段 `liveState` 记录画面状态，终场删除；进球只通过统一写入函数追加；新字段可选，旧档可缺省 |
 | `MatchLiveState` | `possession / ballX / carrierId? / pendingKickoff?` | `ballX` 0–1（0 主队球门、1 客队球门）；`pendingKickoff` 存在时下一分钟由该方中圈开球；终场不保留 |
 | `LiveTrackStep` | `kind / side / ballX / carrierId?` | `kind` 为 `pass / carry / shot / turnover`；仅用于 2D 轨迹，不进入 `events` |
@@ -199,6 +199,8 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 财务流水 | 不截断 | `Finance.ledger` |
 | 赛季总结 | 不截断 | `seasonSummaries` |
 | 比赛报告 | 只保留 `lastMatch` 与 fixture 引用 | `fixtures[].report` |
+| 日期与星期 | 不落盘，由 `season/week(/day)` 即时推导 | `src/lib/calendar.ts` |
+| 绝对日序 | 不落盘，`(week-1)*7+day` | `src/domain/calendar.ts` |
 
 长期需要评估：完整比赛历史是否单独存储、财务流水是否按月归档、IndexedDB 配额与清理策略。本轮不做。
 

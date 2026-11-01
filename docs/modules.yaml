@@ -127,6 +127,7 @@ modules:
     docs:
       - docs/data-model.md
       - docs/interfaces/engine-api.md
+      - docs/features/calendar-dates.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []
@@ -136,7 +137,9 @@ modules:
     publicEntry: src/lib/index.ts
     allowedDeps: []
     tests: [tests/**/*.test.ts]
-    docs: [docs/architecture/overview.md]
+    docs:
+      - docs/architecture/overview.md
+      - docs/features/calendar-dates.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []
