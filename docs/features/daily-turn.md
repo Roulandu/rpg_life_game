@@ -270,7 +270,9 @@ store 调用：
 
 - 主页推进区仍是**一个** `data-dashboard-block="advance"` 容器，内部两个按钮；容器未被拆分，`tests/ui/dashboardLayout.test.tsx` 的区块顺序断言逐项不变。
 - 推进按钮 `min-h-[44px]`，360–390px 单列不横向滚动。
-- 主页 `≥1024px` 为主次两栏：左列最近比赛/本周状态/下一场/推进，右列球员状态/迷你积分表/收件箱预览/新闻；`<640px` 顺序不变。
+- 主页 `≥1024px` 为主次两栏：左列最近比赛/本周状态/今天/下一场/推进，右列球员状态/迷你积分表/新闻；`<640px` 顺序不变。
+- 「今天」卡是日时钟的唯一界面落点：`data-dashboard-block="today"`，比赛日只给对手与主客，训练日给本周训练重点，额外安排只在活动日出现；原侧栏收件箱预览已删除，事件处理入口改由这张卡的按钮进入 `/inbox`。
+- 底部导航第 3 槽由收件箱改为队伍（`/team`），槽数仍是 5；未读事件徽标改挂主页槽。
 - 赛程页 `≥1024px` 隐藏 tab，赛程与积分榜并排常驻；积分表外层 `overflow-x-auto`。
 
 ## 验收与测试映射
@@ -302,7 +304,11 @@ store 调用：
 | 推进一天 / 快进 / 周计划落盘与未完成比赛守卫 | `tests/store/dayStore.test.ts` |
 | live/完成的单次保存与失败恢复 | `tests/store/matchdayStore.test.ts` |
 | 推进区单容器双按钮 + 距上场天数 + 安排本周入口 | `tests/ui/dashboardAdvance.test.tsx` |
-| 主页区块顺序与两栏归属 | `tests/ui/dashboardLayout.test.tsx` |
+| 主页区块顺序与两栏归属（含 `today`，侧栏无 `inbox`） | `tests/ui/dashboardLayout.test.tsx` |
+| 今天卡的训练日/比赛日/平静日/事件跳转 | `tests/ui/todaySection.test.tsx` |
+| 队伍页名单、伤停天数、教练卡与导航第 3 槽 | `tests/ui/teamScreen.test.tsx` |
+| 存档摘要带日时钟且旧行缺 day 落回周一 | `tests/db/repository.test.ts`、`tests/db/save.test.ts` |
+| 赛程行给出星期几与日期、今天命中 | `tests/ui/schedule.test.tsx` |
 | 赛程双面板常驻与表格溢出容器 | `tests/ui/schedule.test.tsx` |
 
 手动验收：
@@ -332,3 +338,7 @@ store 调用：
 | 2026-10-31 | `startWeek` 改为停在开球 0'，由实时播放推进到关键回合/90'；完成周仍需显式 `finishLiveMatch`（或自动处理）；engine 0.3.0，golden 哈希更新 | 比赛日实时化改造 |
 | 2026-11-01 | 时间粒度改为「天」：新增 `engine/day.ts` 日步进与 `advanceUntilDecision` 快进、`dayContext.ts` 日维度 RNG/id，`Fixture.day` 与 `Injury.daysLeft` 落盘，存档 v4→v5，`startWeek/completeWeek/advanceWeek` 降级为周适配器（同名同签名）；本文档由 `weekly-turn.md` 改写；engine 0.5.0，golden 哈希重算 | 绿茵人生 M1.1 |
 | 2026-11-01 | store 新增 `daySlice`（`advanceDay` / `advanceToNextEvent` / `setWeekPlan`，快进单次落盘），主页推进区改双按钮 + 距上场天数预览，周计划弹窗改为「保存并推进到下一件事 / 只保存本周安排」 | 绿茵人生 M1.1 |
+| 2026-11-02 | `summarizeWorld` 写入 `SaveSummary.day`（旧行缺字段落回周一），存档类型抽到 `src/domain/saveTypes.ts`；日投影不占存档版本，因为 `listSaves` 每次都从 `record.world` 重算 | 绿茵人生 M1.3 |
+| 2026-11-02 | 赛程行改按 `fixtureDayOf` 显示星期几 + 日期，命当日且未赛的一场标「今天」；标题页存档行改用 `formatDayLabel` | 绿茵人生 M1.3 |
+| 2026-11-02 | 主页新增「今天」卡（`data-dashboard-block="today"`）承接当日安排与事件入口，侧栏收件箱预览删除；主列抽为 `DashboardMainColumn` 压函数行数 | 绿茵人生 M1.3 |
+| 2026-11-02 | 底部导航第 3 槽 `/inbox` → `/team`，新增队伍页（教练卡 + 按 `computeOverall` 排序的一线队名单，伤停统一「预计缺阵 N 天」），详见 [队伍与一线队名单](team-squad.md) | 绿茵人生 M1.3 |

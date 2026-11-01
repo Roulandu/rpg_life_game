@@ -7,6 +7,7 @@ code:
   - src/db/repository.ts
   - src/db/migrate.ts
   - src/domain/schema/save.schema.ts
+  - src/domain/saveTypes.ts
   - src/store/gameStore.ts
   - src/store/daySlice.ts
   - src/store/careerSlice.ts
@@ -113,7 +114,8 @@ sequenceDiagram
 ### 存档 ID 与摘要
 
 - ID：`save:<seed>:<Date.now 的 base36>:<4 位随机>`。
-- 摘要：球员名、俱乐部名、赛季、周次、年龄、综合能力、更新时间。
+- 摘要：球员名、俱乐部名、赛季、周次、**日（1–7，周一=1）**、年龄、综合能力、更新时间。
+- 摘要是只写不读的派生投影：`listSaves` 每次都从 `record.world` 重算，没有任何调用方消费落盘的 `summary`，所以给摘要加字段（如 `day`）**不占存档版本号**；旧行缺 `world.day` 时摘要落回周一。
 - 列表按 `updatedAt` 倒序；时间相同时按 ID 字典序。
 - 列表逐条生成摘要：单条记录损坏时跳过该条并 `console.warn`，其余存档正常显示，不会清空整个列表。
 - `meta.lastSaveId` 指向最近保存的存档；删除该存档时清除。
@@ -174,7 +176,7 @@ sequenceDiagram
 读取/写入：
 
 - `SaveRecord`：`{ id, summary, world }`
-- `SaveSummary`
+- `SaveSummary`（定义在 `src/domain/saveTypes.ts`，与 `WorldState` 分文件，避免 `types.ts` 继续变大）
 - `SaveEnvelope`
 - `CURRENT_SAVE_VERSION`、`SAVE_FORMAT`
 - `WorldState`
@@ -259,3 +261,4 @@ sequenceDiagram
 | 2026-10-31 | 存档升 v3：报告可选 `stats / lineups`；新增 v2→v3 迁移补齐 live 统计与首发并保留待办回合；播放状态不持久化 | 比赛日实时化改造 |
 | 2026-10-31 | 存档升 v4：报告 `liveState` 随 checkpoint 落盘；新增 v3→v4 迁移补中圈状态；播放速度/轨迹/弹窗仍不持久化 | 缺陷修复：比赛日 2D 画面不可读 |
 | 2026-11-01 | 存档升 v5：`WorldState.day / weekPlan / pendingDayPlan`、`Fixture.day`、`Injury.daysLeft`；`save.schema.ts` 把三个新字段设为可选，因为 `loadWorld` / `importWorld` 先校验后迁移；v4→v5 迁移末尾 `assertWorld` 把关，导出文件名追加 `D<day>` | 绿茵人生 M1.1（日回合） |
+| 2026-11-02 | `summarizeWorld` 摘要补 `day`（旧行缺字段落回周一），`SaveSummary` / `SaveRecord` 抽到 `src/domain/saveTypes.ts`；摘要为只写派生投影，不升存档版本 | 绿茵人生 M1.3 |

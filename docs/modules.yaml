@@ -30,6 +30,7 @@ modules:
     docs:
       - docs/features/daily-turn.md
       - docs/features/matchday.md
+      - docs/features/team-squad.md
       - docs/features/gm-agent.md
       - docs/features/saves.md
       - docs/features/appearance.md
@@ -128,6 +129,7 @@ modules:
       - docs/data-model.md
       - docs/interfaces/engine-api.md
       - docs/features/calendar-dates.md
+      - docs/features/team-squad.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []
