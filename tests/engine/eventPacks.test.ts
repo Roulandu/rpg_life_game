@@ -41,6 +41,12 @@ const EXPECTATIONS: PackExpectation[] = [
   },
 ]
 
+/** 条件值在 schema 里是 unknown：between/in 用数组，其余用标量，这里统一收成数字。 */
+function conditionNumbers(value: unknown): number[] {
+  const raw = Array.isArray(value) ? value : [value]
+  return raw.filter((item): item is number => typeof item === 'number')
+}
+
 describe('事件内容包的分类契约', () => {
   it('EXPECTATIONS 覆盖的包都已注册进数据包注册表', () => {
     for (const expectation of EXPECTATIONS) {
@@ -80,6 +86,21 @@ describe('事件内容包的数值契约', () => {
           const at = `${template.id}.${choice.id}`
           expect(Number.isInteger(effect.delta), `${at} money=${effect.delta}`).toBe(true)
           expect(Math.abs(effect.delta), `${at} 至少要动 1 英镑`).toBeGreaterThanOrEqual(1)
+        }
+      }
+    }
+  })
+
+  it('余额与周薪条件按分计价，阈值不会写成英镑', () => {
+    for (const template of EVENT_TEMPLATES) {
+      for (const condition of template.when) {
+        if (condition.field !== 'balance' && condition.field !== 'weeklyWage') continue
+        const raw = Array.isArray(condition.value) ? condition.value : [condition.value]
+        const values = conditionNumbers(condition.value)
+        const at = `${template.id}.${condition.field}=${JSON.stringify(condition.value)}`
+        expect(values.length, `${at} 阈值必须是数字`).toBe(raw.length)
+        for (const value of values) {
+          expect(value, `${at} 低于 100 英镑的阈值等于没条件`).toBeGreaterThanOrEqual(10000)
         }
       }
     }
