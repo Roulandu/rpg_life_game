@@ -3,6 +3,7 @@ import type { Club, ExtraAction, Player, TrainingFocus, WorldState } from '../do
 import type { Rng } from '../lib'
 import { dailyId, dayRng } from './dayContext'
 import { applyEffects } from './effects'
+import { TRAINING_EXP, grantExp } from './growth'
 
 /** 一周有五个训练槽（周一到周五，减去比赛日），所以单次量 = 原周量 ÷ 5。 */
 const PER_DAY = 1 / 5
@@ -104,6 +105,7 @@ export function applyDailyTraining(world: WorldState, focus: TrainingFocus): voi
   }
 
   applyConditionDeltas(user, focus)
+  grantExp(world, TRAINING_EXP[focus], 'training')
   trainInjury(world, focus, rng)
 }
 

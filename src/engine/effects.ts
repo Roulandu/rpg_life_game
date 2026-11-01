@@ -1,5 +1,6 @@
 import { clamp } from '../domain'
 import type { Effect, Player, WorldState } from '../domain'
+import { grantExp } from './growth'
 import { adjustRelationship, adjustRoleTrust, getRelationshipByRole } from './relationships'
 
 /** 现金类效果直接改余额并留一条流水，单位是便士。 */
@@ -73,6 +74,11 @@ export function applyEffects(world: WorldState, effects: Effect[], label = '事�
     }
     if (effect.op === 'injuryDays') {
       applyInjuryEffect(user, effect)
+      continue
+    }
+    // 经验只能经 grantExp 入账：负值事件不该把已攒的经验扣走。
+    if (effect.op === 'exp') {
+      grantExp(world, effect.delta, 'event')
       continue
     }
     applyStatusEffect(world, user, effect)

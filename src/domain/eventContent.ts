@@ -22,6 +22,7 @@ export type EffectOp =
   | 'fanRep'
   | 'money'
   | 'injuryDays'
+  | 'exp'
 
 export interface Effect {
   op: EffectOp
@@ -137,6 +138,7 @@ const effectSchema = z.object({
     'fanRep',
     'money',
     'injuryDays',
+    'exp',
   ]),
   delta: z.number(),
 })

@@ -3,6 +3,7 @@ import type { Club, MatchEventLine, Player, WorldState } from '../domain'
 import type { Rng } from '../lib'
 import { computeClubStrength } from '../domain'
 import { pickInjuryKind } from './matchGoals'
+import { grantExp, ratingToExp } from './growth'
 import { adjustRelationship, adjustRoleTrust, coachTrust, getRelationshipByRole } from './relationships'
 
 export interface SelectionResult {
@@ -136,6 +137,7 @@ interface UserMatchInput {
   goalsFor: number
   goalsAgainst: number
   played: boolean
+  minutes: number
   rng: Rng
 }
 
@@ -220,4 +222,5 @@ export function updateUserAfterMatch(input: UserMatchInput): void {
   updateMoraleAndConfidence(user, input, result)
   updateCoachRelationship(world, rating)
   updateReputation(world, user, rating, goals, assists)
+  grantExp(world, ratingToExp({ rating, minutes: input.minutes, goals, assists }), 'match')
 }

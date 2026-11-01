@@ -106,6 +106,7 @@ function settleUser(ctx: FinalizeContext): boolean {
     goalsFor,
     goalsAgainst,
     played: report.userPlayed,
+    minutes: report.userMinutes,
     rng,
   })
   recordUserMinutes(user, report)

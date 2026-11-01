@@ -21,6 +21,7 @@ export const EFFECT_LABELS: Record<EffectOp, string> = {
   fanRep: '球迷好感',
   money: '金钱',
   injuryDays: '伤停天数',
+  exp: '经验',
 }
 
 export function effectText(effect: Effect): string {
