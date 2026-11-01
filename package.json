@@ -26,6 +26,7 @@
     "quality:commit-msg": "tsx scripts/quality/check-commit-msg.ts",
     "quality:commit-range": "tsx scripts/quality/check-commit-range.ts",
     "quality:update": "tsx scripts/quality/update-baseline.ts",
+    "quality:golden": "tsx scripts/quality/update-golden.ts",
     "quality:report": "tsx scripts/quality/report.ts",
     "quality:file": "tsx scripts/quality/inspect-file.ts",
     "check:tech-debt": "npm run quality:tech-debt",

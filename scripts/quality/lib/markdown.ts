@@ -61,7 +61,8 @@ export function resolveLink(markdownFile: string, target: string): string {
 }
 
 export function hasMermaid(body: string, kind: 'sequenceDiagram' | 'flowchart'): boolean {
-  const blocks = body.match(/```mermaid\n([\s\S]*?)```/g) ?? []
+  const normalized = body.replace(/\r\n/g, '\n')
+  const blocks = normalized.match(/```mermaid\n([\s\S]*?)```/g) ?? []
   return blocks.some((block) => {
     const content = block.replace(/```mermaid\n?/, '').replace(/```$/, '').trimStart()
     return kind === 'flowchart'

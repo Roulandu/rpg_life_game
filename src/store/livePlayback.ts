@@ -1,4 +1,4 @@
-import type { Id, MatchReport, MatchSide, WorldState } from '../domain'
+import type { Id, LiveTrackStep, MatchReport, MatchSide, WorldState } from '../domain'
 
 export type LiveSpeed = 1 | 2 | 4
 
@@ -20,6 +20,8 @@ export interface LivePlayback {
   speed: LiveSpeed
   possession: MatchSide
   ballX: number
+  carrierId: Id | null
+  track: LiveTrackStep[]
   history: LiveFrame[]
   resultMomentId: string | null
   revision: number
@@ -31,6 +33,8 @@ export const IDLE_PLAYBACK: LivePlayback = {
   speed: 1,
   possession: 'home',
   ballX: 0.5,
+  carrierId: null,
+  track: [],
   history: [],
   resultMomentId: null,
   revision: 0,
@@ -44,7 +48,7 @@ export function playbackPhaseFor(report: MatchReport | undefined): LivePhase {
   if (!report || report.status !== 'live') return 'idle'
   if (report.currentMinute >= 90) return 'ended'
   const pending = (report.keyMoments ?? []).find((moment) => !moment.outcome)
-  if (pending && pending.minute === report.currentMinute) return 'awaiting'
+  if (pending && pending.minute <= report.currentMinute) return 'awaiting'
   return 'playing'
 }
 
@@ -55,5 +59,8 @@ export function playbackFor(world: WorldState | null): LivePlayback {
     ...IDLE_PLAYBACK,
     fixtureId: report.fixtureId,
     phase: playbackPhaseFor(report),
+    possession: report.liveState?.possession ?? 'home',
+    ballX: report.liveState?.ballX ?? 0.5,
+    carrierId: report.liveState?.carrierId ?? null,
   }
 }

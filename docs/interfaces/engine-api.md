@@ -58,7 +58,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.3.0'`
+- `ENGINE_VERSION = '0.4.1'`
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -70,8 +70,11 @@ interface TurnResult {
 |---|---|---|
 | `determineUserSelection` | `(world, club, rng) => SelectionResult` | 根据能力差、教练信任、体能、状态、锐度决定首发/替补/不出场 |
 | `startUserMatch` | `(world, fixture) => MatchReport` | 创建 live 报告并停在 0'，初始化双方首发与全零统计；重复调用返回已有 live 报告 |
-| `advanceLiveMinute` | `(world) => LiveMinuteResult \| null` | 每次只推进一步；返回分钟、球权、球位、事件与 `paused / finished / halfTime`；关键回合分钟先按归属计入控球再暂停 |
-| `buildBeats` | `(input: BeatInput) => BeatResult` | 纯函数：生成该分钟双方攻防事件与统计增量，不修改报告 |
+| `advanceLiveMinute` | `(world) => LiveMinuteResult \| null` | 每次只推进一步；返回分钟、球权、球位、持球人、传球轨迹、事件与 `paused / finished / halfTime`；关键回合分钟先按归属写入进攻三区球位并计控球再暂停 |
+| `buildSpell` | `(input: SpellInput) => SpellResult` | 纯函数：Markov 控球连续、球位推进、1–3 段传球/带球轨迹、射门/进球判定；返回 `liveState` 供下一分钟与刷新恢复 |
+| `homePossessionShare` | `(home, away) => number` | 主队控球份额，按中场强度差修正并 clamp 到 0.3–0.7 |
+| `kickoffState` / `momentState` / `goalState` | `(side) => MatchLiveState` | 中圈开球 / 关键回合进攻三区 / 进球门线 + `pendingKickoff` 三种画面状态 |
+| `buildBeats` | `(input: BeatInput) => BeatResult` | 纯函数：调用 `buildSpell` 后生成该分钟射门/攻防事件与统计增量，不修改报告；进球分钟不重复计射门 |
 | `advanceLiveMatch` | `(world) => MatchReport \| null` | 循环调用 `advanceLiveMinute` 直到下一关键回合分钟或 90 分钟；半场比分在 45 分钟后冻结 |
 | `finalizeLiveMatch` | `(world) => MatchReport \| null` | 终场唯一结算入口：评分、赛季统计、MOTM、媒体、新闻、黄牌/伤病；幂等 |
 | `simulateUserFixture` | `(world, fixture) => MatchReport` | 兼容包装：`startUserMatch` → 自动处理回合 → `finalizeMatchday` |
@@ -80,7 +83,7 @@ interface TurnResult {
 | `getUserMatchFixture` | `(world, week?) => Fixture \| undefined` | 取用户本周赛程 |
 | `opponentOf` | `(world, fixture) => Club \| undefined` | 取对手俱乐部 |
 
-用户比赛从 `0-0` 开始逐分钟模拟：每分钟以 `p = clamp(xG / 90 × 势头, 0, 0.5)` 做伯努利判定，随机流为 `createRng(seed, 'live', fixtureId, minute)`。关键回合分钟跳过自动判定，由回合结果经统一 `appendGoal` 写入比分、fixture 与时间线。势头由最近 10 分钟内已结算回合推导，不落盘，因此读档可重放。
+用户比赛从 `0-0` 开始逐分钟模拟：控球方以 0.64–0.83 的概率保持控球（中场强度差修正），球位在同侧控球时朝对方球门推进 0.04–0.18；进球概率为 `clamp(xG / 90 / 控球份额 × 势头, 0, 0.35)`，非进球分钟射门概率 0.12、射正率 38%。进球与射门共用同一持球人，`appendGoal` 唯一写入比分与射门统计。随机流为 `spell / move / chance / beat-actor / goal / pitch / pitch-lane / pitch-carrier`；势头由最近 10 分钟内已结算回合推导，不落盘，因此读档可重放。
 
 ## 关键回合
 
@@ -107,7 +110,7 @@ interface TurnResult {
 |---|---|---|
 | `selectLineup` | `(club, players, options?) => Player[]` | 选择 1-4-4-2 首发；同俱乐部输出稳定；可强制/排除指定球员 |
 | `buildMatchLineups` | `(world, report) => MatchLineups` | 为主客各生成 11 人首发摘要（姓名、号码、位置、是否用户） |
-| `buildPitchFrame` | `(input: PitchFrameInput) => PitchFrame` | 生成双方 11 人坐标、足球位置、控球方与最近 5 帧轨迹；同一 seed/场次/分钟确定性 |
+| `buildPitchFrame` | `(input: PitchFrameInput) => PitchFrame` | 生成双方 11 人坐标、足球位置、传球路线、最近 4 帧轨迹、控球方、持球人与进球侧；控球方压上、防守方回撤逼抢、球贴持球人脚下；同一 seed/场次/分钟确定性 |
 | `successBasisText` | `(option) => string` | 成功率依据（属性名 + 百分比） |
 | `effectsSummary` | `(option) => string` | 选项效果摘要（进球、助攻、评分、士气、教练信任） |
 
@@ -203,7 +206,8 @@ interface TurnResult {
 ## Golden 回放
 
 - `quality/golden/season-seed-42.json` 记录 seed 42 赛季回放的 `engineVersion` 与最终状态哈希。
-- 逐分钟实时比赛、双方攻防事件/统计、首发选择与关键回合扩展都会改变引擎输出，因此本次将 `ENGINE_VERSION` 升到 `0.3.0` 并更新哈希。
+- 连续控球、球位推进、射门/进球同源、球场位置模型与存档 v4 都会改变引擎输出，因此本次将 `ENGINE_VERSION` 升到 `0.4.0` 并更新哈希。
+- 基线由 `npm run quality:golden` 重新生成；脚本连续跑两次确认同 hash 后才写入。
 - 修改任何影响引擎输出的规则时，必须评估是否需要升 `ENGINE_VERSION` 并更新回放；哈希变化而版本未升会被 `check-anti-regression` 拦截。
 
 ## 变更记录
@@ -213,3 +217,5 @@ interface TurnResult {
 | 2026-10-26 | 初版：回合、比赛、关键回合、事件、财务、积分榜、RNG 与持久化接口 | ADR 0001 |
 | 2026-10-31 | 两阶段回合（startWeek/completeWeek）、逐分钟实时比赛、终场统一结算、存档 v2 迁移；engine 0.2.0 与 golden 更新 | 缺陷修复：比赛日比分穿越 |
 | 2026-10-31 | `advanceLiveMinute`、`buildBeats`、`startUserMatch` 停在 0'、`resolveKeyMoment` 增加 `advance` 选项、`selectLineup`/`buildMatchLineups`/`buildPitchFrame`；关键回合 5–7 次；engine 0.3.0 与 golden 更新 | 比赛日实时化改造 |
+| 2026-10-31 | 新增 `buildSpell`/`homePossessionShare`/`kickoffState`/`momentState`/`goalState`；`advanceLiveMinute` 返回 `carrierId/steps/goalSide`；`buildPitchFrame` 增加 `passPath/carrierId/goalSide` 与控球压上模型；`ENGINE_VERSION` 0.4.0 与 golden 更新 | 缺陷修复：比赛日 2D 画面不可读 |
+| 2026-11-01 | `buildPitchFrame` 的 `passPath` 跳过与当前分钟重复的历史帧；关键回合结算事件补写用户方 `side`；`ENGINE_VERSION` 0.4.1 与 golden 更新 | 缺陷修复：2D 画面细节 |

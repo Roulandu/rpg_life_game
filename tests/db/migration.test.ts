@@ -25,7 +25,7 @@ describe('save migration v1 -> v3', () => {
     const legacy = legacyWorld()
     const migrated = importWorld(v1Envelope(legacy))
 
-    expect(migrated.version).toBe(3)
+    expect(migrated.version).toBe(4)
     expect(migrated.lastMatch?.status).toBe('final')
     expect(migrated.lastMatch?.currentMinute).toBe(90)
     expect(migrated.lastMatch?.goals).toEqual([])
@@ -51,7 +51,7 @@ describe('save migration v1 -> v3', () => {
     const migrated = migrateWorld(legacyWorld())
     const roundTripped = importWorld(exportWorld(migrated))
 
-    expect(migrated.version).toBe(3)
+    expect(migrated.version).toBe(4)
     expect(roundTripped).toEqual(migrated)
   })
 })
@@ -74,13 +74,13 @@ describe('save migration on load', () => {
     const loaded = await loadWorld('save:legacy')
     const stored = await db.saves.get('save:legacy')
 
-    expect(loaded?.version).toBe(3)
-    expect(stored?.world.version).toBe(3)
+    expect(loaded?.version).toBe(4)
+    expect(stored?.world.version).toBe(4)
   })
 
   it('拒绝来自更新版本的世界数据', async () => {
     const future = legacyWorld()
-    future.version = 4
+    future.version = 5
     const record: SaveRecord = {
       id: 'save:future',
       summary: summarizeWorld(future, 'save:future'),

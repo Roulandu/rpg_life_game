@@ -36,11 +36,13 @@ function backfillStats(report: MatchReport): MatchStats {
 
 function upgradeLiveReport(world: WorldState, report: MatchReport): MatchReport {
   if (report.status !== 'live') return report
-  return {
+  const upgraded: MatchReport = {
     ...report,
     stats: report.stats ?? backfillStats(report),
     lineups: report.lineups ?? buildMatchLineups(world, report),
   }
+  if (upgraded.liveState) return upgraded
+  return { ...upgraded, liveState: { possession: 'home', ballX: 0.5 } }
 }
 
 export function migrateWorld(input: WorldState): WorldState {

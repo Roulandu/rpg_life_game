@@ -109,7 +109,7 @@ sequenceDiagram
 ### 设置与版本
 
 - 默认 LLM：`openai` / `gpt-4.1-mini` / `standard` / `template`，温度 0.85，`max_tokens`。
-- `world.version = CURRENT_SAVE_VERSION`（当前 `3`），`engineVersion = ENGINE_VERSION`（当前 `0.3.0`）。
+- `world.version = CURRENT_SAVE_VERSION`（当前 `4`），`engineVersion = ENGINE_VERSION`（当前 `0.4.1`）。
 - 同一 seed、同一数据包、同一选项必须生成逐字节等价的世界（时间字段除外）。
 
 ### 不可变条件
@@ -184,3 +184,5 @@ sequenceDiagram
 | 2026-10-29 | generator 拆分为 `constants`/`playerFactory`/`clubFactory`/`initialState`/`queries`，`makeAttributes` 按门将/外场拆分降低复杂度，关系组装按角色拆分；新增回退与合同年龄测试，生成行为与 golden 哈希不变 | 全量重构 P2 |
 | 2026-10-31 | 新世界结构升 `world.version = 2`、`ENGINE_VERSION = 0.2.0`，配合实时比赛与存档迁移；生成内容本身除版本字段外不变 | 缺陷修复：比赛日比分穿越 |
 | 2026-10-31 | 版本字段改由 `CURRENT_SAVE_VERSION` / `ENGINE_VERSION` 常量写入，当前为存档 3、引擎 0.3.0；生成内容本身除版本字段外不变 | 比赛日实时化 |
+| 2026-10-31 | 存档/引擎升到 4 / 0.4.0，配合连续控球引擎与 `liveState` 持久化；生成内容本身除版本字段外不变 | 缺陷修复：比赛日 2D 画面不可读 |
+| 2026-11-01 | 引擎升到 0.4.1（关键回合事件补 `side`）；存档版本与生成内容不变 | 缺陷修复：2D 画面细节 |

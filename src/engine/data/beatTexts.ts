@@ -32,6 +32,16 @@ const SHOT_ON_TARGET = [
   '{player} 低射近角，门将倒地没收。',
 ]
 
+const GOAL_SHOTS = [
+  '{player} 在禁区内起脚，皮球飞入网窝！',
+  '{player} 迎球怒射，门将毫无办法！',
+]
+
+const SAVES = [
+  '{player} 的射门被 {opponent} 门将飞身扑出。',
+  '{player} 的劲射被 {opponent} 门将封出底线。',
+]
+
 function fill(template: string, context: BeatTextContext): string {
   return template
     .replaceAll('{player}', context.player)
@@ -47,4 +57,12 @@ export function beatText(
 ): string {
   const pool = kind === 'shot' && onTarget ? SHOT_ON_TARGET : TEMPLATES[kind]
   return fill(pool[variant % pool.length]!, context)
+}
+
+export function goalShotText(context: BeatTextContext, variant = 0): string {
+  return fill(GOAL_SHOTS[variant % GOAL_SHOTS.length]!, context)
+}
+
+export function saveText(context: BeatTextContext, variant = 0): string {
+  return fill(SAVES[variant % SAVES.length]!, context)
 }

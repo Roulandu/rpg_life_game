@@ -87,6 +87,69 @@ describe('live minute pause and batch parity', () => {
   })
 })
 
+function completedReport(seed: number): MatchReport {
+  const world = startAtZero(seed)
+  const report = world.lastMatch as MatchReport
+  report.keyMoments = []
+  let guard = 0
+  while (report.currentMinute < 90 && guard < 120) {
+    const result = advanceLiveMinute(world)
+    if (!result || result.paused) break
+    guard += 1
+  }
+  return report
+}
+
+describe('live minute goal coherence', () => {
+  it('每个进球分钟都有同侧射门事件，且进球数不超过射门数', () => {
+    const reports = Array.from({ length: 10 }, (_, index) => completedReport(index + 1))
+    const scored = reports.filter((report) => report.goals.length > 0)
+
+    expect(scored.length).toBeGreaterThan(0)
+    for (const report of scored) {
+      for (const goal of report.goals) {
+        const shot = report.events.find(
+          (event) =>
+            event.minute === goal.minute && event.type === 'shot' && event.side === goal.side,
+        )
+        expect(shot).toBeDefined()
+      }
+      expect(report.homeGoals).toBeLessThanOrEqual(report.stats!.home.shots)
+      expect(report.awayGoals).toBeLessThanOrEqual(report.stats!.away.shots)
+    }
+  })
+
+  it('每分钟推进后都写回 liveState，控球分钟总和等于已进行分钟数', () => {
+    const world = startAtZero()
+    const report = world.lastMatch as MatchReport
+    report.keyMoments = []
+    advanceTo(world, 30)
+
+    expect(report.liveState).toBeDefined()
+    expect(['home', 'away']).toContain(report.liveState!.possession)
+    expect(report.liveState!.ballX).toBeGreaterThanOrEqual(0)
+    expect(report.liveState!.ballX).toBeLessThanOrEqual(1)
+    expect(report.stats!.home.possession + report.stats!.away.possession).toBe(
+      report.currentMinute,
+    )
+  })
+
+  it('关键回合暂停时球在进攻三区并立即持久化 liveState', () => {
+    const world = startAtZero()
+    const report = world.lastMatch as MatchReport
+    const pauseMinute = report.keyMoments![0]!.minute
+
+    advanceTo(world, pauseMinute)
+    const paused = advanceLiveMinute(world)
+
+    expect(paused?.paused).toBe(true)
+    expect(report.liveState?.possession).toBe(paused!.possession)
+    expect(report.liveState?.ballX).toBe(paused!.ballX)
+    if (paused!.possession === 'home') expect(paused!.ballX).toBeGreaterThan(0.7)
+    else expect(paused!.ballX).toBeLessThan(0.3)
+  })
+})
+
 describe('live minute half time and full time', () => {
   it('45 分钟冻结半场比分，46 分钟后开始下半场', () => {
     const world = startAtZero()

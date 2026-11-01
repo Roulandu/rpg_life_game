@@ -77,6 +77,22 @@ export interface MatchGoal {
   fromKeyMoment?: boolean
 }
 
+export interface MatchLiveState {
+  possession: MatchSide
+  ballX: number
+  carrierId?: Id
+  pendingKickoff?: MatchSide
+}
+
+export type LiveTrackKind = 'pass' | 'carry' | 'shot' | 'turnover'
+
+export interface LiveTrackStep {
+  kind: LiveTrackKind
+  side: MatchSide
+  ballX: number
+  carrierId?: Id
+}
+
 export interface MatchReport {
   fixtureId: Id
   season: number
@@ -87,6 +103,7 @@ export interface MatchReport {
   awayName: string
   status: 'live' | 'final'
   currentMinute: number
+  liveState?: MatchLiveState
   homeGoals: number
   awayGoals: number
   halfTimeHomeGoals?: number

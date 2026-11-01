@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { MatchLiveState } from '../../src/domain'
 import { buildPitchFrame, computeClubStrength } from '../../src/domain'
 import { buildBeats } from '../../src/engine/matchBeats'
 import { pitchWorld } from '../fixtures/pitchWorld'
@@ -47,6 +48,55 @@ describe('buildBeats', () => {
       const stats = found!.stats[shot.side!]
       expect(stats.shots ?? 0).toBeGreaterThanOrEqual(1)
     }
+  })
+})
+
+function runMinutes(xg = 3): ReturnType<typeof buildBeats>[] {
+  let previous: MatchLiveState = { possession: 'home', ballX: 0.5 }
+  const results: ReturnType<typeof buildBeats>[] = []
+  for (let minute = 1; minute <= 90; minute += 1) {
+    const result = buildBeats({
+      ...input,
+      minute,
+      previous,
+      homeXg: xg,
+      awayXg: xg,
+    })
+    results.push(result)
+    previous = result.liveState
+  }
+  return results
+}
+
+describe('buildBeats shot and goal coherence', () => {
+  it('进球分钟返回同侧射门事件，但射门统计由 appendGoal 记录一次', () => {
+    const goalMinute = runMinutes().find((result) => result.goalSide)
+
+    expect(goalMinute).toBeDefined()
+    const shot = goalMinute!.events.find((event) => event.type === 'shot')
+    expect(shot?.side).toBe(goalMinute!.goalSide)
+    expect(shot?.text.length).toBeGreaterThan(0)
+    expect(goalMinute!.stats[goalMinute!.goalSide!].shots ?? 0).toBe(0)
+    expect(goalMinute!.stats[goalMinute!.goalSide!].shotsOnTarget ?? 0).toBe(0)
+  })
+
+  it('非进球射正产生扑救事件并计入射门与射正', () => {
+    const saved = runMinutes().find(
+      (result) => result.shot && result.shot.onTarget && !result.shot.goal,
+    )
+
+    expect(saved).toBeDefined()
+    expect(saved!.events.some((event) => event.type === 'shot')).toBe(true)
+    expect(saved!.events.some((event) => event.type === 'save')).toBe(true)
+    expect(saved!.stats[saved!.shot!.side].shots).toBe(1)
+    expect(saved!.stats[saved!.shot!.side].shotsOnTarget).toBe(1)
+  })
+
+  it('返回与球权一致的持久化 liveState', () => {
+    const result = buildBeats({ ...input, previous: { possession: 'away', ballX: 0.3 }, homeXg: 1.2, awayXg: 1.2 })
+    expect(result.liveState.possession).toBe(result.possession)
+    expect(result.liveState.ballX).toBe(result.ballX)
+    expect(result.liveState.carrierId).toBe(result.carrierId)
   })
 })
 

@@ -1,12 +1,17 @@
-import { clamp, positionGroup } from './attributes'
 import { createRng } from '../lib'
-import type { MatchLineupPlayer, MatchLineups, MatchSide } from './matchTypes'
+import { clamp, positionGroup } from './attributes'
+import type { MatchLineups, MatchSide } from './matchTypes'
+import {
+  attackDirection,
+  goalkeeperX,
+  laneY,
+  shapePoint,
+  type PitchLine,
+  type PitchPoint,
+} from './pitchShape'
 import type { Position } from './types'
 
-export interface PitchPoint {
-  x: number
-  y: number
-}
+export type { PitchPoint } from './pitchShape'
 
 export interface PitchPlayer extends PitchPoint {
   id: string
@@ -21,6 +26,7 @@ export interface PitchPlayer extends PitchPoint {
 export interface PitchHistoryPoint {
   minute: number
   ballX: number
+  possession?: MatchSide
 }
 
 export interface PitchFrameInput {
@@ -30,6 +36,8 @@ export interface PitchFrameInput {
   lineups: MatchLineups
   possession: MatchSide
   ballX: number
+  carrierId?: string | null
+  goalSide?: MatchSide
   history?: PitchHistoryPoint[]
 }
 
@@ -40,65 +48,32 @@ export interface PitchFrame {
   ball: PitchPoint
   possession: MatchSide
   trails: PitchPoint[]
+  passPath: PitchPoint[]
+  carrierId: string | null
+  goalSide?: MatchSide
 }
 
-type Line = 'GK' | 'DEF' | 'MID' | 'FWD'
-
-const SLOTS: Record<Line, { x: number; ys: number[] }> = {
-  GK: { x: 0.06, ys: [0.5] },
-  DEF: { x: 0.24, ys: [0.16, 0.38, 0.62, 0.84] },
-  MID: { x: 0.4, ys: [0.18, 0.4, 0.6, 0.82] },
-  FWD: { x: 0.46, ys: [0.38, 0.62] },
-}
-
-function ballPoint(seed: number, fixtureId: string, minute: number, ballX: number): PitchPoint {
-  const rng = createRng(seed, 'pitch', fixtureId, minute, 'ball')
-  return {
-    x: clamp(ballX, 0.02, 0.98),
-    y: rng.float(0.18, 0.82),
-  }
-}
-
-interface PlayerPointInput {
-  seed: number
-  fixtureId: string
-  minute: number
-  side: MatchSide
-  index: number
-  slotIndex: number
-  group: Line
-}
-
-function playerPoint(input: PlayerPointInput): PitchPoint {
-  const { seed, fixtureId, minute, side, index, slotIndex, group } = input
-  const rng = createRng(seed, 'pitch', fixtureId, minute, side, index)
-  const slot = SLOTS[group]
-  const y = clamp((slot.ys[Math.min(slotIndex, slot.ys.length - 1)] ?? 0.5) + rng.float(-0.04, 0.04), 0.05, 0.95)
-  const x = side === 'home'
-    ? clamp(slot.x + rng.float(-0.03, 0.03), 0.02, 0.48)
-    : clamp(1 - slot.x + rng.float(-0.03, 0.03), 0.52, 0.98)
-  return { x, y }
-}
-
-function sidePlayers(
-  input: PitchFrameInput,
-  side: MatchSide,
-  lineup: MatchLineupPlayer[],
-): PitchPlayer[] {
-  const groupIndex: Record<Line, number> = { GK: 0, DEF: 0, MID: 0, FWD: 0 }
-  return lineup.map((player, index) => {
-    const group = positionGroup(player.position)
+function sidePlayers(input: PitchFrameInput, side: MatchSide): PitchPlayer[] {
+  const rng = createRng(input.seed, 'pitch', input.fixtureId, input.minute, side)
+  const groupIndex: Record<PitchLine, number> = { GK: 0, DEF: 0, MID: 0, FWD: 0 }
+  return input.lineups[side].map((player) => {
+    const group = positionGroup(player.position) as PitchLine
     const slotIndex = groupIndex[group]
     groupIndex[group] += 1
-    const point = playerPoint({
-      seed: input.seed,
-      fixtureId: input.fixtureId,
-      minute: input.minute,
-      side,
-      index,
-      slotIndex,
-      group,
-    })
+    const point = group === 'GK'
+      ? {
+          x: goalkeeperX(side, input.ballX, rng.float(-0.004, 0.004)),
+          y: clamp(0.5 + rng.float(-0.02, 0.02), 0.06, 0.94),
+        }
+      : shapePoint({
+          side,
+          group,
+          slotIndex,
+          possession: input.possession,
+          ballX: input.ballX,
+          jitterX: rng.float(-0.018, 0.018),
+          jitterY: rng.float(-0.02, 0.02),
+        })
     return {
       ...point,
       id: player.id,
@@ -112,27 +87,99 @@ function sidePlayers(
   })
 }
 
-function markBallCarrier(players: PitchPlayer[], ball: PitchPoint): void {
-  let closest: PitchPlayer | null = null
-  let closestDistance = Number.POSITIVE_INFINITY
-  for (const player of players) {
-    const distance = (player.x - ball.x) ** 2 + (player.y - ball.y) ** 2
-    if (distance < closestDistance) {
-      closest = player
-      closestDistance = distance
-    }
+function pickCarrier(
+  input: PitchFrameInput,
+  side: MatchSide,
+  players: PitchPlayer[],
+): PitchPlayer | null {
+  if (players.length === 0) return null
+  const requested = input.carrierId
+    ? players.find((player) => player.id === input.carrierId)
+    : undefined
+  if (requested) return requested
+  const attackers = players.filter((player) => {
+    const group = positionGroup(player.position)
+    return group === 'FWD' || group === 'MID'
+  })
+  const pool = attackers.length > 0 ? attackers : players
+  return createRng(input.seed, 'pitch-carrier', input.fixtureId, input.minute, side).pick(pool)
+}
+
+function attachBall(
+  carrier: PitchPlayer | null,
+  ballX: number,
+  lane: number,
+): PitchPoint {
+  if (!carrier) return { x: clamp(ballX, 0.02, 0.98), y: lane }
+  const direction = attackDirection(carrier.side)
+  const x = clamp(ballX - direction * 0.012, 0.02, 0.98)
+  carrier.x = x
+  carrier.y = lane
+  carrier.hasBall = true
+  return { x: clamp(x + direction * 0.012, 0.01, 0.99), y: lane }
+}
+
+function applyPressure(players: PitchPlayer[], ball: PitchPoint, defending: MatchSide): void {
+  const outfield = players.filter((player) => positionGroup(player.position) !== 'GK')
+  if (outfield.length === 0) return
+  const closest = outfield.reduce((best, player) =>
+    Math.hypot(player.x - ball.x, player.y - ball.y) <
+    Math.hypot(best.x - ball.x, best.y - ball.y)
+      ? player
+      : best,
+  )
+  const goalSide = defending === 'home' ? -1 : 1
+  closest.x = clamp(ball.x + goalSide * 0.04, 0.02, 0.98)
+  closest.y = clamp(closest.y + (ball.y - closest.y) * 0.75, 0.06, 0.94)
+}
+
+function historicalPoints(input: PitchFrameInput): PitchPoint[] {
+  return (input.history ?? []).slice(-4).map((point) => ({
+    x: clamp(point.ballX, 0.02, 0.98),
+    y: laneY(
+      input.seed,
+      input.fixtureId,
+      point.minute,
+      point.possession ?? input.possession,
+    ),
+  }))
+}
+
+function previousBallPoint(input: PitchFrameInput): PitchPoint | undefined {
+  const previous = (input.history ?? [])
+    .filter((point) => point.minute < input.minute)
+    .at(-1)
+  if (!previous) return undefined
+  return {
+    x: clamp(previous.ballX, 0.02, 0.98),
+    y: laneY(
+      input.seed,
+      input.fixtureId,
+      previous.minute,
+      previous.possession ?? input.possession,
+    ),
   }
-  if (closest) closest.hasBall = true
+}
+
+function pathToBall(previous: PitchPoint | undefined, ball: PitchPoint): PitchPoint[] {
+  if (!previous) return []
+  const middle = {
+    x: (previous.x + ball.x) / 2,
+    y: clamp((previous.y + ball.y) / 2 + 0.035, 0.06, 0.94),
+  }
+  return [previous, middle, ball]
 }
 
 export function buildPitchFrame(input: PitchFrameInput): PitchFrame {
-  const ball = ballPoint(input.seed, input.fixtureId, input.minute, input.ballX)
-  const home = sidePlayers(input, 'home', input.lineups.home)
-  const away = sidePlayers(input, 'away', input.lineups.away)
-  markBallCarrier(input.possession === 'home' ? home : away, ball)
-  const trails = (input.history ?? [])
-    .slice(-4)
-    .map((point) => ballPoint(input.seed, input.fixtureId, point.minute, point.ballX))
+  const home = sidePlayers(input, 'home')
+  const away = sidePlayers(input, 'away')
+  const attacking = input.possession === 'home' ? home : away
+  const defending = input.possession === 'home' ? away : home
+  const carrier = pickCarrier(input, input.possession, attacking)
+  const lane = laneY(input.seed, input.fixtureId, input.minute, input.possession)
+  const ball = attachBall(carrier, input.ballX, lane)
+  applyPressure(defending, ball, input.possession === 'home' ? 'away' : 'home')
+  const trails = historicalPoints(input)
   return {
     minute: input.minute,
     home,
@@ -140,5 +187,8 @@ export function buildPitchFrame(input: PitchFrameInput): PitchFrame {
     ball,
     possession: input.possession,
     trails,
+    passPath: pathToBall(previousBallPoint(input), ball),
+    carrierId: carrier?.id ?? null,
+    goalSide: input.goalSide,
   }
 }

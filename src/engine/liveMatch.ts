@@ -2,6 +2,7 @@ import type { Fixture, KeyMomentOutcome, MatchReport, MatchSide, WorldState } fr
 import { createRng } from '../lib'
 import { generateKeyMoments } from './keyMomentGen'
 import { advanceLiveMinute } from './liveMinute'
+import { goalState } from './liveSpell'
 import { pickScorer } from './matchGoals'
 import { appendGoal, computeAttendance, createLiveReport } from './matchReport'
 import { prepareUserFixture } from './liveSetup'
@@ -67,6 +68,7 @@ export function applyLiveKeyMomentOutcome(
       isUser: true,
       fromKeyMoment: true,
     })
+    report.liveState = goalState(side)
     return
   }
   if (!outcome.assist) return
@@ -94,6 +96,7 @@ export function applyLiveKeyMomentOutcome(
     isUserAssist: true,
     fromKeyMoment: true,
   })
+  report.liveState = goalState(side)
 }
 
 export function userSideOf(report: MatchReport, world: WorldState): MatchSide {

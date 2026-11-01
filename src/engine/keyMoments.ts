@@ -1,5 +1,5 @@
 import { clamp, round1 } from '../domain'
-import type { KeyMoment, KeyMomentOption, MatchReport, Player, WorldState } from '../domain'
+import type { KeyMoment, KeyMomentOption, MatchReport, MatchSide, Player, WorldState } from '../domain'
 import { buildMediaReaction, outcomeText, refreshMatchNews, refreshScoreTimeline } from './keyMomentNarrative'
 import { hasPendingKeyMoments } from './keyMomentGen'
 import { finalizeLiveMatch } from './matchFinalize'
@@ -107,10 +107,16 @@ function outcomeEventType(moment: KeyMoment, outcome: AppliedOutcome): 'goal' | 
   return moment.kind === 'save' ? 'save' : 'chance'
 }
 
-function appendMomentEvent(report: MatchReport, moment: KeyMoment, outcome: AppliedOutcome): void {
+function appendMomentEvent(
+  report: MatchReport,
+  moment: KeyMoment,
+  outcome: AppliedOutcome,
+  side: MatchSide,
+): void {
   report.events.push({
     minute: moment.minute,
     type: outcomeEventType(moment, outcome),
+    side,
     text: moment.outcome?.textZh ?? '',
     isUser: true,
   })
@@ -124,7 +130,7 @@ function appendTimeline(
   playerName: string,
   outcome: AppliedOutcome,
 ): void {
-  appendMomentEvent(report, moment, outcome)
+  appendMomentEvent(report, moment, outcome, userSideOf(report, world))
   if (outcome.goal || outcome.assist) {
     refreshMatchNews(world, report, playerName)
     refreshScoreTimeline(report)
@@ -169,7 +175,7 @@ function settleLiveMoment(settlement: MomentSettlement, options: ResolveKeyMomen
   }
   applyLivePlayerEffects(user, outcome)
   adjustMatchRelationships(world, outcome)
-  appendMomentEvent(report, moment, outcome)
+  appendMomentEvent(report, moment, outcome, userSideOf(report, world))
   if (options.advance !== false) advanceLiveMatch(world)
   return report
 }

@@ -6,6 +6,7 @@ code:
   - src/engine/liveMatch.ts
   - src/engine/liveMinute.ts
   - src/engine/liveSetup.ts
+  - src/engine/liveSpell.ts
   - src/engine/matchBeats.ts
   - src/engine/matchReport.ts
   - src/engine/matchFinalize.ts
@@ -23,6 +24,7 @@ code:
   - src/domain/matchTypes.ts
   - src/domain/lineup.ts
   - src/domain/pitch.ts
+  - src/domain/pitchShape.ts
   - src/domain/keyMomentView.ts
   - src/domain/leagueTable.ts
   - src/store/matchSlice.ts
@@ -32,6 +34,7 @@ code:
   - src/ui/screens/MatchdayScreen.tsx
   - src/ui/screens/matchday/LiveMatchStage.tsx
   - src/ui/screens/matchday/PitchMap.tsx
+  - src/ui/screens/matchday/PitchSvg.tsx
   - src/ui/screens/matchday/LiveControls.tsx
   - src/ui/screens/matchday/LiveFeed.tsx
   - src/ui/screens/matchday/MatchStatsPanel.tsx
@@ -45,6 +48,8 @@ code:
 tests:
   - tests/engine/liveMinute.test.ts
   - tests/engine/liveMatch.test.ts
+  - tests/engine/liveSpell.test.ts
+  - tests/engine/liveCalibration.test.ts
   - tests/engine/matchBeats.test.ts
   - tests/engine/matchReport.test.ts
   - tests/engine/liveSetup.test.ts
@@ -112,7 +117,7 @@ sequenceDiagram
   loop 每分钟
     UI->>S: tickLiveMatch()
     S->>M: advanceLiveMinute(world)
-    M-->>S: possession / ballX / events / paused
+    M-->>S: possession / ballX / carrierId / steps / events / paused
     S-->>UI: 浅拷贝 world + playback revision
   end
   Note over M,S: 下一分钟是关键回合 → 停表, phase=awaiting
@@ -155,7 +160,7 @@ stateDiagram-v2
 
 - `phase` 是 store 瞬态状态，不写入存档。
 - `tickLiveMatch` 只在 `playing` 时推进；`paused / awaiting / result / ended` 下为 no-op，避免重复计分。
-- `jumpToNextKeyMoment` 只在 `playing` 时循环推进，直到 `paused`（进入 `awaiting`）、`finished`（`ended`）或无效。
+- `jumpToNextKeyMoment` 在 `playing` 或 `paused` 时循环推进，直到 `paused`（进入 `awaiting`）、`finished`（`ended`）或无效。
 
 ## 规则与边界
 
@@ -182,43 +187,53 @@ stateDiagram-v2
 ### 逐分钟实时模拟
 
 - 赛前用 `expectedGoals` + 俱乐部风格修正计算 `homeXg/awayXg`（与旧版一致）。
-- `advanceLiveMinute(world)` 每次只推进一步，返回 `{ minute, paused, finished, halfTime, possession, ballX, events }`。
-- 每分钟主客各一次伯努利判定：`p = clamp(xG / 90 × 势头系数, 0, 0.5)`；使用独立随机流 `createRng(seed, 'live', fixtureId, minute)`。
-- 关键回合分钟不模拟自动进球，也不生成攻防事件；该分钟按回合归属方计入控球后再暂停。
+- `advanceLiveMinute(world)` 每次只推进一步，返回 `{ minute, paused, finished, halfTime, possession, ballX, carrierId?, steps, goalSide?, events }`。
+- 控球使用连续 Markov 链（`engine/liveSpell.buildSpell`）：控球方以 `clamp(0.77 + 中场强度差 × 0.5, 0.64, 0.83)` 保持控球，平均 spell 3–4 分钟；丢球时就地转换，不再每分钟独立掷骰。
+- 球位连续：同侧控球时朝对方球门推进，单步 0.04–0.18，18% 概率回传 0.03–0.09；丢球时球位不瞬移；进球后球停在门线（主队 0.96 / 客队 0.04）。
+- 每控球分钟生成 1–3 段 `steps`（`pass / carry / shot / turnover`），只供 2D 画面使用，不写入 `report.events`。
+- 射门与进球同源：每分钟进球概率 `clamp(xG / 90 / 控球份额 × 势头, 0, 0.35)`；非进球分钟射门概率 0.12、射正率 38%；射正未进补 `save` 事件。
+- 进球分钟先写同侧 `shot` 文本，再由 `appendGoal` 唯一记录比分与射门/射正统计，避免双计。
+- 射门者取自本分钟持球人（`carrierId`，必须在本方首发）；缺失时回退 `pickScorer`，助攻仍由 `pickAssister` 生成。
+- 关键回合分钟不模拟自动进球，也不生成攻防事件；该分钟按回合归属方把球放在进攻三区（主队 0.82 / 客队 0.18）并暂停，计 1 分钟控球。
+- 关键回合进球由 `liveMatch` 写 `goalState`（门线球位 + `pendingKickoff` 给失球方），下一分钟从失球方中圈开球。
 - 第一次跨过第 45 分钟时冻结半场比分并补一条半场事件，之后不再变化。
-- 90' 返回 `finished = true`，但不自动终场；终场由 `finalizeLiveMatch` 负责。
+- 90' 返回 `finished = true`，但不自动终场；终场由 `finalizeLiveMatch` 负责，并删除 `liveState`。
 - `advanceLiveMatch(world)` 只是循环调用 `advanceLiveMinute` 的批量路径；逐分钟播放与批量结算必须产生完全相同的终场报告（同一 seed 哈希一致）。
 - 替补球员在登场前不会成为进球者或助攻者：用户可选窗口为 `90 - userMinutes` 到 90，未出场权重为 0。
+- 随机流固定为 `spell / move / chance / beat-actor / goal / pitch / pitch-lane / pitch-carrier`；`engine` 内不得出现 `Math.random`、`Date.now`。
 
 ### 双方攻防事件与统计
 
-`engine.matchBeats.buildBeats` 每分钟生成双方攻防事件与统计增量，纯函数、不修改报告：
+`engine.matchBeats.buildBeats` 每分钟调用 `buildSpell` 生成控球、球位、传球轨迹与射门，再映射为事件与统计，纯函数、不修改报告：
 
-| 掷骰区间 | 事件 | 归属 | 统计 |
+| 情况 | 事件 | 归属 | 统计 |
 |---|---|---|---|
-| `< 0.10` | 射门 | 控球方 | 射门 +1，42% 射正 |
-| `< 0.16` | 角球 | 控球方 | 角球 +1 |
-| `< 0.24` | 进攻推进 | 控球方 | — |
-| `< 0.28` | 犯规 | 防守方 | — |
-| `< 0.30` | 越位 | 控球方 | — |
-| 其余 | 无事件 | — | — |
+| 进球分钟 | 同侧 `shot` 文本，随后 `appendGoal` 写进球 | 控球方 | `appendGoal` 记射门 +1、射正 +1 |
+| 非进球但射门（12%） | `shot`；射正 38% 时追加 `save` | 控球方 | 射门 +1，射正按是否中框 |
+| 无射门，`rng.next() < 0.10` | 进攻推进 | 控球方 | — |
+| 无射门，`< 0.14` | 角球 | 控球方 | 角球 +1 |
+| 无射门，`< 0.17` | 犯规 | 防守方 | — |
+| 无射门，`< 0.19` | 越位 | 控球方 | — |
 
-- 控球归属使用 `createRng(seed, 'possession', fixtureId, minute)`；主队控球概率
-  `clamp(0.52 + (主队中场强度 - 客队中场强度) × 0.004, 0.3, 0.7)`。
-- 球位使用同一分钟随机流：主队控球在 `x ∈ [0.52, 0.94]`，客队控球在 `x ∈ [0.06, 0.48]`。
+- 控球统计每分钟累加到 `liveState.possession` 一方，`双方控球分钟之和 = currentMinute`。
 - 事件球员用 `createRng(seed, 'beat-actor', fixtureId, minute, side, att|def)` 抽取：进攻取前锋/中场，防守取门将/后卫。
-- 统计面板固定四项：控球、射门、射正、角球；`双方控球分钟之和 = currentMinute`，`射正 ≤ 射门`。
+- 统计面板固定四项：控球、射门、射正、角球；时刻保持 `goals ≤ shots`、`shotsOnTarget ≤ shots`。
 - 关键回合进球同步补记用户方射门/射正；对手机会只以攻防事件呈现，不产生“对手关键回合”。
 
 ### 球场点阵
 
-`domain.pitch.buildPitchFrame` 生成双方各 11 名球员坐标、足球位置与最近 5 帧轨迹：
+`domain.pitch.buildPitchFrame` 生成双方各 11 名球员坐标、足球位置、传球路线与最近 4 帧轨迹；阵型基元在 `domain/pitchShape.ts`：
 
-- 阵型槽位：门将 `x=0.06`，后卫 `x=0.24`，中场 `x=0.4`，前锋 `x=0.46`；客队镜像到 `1 - x`。
-- 每名球员使用 `createRng(seed, 'pitch', fixtureId, minute, side, index)` 加 ±0.03/±0.04 抖动，边界 clamp。
-- 足球位置由同一分钟球位随机流生成 `y ∈ [0.18, 0.82]`；轨迹复算最近 5 帧。
-- 控球方距球最近的球员标记 `hasBall`。
-- 同一 seed、场次与分钟输出相同坐标；不同分钟产生跑位变化。
+- 坐标语义：`x=0` 是主队球门，`x=1` 是客队球门；主队进攻 `+x`，客队进攻 `-x`。
+- 控球方整体压上：进攻三区时前锋可到 0.78–0.9，中场前提；边路按确定性随机流保持宽度。
+- 防守方回撤：后卫线、中场线按“到球的归一化距离 × 0.45 / 0.7 / 1.0”落位（最小 0.065），始终位于球与自家球门之间；最近的非门将防守者逼抢到球侧 0.04、纵向 75% 靠球。
+- 门将贴本方门线（主队约 0.045、客队约 0.955），随球位小幅偏移。
+- 持球人优先取 `playback.carrierId`，缺失时按球路区域与确定性随机流从本方前锋/中场选取；足球放在持球人脚前 0.012（进攻方向），确保球贴脚。
+- `passPath` 从上一分钟的真实球位经中点弯折到当前足球位置（历史帧包含当前分钟时跳过重复帧）；`trails` 使用最近 4 帧真实 `ballX`，纵向由 `createRng(seed, 'pitch-lane', ...)` 复算，不再为轨迹伪造随机点。
+- 同一 seed、场次、分钟与输入状态输出相同坐标；不同分钟产生跑位变化。
+- UI 使用 SVG 绘制完整球场：外线、中线、中圈、两侧禁区/小禁区/点球点/点球弧/球门/角球弧；足球为内嵌 SVG 图标；传球路线为按控球方着色的虚线；顶部显示“球队控球 · 持球人”。
+- 进球分钟在对应球门侧显示 `GOAL` 徽标，足球停在门线附近；下一分钟再回到中圈。关键回合结算的事件按用户方写 `side`，因此关键回合进球与普通进球一样能定位徽标。
+- 容器设置 `--pitch-move`（1x 420ms / 2x 200ms / 4x 90ms），球员与足球过渡使用该变量；支持 Web Animations 时足球沿 `passPath` 关键帧移动；`prefers-reduced-motion` 下关闭过渡与动画。
 
 ### 关键回合生成
 
@@ -266,11 +281,14 @@ stateDiagram-v2
 ### 持久化与重放
 
 - 落盘点固定在“开局、每个关键回合结算后、完赛”三处；播放中的每分钟只改内存，不落盘。
+- `MatchReport.liveState` 持久化当前控球方、球位、持球人（`carrierId`）与下一分钟开球方（`pendingKickoff`）。
 - 刷新/读档后，UI 调用 `startLivePlayback` 按 `fixtureId` 对账：
-  - 有未结算回合且 `moment.minute === currentMinute` → `awaiting`。
+  - 有未结算回合且 `moment.minute <= currentMinute` → `awaiting`。
   - `currentMinute >= 90` → `ended`。
-  - 其余 → `playing`，从最近 checkpoint 按每分钟独立随机流确定性重放。
-- `livePlayback`（phase/speed/position/history/resultMomentId）不持久化：刷新后速度回到 `1x`，结果弹窗不恢复（结果已写入报告与时间线），但比分、统计与事件一致。
+  - 其余 → `playing`，直接读取 `liveState` 的球权/球位/持球人，不再回中圈；后续分钟按确定性随机流重放。
+- 进球分钟刷新时球仍在门线；下一 tick 消费 `pendingKickoff`，由失球方在中圈开球。
+- `history` 为空时轨迹为空，不伪造随机轨迹；有历史时最多保留 5 帧、画面绘制最近 4 帧。
+- `livePlayback`（phase/speed/track/resultMomentId）不持久化：刷新后速度回到 `1x`，结果弹窗不恢复（结果已写入报告与时间线），但比分、统计与事件一致。
 
 ### 播放控制
 
@@ -280,9 +298,9 @@ stateDiagram-v2
 | 2x | 250ms |
 | 4x | 120ms |
 
-- 切换速度只改变 UI 计时器频率，不改变引擎结果。
+- 切换速度只改变 UI 计时器频率与 `--pitch-move` 过渡时长，不改变引擎结果。
 - 计时器只存在于 `useLiveClock`，卸载或离开 `playing` 时清除。
-- “跳到下一关键回合”与自动播放共用 `advanceLiveMinute`，跳过的分钟照常产生事件与统计。
+- “跳到下一关键回合”与自动播放共用 `advanceLiveMinute`，跳过的分钟照常产生事件与统计；暂停状态下同样可用。
 
 ### 交互状态
 
@@ -307,7 +325,7 @@ stateDiagram-v2
 
 读写：
 
-- `world.lastMatch`：`MatchReport`，live 阶段 `userRating = null`、`motmName = ''`、`motmRating = 0`、无 `mediaReaction`；新增可选 `stats` 与 `lineups`。
+- `world.lastMatch`：`MatchReport`，live 阶段 `userRating = null`、`motmName = ''`、`motmRating = 0`、无 `mediaReaction`；含 `stats`、`lineups` 与 live 阶段的 `liveState`（`possession / ballX / carrierId? / pendingKickoff?`）。
 - `world.pendingWeekPlan`：live 期间保存本周计划与 `fixtureId`，用于完成后继续结算。
 - `world.fixtures[fixtureId]`：`status` 为 `scheduled / live / played`，比分实时同步。
 - 用户球员：`seasonStats`、`form`、`morale`、`confidence`、`reputation`、`injury`。
@@ -320,6 +338,7 @@ stateDiagram-v2
 - `engine.startWeek(world, plan)` / `engine.completeWeek(world)`
 - `engine.startUserMatch(world, fixture)`
 - `engine.advanceLiveMinute(world)` / `engine.advanceLiveMatch(world)`
+- `engine.buildSpell(input)` / `engine.homePossessionShare(home, away)`
 - `engine.buildBeats(input)`
 - `engine.generateKeyMoments(player, rng, minutes, isHome, startMinute)`
 - `engine.resolveKeyMoment(world, momentId, optionId, { advance? })`
@@ -347,15 +366,16 @@ stateDiagram-v2
 
 ## 平台差异
 
-- 手机小屏（<640px）：球场只渲染点阵、足球与轨迹；姓名节点隐藏，保留号码。
-- pad / web（≥640px）：点阵 + 姓名 + 号码 + 轨迹。
+- 手机小屏（<640px）：渲染完整球场线与足球图标、传球线、控球说明与 GOAL 徽标；姓名节点隐藏，保留号码。
+- pad / web（≥640px）：点阵 + 姓名 + 号码 + 轨迹 + 传球线。
 - 宽屏布局：`≥640px` 起页面以 720px 专注宽度居中（`--focus-max`），保持单列流程，不拆两栏。
-- 播放控件触控高度 ≥44px；`prefers-reduced-motion` 下禁用点阵过渡动画。
+- 播放控件触控高度 ≥44px；`prefers-reduced-motion` 下禁用点阵过渡与足球关键帧动画。
 - 比赛与关键回合完全本地计算；平台差异只影响展示。
 
 ## 已知限制
 
-- 刷新后从最近 checkpoint 重放，结果弹窗不恢复；速度回到 1x。
+- 刷新后 `livePlayback` 的轨迹与结果弹窗不恢复；速度回到 1x；普通播放态从 `liveState` 继续。
+- 半场不交换进攻方向，主队始终向 `x=1`、客队向 `x=0` 进攻。
 - 用户替补时球场仍显示首发 11 人，只显示“你将在第 X 分钟登场”提示，不动态换人。
 - 关键回合只有玩家一方；对手机会以双方攻防事件呈现。
 - 背景比赛仍即时结算，不逐分钟播放。
@@ -365,8 +385,11 @@ stateDiagram-v2
 | 规则/场景 | 测试 |
 |---|---|
 | startWeek 停在 0'、逐分钟推进、暂停分钟、批量一致 | `tests/engine/liveMinute.test.ts` |
+| 控球连续性、spell 长度、球位推进、轨迹终点、状态辅助 | `tests/engine/liveSpell.test.ts` |
+| 进球分钟同侧射门、射门/射正/角球映射、确定性 | `tests/engine/matchBeats.test.ts` |
+| 进球分钟必有同侧射门、`goals ≤ shots`、控球分钟守恒 | `tests/engine/liveMinute.test.ts` |
+| 多 seed × 90 分钟的总进球与 xG 同量级、统计区间 | `tests/engine/liveCalibration.test.ts` |
 | 半场冻结、90' 不终场、重复推进幂等、控球/射正约束 | `tests/engine/liveMinute.test.ts` |
-| 双方攻防事件与统计映射、确定性 | `tests/engine/matchBeats.test.ts` |
 | 开球报告统计归零、统计只累加对应一方 | `tests/engine/matchReport.test.ts` |
 | 主客各 11 人首发 | `tests/engine/liveSetup.test.ts` |
 | 关键回合成功/失败立即改写比分 | `tests/engine/liveMatch.test.ts` |
@@ -377,28 +400,30 @@ stateDiagram-v2
 | 比赛模拟、出场判定、赛季统计 | `tests/engine/season.test.ts`、`tests/engine/match.test.ts` |
 | startWeek/completeWeek 两阶段 | `tests/engine/turn.test.ts` |
 | 首发选择稳定性、用户强制入选 | `tests/domain/lineup.test.ts` |
-| 球场坐标边界、确定性、轨迹 | `tests/domain/pitch.test.ts` |
+| 球场坐标边界、控球压上、防守回撤、门将贴线、球贴脚、传球线、确定性 | `tests/domain/pitch.test.ts` |
 | 成功率依据与效果摘要 | `tests/domain/keyMomentView.test.ts` |
-| store 播放时钟、暂停/结果、落盘点、刷新重放 | `tests/store/livePlayback.test.ts` |
+| store 播放时钟、暂停/结果、落盘点、`liveState` 刷新恢复、暂停跳转 | `tests/store/livePlayback.test.ts` |
 | store 保存、完成与失败恢复 | `tests/store/matchdayStore.test.ts` |
 | 页面自动开赛、速度、弹窗、90' 完成 | `tests/ui/matchdayLiveStage.test.tsx` |
 | 弹窗 5 选项、触发条件、依据、掷骰 | `tests/ui/keyMomentModal.test.tsx` |
-| 球场 22 点、足球、轨迹、紧凑模式 | `tests/ui/pitchMap.test.tsx` |
+| 球场 22 点、SVG 球场线、足球图标、传球线、控球条、GOAL、速度变量、响应式姓名 | `tests/ui/pitchMap.test.tsx` |
 | 双方事件与主客标记 | `tests/ui/liveFeed.test.tsx`、`tests/ui/matchTimelineSides.test.tsx` |
 | 数据面板四项 | `tests/ui/matchStatsPanel.test.tsx` |
 | 速度映射、tick 间隔、卸载清理 | `tests/ui/liveControls.test.tsx`、`tests/ui/useLiveClock.test.tsx` |
 | 比赛页渲染与实时比分 | `tests/ui/matchday.test.tsx`、`tests/ui/matchdayLive.test.tsx` |
+| v3 → v4 补齐 `liveState`、可继续/完赛、导出导入往返 | `tests/db/migrationV4.test.ts` |
 
 手动验收：
 
-1. 推进一周，进入 `/match` 自动从 0' 开赛，点阵、足球、双方 feed、比分/统计随分钟变化。
-2. 切换 1x/2x/4x，节奏明显不同；暂停/继续正常；切换不改变最终结果。
-3. 关键回合到点停表：弹窗显示触发条件、5 个选项、成功率依据与效果；选择后显示掷骰值、成功/失败；点“继续比赛”恢复。
-4. “跳到下一关键回合”直达下一回合分钟并弹窗；feed 含跳过分钟的双方事件。
-5. 最后一条回合后继续播到 90'，点“完成比赛”进入回顾页，比分/MOTM/媒体反应/周次正确。
-6. 刷新：弹窗态回到同一回合；普通播放态从最近 checkpoint 重放，最终比分/统计一致。
-7. 360–390px 无横向溢出、控件可点、只显示点阵；桌面显示姓名/号码，720px 专注宽度不破。
-8. 导入 v2 live 存档：待处理回合保留、阵容/统计补齐、可继续到终场；v3 导出再导入深度相等。
+1. 推进一周，进入 `/match` 自动从 0' 开赛：完整球场线、球门、足球图标；球员圆点不被姓名挤偏。
+2. 控球方整体压上、前锋越过中线；防守方回撤且有人逼抢；门将贴门线；球最终落在持球人脚下。
+3. 传球线可见；切换 1x/2x/4x 时过渡时长分别为 420/200/90ms，动画能在下一 tick 前完成。
+4. 进球分钟：文字直播先射门后进球；画面球停在门线并显示 GOAL；统计射门/射正各 +1；下一分钟回到中圈由失球方开球。
+5. 关键时刻：球在对应进攻三区，弹窗与画面一致；暂停/继续/跳到下一关键回合均可用。
+6. 播放中刷新：球权/球位/phase 正确；进球分钟刷新仍显示门线球；轨迹为空时不伪造。
+7. 完赛：`goals ≤ shots`、`shotsOnTarget ≤ shots`、双方控球分钟和 = 90。
+8. 360–390px 无横向溢出、控件可点；桌面显示姓名/号码，720px 专注宽度不破。
+9. 导入 v2 live 存档：待处理回合保留、阵容/统计补齐、可继续到终场；v3 存档迁移 v4 后可导出再导入深度相等。
 
 ## 变更记录
 
@@ -417,3 +442,5 @@ stateDiagram-v2
 | 2026-10-31 | 重做逐分钟实时模拟：取消预生成终场比分，关键回合插入实时进程并立即改写比分/势头；终场统一结算评分与赛季数据；存档升 v2；engine 0.2.0，golden 哈希更新 | 缺陷修复：比赛日比分穿越 |
 | 2026-10-31 | 比赛日实时化：0' 自动开赛 + 1x/2x/4x + 跳到下一关键回合；球场点阵/足球/轨迹、双方攻防文字直播与四项数据；关键回合扩为 12 类 × 5 选项、每场 5–7 次并展示触发条件/成功率依据/掷骰结果；存档升 v3；engine 0.3.0，golden 哈希更新 | 比赛日实时化改造 |
 | 2026-10-31 | 触发条件文案只由 UI 添加“触发条件：”前缀，数据层不再重复携带前缀，避免弹窗出现双前缀 | 比赛日实时化改造 |
+| 2026-10-31 | 重做比赛实时引擎与 2D 画面：连续控球 Markov、球位推进、传球轨迹、射门/进球同源、射手=持球人；球场坐标改为控球压上/防守回撤/门将贴线，球贴持球人脚下；SVG 完整球场、足球图标、传球线、控球条、GOAL 徽标与速度自适应动画；`MatchReport.liveState` 持久化画面状态；存档升 v4；engine 0.4.0，golden 哈希更新 | 缺陷修复：比赛日 2D 画面不可读 |
+| 2026-11-01 | 传球线跳过与当前分钟重复的历史帧，始终从上一分钟球位出发；关键回合结算事件补写用户方 `side`，修复关键回合进球不显示 `GOAL` 徽标；engine 0.4.1 与 golden 更新；360/390px 与桌面验收通过 | 缺陷修复：2D 画面细节 |

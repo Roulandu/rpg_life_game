@@ -38,8 +38,11 @@ export { computeClubStrength } from './strength'
 export { CURRENT_SAVE_VERSION } from './version'
 export type {
   BeatKind,
+  LiveTrackKind,
+  LiveTrackStep,
   MatchLineupPlayer,
   MatchLineups,
+  MatchLiveState,
   MatchSide,
   MatchStatLine,
   MatchStats,

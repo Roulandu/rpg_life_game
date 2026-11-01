@@ -126,6 +126,7 @@ function closeReport(ctx: FinalizeContext, injured: boolean): void {
   )
   report.status = 'final'
   report.currentMinute = 90
+  delete report.liveState
   fixture.status = 'played'
   fixture.homeGoals = report.homeGoals
   fixture.awayGoals = report.awayGoals

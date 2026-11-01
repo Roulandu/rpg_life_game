@@ -16,3 +16,11 @@ export { advanceLiveMinute } from './liveMinute'
 export type { LiveMinuteResult } from './liveMinute'
 export { buildBeats } from './matchBeats'
 export type { BeatInput, BeatResult } from './matchBeats'
+export {
+  buildSpell,
+  goalState,
+  homePossessionShare,
+  kickoffState,
+  momentState,
+} from './liveSpell'
+export type { SpellInput, SpellResult, SpellShot } from './liveSpell'

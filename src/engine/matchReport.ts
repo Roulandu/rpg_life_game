@@ -61,6 +61,7 @@ export function createLiveReport(
     awayName: setup.awayClub.nameZh,
     status: 'live',
     currentMinute: 0,
+    liveState: { possession: 'home', ballX: 0.5 },
     homeGoals: 0,
     awayGoals: 0,
     goals: [],

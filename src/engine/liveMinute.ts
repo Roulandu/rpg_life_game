@@ -1,7 +1,8 @@
-import { clamp } from '../domain'
 import type {
+  Id,
   KeyMoment,
   KeyMomentKind,
+  LiveTrackStep,
   MatchEventLine,
   MatchReport,
   MatchSide,
@@ -12,6 +13,7 @@ import { createRng } from '../lib'
 import { contextFor, type MatchContext } from './liveSetup'
 import { buildBeats } from './matchBeats'
 import { pickAssister, pickScorer } from './matchGoals'
+import { kickoffState, momentState } from './liveSpell'
 import {
   addBeatStats,
   appendEvent,
@@ -27,6 +29,9 @@ export interface LiveMinuteResult {
   halfTime: boolean
   possession: MatchSide
   ballX: number
+  carrierId?: Id
+  steps: LiveTrackStep[]
+  goalSide?: MatchSide
   events: MatchEventLine[]
 }
 
@@ -58,16 +63,34 @@ function momentumFor(report: MatchReport, minute: number): { user: number; oppon
     : { user: 1 - 0.1 * decay, opponent: 1 + 0.12 * decay }
 }
 
+function carrierPlayer(
+  world: WorldState,
+  context: MatchContext,
+  side: MatchSide,
+  carrierId: Id | undefined,
+) {
+  if (!carrierId) return null
+  const onPitch = context.lineups[side].some((player) => player.id === carrierId)
+  const player = world.players[carrierId]
+  return onPitch && player ? player : null
+}
+
+interface ScoredGoal {
+  side: MatchSide
+  minute: number
+  carrierId?: Id
+}
+
 function scoreGoal(
   world: WorldState,
   report: MatchReport,
   context: MatchContext,
-  side: MatchSide,
-  minute: number,
+  scored: ScoredGoal,
 ): void {
+  const { side, minute, carrierId } = scored
   const rng = createRng(world.seed, 'goal', report.fixtureId, minute, side)
   const club = side === 'home' ? context.homeClub : context.awayClub
-  const scorer = pickScorer({
+  const scorer = carrierPlayer(world, context, side, carrierId) ?? pickScorer({
     world,
     club,
     rng,
@@ -114,17 +137,8 @@ function simulateMinute(
   context: MatchContext,
   minute: number,
 ): LiveMinuteResult {
-  const rng = createRng(world.seed, 'live', report.fixtureId, minute)
   const momentum = momentumFor(report, minute)
   const userHome = context.userSide === 'home'
-  const homeFactor = userHome ? momentum.user : momentum.opponent
-  const awayFactor = userHome ? momentum.opponent : momentum.user
-  const homeP = clamp((context.homeXg / 90) * homeFactor, 0, 0.5)
-  const awayP = clamp((context.awayXg / 90) * awayFactor, 0, 0.5)
-
-  if (rng.chance(homeP)) scoreGoal(world, report, context, 'home', minute)
-  if (rng.chance(awayP)) scoreGoal(world, report, context, 'away', minute)
-
   const beats = buildBeats({
     seed: world.seed,
     fixtureId: report.fixtureId,
@@ -134,11 +148,22 @@ function simulateMinute(
     homeName: report.homeName,
     awayName: report.awayName,
     lineups: context.lineups,
+    homeXg: context.homeXg,
+    awayXg: context.awayXg,
+    previous: report.liveState,
+    momentum: {
+      home: userHome ? momentum.user : momentum.opponent,
+      away: userHome ? momentum.opponent : momentum.user,
+    },
   })
   for (const event of beats.events) appendEvent(report, event)
   addBeatStats(report, beats.stats)
+  if (beats.goalSide) {
+    scoreGoal(world, report, context, { side: beats.goalSide, minute, carrierId: beats.carrierId })
+  }
 
   report.currentMinute = minute
+  report.liveState = beats.liveState
   return {
     minute,
     paused: false,
@@ -146,6 +171,9 @@ function simulateMinute(
     halfTime: report.halfTimeHomeGoals != null,
     possession: beats.possession,
     ballX: beats.ballX,
+    carrierId: beats.carrierId,
+    steps: beats.steps,
+    goalSide: beats.goalSide,
     events: beats.events,
   }
 }
@@ -155,6 +183,7 @@ function pausedResult(
   minute: number,
   possession: MatchSide,
   ballX: number,
+  carrierId?: Id,
 ): LiveMinuteResult {
   return {
     minute,
@@ -163,18 +192,23 @@ function pausedResult(
     halfTime: report.halfTimeHomeGoals != null,
     possession,
     ballX,
+    carrierId,
+    steps: [],
     events: [],
   }
 }
 
 function finishedResult(report: MatchReport): LiveMinuteResult {
+  const state = report.liveState ?? kickoffState('home')
   return {
     minute: report.currentMinute,
     paused: false,
     finished: true,
     halfTime: report.halfTimeHomeGoals != null,
-    possession: 'home',
-    ballX: 0.5,
+    possession: state.possession,
+    ballX: state.ballX,
+    carrierId: state.carrierId,
+    steps: [],
     events: [],
   }
 }
@@ -193,12 +227,15 @@ function pauseForMoment(
 ): LiveMinuteResult | null {
   if (moment.minute === nextMinute) {
     const possession = momentPossession(moment, userSide)
+    const state = momentState(possession)
     report.currentMinute = nextMinute
+    report.liveState = state
     addBeatStats(report, possessionStats(possession))
-    return pausedResult(report, nextMinute, possession, possession === 'home' ? 0.62 : 0.38)
+    return pausedResult(report, nextMinute, state.possession, state.ballX, state.carrierId)
   }
   if (moment.minute <= report.currentMinute) {
-    return pausedResult(report, report.currentMinute, userSide, 0.5)
+    const state = report.liveState ?? kickoffState(userSide)
+    return pausedResult(report, report.currentMinute, state.possession, state.ballX, state.carrierId)
   }
   return null
 }

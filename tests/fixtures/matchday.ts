@@ -10,11 +10,8 @@ export const PLAN: WeeklyPlan = { training: 'technical', extra: 'none' }
 export function readyWorld(seed = 2026): WorldState {
   const world = generateWorld(testOptions({ seed }), TEST_NOW)
   const user = world.players[world.playerId]
-  for (const key of ATTR_KEYS) user.attributes[key] = 92
-  user.fitness = 100
-  user.sharpness = 96
-  user.form = 92
-  user.morale = 82
+  Object.assign(user.attributes, Object.fromEntries(ATTR_KEYS.map((key) => [key, 92])))
+  Object.assign(user, { fitness: 100, sharpness: 96, form: 92, morale: 82 })
   const coach = Object.values(world.relationships).find((relationship) => relationship.role === 'coach')
   if (coach) coach.trust = 95
   return world

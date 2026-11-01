@@ -1,5 +1,6 @@
 import { advanceLiveMinute } from '../engine'
 import type { LiveMinuteResult } from '../engine'
+import type { MatchReport } from '../domain'
 import {
   IDLE_PLAYBACK,
   LIVE_SPEEDS,
@@ -28,6 +29,8 @@ function advancedFrame(playback: LivePlayback, result: LiveMinuteResult): LivePl
     ...playback,
     possession: result.possession,
     ballX: result.ballX,
+    carrierId: result.carrierId ?? null,
+    track: result.steps,
     history: historyWith(playback.history, {
       minute: result.minute,
       possession: result.possession,
@@ -80,7 +83,8 @@ function setLiveSpeed(set: StoreSet, get: StoreGet, speed: LiveSpeed): void {
 function jumpToNextKeyMoment(set: StoreSet, get: StoreGet): void {
   const state = get()
   const world = state.world
-  if (!world || state.livePlayback.phase !== 'playing') return
+  const running = state.livePlayback.phase === 'playing' || state.livePlayback.phase === 'paused'
+  if (!world || !running) return
   let playback = state.livePlayback
   let phase: LivePhase = 'playing'
   for (let guard = 0; guard < 180; guard += 1) {
@@ -102,20 +106,28 @@ function jumpToNextKeyMoment(set: StoreSet, get: StoreGet): void {
   set({ world: { ...world }, livePlayback: { ...playback, phase } })
 }
 
+function resumedPlayback(
+  playback: LivePlayback,
+  report: MatchReport | null | undefined,
+): LivePlayback {
+  const state = report?.liveState
+  return {
+    ...playback,
+    phase: report && report.currentMinute >= 90 ? 'ended' : 'playing',
+    possession: state?.possession ?? playback.possession,
+    ballX: state?.ballX ?? playback.ballX,
+    carrierId: state?.carrierId ?? null,
+    track: [],
+    resultMomentId: null,
+    revision: playback.revision + 1,
+  }
+}
+
 function continueAfterMoment(set: StoreSet, get: StoreGet): void {
   const state = get()
   const playback = state.livePlayback
   if (playback.phase !== 'result') return
-  const report = state.world?.lastMatch
-  const phase: LivePhase = report && report.currentMinute >= 90 ? 'ended' : 'playing'
-  set({
-    livePlayback: {
-      ...playback,
-      phase,
-      resultMomentId: null,
-      revision: playback.revision + 1,
-    },
-  })
+  set({ livePlayback: resumedPlayback(playback, state.world?.lastMatch) })
 }
 
 export const createLiveSlice: StoreSlice<LiveSlice> = (set, get) => ({

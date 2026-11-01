@@ -145,6 +145,10 @@ describe('live key moments', () => {
     expect(report.goals.length).toBeGreaterThan(beforeGoals)
     const goal = report.goals.find((item) => item.fromKeyMoment && item.minute === moment.minute)
     expect(goal?.isUser).toBe(true)
+    const goalEvent = report.events.find(
+      (item) => item.type === 'goal' && item.minute === moment.minute,
+    )
+    expect(goalEvent?.side).toBe(report.homeId === world.clubId ? 'home' : 'away')
     expect(fixture.homeGoals).toBe(report.homeGoals)
     expect(fixture.awayGoals).toBe(report.awayGoals)
     expectLiveConsistency(report)

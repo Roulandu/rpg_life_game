@@ -1,36 +1,14 @@
 import { createLiveCareer, nextPending, saveWorldMock } from '../fixtures/liveStore'
+import { playToEnd } from '../fixtures/livePlaybackFlow'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { listSaves } from '../../src/db/repository'
 import { autoResolveKeyMoments, finalizeMatchday } from '../../src/engine'
 import { useGameStore } from '../../src/store/gameStore'
-import { IDLE_PLAYBACK } from '../../src/store/livePlayback'
+import { IDLE_PLAYBACK, playbackFor, playbackPhaseFor } from '../../src/store/livePlayback'
 import { hashState } from '../../src/lib/rng'
 import { resetStore } from '../fixtures/storeHarness'
 
 beforeEach(() => resetStore(saveWorldMock, true))
-
-async function playToEnd() {
-  for (let guard = 0; guard < 30; guard += 1) {
-    const state = useGameStore.getState()
-    if (state.livePlayback.phase === 'result') {
-      state.continueAfterMoment()
-      continue
-    }
-    if (state.livePlayback.phase === 'awaiting') {
-      const moment = nextPending()
-      if (!moment) break
-      await state.resolveKeyMoment(moment.id, moment.defaultOptionId)
-      useGameStore.getState().continueAfterMoment()
-      useGameStore.getState().jumpToNextKeyMoment()
-      continue
-    }
-    if (state.livePlayback.phase === 'playing') {
-      state.jumpToNextKeyMoment()
-      continue
-    }
-    break
-  }
-}
 
 describe('live playback clock', () => {
   it('advance 进入比赛后 livePlayback 以 1 倍速从 0 分钟自动开赛', async () => {
@@ -168,6 +146,89 @@ describe('live playback persistence', () => {
 
     expect(actual).toBeTruthy()
     expect(hashState(actual)).toBe(hashState(expected))
+  })
+})
+
+describe('live playback restore', () => {
+  it('刷新后 playing 直接读取 liveState 的球权、球位与持球人', async () => {
+    await createLiveCareer()
+    for (let index = 0; index < 5; index += 1) useGameStore.getState().tickLiveMatch()
+
+    const report = useGameStore.getState().world!.lastMatch!
+    const playback = playbackFor(useGameStore.getState().world)
+
+    expect(report.liveState).toBeDefined()
+    expect(playback.phase).toBe('playing')
+    expect(playback.possession).toBe(report.liveState!.possession)
+    expect(playback.ballX).toBe(report.liveState!.ballX)
+    expect(playback.carrierId).toBe(report.liveState!.carrierId ?? null)
+  })
+
+  it('刷新后 awaiting 保留关键时刻的进攻三区球位', async () => {
+    await createLiveCareer()
+    useGameStore.getState().jumpToNextKeyMoment()
+
+    const report = useGameStore.getState().world!.lastMatch!
+    const playback = playbackFor(useGameStore.getState().world)
+
+    expect(playback.phase).toBe('awaiting')
+    expect(report.liveState).toBeDefined()
+    expect(playback.ballX).toBe(report.liveState!.ballX)
+    expect(playback.ballX).not.toBe(0.5)
+  })
+
+  it('播放中写入 1 到 3 段轨迹，轨迹终点与当前球位一致', async () => {
+    await createLiveCareer()
+    useGameStore.getState().tickLiveMatch()
+
+    const playback = useGameStore.getState().livePlayback
+    expect(playback.track.length).toBeGreaterThanOrEqual(1)
+    expect(playback.track.length).toBeLessThanOrEqual(3)
+    expect(playback.track.at(-1)!.ballX).toBeCloseTo(playback.ballX, 5)
+    expect(playback.carrierId).toBeTruthy()
+  })
+})
+
+describe('live playback restore after goals', () => {
+  it('进球分钟后球停在门线，持球人就是射手', async () => {
+    await createLiveCareer()
+    const world = useGameStore.getState().world!
+    world.lastMatch!.keyMoments = []
+
+    for (let index = 0; index < 90; index += 1) {
+      if (useGameStore.getState().world!.lastMatch!.goals.length > 0) break
+      useGameStore.getState().tickLiveMatch()
+    }
+
+    const report = useGameStore.getState().world!.lastMatch!
+    const goal = report.goals[0]
+    expect(goal).toBeDefined()
+    expect(goal.side).toBe(report.liveState!.possession)
+    expect(report.liveState!.ballX).toBe(goal.side === 'home' ? 0.96 : 0.04)
+    expect(report.liveState!.carrierId).toBe(goal.scorerId)
+    expect(useGameStore.getState().livePlayback.ballX).toBe(report.liveState!.ballX)
+  })
+
+  it('暂停时仍可跳到下一关键回合', async () => {
+    await createLiveCareer()
+    useGameStore.getState().pauseLivePlayback()
+    const minute = useGameStore.getState().world!.lastMatch!.currentMinute
+
+    useGameStore.getState().jumpToNextKeyMoment()
+
+    const state = useGameStore.getState()
+    expect(state.livePlayback.phase).toBe('awaiting')
+    expect(state.world!.lastMatch!.currentMinute).toBeGreaterThan(minute)
+  })
+
+  it('待处理回合分钟已过去时播放阶段仍显示 awaiting', async () => {
+    await createLiveCareer()
+    for (let index = 0; index < 5; index += 1) useGameStore.getState().tickLiveMatch()
+    const report = useGameStore.getState().world!.lastMatch!
+    const pending = report.keyMoments!.find((moment) => !moment.outcome)!
+    pending.minute = report.currentMinute - 1
+
+    expect(playbackPhaseFor(report)).toBe('awaiting')
   })
 })
 

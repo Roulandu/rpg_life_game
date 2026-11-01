@@ -1,15 +1,20 @@
-import { clamp, positionGroup } from '../domain'
+import { positionGroup } from '../domain'
 import type {
   BeatKind,
   Club,
+  Id,
+  LiveTrackStep,
   MatchEventLine,
   MatchLineupPlayer,
   MatchLineups,
+  MatchLiveState,
   MatchSide,
   MatchStatLine,
 } from '../domain'
 import { createRng } from '../lib'
-import { beatText } from './data/beatTexts'
+import { beatText, goalShotText, saveText } from './data/beatTexts'
+import { buildSpell, type SpellShot } from './liveSpell'
+import { expectedGoals } from './matchGoals'
 
 export interface BeatInput {
   seed: number
@@ -20,24 +25,22 @@ export interface BeatInput {
   homeName: string
   awayName: string
   lineups?: MatchLineups
+  homeXg?: number
+  awayXg?: number
+  previous?: MatchLiveState | null
+  momentum?: Partial<Record<MatchSide, number>>
 }
 
 export interface BeatResult {
   possession: MatchSide
   ballX: number
+  carrierId?: Id
+  steps: LiveTrackStep[]
+  goalSide?: MatchSide
+  shot?: SpellShot
+  liveState: MatchLiveState
   events: MatchEventLine[]
   stats: { home: Partial<MatchStatLine>; away: Partial<MatchStatLine> }
-}
-
-interface BeatEventSpec {
-  kind: BeatKind
-  side: MatchSide
-  onTarget: boolean
-  stats: Partial<MatchStatLine>
-}
-
-function otherSide(side: MatchSide): MatchSide {
-  return side === 'home' ? 'away' : 'home'
 }
 
 interface ActorInput {
@@ -58,74 +61,139 @@ function pickActor(input: ActorInput): MatchLineupPlayer | null {
   return rng.pick(candidates)
 }
 
-function eventSpec(kind: BeatKind, possession: MatchSide, rng: ReturnType<typeof createRng>): BeatEventSpec {
-  if (kind === 'shot') {
-    const onTarget = rng.chance(0.42)
-    return {
-      kind,
-      side: possession,
-      onTarget,
-      stats: { shots: 1, ...(onTarget ? { shotsOnTarget: 1 } : {}) },
-    }
-  }
-  if (kind === 'corner') return { kind, side: possession, onTarget: false, stats: { corners: 1 } }
-  if (kind === 'foul') {
-    return { kind, side: otherSide(possession), onTarget: false, stats: {} }
-  }
-  return { kind, side: possession, onTarget: false, stats: {} }
+function teamName(input: BeatInput, side: MatchSide): string {
+  return side === 'home' ? input.homeName : input.awayName
 }
 
-function beatKind(roll: number): BeatKind | null {
-  if (roll < 0.1) return 'shot'
-  if (roll < 0.16) return 'corner'
-  if (roll < 0.24) return 'attack'
-  if (roll < 0.28) return 'foul'
-  if (roll < 0.3) return 'offside'
+function otherSide(side: MatchSide): MatchSide {
+  return side === 'home' ? 'away' : 'home'
+}
+
+function textContext(input: BeatInput, side: MatchSide, player: string) {
+  return { player, team: teamName(input, side), opponent: teamName(input, otherSide(side)) }
+}
+
+function carrierActor(
+  input: BeatInput,
+  side: MatchSide,
+  carrierId: Id | undefined,
+): MatchLineupPlayer | null {
+  const found = (input.lineups?.[side] ?? []).find((player) => player.id === carrierId)
+  return found ?? pickActor({
+    lineups: input.lineups,
+    side,
+    defending: false,
+    seed: input.seed,
+    fixtureId: input.fixtureId,
+    minute: input.minute,
+  })
+}
+
+function shotLines(input: BeatInput, shot: SpellShot, variant: number): MatchEventLine[] {
+  const actor = carrierActor(input, shot.side, shot.carrierId)
+  const context = textContext(input, shot.side, actor?.name ?? teamName(input, shot.side))
+  return [{
+    minute: input.minute,
+    type: 'shot',
+    side: shot.side,
+    isUser: actor?.isUser ?? false,
+    text: shot.goal ? goalShotText(context, variant) : beatText('shot', context, shot.onTarget, variant),
+  }]
+}
+
+function saveLine(
+  input: BeatInput,
+  side: MatchSide,
+  carrierId: Id | undefined,
+  variant: number,
+): MatchEventLine {
+  const actor = carrierActor(input, side, carrierId)
+  return {
+    minute: input.minute,
+    type: 'save',
+    side: otherSide(side),
+    isUser: false,
+    text: saveText(textContext(input, side, actor?.name ?? teamName(input, side)), variant),
+  }
+}
+
+function rareKind(roll: number): BeatKind | null {
+  if (roll < 0.1) return 'attack'
+  if (roll < 0.14) return 'corner'
+  if (roll < 0.17) return 'foul'
+  if (roll < 0.19) return 'offside'
   return null
 }
 
-export function buildBeats(input: BeatInput): BeatResult {
-  const rng = createRng(input.seed, 'beats', input.fixtureId, input.minute)
-  const homeShare = clamp(
-    0.5 + (input.homeStrength.midfield - input.awayStrength.midfield) * 0.004 + 0.02,
-    0.3,
-    0.7,
-  )
-  const possession: MatchSide = rng.chance(homeShare) ? 'home' : 'away'
-  const ballX = possession === 'home' ? rng.float(0.52, 0.94) : rng.float(0.06, 0.48)
-  const stats: BeatResult['stats'] = { home: {}, away: {} }
-  stats[possession] = { possession: 1 }
-  const events: MatchEventLine[] = []
-
-  const kind = beatKind(rng.next())
-  if (!kind) return { possession, ballX, events, stats }
-
-  const spec = eventSpec(kind, possession, rng)
-  const teamName = spec.side === 'home' ? input.homeName : input.awayName
-  const opponentName = spec.side === 'home' ? input.awayName : input.homeName
+function rareEvent(
+  input: BeatInput,
+  kind: BeatKind,
+  possession: MatchSide,
+  variant: number,
+): { event: MatchEventLine; stats: Partial<MatchStatLine> } {
+  const side = kind === 'foul' ? otherSide(possession) : possession
   const actor = pickActor({
     lineups: input.lineups,
-    side: spec.side,
+    side,
     defending: kind === 'foul',
     seed: input.seed,
     fixtureId: input.fixtureId,
     minute: input.minute,
   })
-  events.push({
-    minute: input.minute,
-    type: spec.kind,
-    side: spec.side,
-    isUser: actor?.isUser ?? false,
-    text: beatText(
-      spec.kind,
-      { player: actor?.name ?? teamName, team: teamName, opponent: opponentName },
-      spec.onTarget,
-      rng.int(0, 2),
-    ),
-  })
-  stats[spec.side] = {
-    ...stats[spec.side],
-    ...spec.stats,
+  const context = textContext(input, side, actor?.name ?? teamName(input, side))
+  return {
+    event: {
+      minute: input.minute,
+      type: kind,
+      side,
+      isUser: actor?.isUser ?? false,
+      text: beatText(kind, context, false, variant),
+    },
+    stats: kind === 'corner' ? { corners: 1 } : {},
   }
-  return { possession, ballX, events, stats }
+}
+
+export function buildBeats(input: BeatInput): BeatResult {
+  const spell = buildSpell({
+    seed: input.seed,
+    fixtureId: input.fixtureId,
+    minute: input.minute,
+    homeStrength: input.homeStrength,
+    awayStrength: input.awayStrength,
+    homeXg: input.homeXg ?? expectedGoals(input.homeStrength.attack, input.awayStrength.defense, true),
+    awayXg: input.awayXg ?? expectedGoals(input.awayStrength.attack, input.homeStrength.defense, false),
+    previous: input.previous,
+    momentum: input.momentum,
+    lineups: input.lineups,
+  })
+  const rng = createRng(input.seed, 'beats', input.fixtureId, input.minute)
+  const stats: BeatResult['stats'] = {
+    home: { possession: spell.possession === 'home' ? 1 : 0 },
+    away: { possession: spell.possession === 'away' ? 1 : 0 },
+  }
+  const events: MatchEventLine[] = []
+  const variant = rng.int(0, 2)
+
+  if (spell.shot) {
+    const side = spell.shot.side
+    events.push(...shotLines(input, spell.shot, variant))
+    if (!spell.shot.goal) {
+      stats[side] = {
+        ...stats[side],
+        shots: 1,
+        shotsOnTarget: spell.shot.onTarget ? 1 : 0,
+      }
+      if (spell.shot.onTarget) events.push(saveLine(input, side, spell.carrierId, variant))
+    }
+  } else {
+    const kind = rareKind(rng.next())
+    if (kind) {
+      const rare = rareEvent(input, kind, spell.possession, variant)
+      events.push(rare.event)
+      const side = rare.event.side ?? spell.possession
+      stats[side] = { ...stats[side], ...rare.stats }
+    }
+  }
+
+  return { ...spell, events, stats }
 }

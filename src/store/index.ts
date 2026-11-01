@@ -7,6 +7,7 @@ export {
   playbackPhaseFor,
 } from './livePlayback'
 export type { LiveFrame, LivePhase, LivePlayback, LiveSpeed } from './livePlayback'
+export type { LiveTrackStep } from '../domain'
 export {
   selectActionLabel,
   selectClubFixtures,

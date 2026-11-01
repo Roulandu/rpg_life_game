@@ -204,8 +204,8 @@
 .pitch-ball,
 .pitch-trail {
   transition:
-    left 0.45s ease-out,
-    top 0.45s ease-out,
+    left var(--pitch-move, 420ms) ease-out,
+    top var(--pitch-move, 420ms) ease-out,
     background-color 0.3s ease-out,
     opacity 0.3s ease-out;
 }

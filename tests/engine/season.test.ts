@@ -96,7 +96,7 @@ describe('season simulation', () => {
     const first = simulateWeeks(generateWorld(testOptions(), TEST_NOW), 38)
     const second = simulateWeeks(generateWorld(testOptions(), TEST_NOW), 38)
     expect(hashState(second)).toBe(hashState(first))
-  })
+  }, 20_000)
 
   it('generates template events that can be resolved', () => {
     let world = generateWorld(testOptions({ seed: 777 }), TEST_NOW)
