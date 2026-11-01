@@ -1,6 +1,6 @@
 import { Sparkles } from 'lucide-react'
 import type { Player } from '../../../domain'
-import { ATTR_KEYS, ATTR_LABELS, POSITION_LABELS, overall } from '../../../domain'
+import { ATTR_KEYS, ATTR_LABELS, POSITION_LABELS, displayName, overall } from '../../../domain'
 import { Card, SectionTitle } from '../../components/Card'
 import { StatBar } from '../../components/StatBar'
 
@@ -18,7 +18,7 @@ export function ProfileOverview({ user, clubName }: { user: Player; clubName: st
             </div>
           </div>
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-semibold text-text">{user.name}</h1>
+            <h1 className="truncate text-xl font-semibold text-text">{displayName(user)}</h1>
             <p className="mt-0.5 text-[11px] text-muted">
               {clubName} · {POSITION_LABELS[user.position]}
             </p>

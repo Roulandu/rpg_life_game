@@ -1,7 +1,8 @@
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../../store'
-import { formatMoneyShort, formatSeasonLabel } from '../../lib'
+import { displayName } from '../../domain'
+import { formatDayLabel, formatMoneyShort, formatSeasonLabel } from '../../lib'
 import { PageHeader } from '../components/PageHeader'
 import { MorePrimaryColumn } from './more/MorePrimaryColumn'
 import { MoreSecondaryColumn } from './more/MoreSecondaryColumn'
@@ -20,7 +21,7 @@ export function MoreScreen() {
       <PageHeader
         eyebrow={formatSeasonLabel(world.season)}
         title="更多"
-        subtitle={`${user.name} · 第 ${world.week} 周`}
+        subtitle={`${displayName(user)} · ${formatDayLabel(world.season, world.week, world.day)}`}
         right={<span className="chip">{formatMoneyShort(world.finance.balance)}</span>}
       />
 

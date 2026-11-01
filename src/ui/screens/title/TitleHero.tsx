@@ -1,6 +1,7 @@
 import { ChevronRight, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../../../store'
+import { displayName } from '../../../domain'
 import { formatMoneyShort, formatSeasonLabel } from '../../../lib'
 
 export function TitleHero() {
@@ -42,7 +43,7 @@ export function TitleHero() {
       </div>
       {world && user ? (
         <p className="mt-3 text-center text-[11px] text-dim">
-          {user.name} · {world.clubs[world.clubId]?.nameZh} · {formatSeasonLabel(world.season)} 第 {world.week} 周
+          {displayName(user)} · {world.clubs[world.clubId]?.nameZh} · {formatSeasonLabel(world.season)} 第 {world.week} 周
           {currentSummary ? ` · ${formatMoneyShort(world.finance.balance)}` : ''}
         </p>
       ) : null}

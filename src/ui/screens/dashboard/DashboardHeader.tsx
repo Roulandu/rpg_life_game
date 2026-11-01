@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Settings } from 'lucide-react'
-import { POSITION_LABELS, overall } from '../../../domain'
+import { POSITION_LABELS, displayName, overall } from '../../../domain'
 import type { Club, League, Player, WorldState } from '../../../domain'
 import { formatMoneyShort, formatSeasonLabel } from '../../../lib'
 import { ThemeToggle } from '../../components/ThemeToggle'
@@ -58,7 +58,7 @@ export function DashboardHeader({
         </div>
       </div>
       <p className="mt-2 text-xs text-muted">
-        {user.name} · {POSITION_LABELS[user.position]} · {user.age} 岁
+        {displayName(user)} · {POSITION_LABELS[user.position]} · {user.age} 岁
         {user.injury ? <span className="ml-2 text-danger">伤停 {user.injury.daysLeft} 天</span> : null}
       </p>
     </header>

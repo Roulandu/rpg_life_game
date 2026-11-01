@@ -1,3 +1,4 @@
+import { displayName } from '../../../domain'
 import type { Club } from '../../../domain'
 
 export function CoachCard({ club }: { club: Club }) {
@@ -8,7 +9,7 @@ export function CoachCard({ club }: { club: Club }) {
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <h2 className="section-title">教练组</h2>
-          <p className="mt-1 truncate text-sm font-semibold text-text">{coach.name}</p>
+          <p className="mt-1 truncate text-sm font-semibold text-text">{displayName(coach)}</p>
         </div>
         <span className="chip shrink-0">{coach.age} 岁</span>
       </div>

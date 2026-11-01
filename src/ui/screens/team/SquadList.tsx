@@ -1,5 +1,5 @@
 import { SQUAD_ROLE_LABELS } from '../../labels'
-import { POSITION_LABELS, computeOverall } from '../../../domain'
+import { POSITION_LABELS, computeOverall, displayName } from '../../../domain'
 import type { Player } from '../../../domain'
 import clsx from 'clsx'
 
@@ -18,7 +18,7 @@ export function SquadRow({ player, isUser }: { player: Player; isUser: boolean }
       <span className="w-8 shrink-0 text-center font-mono text-[10px] text-dim">{overall}</span>
       <span className="min-w-0 flex-1">
         <span className="block truncate">
-          <span className="text-text">{player.name}</span>
+          <span className="text-text">{displayName(player)}</span>
           {isUser ? <span className="ml-1.5 text-[9px] text-accent">你</span> : null}
         </span>
         <span className="mt-0.5 block text-[10px] text-dim">

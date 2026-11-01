@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Award, CalendarRange, TrendingUp } from 'lucide-react'
 import { useGameStore } from '../../store'
+import { displayName } from '../../domain'
 import { formatRating, formatSeasonLabel } from '../../lib'
 import { Card, EmptyState, SectionTitle } from '../components/Card'
 
@@ -26,7 +27,7 @@ export function TimelineScreen() {
         <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-accent">Career Timeline</p>
         <h1 className="text-xl font-semibold text-text">生涯时间线</h1>
         <p className="mt-1 text-xs text-muted">
-          {user.name} · {user.nationality} · {user.age} 岁
+          {displayName(user)} · {user.nationality} · {user.age} 岁
         </p>
       </div>
 

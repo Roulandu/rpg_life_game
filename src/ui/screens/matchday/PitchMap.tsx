@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import type { MatchReport, PitchPlayer, PitchPoint, WorldState } from '../../../domain'
-import { buildPitchFrame } from '../../../domain'
+import { buildPitchFrame, displayName } from '../../../domain'
 import type { LivePlayback, LiveSpeed } from '../../../store'
 import { PitchSvg } from './PitchSvg'
 
@@ -68,7 +68,7 @@ function PlayerDot({ player }: { player: PitchPlayer }) {
         )}
       />
       <span className="pointer-events-none absolute left-1/2 top-full mt-0.5 hidden -translate-x-1/2 whitespace-nowrap text-[8px] leading-none text-muted sm:block">
-        {player.name}
+        {displayName(player)}
       </span>
       <span className="pointer-events-none absolute left-1/2 top-full mt-3 -translate-x-1/2 font-mono text-[8px] leading-none text-dim">
         {player.number}
@@ -162,7 +162,7 @@ export function PitchMap({ world, match, playback }: { world: WorldState; match:
     >
       <p data-testid="pitch-possession" className="mb-2 truncate px-1 text-[11px] text-muted">
         <span className={frame.possession === 'home' ? 'text-teal' : 'text-gold'}>{possessionTeam}</span>
-        控球{carrier ? ` · ${carrier.name}` : ''}
+        控球{carrier ? ` · ${displayName(carrier)}` : ''}
       </p>
       <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-line-soft bg-pitch">
         <PitchSvg />

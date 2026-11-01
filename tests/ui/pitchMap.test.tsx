@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render, screen, within } from '@testing-library/react'
-import { positionGroup } from '../../src/domain'
+import { displayName, positionGroup } from '../../src/domain'
 import { PitchMap } from '../../src/ui/screens/matchday/PitchMap'
 import { IDLE_PLAYBACK } from '../../src/store/livePlayback'
 import type { LivePlayback } from '../../src/store/livePlayback'
@@ -130,7 +130,7 @@ describe('pitch map passing', () => {
     expect(screen.getByTestId('pitch-pass-line').querySelector('polyline')).not.toBeNull()
     const bar = screen.getByTestId('pitch-possession')
     expect(bar.textContent).toContain(match.homeName)
-    expect(bar.textContent).toContain(carrier.name)
+    expect(bar.textContent).toContain(displayName(carrier))
   })
 })
 
@@ -191,9 +191,12 @@ describe('pitch map responsive labels', () => {
       <PitchMap world={world} match={match} playback={playbackWith({ fixtureId: match.fixtureId })} />,
     )
 
-    const name = screen.getByText(match.lineups!.home[0]!.name)
+    const first = match.lineups!.home[0]!
+    const name = screen.getByText(displayName(first))
     expect(name.className).toContain('hidden')
     expect(name.className).toContain('sm:block')
-    expect(screen.getAllByText(String(match.lineups!.home[0]!.number)).length).toBeGreaterThan(0)
+    // 直播画面的人名一律中文，不残留拉丁原名。
+    expect(/[A-Za-z]/.test(displayName(first))).toBe(false)
+    expect(screen.getAllByText(String(first.number)).length).toBeGreaterThan(0)
   })
 })

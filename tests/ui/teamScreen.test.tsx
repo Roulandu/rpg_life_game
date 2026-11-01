@@ -58,7 +58,9 @@ describe('队伍页', () => {
 
     expect(screen.getByText('队伍')).toBeInTheDocument()
     expect(screen.getByText(world.clubs[world.clubId].nameZh)).toBeInTheDocument()
-    expect(screen.getByText(top.name)).toBeInTheDocument()
+    expect(screen.getByText(top.nameZh)).toBeInTheDocument()
+    // 名单里的外籍球员也一律显示中文名。
+    expect(/[A-Za-z]/.test(top.nameZh)).toBe(false)
     expect(screen.getAllByText(/主力|轮换|核心|青训|你/).length).toBeGreaterThan(0)
   })
 
@@ -79,7 +81,8 @@ describe('队伍页', () => {
 
     const coach = world.clubs[world.clubId].coach
     expect(screen.getByText('教练组')).toBeInTheDocument()
-    expect(screen.getByText(coach.name)).toBeInTheDocument()
+    expect(screen.getByText(coach.nameZh)).toBeInTheDocument()
+    expect(/[A-Za-z]/.test(coach.nameZh)).toBe(false)
     expect(screen.getByText(`${coach.quality}`)).toBeInTheDocument()
   })
 })
