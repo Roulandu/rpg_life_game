@@ -108,6 +108,13 @@ describe('赛程过滤与空周', () => {
     expect(weekDayRoles([others], 2026, 1, 'club:ENG:1:07').matchDays).toEqual([])
   })
 
+  it('客场也算这一家的比赛', () => {
+    const away = fixture({ round: 1, homeId: 'club:ENG:1:01', awayId: 'club:ENG:1:07' })
+    const roles = weekDayRoles([away], 2026, 1, 'club:ENG:1:07')
+    expect(roles.matchDays).toEqual([7])
+    expect(roles.decisionDays).toEqual([3, 5, 7])
+  })
+
   it('不串赛季也不串周', () => {
     const roles = weekDayRoles(
       [fixture({ round: 2, season: 2027 }), fixture({ round: 3, week: 2 })],
@@ -124,5 +131,31 @@ describe('赛程过滤与空周', () => {
     expect(roles.trainingDays).toEqual([1, 2, 3, 4, 5])
     expect(roles.specializationDay).toBe(3)
     expect(roles.extraDay).toBe(5)
+  })
+})
+
+describe('优先日排满后的避让', () => {
+  it('特训优先日全被比赛占用时往后找一个空闲日', () => {
+    const roles = weekDayRoles(
+      [fixture({ round: 1, day: 2 }), fixture({ round: 2, day: 3 }), fixture({ round: 3, day: 4 })],
+      2026,
+      1,
+    )
+    expect(roles.matchDays).toEqual([2, 3, 4])
+    expect(roles.specializationDay).toBe(1)
+    expect(roles.extraDay).toBe(5)
+    expect(roles.trainingDays).toEqual([1, 5])
+  })
+
+  it('一周七天全被占用时兜底回优先日，不返回 undefined', () => {
+    const roles = weekDayRoles(
+      [1, 2, 3, 4, 5, 6].map((day) => fixture({ round: day, day })),
+      2026,
+      1,
+    )
+    expect(roles.matchDays).toEqual([1, 2, 3, 4, 5, 6])
+    expect(roles.specializationDay).toBe(7)
+    expect(roles.extraDay).toBe(5)
+    expect(roles.trainingDays).toEqual([])
   })
 })

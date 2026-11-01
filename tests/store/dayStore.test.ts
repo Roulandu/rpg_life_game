@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { TRAINING_LABELS } from '../../src/domain'
 import { listSaves } from '../../src/db/repository'
 import { useGameStore } from '../../src/store/gameStore'
 import { testOptions } from '../fixtures/career'
@@ -64,5 +65,21 @@ describe('逐日推进的 store', () => {
     expect(blocked).toBeNull()
     expect(useGameStore.getState().error).toContain('请先')
     expect(useGameStore.getState().world?.day).toBe(7)
+  })
+
+  it('推进摘要说出这一天是训练日、活动日还是休息日', async () => {
+    await useGameStore.getState().createCareer(testOptions())
+    const focus = useGameStore.getState().world?.weekPlan.training ?? 'technical'
+
+    const notices: string[] = []
+    for (let index = 0; index < 6; index += 1) {
+      await useGameStore.getState().advanceDay()
+      notices.push(useGameStore.getState().notice ?? '')
+    }
+
+    expect(notices[0]).toBe(`周一 · 训练日：${TRAINING_LABELS[focus]}`)
+    expect(notices[1]).toContain('训练日')
+    expect(notices[4]).toBe('周五 · 活动日')
+    expect(notices[5]).toBe('周六 · 休息日')
   })
 })
