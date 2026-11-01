@@ -5,11 +5,12 @@ import {
   applyEffects,
   autoResolveKeyMoments,
   finalizeMatchday,
+  generateKeyMoments,
   hasPendingKeyMoments,
   resolveEvent,
   resolveKeyMoment,
 } from '../../src/engine'
-import type { SeasonTransition, TurnResult } from '../../src/engine'
+import type { KeyMomentRequest, SeasonTransition, TurnResult } from '../../src/engine'
 
 describe('engine public entry', () => {
   it('exports turn and event actions', () => {
@@ -24,10 +25,12 @@ describe('engine public entry', () => {
     expect(typeof resolveKeyMoment).toBe('function')
     expect(typeof autoResolveKeyMoments).toBe('function')
     expect(typeof finalizeMatchday).toBe('function')
+    expect(typeof generateKeyMoments).toBe('function')
   })
 
   it('exposes result types', () => {
     expectTypeOf<TurnResult>().not.toBeAny()
     expectTypeOf<SeasonTransition>().not.toBeAny()
+    expectTypeOf<KeyMomentRequest>().not.toBeAny()
   })
 })

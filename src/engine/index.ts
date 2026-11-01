@@ -11,6 +11,7 @@ export {
   pendingKeyMoments,
   resolveKeyMoment,
 } from './keyMoments'
+export type { KeyMomentRequest } from './keyMoments'
 export { advanceDay, advanceUntilDecision, isPendingDay, playDay, startDay } from './day'
 export type { DayResult, DayStopReason, FastForwardResult } from './day'
 export { getUserFixtureOnDay, opponentOf } from './match'

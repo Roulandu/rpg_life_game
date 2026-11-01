@@ -7,6 +7,7 @@ import { adjustRelationship, getRelationshipByRole } from './relationships'
 import { advanceLiveMatch, applyLiveKeyMomentOutcome, userSideOf } from './liveMatch'
 
 export { generateKeyMoments, hasPendingKeyMoments, pendingKeyMoments } from './keyMomentGen'
+export type { KeyMomentRequest } from './keyMomentGen'
 
 interface AppliedOutcome {
   success: boolean
