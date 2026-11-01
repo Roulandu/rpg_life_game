@@ -1,7 +1,7 @@
 import { ChevronRight, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../../../store'
-import { formatSeasonLabel } from '../../../lib'
+import { formatDayLabel, formatSeasonLabel } from '../../../lib'
 
 export function TitleSaveList() {
   const navigate = useNavigate()
@@ -37,7 +37,7 @@ export function TitleSaveList() {
                     {active ? <span className="ml-2 text-[10px] text-accent">当前</span> : null}
                   </p>
                   <p className="mt-0.5 truncate text-[11px] text-muted">
-                    {save.clubName} · {formatSeasonLabel(save.season)} 第 {save.week} 周 · 能力 {save.overall}
+                    {save.clubName} · {formatSeasonLabel(save.season)} {formatDayLabel(save.season, save.week, save.day)} · 能力 {save.overall}
                   </p>
                 </div>
                 <ChevronRight size={16} className="shrink-0 text-dim" />
