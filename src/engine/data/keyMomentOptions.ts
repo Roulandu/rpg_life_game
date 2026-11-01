@@ -14,9 +14,9 @@ import {
   buildSave,
 } from './keyMomentOptionsDefense'
 import { buildFreeKick, buildPenalty } from './keyMomentOptionsSetPiece'
-import type { KindContext } from './optionUtils'
+import type { KindContext } from './scoreChance'
 
-export type { KindContext } from './optionUtils'
+export type { KindContext } from './scoreChance'
 
 const OPTION_BUILDERS: Record<KeyMomentKind, (context: KindContext) => KeyMomentOption[]> = {
   bigChance: buildBigChance,
