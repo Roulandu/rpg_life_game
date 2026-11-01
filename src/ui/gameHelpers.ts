@@ -1,4 +1,4 @@
-import { computeLeagueTable } from '../domain'
+import { absoluteDay, computeLeagueTable, fixtureDayOf } from '../domain'
 import type { Fixture, Id, LeagueTableRow, WorldState } from '../domain'
 
 export type FormResult = 'W' | 'D' | 'L'
@@ -37,6 +37,12 @@ export function nextFixtureOf(world: WorldState, clubId: Id): Fixture | undefine
         (fixture.homeId === clubId || fixture.awayId === clubId),
     )
     .sort((a, b) => a.week - b.week || a.id.localeCompare(b.id))[0]
+}
+
+export function daysUntilNextFixture(world: WorldState): number | null {
+  const next = nextFixtureOf(world, world.clubId)
+  if (!next) return null
+  return absoluteDay(next.week, fixtureDayOf(next)) - absoluteDay(world.week, world.day)
 }
 
 export function leagueRowFor(world: WorldState, leagueId: Id, clubId: Id): LeagueTableRow | undefined {

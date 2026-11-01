@@ -10,12 +10,15 @@ import { LastMatchCard } from './dashboard/LastMatchCard'
 import { NextMatchPanel } from './dashboard/NextMatchPanel'
 import { WeekStatusBanner } from './dashboard/WeekStatusBanner'
 import { buildDashboardData } from './dashboard/dashboardData'
+import { daysUntilNextFixture } from '../gameHelpers'
 import { INBOX_CHAT_PATH } from './inbox/inboxTab'
 
 export function DashboardScreen() {
   const navigate = useNavigate()
   const world = useGameStore((state) => state.world)
   const busy = useGameStore((state) => state.busy)
+  const advanceDay = useGameStore((state) => state.advanceDay)
+  const advanceToNextEvent = useGameStore((state) => state.advanceToNextEvent)
   const aiBusy = useGameStore((state) => state.aiBusy)
   const aiError = useGameStore((state) => state.aiError)
   const clearAiError = useGameStore((state) => state.clearAiError)
@@ -63,7 +66,9 @@ export function DashboardScreen() {
             resolvedMoments={data.resolvedMoments}
             totalMoments={data.totalMoments}
             busy={busy}
-            week={world.week}
+            daysToMatch={daysUntilNextFixture(world)}
+            onFastForward={() => void advanceToNextEvent()}
+            onAdvanceDay={() => void advanceDay()}
             onPlan={() => setPlannerOpen(true)}
           />
         </div>
