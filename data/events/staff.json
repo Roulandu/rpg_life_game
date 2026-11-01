@@ -1,0 +1,346 @@
+[
+  {
+    "id": "st_scan_result",
+    "title": "片子上多出的那条线",
+    "body": "核磁片子被转过来对着灯。队医指着一条比健侧亮的痕：不是断裂，但也绝不是休息两天就好的那种。{restSuffix}",
+    "sender": "队医",
+    "weight": 5,
+    "expiresDays": 3,
+    "cooldownDays": 25,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [{ "field": "injuryDaysLeft", "op": "gte", "value": 1 }],
+    "choices": [
+      {
+        "id": "strict_plan",
+        "label": "按康复计划一场一场等",
+        "description": "慢，但痕会真的淡下去。",
+        "effects": [{ "op": "injuryDays", "delta": -2 }, { "op": "morale", "delta": -2 }, { "op": "confidence", "delta": -1 }]
+      },
+      {
+        "id": "shortcut",
+        "label": "要求两周后进入替补席",
+        "description": "教练会满意，身体不一定。",
+        "effects": [{ "op": "injuryDays", "delta": 4 }, { "op": "fitness", "delta": -4 }, { "op": "morale", "delta": 2 }]
+      },
+      {
+        "id": "external_review",
+        "label": "把片子发给外部专家",
+        "description": "多一个答案，也多一层摩擦。",
+        "effects": [{ "op": "injuryDays", "delta": -1 }, { "op": "coachTrust", "delta": -2 }, { "op": "confidence", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "strict_plan": "你按表做满六周。复X光上那条痕细了一半，队医第一次说「可以」。",
+      "shortcut": "两周后你坐上替补席，第四十分钟就把手按在了膝盖上。",
+      "external_review": "外部专家的支持剂量比俱乐部方案保守三周，队医看完邮件只说了一句：随你。"
+    }
+  },
+  {
+    "id": "st_second_opinion",
+    "title": "两份不同的康复方案",
+    "body": "外部专家的意见回来了，和基地的方案差两周。队医把两份打印纸并排放在你面前，说这一场得你自己选，选了之后就别再回头问。",
+    "sender": "队医",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 40,
+    "maxPerSeason": 2,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [{ "field": "injuryDaysLeft", "op": "gte", "value": 7 }],
+    "choices": [
+      {
+        "id": "trust_club",
+        "label": "按俱乐部的方案走",
+        "description": "体系内的人以后还会帮你说话。",
+        "effects": [{ "op": "coachTrust", "delta": 2 }, { "op": "morale", "delta": 1 }]
+      },
+      {
+        "id": "follow_external",
+        "label": "按外部建议多休两周",
+        "description": "更稳，代价是位置。",
+        "effects": [{ "op": "injuryDays", "delta": 14 }, { "op": "fitness", "delta": -2 }, { "op": "confidence", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "trust_club": "队医把外部那封邮件删了，说「我负责」。之后的每一次复查他都亲自来。",
+      "follow_external": "多出的两周让首发位置被别人占住，但复X光干净得像没受过伤。"
+    }
+  },
+  {
+    "id": "st_mental_first",
+    "title": "第一次正式的心理面谈",
+    "body": "俱乐部请的心理咨询师没有穿队服，办公室里没有战术板。她只问了一句：最近一次你在场上不害怕，是什么时候。",
+    "sender": "心理咨询师",
+    "weight": 4,
+    "expiresDays": 4,
+    "cooldownDays": 30,
+    "once": true,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "confidence", "op": "lte", "value": 58 }],
+    "choices": [
+      {
+        "id": "speak",
+        "label": "把话说完",
+        "description": "包括那场踢飞的点球。",
+        "effects": [{ "op": "confidence", "delta": 4 }, { "op": "morale", "delta": 2 }, { "op": "fitness", "delta": -1 }]
+      },
+      {
+        "id": "small_talk",
+        "label": "只聊睡眠",
+        "description": "安全的话题，安全的收获。",
+        "effects": [{ "op": "morale", "delta": 2 }, { "op": "confidence", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "speak": "讲到第七分钟你才发现自己在哭。她没递纸巾，等你讲完才开口。",
+      "small_talk": "她给了你一个睡眠时间表，写得很合理，你两周后就丢了。"
+    }
+  },
+  {
+    "id": "st_pre_match_panic",
+    "title": "更衣室里的心跳过速",
+    "body": "开球前二十二分钟，心率带显示 124。心理咨询师在门口等你，说她只借给你四分钟和一套动作，剩下的事你自己做。",
+    "sender": "心理咨询师",
+    "weight": 4,
+    "expiresDays": 1,
+    "cooldownDays": 12,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "isMatchDay", "op": "eq", "value": true },
+      { "field": "confidence", "op": "lte", "value": 70 }
+    ],
+    "choices": [
+      {
+        "id": "routine",
+        "label": "跟她做完那四分钟",
+        "description": "呼吸、数拍、把目光固定在一个点上。",
+        "effects": [{ "op": "confidence", "delta": 3 }, { "op": "morale", "delta": 1 }]
+      },
+      {
+        "id": "alone",
+        "label": "自己戴上耳机硬扛",
+        "description": "有用过一次，不代表每次都行。",
+        "effects": [{ "op": "confidence", "delta": -3 }, { "op": "sharpness", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "routine": "第一次哨响时你听见了场边的喊声，而不是自己耳朵里的血声。",
+      "alone": "前十五分钟你两次在无人处丢球，耳机里的音乐一直没停。"
+    }
+  },
+  {
+    "id": "st_private_offer",
+    "title": "私教的六周套餐",
+    "body": "私教把一份排期表推过来：六周，每周两次，只练第一脚触球和逆足。他说俱乐部的课练的是十一个人，他练的是你。",
+    "sender": "私教",
+    "weight": 4,
+    "expiresDays": 5,
+    "cooldownDays": 40,
+    "maxPerSeason": 2,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "balance", "op": "gte", "value": 300000 },
+      { "field": "age", "op": "lte", "value": 31 }
+    ],
+    "choices": [
+      {
+        "id": "sign_six",
+        "label": "签满六周",
+        "description": "钱花得看得见。",
+        "effects": [{ "op": "money", "delta": -600 }, { "op": "sharpness", "delta": 4 }, { "op": "fitness", "delta": -2 }]
+      },
+      {
+        "id": "single_trial",
+        "label": "只买一次体验课",
+        "description": "先看他的表是不是空的。",
+        "effects": [{ "op": "money", "delta": -80 }, { "op": "sharpness", "delta": 1 }, { "op": "confidence", "delta": 1 }]
+      },
+      {
+        "id": "decline",
+        "label": "说自己排不开",
+        "description": "省下的钱会花在别处。",
+        "effects": [{ "op": "fitness", "delta": 1 }, { "op": "morale", "delta": 1 }]
+      }
+    ],
+    "resultTexts": {
+      "sign_six": "第三周开始，你逆足的第一脚不再需要低头看球。",
+      "single_trial": "那一次课他只用了一个锥桶，但你记住了他说的「先想再停」。",
+      "decline": "他笑着说行，然后把表发给了队里另一个年轻人。"
+    }
+  },
+  {
+    "id": "st_gym_vs_coach",
+    "title": "两套训练表打架",
+    "body": "私教要你周四加一组爆发，而这一天的基地课是教练排的战术演练。两个人都在等你给一个答案，谁也不肯先退。",
+    "sender": "体能教练",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 22,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [3, 4] }],
+    "choices": [
+      {
+        "id": "club_first",
+        "label": "以基地的课为主",
+        "description": "教练会记住这一次。",
+        "effects": [{ "op": "coachTrust", "delta": 3 }, { "op": "sharpness", "delta": -1 }]
+      },
+      {
+        "id": "private_first",
+        "label": "去做私教那组",
+        "description": "技术是自己的，战术是别人的。",
+        "effects": [{ "op": "sharpness", "delta": 3 }, { "op": "coachTrust", "delta": -3 }, { "op": "fitness", "delta": -2 }]
+      },
+      {
+        "id": "both_tired",
+        "label": "两边都参加",
+        "description": "一天里两次满负荷。",
+        "effects": [{ "op": "sharpness", "delta": 1 }, { "op": "fitness", "delta": -5 }, { "op": "morale", "delta": -1 }]
+      }
+    ],
+    "resultTexts": {
+      "club_first": "私教把那一组挪到周日早晨，说：那就别迟到。",
+      "private_first": "战术演练的那一套跑位你缺席了，周六的比赛里站错了一次位置。",
+      "both_tired": "第三天你的大腿在冲刺时发紧，体能教练直接把报表发给两个人看。"
+    }
+  },
+  {
+    "id": "st_load_report",
+    "title": "体能报告上的冲刺距离",
+    "body": "上周的高强度冲刺距离掉到全队倒数第二。体能教练把报表摊在桌上，问你最近睡几个小时——他没说是因为伤病还是因为别的。",
+    "sender": "体能教练",
+    "weight": 4,
+    "expiresDays": 3,
+    "cooldownDays": 15,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "daysSinceMatch", "op": "gte", "value": 2 }],
+    "choices": [
+      {
+        "id": "add_sprints",
+        "label": "自己加一组冲刺",
+        "description": "报表会好看，腿会知道。",
+        "effects": [{ "op": "sharpness", "delta": 3 }, { "op": "fitness", "delta": -3 }, { "op": "confidence", "delta": 1 }]
+      },
+      {
+        "id": "show_coach",
+        "label": "把报表拿给主教练看",
+        "description": "让负荷变成队里的事。",
+        "effects": [{ "op": "coachTrust", "delta": 2 }, { "op": "fitness", "delta": -1 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "downshift",
+        "label": "按报告降两周负荷",
+        "description": "数字先难看，再看后面。",
+        "effects": [{ "op": "fitness", "delta": 4 }, { "op": "sharpness", "delta": -2 }]
+      }
+    ],
+    "resultTexts": {
+      "add_sprints": "你加的那组冲刺被录进同一个系统，教练在备注里写了「不建议」。",
+      "show_coach": "主教练看完只改了一件事：接下来两周你少踢一场预备队。",
+      "downshift": "两周后冲刺距离回到中游，但你在两场比赛里显得慢半拍。"
+    }
+  },
+  {
+    "id": "st_sprint_gate",
+    "title": "达标线上的零点零六秒",
+    "body": "复出前的最后一道测试：三十米要进 4 秒 12。你跑出的数字差了 0.06 秒。体能教练看着计时器，没有立刻说话。",
+    "sender": "体能教练",
+    "weight": 3,
+    "expiresDays": 2,
+    "cooldownDays": 18,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "fitness", "op": "lte", "value": 78 },
+      { "field": "injuryDaysLeft", "op": "lte", "value": 3 }
+    ],
+    "choices": [
+      {
+        "id": "accept_gate",
+        "label": "接受结果，再等一场",
+        "description": "线就是线。",
+        "effects": [{ "op": "fitness", "delta": 3 }, { "op": "coachTrust", "delta": 2 }, { "op": "morale", "delta": -3 }]
+      },
+      {
+        "id": "ask_rerun",
+        "label": "要求明天再测一次",
+        "description": "你知道这是赌。",
+        "effects": [{ "op": "sharpness", "delta": 2 }, { "op": "fitness", "delta": -4 }, { "op": "confidence", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "accept_gate": "第二天早上九点，测试名单上没有你的名字，替补名单上有。",
+      "ask_rerun": "第二次的数字是 4 秒 09。体能教练在表上画了个圈，写「带风险」。"
+    }
+  },
+  {
+    "id": "st_kitchen_list",
+    "title": "厨房给的六周清单",
+    "body": "营养师把一张贴在冰箱上的清单打印给你：六周，晚餐没有甜点，比赛前一天碳水加倍。她说队里只有三个人完整照做过。",
+    "sender": "营养师",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 35,
+    "once": true,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [{ "field": "weekday", "op": "in", "value": [1, 2, 3] }],
+    "choices": [
+      {
+        "id": "follow",
+        "label": "照着吃六周",
+        "description": "难受，但第八十五分钟会回答。",
+        "effects": [{ "op": "fitness", "delta": 5 }, { "op": "morale", "delta": -3 }, { "op": "confidence", "delta": 1 }]
+      },
+      {
+        "id": "weekday_only",
+        "label": "工作日照做，周末自由",
+        "description": "大部分人其实是这么过的。",
+        "effects": [{ "op": "fitness", "delta": 2 }, { "op": "morale", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "follow": "第六周的最后一场，你在补时阶段还在冲刺，那张清单被营养师留给了下一批人。",
+      "weekday_only": "周末的那两顿你每次都吃到第三道，恢复数据把这件事清楚地显示了出来。"
+    }
+  },
+  {
+    "id": "st_midnight_boot",
+    "title": "夜里十一点的加压腿套",
+    "body": "恢复室只剩一盏灯。队医手里是一对已经充好气的加压腿套，说四十分钟，然后你可以睡足九小时；也可以现在就回宿舍。",
+    "sender": "队医",
+    "weight": 4,
+    "expiresDays": 1,
+    "cooldownDays": 6,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "daysSinceMatch", "op": "eq", "value": 1 },
+      { "field": "lastPlayed", "op": "gte", "value": 1 }
+    ],
+    "choices": [
+      {
+        "id": "wear",
+        "label": "戴满四十分钟",
+        "description": "困，但明天腿是干净的。",
+        "effects": [{ "op": "fitness", "delta": 4 }, { "op": "morale", "delta": -1 }]
+      },
+      {
+        "id": "sleep_now",
+        "label": "直接回宿舍睡",
+        "description": "身体会自己处理，处理得没那么好。",
+        "effects": [{ "op": "fitness", "delta": -2 }, { "op": "morale", "delta": 2 }]
+      }
+    ],
+    "resultTexts": {
+      "wear": "你在灯下睡着了四十分钟，醒来时队医没有叫醒你，只是把气放掉了一半。",
+      "sleep_now": "第二天早上你上楼梯扶了墙，队医什么都没说，把同一对腿套留在了原位。"
+    }
+  }
+]
