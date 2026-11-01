@@ -22,7 +22,7 @@ describe('deterministic engine sources', () => {
       const label = relative(process.cwd(), file)
       expect(source, `${label} must not use Math.random`).not.toMatch(/Math\.random/)
       expect(source, `${label} must not use Date.now`).not.toMatch(/Date\.now/)
-      expect(source, `${label} must not construct the current date`).not.toMatch(/new Date\(\s*\)/)
+      expect(source, `${label} must not construct a date`).not.toMatch(/new Date\(/)
       expect(source, `${label} must not use performance.now`).not.toMatch(/performance\.now/)
     }
   })
