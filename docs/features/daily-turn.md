@@ -44,6 +44,7 @@ tests:
   - tests/store/matchdayStore.test.ts
   - tests/ui/smoke.test.tsx
   - tests/ui/dashboardAdvance.test.tsx
+  - tests/ui/layoutContract.test.tsx
   - tests/ui/inbox.test.tsx
 diagrams: [sequence]
 last_reviewed: 2026-11-01
@@ -270,11 +271,11 @@ store 调用：
 宽屏与触控：
 
 - 主页推进区仍是**一个** `data-dashboard-block="advance"` 容器，内部两个按钮；容器未被拆分，`tests/ui/dashboardLayout.test.tsx` 的区块顺序断言逐项不变。
-- 推进按钮 `min-h-[44px]`，360–390px 单列不横向滚动。
+- 推进按钮 `min-h-[44px]`，360–390px 单列不横向滚动；主页**每个** `data-dashboard-block` 区块里的可点目标都不得低于 44px——「安排本周」「完整赛程」「全部消息」原先是 17px 高的行内文字按钮，已补 `inline-flex min-h-[44px] items-center`。
 - 主页 `≥1024px` 为主次两栏：左列最近比赛/本周状态/今天/下一场/推进，右列球员状态/迷你积分表/新闻；`<640px` 顺序不变。
 - 「今天」卡是日时钟的唯一界面落点：`data-dashboard-block="today"`，比赛日只给对手与主客，训练日给本周训练重点，额外安排只在活动日出现；原侧栏收件箱预览已删除，事件处理入口改由这张卡的按钮进入 `/inbox`。
 - 底部导航第 3 槽由收件箱改为队伍（`/team`），槽数仍是 5；未读事件徽标改挂主页槽。
-- 赛程页 `≥1024px` 隐藏 tab，赛程与积分榜并排常驻；积分表外层 `overflow-x-auto`。
+- 赛程页 `≥1024px` 隐藏 tab，赛程与积分榜并排常驻；积分表外层 `overflow-x-auto`。移动端 tab（赛程/积分榜、收件箱的事件/对话/新闻）由 `min-h-9`（36px）提到 `min-h-11`（44px）。
 
 ## 验收与测试映射
 
@@ -305,6 +306,7 @@ store 调用：
 | 推进一天 / 快进 / 周计划落盘与未完成比赛守卫 | `tests/store/dayStore.test.ts` |
 | live/完成的单次保存与失败恢复 | `tests/store/matchdayStore.test.ts` |
 | 推进区单容器双按钮 + 距上场天数 + 安排本周入口 | `tests/ui/dashboardAdvance.test.tsx` |
+| 主页每个区块的可点目标 ≥44px、页面不被固定宽度撑爆 | `tests/ui/layoutContract.test.tsx` |
 | 主页区块顺序与两栏归属（含 `today`，侧栏无 `inbox`） | `tests/ui/dashboardLayout.test.tsx` |
 | 今天卡的训练日/比赛日/平静日/事件跳转 | `tests/ui/todaySection.test.tsx` |
 | 队伍页名单、伤停天数、教练卡与导航第 3 槽 | `tests/ui/teamScreen.test.tsx` |
@@ -344,3 +346,4 @@ store 调用：
 | 2026-11-02 | 主页新增「今天」卡（`data-dashboard-block="today"`）承接当日安排与事件入口，侧栏收件箱预览删除；主列抽为 `DashboardMainColumn` 压函数行数 | 绿茵人生 M1.3 |
 | 2026-11-02 | 底部导航第 3 槽 `/inbox` → `/team`，新增队伍页（教练卡 + 按 `computeOverall` 排序的一线队名单，伤停统一「预计缺阵 N 天」），详见 [队伍与一线队名单](team-squad.md) | 绿茵人生 M1.3 |
 | 2026-11-02 | 训练成长接入教练打法协同（命中打法偏好的训练重点 ×1.12，`dailyGrowth` 导出为纯函数）；队伍页新增球员详情页与教练打法说明，见 [队伍与一线队名单](team-squad.md)；engine 升 0.5.2 并重算回放基准 | 绿茵人生 M1.5 |
+| 2026-11-02 | 360/390px 视口用手同源 iframe 量到真实布局（两档均无横向溢出）：主页「安排本周/完整赛程/全部消息」17px、赛程与收件箱 tab 36px 低于 44px，已提到 44px，并由 `tests/ui/layoutContract.test.tsx` 结构断言守住（无 CDP 仿真、`window.resizeTo` 对标签页无效） | 绿茵人生 M1.6 验收兜底 |

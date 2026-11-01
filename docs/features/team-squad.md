@@ -19,6 +19,7 @@ code:
 tests:
   - tests/ui/teamScreen.test.tsx
   - tests/ui/teamPlayerDetail.test.tsx
+  - tests/ui/layoutContract.test.tsx
   - tests/ui/dashboardLayout.test.tsx
   - tests/ui/todaySection.test.tsx
   - tests/domain/coachStyle.test.ts
@@ -119,7 +120,7 @@ sequenceDiagram
 
 ## 平台差异
 
-- 移动端：底部导航 5 槽不变，`/team` 与 `/team/:playerId` 用 `page-pad pb-6 sm:mx-auto sm:max-w-[760px]` 单列，触控目标 ≥44px（导航槽 `min-h-14`、名单行 `min-h-[44px]`、返回链接 `min-h-[44px]`）。
+- 移动端：底部导航 5 槽不变，`/team` 与 `/team/:playerId` 用 `page-pad pb-6 sm:mx-auto sm:max-w-[760px]` 单列，触控目标 ≥44px（导航槽 `min-h-14`、名单行 `min-h-[44px]`、返回链接 `min-h-[44px]`）。同源 iframe 在 360/390px 实测：两页 `scrollWidth === clientWidth`（可用宽度 345/375px），无越界元素，最小触控高度 44px。
 - 详情页属性网格为 2 列（360px 下每列约 150px，标签 + 数值 + 权重占比不折行溢出），赛季数据为 3 列小卡。
 - 桌面（≥1024px）：左侧栏取代底部导航，两页居中收窄到 760px 阅读宽度。
 - 未读徽标在两种布局下都挂在主页槽，数字 >9 显示 `9+`。
@@ -141,6 +142,7 @@ sequenceDiagram
 | `tests/ui/teamPlayerDetail.test.tsx` 陌生 id 给出可读的空态而不是崩溃 | 「找不到」空态文案 |
 | `tests/domain/coachStyle.test.ts` 5 条 | 四种打法标签与训练重点合法、契合度区间与可复现、组织型/长传型单调性、三档边界、1.12 加成 |
 | `tests/engine/coachStyle.test.ts` 3 条 | 选型公式含风格项、训练成长含风格协同、40 种子下换打法会改变首发数 |
+| `tests/ui/layoutContract.test.tsx` 两页根节点与名单行的布局契约 | `page-pad` + `sm:max-w-[760px]`、无 >340px 固定宽度、每个 `a` 都是 44px 触控目标 |
 | `tests/ui/todaySection.test.tsx` 训练日 / 比赛日 / 平静日 / 事件四条用例 | 今天卡身份与跳转 |
 | `tests/ui/dashboardLayout.test.tsx` keeps the mobile block order… | 块顺序含 `today`、侧栏不再有 `inbox` |
 
