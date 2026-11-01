@@ -2,14 +2,6 @@
   "version": 1,
   "tool": "oxlint",
   "entities": {
-    "src/engine/effects.ts::applyEffects": {
-      "metrics": {
-        "complexity": {
-          "value": 16,
-          "max": 12
-        }
-      }
-    },
     "src/llm/generate.ts::narrateWeek": {
       "metrics": {
         "complexity": {
