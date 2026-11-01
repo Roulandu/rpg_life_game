@@ -1,7 +1,7 @@
 import denylistJson from '../data/denylist/england.json'
 import knownNamesJson from '../data/names/known.json'
 import transliterationJson from '../data/names/transliteration.json'
-import { hasCjk, nameZhFor } from '../src/domain'
+import { EVENT_TEMPLATES, hasCjk, nameZhFor } from '../src/domain'
 import { COUNTRY_PACKS, NAME_POOLS, NATIONALITY_WEIGHTS } from '../src/world/datapack'
 import { STARTING_CLUBS } from '../src/world/data/england'
 
@@ -126,6 +126,24 @@ for (const letter of 'abcdefghijklmnopqrstuvwxyz') {
   else if (!hasCjk(value)) errors.push(`字母转写结果不是汉字：${letter} → ${value}`)
 }
 
+/**
+ * 事件数据包：条件字段必须在白名单内（domain 加载时已硬校验），
+ * 这里补语义校验——标题不能残留拉丁字母、结果文案必须指向真实选项。
+ */
+const seenTemplateIds = new Set<string>()
+for (const template of EVENT_TEMPLATES) {
+  if (seenTemplateIds.has(template.id)) errors.push(`事件模板 id 重复：${template.id}`)
+  seenTemplateIds.add(template.id)
+  if (LATIN.test(template.title)) errors.push(`事件标题残留拉丁字母：${template.id} → ${template.title}`)
+  if (template.guaranteed && template.when.length === 0) {
+    errors.push(`保证型事件必须带条件，否则每天都会触发：${template.id}`)
+  }
+  const choiceIds = new Set(template.choices.map((choice) => choice.id))
+  for (const key of Object.keys(template.resultTexts ?? {})) {
+    if (!choiceIds.has(key)) errors.push(`事件 ${template.id} 的结果文案指向不存在的选项：${key}`)
+  }
+}
+
 const clubCount = COUNTRY_PACKS.reduce((sum, pack) => sum + pack.clubs.length, 0)
 if (errors.length > 0) {
   console.error(`数据包校验失败（${errors.length} 项）：`)
@@ -134,5 +152,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `数据包校验通过：${COUNTRY_PACKS.length} 个国家、${clubCount} 家俱乐部、${seenLeagueIds.size} 个联赛、${Object.keys(NAME_POOLS).length} 个姓名池。`,
+  `数据包校验通过：${COUNTRY_PACKS.length} 个国家、${clubCount} 家俱乐部、${seenLeagueIds.size} 个联赛、${Object.keys(NAME_POOLS).length} 个姓名池、${EVENT_TEMPLATES.length} 个事件模板。`,
 )
