@@ -1,11 +1,18 @@
 import type { StateCreator } from 'zustand'
 import type {
+  AttrKey,
   CareerCreateOptions,
   SaveSummary,
   WeeklyPlan,
   WorldState,
 } from '../domain'
-import type { DayResult, FastForwardResult, SeasonTransition, TurnResult } from '../engine'
+import type {
+  DayResult,
+  FastForwardResult,
+  InvestOutcome,
+  SeasonTransition,
+  TurnResult,
+} from '../engine'
 import type { ConnectionTestResult } from '../llm'
 import type { ColorScheme, ThemePreference } from '../platform'
 import type { LivePlayback, LiveSpeed } from './livePlayback'
@@ -41,6 +48,7 @@ export interface GameStore {
   advanceDay: () => Promise<DayResult | null>
   advanceToNextEvent: () => Promise<FastForwardResult | null>
   setWeekPlan: (plan: WeeklyPlan) => Promise<boolean>
+  investExp: (attrKey: AttrKey, points: number) => Promise<InvestOutcome | null>
   resolveKeyMoment: (momentId: string, optionId: string) => Promise<void>
   skipKeyMoments: () => Promise<void>
   finishLiveMatch: () => Promise<void>
