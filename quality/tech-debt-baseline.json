@@ -50,14 +50,6 @@
         }
       }
     },
-    "src/ui/screens/CreateCareerScreen.tsx::CreateCareerScreen": {
-      "metrics": {
-        "functionLines": {
-          "value": 243,
-          "max": 60
-        }
-      }
-    },
     "src/ui/screens/ScheduleScreen.tsx::ScheduleScreen": {
       "metrics": {
         "functionLines": {

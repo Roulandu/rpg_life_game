@@ -1,9 +1,9 @@
 {
   "version": 1,
   "total": {
-    "lines": 29818,
+    "lines": 32193,
     "duplicatedLines": 8,
-    "percentage": 0.03
+    "percentage": 0.02
   },
   "files": {
     "src/llm/prompt.ts": 9,
