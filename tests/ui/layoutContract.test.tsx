@@ -3,7 +3,14 @@ import { cleanup, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { Route, Routes } from 'react-router-dom'
-import { DashboardScreen, InboxScreen, ScheduleScreen, TeamPlayerScreen, TeamScreen } from '../../src/ui'
+import {
+  CreateCareerScreen,
+  DashboardScreen,
+  InboxScreen,
+  ScheduleScreen,
+  TeamPlayerScreen,
+  TeamScreen,
+} from '../../src/ui'
 import { useGameStore } from '../../src/store/gameStore'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
@@ -126,6 +133,31 @@ describe('触控目标契约', () => {
     for (const row of touchTargets(detail.container)) {
       expect(minHeightPx(row.className)).toBeGreaterThanOrEqual(44)
     }
+  })
+})
+
+describe('建号页手机契约', () => {
+  it('属性点买的加减按钮是 44px 见方的触控目标', () => {
+    const { container } = renderWithRouter(<CreateCareerScreen />, { initialEntries: ['/create'] })
+    const steppers = touchTargets(container).filter((el) =>
+      /^给.+(加|减) 1 点$/.test(el.getAttribute('aria-label') ?? ''),
+    )
+    expect(steppers).toHaveLength(18)
+
+    for (const el of steppers) {
+      expect(minHeightPx(el.className)).toBeGreaterThanOrEqual(44)
+      const wide = /(?:^|\s)min-w-(\d+)(?:\s|$)/.exec(el.className)
+      expect(Number(wide?.[1] ?? 0) * 4).toBeGreaterThanOrEqual(44)
+    }
+  })
+
+  it('页面里没有超过手机安全宽度的固定像素宽度', () => {
+    const { container } = renderWithRouter(<CreateCareerScreen />, { initialEntries: ['/create'] })
+    const tooWide = tokensIn(container).filter((token) => {
+      const match = /^(?:w|min-w|max-w)-\[(\d+(?:\.\d+)?)px\]$/.exec(token)
+      return match !== null && Number(match[1]) > PHONE_SAFE_PX
+    })
+    expect(tooWide).toEqual([])
   })
 })
 

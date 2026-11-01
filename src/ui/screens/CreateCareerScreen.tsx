@@ -8,6 +8,7 @@ import {
   CareerBasicsCard,
   CareerPositionCard,
 } from './create/CareerIdentityCards'
+import { CareerAttributeCard } from './create/CareerAttributeCard'
 import { CareerClubCard, CareerSeedCard } from './create/CareerStartCards'
 import { combinedBonusOf } from './create/careerChoices'
 import { useCareerDraft } from './create/useCareerDraft'
@@ -39,10 +40,16 @@ export function CreateCareerScreen() {
         <CareerPositionCard draft={draft} />
         <CareerArchetypeCard draft={draft} bonus={combinedBonusOf(draft.archetype, draft.background)} />
         <CareerBackgroundCard draft={draft} />
+        <CareerAttributeCard draft={draft} />
         <CareerClubCard draft={draft} />
         <CareerSeedCard draft={draft} />
 
-        <button type="button" className="btn-primary w-full" disabled={busy} onClick={() => void handleSubmit()}>
+        <button
+          type="button"
+          className="btn-primary w-full"
+          disabled={busy || !draft.preview.ok}
+          onClick={() => void handleSubmit()}
+        >
           <Sparkles size={16} />
           {busy ? '正在生成世界…' : '签下第一份合同'}
         </button>
