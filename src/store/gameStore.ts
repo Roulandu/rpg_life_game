@@ -7,6 +7,7 @@ import { createGrowthSlice } from './growthSlice'
 import { createLiveSlice } from './liveSlice'
 import { createMatchSlice } from './matchSlice'
 import { createPreferenceSlice } from './preferenceSlice'
+import { createStaffSlice } from './staffSlice'
 import { createUiSlice } from './uiSlice'
 import type { GameStore } from './types'
 
@@ -16,6 +17,7 @@ export const useGameStore = create<GameStore>()((...args) => ({
   ...createDaySlice(...args),
   ...createGrowthSlice(...args),
   ...createFinanceSlice(...args),
+  ...createStaffSlice(...args),
   ...createLiveSlice(...args),
   ...createAiSlice(...args),
   ...createPreferenceSlice(...args),

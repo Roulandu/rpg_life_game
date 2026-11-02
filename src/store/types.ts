@@ -14,6 +14,7 @@ import type {
   InvestResult,
   MoveInvestOutcome,
   SeasonTransition,
+  StaffHireOutcome,
   TurnResult,
 } from '../engine'
 import type { ConnectionTestResult } from '../llm'
@@ -55,6 +56,8 @@ export interface GameStore {
   investMoveExp: (moveId: string) => Promise<MoveInvestOutcome | null>
   investMoney: (kind: InvestmentKind, principal: number) => Promise<InvestResult | null>
   redeemInvestment: (investmentId: string) => Promise<InvestResult | null>
+  hireTeamMember: (candidateId: string) => Promise<StaffHireOutcome | null>
+  releaseTeamMember: (staffId: string) => Promise<boolean>
   resolveKeyMoment: (momentId: string, optionId: string) => Promise<void>
   skipKeyMoments: () => Promise<void>
   finishLiveMatch: () => Promise<void>
