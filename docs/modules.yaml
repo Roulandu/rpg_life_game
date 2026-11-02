@@ -37,6 +37,7 @@ modules:
       - docs/features/gm-agent.md
       - docs/features/saves.md
       - docs/features/appearance.md
+      - docs/features/player-moves.md
     testImpact: via-module
     platformCapabilities: [ui]
     knownViolations: []
@@ -54,6 +55,7 @@ modules:
       - docs/features/gm-agent.md
       - docs/features/appearance.md
       - docs/features/matchday.md
+      - docs/features/player-moves.md
     testImpact: strict
     platformCapabilities: [session]
     knownViolations: []

@@ -75,6 +75,7 @@ tests:
   - tests/store/matchdayStore.test.ts
   - tests/ui/matchdayLiveStage.test.tsx
   - tests/ui/keyMomentModal.test.tsx
+  - tests/ui/keyMomentMoveBadges.test.tsx
   - tests/ui/pitchMap.test.tsx
   - tests/ui/liveControls.test.tsx
   - tests/ui/liveFeed.test.tsx
@@ -264,7 +265,8 @@ stateDiagram-v2
 - 系数以「每 1 点属性」为单位（`0.0012` 即每点 0.12%），因此同一选项在高属性下会被 `high` 夹住，不会出现 >1 的概率。
 - 对手取三个对位角色：`keeper`（门将）、`marker`（盯人后卫）、`shooter`（出手前锋）；哪个选项读哪个角色由表声明，例如 `save` 只读 `shooter`，`penalty` 只读 `keeper`。
 - 确实不看对手的选项（护球、大脚解围、战术犯规等）写成 `base = low = high` 并给出 `flatBasisZh`，让「常量」是声明而不是巧合。
-- 绝技（M1.10）通过 `moves: MoveBonus[]` 挂进同一公式：`{ labelZh, delta }` 直接进概率并出现在依据文本里，公式本身不改。
+- 绝技（M1.10/M1.11，已交付）通过 `moves: MoveBonus[]` 挂进同一公式：`{ labelZh, delta }` 直接进概率并出现在依据文本里，公式本身不改。
+- 依据文本在界面侧由 `basisTermsOf`（`src/ui/labels.ts`）切成 `move / counter / term` 三类词条：绝技单独成徽标，对位压制单起一行，其余属性项留在依据行；`low === high` 的常量选项两块皆空。整季概率带宽（上桌均值、最稳一路、绝技最多抬高 10%、0.92 硬上限）由 `tests/engine/movesBalance.test.ts` 锁住。
 
 ```mermaid
 sequenceDiagram
@@ -454,6 +456,7 @@ sequenceDiagram
 | store 保存、完成与失败恢复 | `tests/store/matchdayStore.test.ts` |
 | 页面自动开赛、速度、弹窗、90' 完成 | `tests/ui/matchdayLiveStage.test.tsx` |
 | 弹窗 5 选项、触发条件、依据、掷骰 | `tests/ui/keyMomentModal.test.tsx` |
+| 选项行的绝技徽标与对位压制片（没学会不给徽标、常量选项两块皆空、属性项留在依据行） | `tests/ui/keyMomentMoveBadges.test.tsx` |
 | 球场 22 点、SVG 球场线、足球图标、传球线、控球条、GOAL、速度变量、响应式姓名 | `tests/ui/pitchMap.test.tsx` |
 | 双方事件与主客标记 | `tests/ui/liveFeed.test.tsx`、`tests/ui/matchTimelineSides.test.tsx` |
 | 数据面板四项 | `tests/ui/matchStatsPanel.test.tsx` |
@@ -494,3 +497,5 @@ sequenceDiagram
 | 2026-11-01 | 传球线跳过与当前分钟重复的历史帧，始终从上一分钟球位出发；关键回合结算事件补写用户方 `side`，修复关键回合进球不显示 `GOAL` 徽标；engine 0.4.1 与 golden 更新；360/390px 与桌面验收通过 | 缺陷修复：2D 画面细节 |
 | 2026-11-02 | 出场评分接入教练打法契合度 `(styleFit − 0.5) × 4`，评分逻辑抽成可导出的 `selectionScore`；打法模型落在 `domain/coachStyle.ts`；engine 0.5.2 与 golden 重算（种子 42 的回放计划未命中风格加成，哈希变化只来自写进世界的 `engineVersion` 字符串） | 日回合与养成 M1.5 |
 | 2026-11-02 | 关键回合概率改为公式表驱动：12 类选项全部走 `scoreChance`（基线 + 我方属性 + 绝技位 − 对手门将/后卫/前锋），`resolveOpponents` 在开场从对面首发回查真实属性并锁进选项；`generateKeyMoments` 改对象入参；删除 `data/optionUtils.ts`；`ENGINE_VERSION` 0.7.0 → 0.8.0，golden `5fdf2872b99372c2` → `43de8568604868f8`；顺手修正文档里遗留的 `pendingWeekPlan` 现名 | 日回合与养成 M1.9 |
+| 2026-11-02 | 选项行亮出绝技徽标与对位压制：`basisTermsOf` 把 `successBasisZh` 切成 move/counter/term 三类词条，常量选项两块皆空；概率本身与结算路径未动，golden 不变 | 日回合与养成 M1.11 |
+| 2026-11-02 | 整季平衡门禁 `tests/engine/movesBalance.test.ts` 落地（上桌均值 0.50–0.70、最稳一路 0.72–0.92、满仓库绝技最多抬高 10%、两种子差 ≤6%、0.92 硬上限、常量选项不给绝技让路），并据此修掉 5 条绝技的假位置组；`data/moves` 只改 `positions`，回放哈希不变 | 日回合与养成 M1.11 |

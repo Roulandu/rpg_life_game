@@ -1,7 +1,7 @@
 ---
 feature: player-moves
 status: implemented
-modules: [domain, engine, world, db]
+modules: [domain, engine, world, db, store, ui]
 code:
   - data/moves/dribbling.json
   - data/moves/shooting.json
@@ -24,6 +24,15 @@ code:
   - src/engine/data/scoreChance.ts
   - src/world/initialState.ts
   - src/db/migrateSteps.ts
+  - src/store/growthSlice.ts
+  - src/router.tsx
+  - src/ui/labels.ts
+  - src/ui/components/WeekPlannerModal.tsx
+  - src/ui/screens/MovesScreen.tsx
+  - src/ui/screens/MoveDetailScreen.tsx
+  - src/ui/screens/moves/moveView.ts
+  - src/ui/screens/moves/MoveSlotPicker.tsx
+  - src/ui/screens/matchday/KeyMomentCard.tsx
 tests:
   - tests/domain/moves.test.ts
   - tests/domain/movesContentGate.test.ts
@@ -33,9 +42,18 @@ tests:
   - tests/engine/moveDrops.test.ts
   - tests/engine/moveMentor.test.ts
   - tests/engine/keyMomentMoves.test.ts
+  - tests/engine/movesBalance.test.ts
   - tests/db/migrationV9.test.ts
   - tests/db/migrationV10.test.ts
+  - tests/store/movesStore.test.ts
   - tests/ui/effectLabels.test.tsx
+  - tests/ui/movesScreen.test.tsx
+  - tests/ui/moveDetailScreen.test.tsx
+  - tests/ui/moveView.test.ts
+  - tests/ui/movesEntry.test.tsx
+  - tests/ui/keyMomentMoveBadges.test.tsx
+  - tests/ui/weekPlannerSpecialization.test.tsx
+  - tests/ui/layoutContract.test.tsx
 diagrams: [sequence]
 last_reviewed: 2026-11-02
 ---
@@ -60,9 +78,12 @@ flowchart LR
   P -->|攒满 3 格且够门槛| L[升一级 + 当日新闻]
   D[经验 investMove] -->|直接买级| L
   E[名宿事件<br/>learnMove] -->|够门槛直接授予| L
+  U["/moves 图鉴<br/>moveActionOf"] -->|点一行| D
+  U2["/moves/:moveId 详情"] -->|同一按钮| D
   L --> F[resolveMoveTerms]
   F --> G[scoreChance 把 chanceDelta 与对手段算进选项]
   G --> H[关键回合 roll &lt; successChance]
+  H --> I[弹窗徽标<br/>basisTermsOf 分 move/counter]
 ```
 
 ## 关键时序
@@ -102,6 +123,10 @@ sequenceDiagram
 | 0 级语义 | `level: 0` 的记录是「还没学会但在练」；攒满 3 格且够 Ⅰ 级门槛才第一次入门 | `nextMoveLevel` |
 | 门槛 | 每级 `minOverall` 单调递增，综合分不够就不升级，进度继续攒着 | `src/domain/moveQueries.ts` |
 | 位置闸门 | `moveFitsPosition`：`positions` 与 `positionGroup(position)` 对不上则不涨进度、不给学 | 三条获取路径共用 |
+| 位置可达性 | 绝技的 `positions` 只能声明**真能触发它目标类型**的位置组：`mv_nape_flick` 打后卫不能挂中场（中场不生成 `headerDuel`），挂了就是骗经验 | `tests/engine/movesBalance.test.ts` 的 `unusableGroups()` |
+| 目标存在性 | `targets` 的每条 `关键回合:选项` 必须在 `optionsFor` 的概率表里查得到，写错一个字母即红 | 同上 `deadTargets()` |
+| 整季成功率带宽 | 固定种子跑满一季（38 场 / 52 个关键回合）：上桌均值 0.50–0.70、自动推进选的最稳一路 0.72–0.92、满仓库绝技最多抬高 10%、单场不出现必然成功或必然失败 | `tests/engine/movesBalance.test.ts` |
+| 稀有度净收益 | 传奇绝技在最硬对抗下的平均净收益 > 常见，且任何一条的实战净收益不越过本稀有度预算；常量选项（`low === high`）不给绝技让路，挂满级仍是那个固定值 | 同上 |
 | 获取路径 | `unlock.via` 声明 `exp / mentor / specialization / matchDrop`；没开门的路径走不进去 | 内容门禁 + 引擎闸门 |
 | 成功率预算 | `RARITY_CHANCE_BUDGET`：常见 4.5%、罕见 6.5%、招牌 8.5%、传奇 11%（取满级 `chanceDelta`），超预算在 `npm run validate:data` 阶段拒绝 | `src/domain/moves.ts` |
 | 概率冻结 | 选项 `roll` 生成时预抽、`successChance` 生成时算死；结算只做 `roll < successChance`，绝技与对手段都必须在生成时就位 | `src/engine/keyMomentGen.ts` |
@@ -121,6 +146,10 @@ sequenceDiagram
 - 事件侧：`EffectOp` 的 `learnMove / moveProgress` 带可选 `moveId`，加载期由 `moveEffectIssues`（`src/domain/eventSchema.ts`）校验：必须点名绝技、绝技必须存在且把 `mentor` 列为获取路径、`learnMove` 的 `delta` 落在 `1..levels.length`、`moveProgress` 的 `delta ≥ 1`。
 - 引擎写入口（除 `trainMove` 外都不允许直接改 `player.moves`）：`investMove`（经验）、`applySpecialization`（特训日，附带 `SPECIALIZATION_EXP = 1` 经验）、`grantMoveDrops`（比赛结算）、`applyMoveEffect`（事件结算，转 `teachMoveByMentor` / `advanceMoveByMentor`）。
 - 只读口：`moveById` / `allMoves` / `MOVES` / `moveLevelOf` / `movesTargeting` / `resolveMoveTerms` / `MOVE_LEVEL_MARKS`。
+- store 写入口：`growthSlice.investMoveExp(moveId)`（`src/store/growthSlice.ts`）克隆世界 → `investMove` → 拒绝只写 `error`，成交才换世界、清错误、落盘并回填 `saveId`；播报文案由 `moveNoticeOf` 用 `moveById` + `MOVE_LEVEL_MARKS` 拼，界面与 store 都不再自己算第二套价格。属性投资与绝技投资共用 `commitSettled`。
+- 路由：`/moves`（图鉴，`MovesScreen`）与 `/moves/:moveId`（详情，`MoveDetailScreen`），入口挂在「更多」页主列；周计划的特训槽由 `src/ui/screens/moves/MoveSlotPicker.tsx` 渲染。
+- 界面派生（`src/ui/screens/moves/moveView.ts`，全部纯函数）：`chanceText` 带符号一位小数、`moveActionOf` 把「已练到尽头 / 要综合分 N / 要 N 经验 / 升到 Ⅱ N 经验」四种状态收成一个按钮描述、`moveStatusText` 把 0 级读成「修炼进度 x/3」而不是「已学会」、`specializationCandidates` 只列位置对得上且 `unlock.via` 含 `specialization` 的招式、`moveSlotHint` 一行说清流派与练到哪。
+- 关键回合弹窗：`KeyMomentCard` 用 `basisTermsOf`（`src/ui/labels.ts`）把 `successBasisZh` 切成 `move / counter / term` 三类词条——绝技单独成青色徽标，对位压制单起一行标注「压制」，其余属性项仍留在依据行；没有词条就不给徽标，不吃属性的常量选项两行都空。
 
 ## 失败与降级
 
@@ -133,11 +162,22 @@ sequenceDiagram
 | 综合分够不到 Ⅰ 级门槛 | 退化成攒 1 格进度，等身体追上那天由 `nextMoveLevel` 自动入门 |
 | 绝技已满级还被特训/点拨 | `trainMove` 返回 `false`，调用方据此不再发经验 |
 | 存档缺 `moves`（v8 及更早） | 迁移补空账本，界面按「一条不会」渲染，不报错 |
+| 详情页点了不存在的绝技 id | 渲染「找不到这门绝技」空态并留返回列表入口，不白屏 |
+| 图鉴里买不起的那一行 | 按钮把价格直接写出来（`要 210 经验`），不是灰着不说；综合分没到先报门槛 `要综合分 84` |
+| 比赛进行中的那天点解锁 | 按钮锁住并写明原因，store 侧仍由 `investMove` 回 `matchLive` 兜底，两处口径一致 |
+| 位置不符的绝技 | 图鉴根本不列（门将看不见彩虹过人），特训槽候选同样过滤，避免「看得见买不到」 |
 | LLM 想虚构绝技 | LLM 只能改写事件标题/正文，`Effect` 与 `moveId` 全部来自数据包，无法注入 |
 
 ## 平台差异
 
-纯计算与数据，不触碰平台能力：Web 与 Capacitor 走同一条 `advanceDay` 路径，绝技进度、掉落与传授全部落在存档里。移动端只需注意 `/moves` 页在 360px 单列可读（界面尚未落地，见「变更记录」的未完成项）。
+纯计算与数据，不触碰平台能力：Web 与 Capacitor 走同一条 `advanceDay` 路径，绝技进度、掉落与传授全部落在存档里。
+
+界面契约（`tests/ui/layoutContract.test.tsx` 的「绝技页手机契约」锁住）：
+
+- `/moves` 与 `/moves/:moveId` 用 `page-pad pb-6 sm:mx-auto sm:max-w-[760px]`，手机端占满宽度、桌面收到 760px，样式串只追加不重排。
+- 图鉴行、「我在练的」行与详情页按钮都是 ≥44px 触控目标；360px 与 390px 下单列不横滚，页内没有超过手机安全宽度的固定像素。
+- 关键回合弹窗的绝技徽标与压制片是 `flex-wrap`，窄屏换行而不是挤压概率数字；徽标只挂短文本（名字 + 级数 + `+7.3%`）。
+- LLM 与平台无关：绝技名与效果只来自数据包，模型不参与概率与账本。
 
 ## 验收与测试映射
 
@@ -151,6 +191,16 @@ sequenceDiagram
 | 比赛掉落：评分门槛、只发给成功回合、同种子重放同一掉落 | `tests/engine/moveDrops.test.ts` |
 | 名宿传授：授予等级、不降级、点拨攒进度、`legendTrust` 落进关系、resolveEvent 全链路 | `tests/engine/moveMentor.test.ts` |
 | 绝技加成进入关键回合概率与 `successBasisZh` | `tests/engine/keyMomentMoves.test.ts` |
+| 整季平衡：成功率带宽、两种子差 ≤6%、实际胜率与冻结概率对齐、位置可达性与死目标、稀有度净收益与硬上限 | `tests/engine/movesBalance.test.ts` |
+| store 经验买绝技：成交扣经验写 Ⅰ 级并落盘、按下一级收费、四种拒绝一条经验不扣、比赛中拒绝、满级只报尽头 | `tests/store/movesStore.test.ts` |
+| 图鉴：已学会列级数、0 级读成修炼进度、空态说明进度来源、位置过滤、点行扣经验落盘、买不起报价格、够不到门槛报门槛 | `tests/ui/movesScreen.test.tsx` |
+| 详情：三档门槛/花费/加成摊开、被什么压住 + 用在哪类回合 + 从哪几路拿到、成败文案、按钮走同一条投资通道、满级报尽头、未知 id 空态、比赛中锁住 | `tests/ui/moveDetailScreen.test.tsx` |
+| 界面派生纯函数：带符号百分数、四种按钮状态、0 级只读进度 | `tests/ui/moveView.test.ts` |
+| 「更多」页给出绝技入口 | `tests/ui/movesEntry.test.tsx` |
+| 弹窗徽标：绝技带级数与加成立一块、压制写明谁的哪一项、没学会不给徽标但对手照样压人、常量选项两块都空、属性项留在依据行 | `tests/ui/keyMomentMoveBadges.test.tsx` |
+| 周计划特训槽：只列本位置能攒进度的招式、换位置换候选、选中保存写进 `weekPlan.specialization`、默认与清空都是空槽 | `tests/ui/weekPlannerSpecialization.test.tsx` |
+| 手机契约：44px 触控目标与 760px 桌面收口 | `tests/ui/layoutContract.test.tsx` |
+| `src/ui` 公共入口导出绝技两页 | `tests/ui/exports.test.tsx` |
 | v8→v9 补绝技账本与特训槽、live 档迁移后踢完 | `tests/db/migrationV9.test.ts` |
 | v9→v10 补名宿关系，`learnMove / legendTrust` 在老档不再静默失效 | `tests/db/migrationV10.test.ts` |
 | 绝技效果在界面上读成中文（`学会 彩虹过人` / `彩虹过人 进度 +2`） | `tests/ui/effectLabels.test.tsx` |
@@ -164,4 +214,10 @@ sequenceDiagram
 | 2026-11-02 | 路径二：`applySpecialization` 落在周三特训日，`day.ts` 的晨间步骤调用；`trainMove` 统一攒进度与升级 | M1.11 |
 | 2026-11-02 | 路径三：`grantMoveDrops` 让评分 ≥7.8 的成功关键回合掉修炼进度，抽签域 `(fixtureId, momentId)` 保证可重放 | M1.11 |
 | 2026-11-02 | 路径四：名宿事件包 `data/events/mentor.json`（9 条模板、覆盖 12 条绝技）+ `applyMoveEffect` 的 `learnMove / moveProgress` 闸门；`RelationshipRole` 加 `legend`，存档升 v10（`ENGINE_VERSION` 0.12.0，回放基准 `82fe56a7e245ea77` → `a53d784da26c391d`） | M1.11 |
-| 2026-11-02 | 未完成：`/moves` 与 `/moves/:moveId` 页面、周计划里的特训选择器、`KeyMomentCard` 的绝技徽标与对手段展示、`tests/engine/movesBalance.test.ts` 的整季成功率预算带 | 下一步 |
+| 2026-11-02 | 界面收口：`/moves` 图鉴与 `/moves/:moveId` 详情两页（`src/ui/screens/moves/*` 拆出 6 个小件，`moveView.ts` 承担全部派生文案）、「更多」页入口、`src/ui/index.ts` 导出；`investMoveExp` 走 store 的 `commitSettled` 与属性投资同一条落盘通道 | M1.11 |
+| 2026-11-02 | 关键回合弹窗亮出绝技徽标与对位压制：`basisTermsOf` 把依据切成 move/counter/term 三类，界面不再自己解析概率文本 | M1.11 |
+| 2026-11-02 | 周计划补周三特训槽：`MoveSlotPicker` 按位置与 `unlock.via` 过滤候选，选中写进 `weekPlan.specialization`，清空回 `null` | M1.11 |
+| 2026-11-02 | 平衡门禁 `tests/engine/movesBalance.test.ts`：固定种子跑满一季锁住三条成功率带宽、两种子一致性、实际胜率与冻结概率对齐、稀有度实战净收益与 0.92 硬上限 | M1.11 |
+| 2026-11-02 | 修 5 条绝技的假位置组（倚人护球 FWD、打穿肋部与一脚出球 DEF、脑后摆渡 MID、逼抢号角 FWD 都是本位置抽不到目标类型的组）：只改 `positions`，不动目标与数值，整季回放哈希不变；同时把「位置可达性」与「目标选项存在性」变成数据门禁 | M1.11 |
+| 2026-11-02 | 勘误：提交 `b6973d9` 的 `修改范围` 写了 `tests/engine/moves.test.ts`，该文件不存在，实际改动的是 `tests/engine/growthMoves.test.ts`（已在本文档的测试映射里登记）；已推送历史不回改，此处留档 | 文档收口 |
+| 2026-11-02 | 未完成：AI 球员掌握绝技（要重做背景比赛泊松模型，见 roadmap M4）、绝技在战报/媒体文案里的复述（当前只在关键回合弹窗与图鉴出现） | 下一步 |
