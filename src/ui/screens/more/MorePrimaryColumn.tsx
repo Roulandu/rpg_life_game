@@ -12,6 +12,7 @@ export function MorePrimaryColumn({ world }: { world: WorldState }) {
     <>
       <Card className="mb-3 p-0">
         <MenuRow icon={<Sparkles size={16} />} label="绝技" hint="招牌动作与修炼进度" onClick={() => navigate('/moves')} />
+        <MenuRow icon={<Wallet size={16} />} label="资金运用" hint="存款、投资与账本" onClick={() => navigate('/finance')} />
         <MenuRow icon={<Landmark size={16} />} label="生涯时间线" hint="赛季记录与荣誉" onClick={() => navigate('/timeline')} />
         <MenuRow icon={<Settings size={16} />} label="设置" hint="AI、叙事与数据" onClick={() => navigate('/settings')} />
       </Card>

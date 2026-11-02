@@ -12,17 +12,19 @@ export function HoldingsList({
   total,
   gain,
   today,
+  onRedeem,
 }: {
   investments: Investment[]
   total: number
   gain: number
   today: number
+  onRedeem: (investmentId: string) => void
 }) {
   return (
     <>
       <ul className="divide-y divide-line">
         {investments.map((investment) => (
-          <HoldingRow key={investment.id} investment={investment} today={today} />
+          <HoldingRow key={investment.id} investment={investment} today={today} onRedeem={onRedeem} />
         ))}
       </ul>
       <div

@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { Wallet } from 'lucide-react'
 import { absoluteDay, holdingsValue, unrealizedGain } from '../../domain'
 import { formatDayLabel, formatMoney, formatMoneyShort } from '../../lib'
 import { useGameStore } from '../../store'
@@ -5,6 +7,7 @@ import { Card, EmptyState, SectionTitle } from '../components/Card'
 import { PageHeader } from '../components/PageHeader'
 import { FinanceOverview } from './finance/FinanceOverview'
 import { HoldingsList } from './finance/HoldingsList'
+import { InvestSheet } from './finance/InvestSheet'
 
 const LEDGER_KEEP = 12
 
@@ -21,6 +24,9 @@ function ledgerRow(entry: { season: number; week: number; type: string; amount: 
 
 export function FinanceScreen() {
   const world = useGameStore((state) => state.world)
+  const redeemInvestment = useGameStore((state) => state.redeemInvestment)
+  const [sheetOpen, setSheetOpen] = useState(false)
+
   if (!world) return null
 
   const finance = world.finance
@@ -40,20 +46,31 @@ export function FinanceScreen() {
 
       <FinanceOverview pendingIncome={finance.pendingIncome} pendingExpenses={finance.pendingExpenses} />
 
+      <button type="button" className="btn-primary mb-3 w-full" onClick={() => setSheetOpen(true)}>
+        <Wallet size={16} />
+        把钱投出去
+      </button>
+
       <section aria-label="持仓" className="mb-3 min-w-0">
         <SectionTitle>投出去的钱</SectionTitle>
-        <Card className="p-3">
+        <Card>
           {holdings.length === 0 ? (
             <EmptyState title="还没有投出去的钱" body="工资与赞助按天累计、周日入账；开仓后这笔钱就离开余额，涨跌只挂在现值上。" />
           ) : (
-            <HoldingsList investments={holdings} total={total} gain={gain} today={today} />
+            <HoldingsList
+              investments={holdings}
+              total={total}
+              gain={gain}
+              today={today}
+              onRedeem={(investmentId) => void redeemInvestment(investmentId)}
+            />
           )}
         </Card>
       </section>
 
       <section aria-label="最近账目" className="mb-3 min-w-0">
         <SectionTitle right={<span className="chip">总资产 {formatMoneyShort(finance.balance + total)}</span>}>账本</SectionTitle>
-        <Card className="p-3">
+        <Card>
           {finance.ledger.length === 0 ? (
             <p className="text-[12px] text-muted">这个存档还没有账目。</p>
           ) : (
@@ -61,6 +78,8 @@ export function FinanceScreen() {
           )}
         </Card>
       </section>
+
+      <InvestSheet open={sheetOpen} world={world} onClose={() => setSheetOpen(false)} />
     </div>
   )
 }
