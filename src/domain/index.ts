@@ -180,6 +180,8 @@ export type {
   Foot,
   Id,
   Injury,
+  Investment,
+  InvestmentKind,
   KeyMoment,
   KeyMomentKind,
   KeyMomentOption,

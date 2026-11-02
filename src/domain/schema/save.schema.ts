@@ -117,6 +117,10 @@ export const worldSchema = z
         balance: z.number(),
         weeklyWage: z.number(),
         weeklyExpenses: z.number(),
+        // v10 之前没有日粒度累计与投资账本：旧档缺字段时放行，由迁移补成零待入账与空账本。
+        pendingIncome: z.number().optional(),
+        pendingExpenses: z.number().optional(),
+        investments: z.array(z.unknown()).optional(),
         ledger: z.array(z.unknown()),
         assets: z.array(z.string()),
         sponsorships: z.array(z.unknown()),

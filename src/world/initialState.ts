@@ -126,6 +126,9 @@ export function createFinance(user: Player): Finance {
     balance: weeklyWage * 10 + signingBonus + 300000,
     weeklyWage,
     weeklyExpenses,
+    pendingIncome: 0,
+    pendingExpenses: 0,
+    investments: [],
     ledger: [
       {
         week: 0,

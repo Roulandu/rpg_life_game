@@ -1,6 +1,7 @@
 import type { AttrAllocation } from './allocation'
 import type { AiChatMessage, AiNarrative, AiUsage } from './aiTypes'
 import type { GameEvent } from './eventContent'
+import type { Finance } from './finance'
 import type { Fixture, MatchReport } from './matchTypes'
 import type { CareerEntry, Contract, Injury, Reputation, SeasonStat } from './playerTypes'
 import type {
@@ -46,6 +47,7 @@ export type {
 export type { Effect, EffectOp, EventChoice, GameEvent } from './eventContent'
 
 export type { CareerEntry, Contract, Injury, Reputation, SeasonStat } from './playerTypes'
+export type { Finance, FinanceLedgerEntry, Investment, InvestmentKind } from './finance'
 
 export interface Player {
   id: Id
@@ -162,23 +164,6 @@ export interface Relationship {
   tension: number
   summary: string
   lastInteractionWeek?: number
-}
-
-export interface FinanceLedgerEntry {
-  week: number
-  season: number
-  type: 'wage' | 'bonus' | 'expense' | 'sponsor' | 'transfer' | 'purchase' | 'other'
-  amount: number
-  label: string
-}
-
-export interface Finance {
-  balance: number
-  weeklyWage: number
-  weeklyExpenses: number
-  ledger: FinanceLedgerEntry[]
-  assets: string[]
-  sponsorships: { name: string; weekly: number; endSeason: number }[]
 }
 
 export interface SeasonSummary {

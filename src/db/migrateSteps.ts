@@ -224,6 +224,17 @@ function migrateLegend(world: WorldState): void {
   world.relationships[legend.id] = legend
 }
 
+/**
+ * v10 的财务只会「周日一次算清」：既没有待入账，也没有投资账本。
+ * 补成零待入账 + 空账本，不折现、不动余额——旧档这一周还没累计过的开销，本来就还没发生。
+ */
+function migrateFinance(world: WorldState): void {
+  const finance = world.finance
+  finance.pendingIncome ??= 0
+  finance.pendingExpenses ??= 0
+  finance.investments ??= []
+}
+
 /** v1 及更早的存档没有逐日计划：放在表尾，让上面几步先把时钟补出来再整体清空。 */
 function clearPendingPlan(world: WorldState): void {
   world.pendingDayPlan = null
@@ -237,5 +248,6 @@ export const MIGRATION_STEPS: MigrationStep[] = [
   { from: 8, run: migrateGrowth },
   { from: 9, run: migrateMoves },
   { from: 10, run: migrateLegend },
+  { from: 11, run: migrateFinance },
   { from: 2, run: clearPendingPlan },
 ]

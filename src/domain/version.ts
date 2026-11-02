@@ -1,1 +1,1 @@
-export const CURRENT_SAVE_VERSION = 10
+export const CURRENT_SAVE_VERSION = 11
