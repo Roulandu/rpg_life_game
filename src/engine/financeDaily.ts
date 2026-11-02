@@ -1,5 +1,5 @@
 import { DAYS_PER_WEEK, absoluteDay, clamp, round1 } from '../domain'
-import type { WorldState } from '../domain'
+import type { FinanceLedgerEntry, WorldState } from '../domain'
 
 export interface WeeklyFinanceResult {
   income: number
@@ -56,6 +56,17 @@ export function accrueDailyFinance(world: WorldState): void {
   applyDebtPenalty(world)
 }
 
+/** 财务落笔的唯一口：写一行流水并截断，保证余额与流水的增减总能对上账。 */
+export function pushFinanceLedger(
+  world: WorldState,
+  type: FinanceLedgerEntry['type'],
+  amount: number,
+  label: string,
+): void {
+  world.finance.ledger.unshift({ week: world.week, season: world.season, type, amount, label })
+  world.finance.ledger = world.finance.ledger.slice(0, LEDGER_KEEP)
+}
+
 /** 周日一次入账：两个累计器各取整一次，因此七天份额加起来正好是周口径金额。 */
 export function postWeeklyLedger(world: WorldState): WeeklyFinanceResult {
   const finance = world.finance
@@ -66,13 +77,11 @@ export function postWeeklyLedger(world: WorldState): WeeklyFinanceResult {
   finance.balance += net
   finance.pendingIncome = 0
   finance.pendingExpenses = 0
-  finance.ledger.unshift({
-    week: world.week,
-    season: world.season,
-    type: 'wage',
-    amount: net,
-    label: weeklySponsorshipIncome(world) > 0 ? '周薪、赞助与开销' : '周薪与开销',
-  })
-  finance.ledger = finance.ledger.slice(0, LEDGER_KEEP)
+  pushFinanceLedger(
+    world,
+    'wage',
+    net,
+    weeklySponsorshipIncome(world) > 0 ? '周薪、赞助与开销' : '周薪与开销',
+  )
   return { income, expenses, net }
 }

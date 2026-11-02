@@ -3,6 +3,7 @@ import type { Fixture, GameEvent, MatchReport, WeekDayRoles, WorldState } from '
 import { expireEvents, generateDailyEvents } from './eventsDaily'
 import { updatePlayerValue } from './finance'
 import { accrueDailyFinance, postWeeklyLedger } from './financeDaily'
+import { settleInvestmentsWeekly } from './investments'
 import { autoResolveKeyMoments, finalizeMatchday, hasPendingKeyMoments } from './keyMoments'
 import { startUserMatch } from './liveMatch'
 import { getUserFixtureOnDay, simulateDayFixtures } from './match'
@@ -107,7 +108,10 @@ function closeDay(world: WorldState, match: MatchReport | null, stopReason: DayS
   const dayPlayed = world.day
   const dayReport = simulateDayFixtures(world)
   const weeklyMatch = weekMatch(world, match)
-  if (world.day === DAYS_PER_WEEK) postWeeklyLedger(world)
+  if (world.day === DAYS_PER_WEEK) {
+    postWeeklyLedger(world)
+    settleInvestmentsWeekly(world)
+  }
   // 每日事件看的是「今天这场」，不是本周任意一场：赛后事件必须落在赛后当天。
   const created = generateDailyEvents(world, dayReport ?? match)
   const event = created[0] ?? null
