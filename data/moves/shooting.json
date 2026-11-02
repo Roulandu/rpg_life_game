@@ -1,0 +1,152 @@
+[
+  {
+    "id": "mv_toe_poke",
+    "nameZh": "脚尖捅射",
+    "family": "shooting",
+    "rarity": "common",
+    "positions": ["FWD", "MID"],
+    "targets": ["bigChance:shoot"],
+    "levels": [
+      { "level": 1, "minOverall": 44, "costExp": 16, "chanceDelta": 0.01, "riskDelta": 0.01, "basisZh": "出脚更快，门将来不及封" },
+      { "level": 2, "minOverall": 56, "costExp": 34, "chanceDelta": 0.024, "riskDelta": 0.018, "basisZh": "捅射角度更刁" },
+      { "level": 3, "minOverall": 68, "costExp": 60, "chanceDelta": 0.038, "riskDelta": 0.026, "basisZh": "贴身乱军里也能捅进" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0006, "labelZh": "对面门将的站位" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你没有摆腿，只用脚尖把球捅向近角，球从门将腋下钻了过去。",
+      "fail": "捅射的力量不够，门将侧身把球按在草地上。"
+    }
+  },
+  {
+    "id": "mv_far_post_curl",
+    "nameZh": "外脚背拉弧线",
+    "family": "shooting",
+    "rarity": "rare",
+    "positions": ["FWD", "MID"],
+    "targets": ["bigChance:square", "longShot:topCorner"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "外脚背让弧线更难预判" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "弧线落点压到横梁下" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "门将起跳也够不着的那条线" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0005, "labelZh": "对面门将的覆盖范围" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "外脚背搓出的弧线绕过所有人，砸进远角网窝。",
+      "fail": "弧线兜过头，球贴着远门柱飞出底线。"
+    }
+  },
+  {
+    "id": "mv_chip_over_keeper",
+    "nameZh": "挑过门将",
+    "family": "shooting",
+    "rarity": "signature",
+    "positions": ["FWD"],
+    "targets": ["bigChance:chip", "oneOnOne:chipKeeper"],
+    "levels": [
+      { "level": 1, "minOverall": 54, "costExp": 40, "chanceDelta": 0.022, "riskDelta": 0.024, "basisZh": "起脚前不看门将" },
+      { "level": 2, "minOverall": 66, "costExp": 84, "chanceDelta": 0.05, "riskDelta": 0.038, "basisZh": "挑射高度刚好越过指尖" },
+      { "level": 3, "minOverall": 78, "costExp": 150, "chanceDelta": 0.076, "riskDelta": 0.052, "basisZh": "门将重心一起就被吊死" }
+    ],
+    "counter": { "role": "keeper", "attr": "pace", "coefficient": 0.0008, "labelZh": "门将出击的速度" },
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你把球轻轻挑起，它越过门将的指尖，稳稳落进门框。",
+      "fail": "挑得太高，门将在门线前把球摘下。"
+    }
+  },
+  {
+    "id": "mv_quick_release",
+    "nameZh": "抢点快射",
+    "family": "shooting",
+    "rarity": "common",
+    "positions": ["FWD", "MID"],
+    "targets": ["bigChance:hold"],
+    "levels": [
+      { "level": 1, "minOverall": 46, "costExp": 18, "chanceDelta": 0.012, "riskDelta": 0.012, "basisZh": "第一下触球就完成射门" },
+      { "level": 2, "minOverall": 58, "costExp": 36, "chanceDelta": 0.028, "riskDelta": 0.02, "basisZh": "不等调整，直接起脚" },
+      { "level": 3, "minOverall": 70, "costExp": 64, "chanceDelta": 0.042, "riskDelta": 0.03, "basisZh": "后卫还没站定球已入网" }
+    ],
+    "unlock": { "via": ["exp", "matchDrop"] },
+    "textZh": {
+      "success": "球刚到脚下你就把它送进了网，后卫的铲抢只碰到草皮。",
+      "fail": "你太急，身体没跟上，射门打偏到侧网。"
+    }
+  },
+  {
+    "id": "mv_first_time_volley",
+    "nameZh": "凌空端盘子",
+    "family": "shooting",
+    "rarity": "rare",
+    "positions": ["FWD"],
+    "targets": ["bigChance:flick", "cross:nearPostCross"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.018, "basisZh": "凌空击球的部位很正" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.028, "basisZh": "来球再飘也能吃住" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.04, "basisZh": "把高空球直接砸成射门" }
+    ],
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你把落点让到胸前，一脚凌空把球扫进球门左上角。",
+      "fail": "凌空那一下没吃住部位，球飞向看台。"
+    }
+  },
+  {
+    "id": "mv_striker_instinct",
+    "nameZh": "射手嗅觉",
+    "family": "shooting",
+    "rarity": "rare",
+    "positions": ["FWD"],
+    "targets": ["bigChance:shoot", "bigChance:hold"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "总是出现在第二落点" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "补射路线算得比门将快" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "混战里唯一知道球会去哪的人" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0004, "labelZh": "门将的二次扑救" },
+    "unlock": { "via": ["exp", "mentor", "matchDrop"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "门将扑出的球正好落在你脚尖前，你把它补进空门。",
+      "fail": "你启动慢了半个身位，后卫先把球捅走。"
+    }
+  },
+  {
+    "id": "mv_cold_blood_far_post",
+    "nameZh": "冷血推远角",
+    "family": "shooting",
+    "rarity": "common",
+    "positions": ["FWD", "MID"],
+    "targets": ["oneOnOne:nearPost", "bigChance:square"],
+    "levels": [
+      { "level": 1, "minOverall": 44, "costExp": 16, "chanceDelta": 0.01, "riskDelta": 0.01, "basisZh": "假动作后不加速，只推" },
+      { "level": 2, "minOverall": 56, "costExp": 34, "chanceDelta": 0.024, "riskDelta": 0.018, "basisZh": "推射贴着草皮走" },
+      { "level": 3, "minOverall": 68, "costExp": 60, "chanceDelta": 0.038, "riskDelta": 0.026, "basisZh": "门将伸腿也拦不住那条低线" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0007, "labelZh": "门将的下地速度" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你没发力，只是把球贴着草皮推向远角，它慢悠悠滚进球门。",
+      "fail": "推得太正，门将用腿把球挡回场内。"
+    }
+  },
+  {
+    "id": "mv_long_range_thunder",
+    "nameZh": "三十米惊雷",
+    "family": "shooting",
+    "rarity": "legendary",
+    "positions": ["MID", "FWD"],
+    "targets": ["longShot:powerLong", "longShot:topCorner"],
+    "levels": [
+      { "level": 1, "minOverall": 60, "costExp": 62, "chanceDelta": 0.028, "riskDelta": 0.032, "basisZh": "远射也有球门般大小" },
+      { "level": 2, "minOverall": 72, "costExp": 130, "chanceDelta": 0.066, "riskDelta": 0.05, "basisZh": "球速快到门将只来得及眯眼" },
+      { "level": 3, "minOverall": 84, "costExp": 225, "chanceDelta": 0.1, "riskDelta": 0.07, "basisZh": "禁区外就是你的射程" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0006, "labelZh": "门将的远射处理" },
+    "unlock": { "via": ["exp", "mentor", "specialization"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "你在三十米外起脚，球像被炮弹出膛，砸进网窝时门将自己都没反应过来。",
+      "fail": "力量太大，球高高越过横梁，飞出广告板。"
+    }
+  }
+]

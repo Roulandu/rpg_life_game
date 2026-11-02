@@ -1,0 +1,151 @@
+[
+  {
+    "id": "mv_elastic",
+    "nameZh": "油炸丸子",
+    "family": "dribbling",
+    "rarity": "rare",
+    "positions": ["FWD", "MID"],
+    "targets": ["oneOnOne:round", "counterAttack:drive"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "两次触球之间不带停顿" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "重心晃开半个身位" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "门将被留在原地转身" }
+    ],
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "左脚右脚一前一后拨过球，两个人一起被你甩在身后。",
+      "fail": "第二下拨球大了，球滚到门将脚边。"
+    }
+  },
+  {
+    "id": "mv_rainbow",
+    "nameZh": "彩虹过人",
+    "family": "dribbling",
+    "rarity": "legendary",
+    "positions": ["FWD", "MID"],
+    "targets": ["oneOnOne:round", "bigChance:chip"],
+    "levels": [
+      { "level": 1, "minOverall": 60, "costExp": 62, "chanceDelta": 0.028, "riskDelta": 0.032, "basisZh": "从头顶把球捞过去" },
+      { "level": 2, "minOverall": 72, "costExp": 130, "chanceDelta": 0.066, "riskDelta": 0.05, "basisZh": "落地时人球都在身前" },
+      { "level": 3, "minOverall": 84, "costExp": 225, "chanceDelta": 0.1, "riskDelta": 0.07, "basisZh": "整座球场记住的那一下" }
+    ],
+    "counter": { "role": "marker", "attr": "defending", "coefficient": 0.001, "labelZh": "身后后卫的回追" },
+    "unlock": { "via": ["exp", "mentor", "matchDrop"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "你把球从身后卷起来，让它从对手耳侧飞过，自己再从另一侧抹过去。",
+      "fail": "球卷到一半被断下，对手笑着把球踢回中圈。"
+    }
+  },
+  {
+    "id": "mv_stepover",
+    "nameZh": "踩单车",
+    "family": "dribbling",
+    "rarity": "common",
+    "positions": ["FWD", "MID"],
+    "targets": ["oneOnOne:wait", "counterAttack:wide"],
+    "levels": [
+      { "level": 1, "minOverall": 44, "costExp": 16, "chanceDelta": 0.01, "riskDelta": 0.01, "basisZh": "脚步频率骗到重心" },
+      { "level": 2, "minOverall": 56, "costExp": 34, "chanceDelta": 0.024, "riskDelta": 0.018, "basisZh": "两圈单车再加一次变向" },
+      { "level": 3, "minOverall": 68, "costExp": 60, "chanceDelta": 0.038, "riskDelta": 0.026, "basisZh": "对手已经不敢伸脚" }
+    ],
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你的腿绕着球画了两圈，对手的身体先做出反应，你从反方向走掉。",
+      "fail": "单车踩完你自己也乱了，球被顺走。"
+    }
+  },
+  {
+    "id": "mv_body_shield",
+    "nameZh": "倚人护球",
+    "family": "dribbling",
+    "rarity": "rare",
+    "positions": ["FWD", "MID", "DEF"],
+    "targets": ["duel:shoulder", "clearance:shield"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "用背把对手挡在球外" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "对抗中还能转身" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "两个人夹也抢不下来" }
+    ],
+    "counter": { "role": "marker", "attr": "physical", "coefficient": 0.0009, "labelZh": "对手的身体对抗" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你把肩膀顶进对手胸口，球在另一侧稳稳停住。",
+      "fail": "对抗输了，人和球一起被推出边线。"
+    }
+  },
+  {
+    "id": "mv_drag_back",
+    "nameZh": "拉球转身",
+    "family": "dribbling",
+    "rarity": "rare",
+    "positions": ["MID", "FWD"],
+    "targets": ["throughBall:carry", "oneOnOne:wait"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.018, "basisZh": "半转身就把球带走" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.028, "basisZh": "拉球方向永远朝空当" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.04, "basisZh": "背身接球当场变成面向球门" }
+    ],
+    "counter": { "role": "marker", "attr": "defending", "coefficient": 0.0005, "labelZh": "上抢后卫的时机" },
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "脚底把球从身后拉回，顺势转身，你已经在对手前面。",
+      "fail": "拉球慢了，后卫先一步把球拨走。"
+    }
+  },
+  {
+    "id": "mv_burst_ahead",
+    "nameZh": "爆发趟球",
+    "family": "dribbling",
+    "rarity": "signature",
+    "positions": ["FWD", "MID"],
+    "targets": ["counterAttack:drive", "throughBall:carry"],
+    "levels": [
+      { "level": 1, "minOverall": 54, "costExp": 40, "chanceDelta": 0.022, "riskDelta": 0.024, "basisZh": "第一步就把距离拉开" },
+      { "level": 2, "minOverall": 66, "costExp": 84, "chanceDelta": 0.05, "riskDelta": 0.038, "basisZh": "趟球落点刚好在追不上处" },
+      { "level": 3, "minOverall": 78, "costExp": 150, "chanceDelta": 0.076, "riskDelta": 0.052, "basisZh": "让后卫只能看见你的背影" }
+    ],
+    "counter": { "role": "marker", "attr": "pace", "coefficient": 0.001, "labelZh": "回追后卫的速度" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你把球往前一趟就是五米，边线外的观众比你先跑到终点。",
+      "fail": "趟得太深，球滚出底线，你只能摇头。"
+    }
+  },
+  {
+    "id": "mv_kleffa",
+    "nameZh": "牛尾巴",
+    "family": "dribbling",
+    "rarity": "signature",
+    "positions": ["FWD"],
+    "targets": ["oneOnOne:round", "bigChance:flick"],
+    "levels": [
+      { "level": 1, "minOverall": 56, "costExp": 44, "chanceDelta": 0.024, "riskDelta": 0.026, "basisZh": "内外脚背在一拍内完成" },
+      { "level": 2, "minOverall": 68, "costExp": 90, "chanceDelta": 0.054, "riskDelta": 0.042, "basisZh": "球像被粘在脚背上" },
+      { "level": 3, "minOverall": 80, "costExp": 160, "chanceDelta": 0.082, "riskDelta": 0.058, "basisZh": "后卫倒地才发现自己扑的是空气" }
+    ],
+    "unlock": { "via": ["exp", "matchDrop"] },
+    "textZh": {
+      "success": "脚背向外一推再瞬间扣回，球走了一条没人见过的折线。",
+      "fail": "扣球力量不足，对手把球护到自己脚下。"
+    }
+  },
+  {
+    "id": "mv_shot_feint",
+    "nameZh": "假射真扣",
+    "family": "dribbling",
+    "rarity": "common",
+    "positions": ["FWD", "MID"],
+    "targets": ["bigChance:hold", "oneOnOne:wait"],
+    "levels": [
+      { "level": 1, "minOverall": 46, "costExp": 18, "chanceDelta": 0.012, "riskDelta": 0.012, "basisZh": "摆腿动作足够真" },
+      { "level": 2, "minOverall": 58, "costExp": 36, "chanceDelta": 0.028, "riskDelta": 0.02, "basisZh": "门将先起身，你再走" },
+      { "level": 3, "minOverall": 70, "costExp": 64, "chanceDelta": 0.042, "riskDelta": 0.03, "basisZh": "一个人被你晃两遍" }
+    ],
+    "counter": { "role": "keeper", "attr": "mental", "coefficient": 0.0004, "labelZh": "门将的耐心" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你扬起腿做射门的姿势，两个人跳起来，球却从另一侧滑走。",
+      "fail": "假动作没骗到人，后卫用身体把你挤出场外。"
+    }
+  }
+]

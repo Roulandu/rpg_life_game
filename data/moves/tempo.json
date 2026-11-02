@@ -1,0 +1,150 @@
+[
+  {
+    "id": "mv_second_wind",
+    "nameZh": "七十米二次冲刺",
+    "family": "tempo",
+    "rarity": "rare",
+    "positions": ["MID", "DEF"],
+    "targets": ["clearance:turn", "duel:drop"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.018, "basisZh": "抢完还能再抢一次" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.028, "basisZh": "对手以为你已经跑死了" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.038, "basisZh": "补时阶段还在加速的人" }
+    ],
+    "counter": { "role": "shooter", "attr": "stamina", "coefficient": 0.0006, "labelZh": "对手的体能储备" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你以为他跑不动了，他又从身后出现，把球断下并直接推进。",
+      "fail": "第二下冲刺把油箱抽干，你弯着腰喘了半分钟。"
+    }
+  },
+  {
+    "id": "mv_switch_flank",
+    "nameZh": "长传转移",
+    "family": "tempo",
+    "rarity": "signature",
+    "positions": ["DEF", "MID"],
+    "targets": ["cross:earlyCross", "throughBall:overTop"],
+    "levels": [
+      { "level": 1, "minOverall": 54, "costExp": 40, "chanceDelta": 0.022, "riskDelta": 0.02, "basisZh": "一脚把弱侧变成空侧" },
+      { "level": 2, "minOverall": 66, "costExp": 84, "chanceDelta": 0.05, "riskDelta": 0.032, "basisZh": "落点精确到五米范围" },
+      { "level": 3, "minOverall": 78, "costExp": 150, "chanceDelta": 0.076, "riskDelta": 0.046, "basisZh": "对面的防线被你横向拆开" }
+    ],
+    "counter": { "role": "marker", "attr": "defending", "coefficient": 0.0006, "labelZh": "对手的整体移动" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "六十米的斜长传精准落在队友胸口，弱侧瞬间变成单挑。",
+      "fail": "转移球太飘，队友只能目送它出界。"
+    }
+  },
+  {
+    "id": "mv_carry_into_space",
+    "nameZh": "带球推进穿空间",
+    "family": "tempo",
+    "rarity": "rare",
+    "positions": ["MID", "FWD"],
+    "targets": ["throughBall:carry", "counterAttack:drive"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.02, "basisZh": "抬头比低头早一步" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.03, "basisZh": "带球穿过两条线" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.042, "basisZh": "一次推进顶过一次传球" }
+    ],
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你连过两条线，把球带到对手禁区前沿，全队已经压上。",
+      "fail": "推进途中被夹击，球丢了，反击反过来打你。"
+    }
+  },
+  {
+    "id": "mv_cool_the_game",
+    "nameZh": "把节奏按住",
+    "family": "tempo",
+    "rarity": "common",
+    "positions": ["DEF", "MID"],
+    "targets": ["clearance:calm", "bigChance:hold"],
+    "levels": [
+      { "level": 1, "minOverall": 44, "costExp": 16, "chanceDelta": 0.01, "riskDelta": 0.008, "basisZh": "领先时最贵的一脚传球" },
+      { "level": 2, "minOverall": 56, "costExp": 34, "chanceDelta": 0.024, "riskDelta": 0.014, "basisZh": "让对手追着自己的球跑" },
+      { "level": 3, "minOverall": 68, "costExp": 60, "chanceDelta": 0.038, "riskDelta": 0.02, "basisZh": "把比赛拖进你想要的频率" }
+    ],
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你把球护住、回敲、再护住，对手的逼抢慢慢变成了散步。",
+      "fail": "按住节奏的结果是自己也慢了，教练在场边大声提醒你。"
+    }
+  },
+  {
+    "id": "mv_counter_blitz",
+    "nameZh": "反击闪电战",
+    "family": "tempo",
+    "rarity": "legendary",
+    "positions": ["FWD", "MID"],
+    "targets": ["counterAttack:shootEarly", "counterAttack:through"],
+    "levels": [
+      { "level": 1, "minOverall": 62, "costExp": 68, "chanceDelta": 0.03, "riskDelta": 0.036, "basisZh": "三脚传递就到禁区" },
+      { "level": 2, "minOverall": 74, "costExp": 140, "chanceDelta": 0.072, "riskDelta": 0.056, "basisZh": "对手还没退完你已经起脚" },
+      { "level": 3, "minOverall": 86, "costExp": 240, "chanceDelta": 0.106, "riskDelta": 0.078, "basisZh": "让教练在战术板上写下你的跑位" }
+    ],
+    "counter": { "role": "marker", "attr": "pace", "coefficient": 0.001, "labelZh": "对手回防的速度" },
+    "unlock": { "via": ["exp", "mentor", "matchDrop"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "断球之后只用了四秒，球已经在对手网里，回防的人还在中场。",
+      "fail": "推进太快，最后一传出了力量，队友只能摆手。"
+    }
+  },
+  {
+    "id": "mv_third_man",
+    "nameZh": "第三人跑位",
+    "family": "tempo",
+    "rarity": "rare",
+    "positions": ["MID", "FWD"],
+    "targets": ["throughBall:thread", "counterAttack:holdUpCounter"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "两次传球为第三个人服务" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "跑位比传球更先解决问题" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "对手不知道该跟谁" }
+    ],
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "球绕了两下，你出现在第三个人该在的位置，面前只剩门将。",
+      "fail": "跑位早了一步，传球还没到，越位旗已经举起。"
+    }
+  },
+  {
+    "id": "mv_half_space",
+    "nameZh": "半空间接球",
+    "family": "tempo",
+    "rarity": "rare",
+    "positions": ["MID", "FWD"],
+    "targets": ["throughBall:simple", "duel:shoulder"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.018, "basisZh": "站在两条防线的缝里" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.028, "basisZh": "接球朝向决定下一步" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.04, "basisZh": "让对面后腰整场找不到你" }
+    ],
+    "counter": { "role": "marker", "attr": "mental", "coefficient": 0.0005, "labelZh": "对手的防守意识" },
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你在中卫与边卫之间接球，转身的瞬间已经面向球门。",
+      "fail": "接球位置被夹住，你只能把球送回身后。"
+    }
+  },
+  {
+    "id": "mv_first_wave",
+    "nameZh": "抢第一波",
+    "family": "tempo",
+    "rarity": "common",
+    "positions": ["FWD", "MID"],
+    "targets": ["counterAttack:wide", "cross:earlyCross"],
+    "levels": [
+      { "level": 1, "minOverall": 46, "costExp": 18, "chanceDelta": 0.012, "riskDelta": 0.014, "basisZh": "防线没站好就先冲" },
+      { "level": 2, "minOverall": 58, "costExp": 36, "chanceDelta": 0.028, "riskDelta": 0.022, "basisZh": "早期传中找不到人，是因为你跑对了" },
+      { "level": 3, "minOverall": 70, "costExp": 64, "chanceDelta": 0.042, "riskDelta": 0.03, "basisZh": "对手丢球就想起你" }
+    ],
+    "unlock": { "via": ["exp", "matchDrop"] },
+    "textZh": {
+      "success": "丢球的下一秒你已经启动，队友的直塞正好踩在对手回头的那一步。",
+      "fail": "冲刺过早，越位线把你拦在原地。"
+    }
+  }
+]

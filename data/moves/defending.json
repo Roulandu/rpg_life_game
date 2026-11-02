@@ -1,0 +1,153 @@
+[
+  {
+    "id": "mv_slide_pincer",
+    "nameZh": "侧向滑铲",
+    "family": "defending",
+    "rarity": "rare",
+    "positions": ["DEF", "MID"],
+    "targets": ["duel:commit", "duel:contain"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.02, "basisZh": "铲球路线贴着草皮走" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.03, "basisZh": "先碰到球再碰到人" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.042, "basisZh": "把单刀从脚下干净拿走" }
+    ],
+    "counter": { "role": "shooter", "attr": "pace", "coefficient": 0.0009, "labelZh": "对面前锋的速度" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你贴着草皮送出去一条腿，球被干净拿走，人还在场内。",
+      "fail": "铲空了，对手已经带球杀向门将，只剩你的背影。"
+    }
+  },
+  {
+    "id": "mv_jockey_line",
+    "nameZh": "侧身卡道",
+    "family": "defending",
+    "rarity": "common",
+    "positions": ["DEF", "MID"],
+    "targets": ["duel:contain"],
+    "levels": [
+      { "level": 1, "minOverall": 44, "costExp": 16, "chanceDelta": 0.01, "riskDelta": 0.008, "basisZh": "不退不抢，只封路线" },
+      { "level": 2, "minOverall": 56, "costExp": 34, "chanceDelta": 0.024, "riskDelta": 0.014, "basisZh": "把人逼向边线" },
+      { "level": 3, "minOverall": 68, "costExp": 60, "chanceDelta": 0.038, "riskDelta": 0.02, "basisZh": "让对手自己把球带死" }
+    ],
+    "counter": { "role": "shooter", "attr": "dribbling", "coefficient": 0.0005, "labelZh": "对面前锋的盘带" },
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你侧身退着卡住内切线，对手只能把球带去角旗区。",
+      "fail": "重心偏了半步，对手从你与边线之间抹了过去。"
+    }
+  },
+  {
+    "id": "mv_tactical_foul",
+    "nameZh": "聪明的战术犯规",
+    "family": "defending",
+    "rarity": "rare",
+    "positions": ["DEF", "MID"],
+    "targets": ["duel:foul"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.03, "basisZh": "拉衣角不吃牌" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.044, "basisZh": "犯规位置离球门足够远" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.06, "basisZh": "用一张黄牌换掉对面一次必进球" }
+    ],
+    "counter": { "role": "shooter", "attr": "pace", "coefficient": 0.0006, "labelZh": "对手的第一步" },
+    "unlock": { "via": ["exp", "mentor", "matchDrop"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "你在中圈伸手拉住对手球衣，裁判的哨响得刚刚好。",
+      "fail": "犯规地点太靠近禁区，你还背了一张黄牌。"
+    }
+  },
+  {
+    "id": "mv_shoulder_barge",
+    "nameZh": "合理冲撞",
+    "family": "defending",
+    "rarity": "signature",
+    "positions": ["DEF", "MID"],
+    "targets": ["duel:shoulder", "clearance:shield"],
+    "levels": [
+      { "level": 1, "minOverall": 54, "costExp": 40, "chanceDelta": 0.022, "riskDelta": 0.024, "basisZh": "肩膀对肩膀，裁判无话可说" },
+      { "level": 2, "minOverall": 66, "costExp": 84, "chanceDelta": 0.05, "riskDelta": 0.038, "basisZh": "一撞就把球撞松" },
+      { "level": 3, "minOverall": 78, "costExp": 150, "chanceDelta": 0.076, "riskDelta": 0.052, "basisZh": "对手从此不敢和你并排跑" }
+    ],
+    "counter": { "role": "shooter", "attr": "physical", "coefficient": 0.0008, "labelZh": "对手的身体强度" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你把肩膀准确地送上去，球从对手脚下弹开，落点归你。",
+      "fail": "冲撞角度不正，裁判判你犯规，你只能摊手。"
+    }
+  },
+  {
+    "id": "mv_intercept_read",
+    "nameZh": "提前读传球",
+    "family": "defending",
+    "rarity": "legendary",
+    "positions": ["DEF", "MID"],
+    "targets": ["duel:drop", "clearance:turn"],
+    "levels": [
+      { "level": 1, "minOverall": 60, "costExp": 62, "chanceDelta": 0.028, "riskDelta": 0.02, "basisZh": "看肩膀就知道球去哪" },
+      { "level": 2, "minOverall": 72, "costExp": 130, "chanceDelta": 0.066, "riskDelta": 0.034, "basisZh": "站位永远在路线中点" },
+      { "level": 3, "minOverall": 84, "costExp": 225, "chanceDelta": 0.1, "riskDelta": 0.05, "basisZh": "对面教练开始换传球方向" }
+    ],
+    "counter": { "role": "shooter", "attr": "mental", "coefficient": 0.0004, "labelZh": "对手的传球视野" },
+    "unlock": { "via": ["exp", "mentor", "matchDrop"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "你在球出发之前就站好了位置，伸手一挡把路线截断。",
+      "fail": "预判错了一格，球从反方向过去，你只能回头追。"
+    }
+  },
+  {
+    "id": "mv_body_block",
+    "nameZh": "用身体堵枪眼",
+    "family": "defending",
+    "rarity": "rare",
+    "positions": ["DEF", "MID", "GK"],
+    "targets": ["duel:contain", "headerDuel:block"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.022, "basisZh": "该站的位置绝不躲" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.032, "basisZh": "把射门挡成角球" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.044, "basisZh": "门线前的那堵墙" }
+    ],
+    "counter": { "role": "shooter", "attr": "shooting", "coefficient": 0.0007, "labelZh": "对手的射门力量" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你没闭眼，把胸口送上去，射门被弹回中场。",
+      "fail": "球穿过你的缝隙，门将只能望球兴叹。"
+    }
+  },
+  {
+    "id": "mv_recovery_sprint",
+    "nameZh": "拼命回追",
+    "family": "defending",
+    "rarity": "rare",
+    "positions": ["DEF", "MID"],
+    "targets": ["duel:drop", "clearance:touchline"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.02, "basisZh": "六十米也追得上" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.03, "basisZh": "把对手挤到边线外" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.042, "basisZh": "让人怀疑你是不是少跑了十米" }
+    ],
+    "counter": { "role": "shooter", "attr": "pace", "coefficient": 0.001, "labelZh": "对手的速度优势" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你从身后追上来，用脚尖把球挑出边线，自己摔进广告牌。",
+      "fail": "最后五米你慢了一步，对手形成单刀。"
+    }
+  },
+  {
+    "id": "mv_press_trigger",
+    "nameZh": "逼抢号角",
+    "family": "defending",
+    "rarity": "common",
+    "positions": ["MID", "FWD"],
+    "targets": ["duel:commit", "clearance:hoof"],
+    "levels": [
+      { "level": 1, "minOverall": 46, "costExp": 18, "chanceDelta": 0.012, "riskDelta": 0.014, "basisZh": "第一脚压迫让对面慌" },
+      { "level": 2, "minOverall": 58, "costExp": 36, "chanceDelta": 0.028, "riskDelta": 0.022, "basisZh": "逼得对方只能大脚" },
+      { "level": 3, "minOverall": 70, "costExp": 64, "chanceDelta": 0.042, "riskDelta": 0.03, "basisZh": "整条后场被你踩出失误" }
+    ],
+    "unlock": { "via": ["exp", "matchDrop"] },
+    "textZh": {
+      "success": "你迎着持球人冲上去，对方后卫慌忙把球踢上看台。",
+      "fail": "逼抢方向被封，队友的第二道压迫没接上。"
+    }
+  }
+]

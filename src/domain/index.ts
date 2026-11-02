@@ -93,7 +93,41 @@ export type {
   GameEvent,
 } from './eventContent'
 export { generateFixtures } from './fixtures'
+export { KEY_MOMENT_KINDS } from './keyMomentKinds'
 export { effectsSummary, successBasisText } from './keyMomentView'
+export {
+  MOVE_PACK_NAMES,
+  MOVE_POSITION_GROUPS,
+  MOVE_PROGRESS_PER_LEVEL,
+  MOVES,
+  RARITY_CHANCE_BUDGET,
+  RARITY_LABELS,
+  RARITY_ORDER,
+  allMoves,
+  movesOfPack,
+} from './moves'
+export type {
+  MoveBonusTerm,
+  MoveContent,
+  MoveCounter,
+  MoveCounterRole,
+  MoveDefinition,
+  MoveFamily,
+  MoveLevelSpec,
+  MoveOpponents,
+  MovePositionGroup,
+  MoveRarity,
+  MoveUnlock,
+  MoveUnlockPath,
+} from './moves'
+export {
+  investMoveCost,
+  moveById,
+  moveLevelOf,
+  movesTargeting,
+  nextMoveLevel,
+  resolveMoveTerms,
+} from './moveQueries'
 export { computeLeagueTable, goalDifference, leaguePosition } from './leagueTable'
 export { buildMatchLineups, selectLineup } from './lineup'
 export type { LineupOptions } from './lineup'
@@ -150,6 +184,7 @@ export type {
   NewsItem,
   PendingDayPlan,
   Player,
+  PlayerMove,
   Position,
   Relationship,
   RelationshipRole,

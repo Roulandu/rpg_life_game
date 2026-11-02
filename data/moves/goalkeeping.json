@@ -1,0 +1,153 @@
+[
+  {
+    "id": "mv_cat_reflex",
+    "nameZh": "猫系反应",
+    "family": "goalkeeping",
+    "rarity": "legendary",
+    "positions": ["GK"],
+    "targets": ["save:reflex", "save:position"],
+    "levels": [
+      { "level": 1, "minOverall": 60, "costExp": 62, "chanceDelta": 0.028, "riskDelta": 0.024, "basisZh": "第二次扑救比第一次更快" },
+      { "level": 2, "minOverall": 72, "costExp": 130, "chanceDelta": 0.066, "riskDelta": 0.038, "basisZh": "折射球也能伸手够到" },
+      { "level": 3, "minOverall": 84, "costExp": 225, "chanceDelta": 0.1, "riskDelta": 0.054, "basisZh": "让对面前锋怀疑自己踢的是墙" }
+    ],
+    "counter": { "role": "shooter", "attr": "shooting", "coefficient": 0.0006, "labelZh": "对手的射门质量" },
+    "unlock": { "via": ["exp", "mentor", "matchDrop"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "你已经倒在地上，却还是用指尖把球托出了立柱。",
+      "fail": "这一下超出反应极限，球从你身下滚过。"
+    }
+  },
+  {
+    "id": "mv_fingertip_ledge",
+    "nameZh": "指尖托横梁",
+    "family": "goalkeeping",
+    "rarity": "rare",
+    "positions": ["GK"],
+    "targets": ["save:reflex"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "差一点也算扑到" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "把必进球改成角球" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "全场为同一根手指欢呼" }
+    ],
+    "counter": { "role": "shooter", "attr": "technique", "coefficient": 0.0005, "labelZh": "对手的处理球细腻度" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你伸到极限的那根手指碰到球，它擦着横梁飞出底线。",
+      "fail": "差了半个指尖，球从你手下钻进球门。"
+    }
+  },
+  {
+    "id": "mv_command_box",
+    "nameZh": "统治小禁区",
+    "family": "goalkeeping",
+    "rarity": "signature",
+    "positions": ["GK"],
+    "targets": ["save:rush", "save:punch"],
+    "levels": [
+      { "level": 1, "minOverall": 54, "costExp": 40, "chanceDelta": 0.022, "riskDelta": 0.026, "basisZh": "喊声比身体先到" },
+      { "level": 2, "minOverall": 66, "costExp": 84, "chanceDelta": 0.05, "riskDelta": 0.04, "basisZh": "拳面把球送进对方脚下之外" },
+      { "level": 3, "minOverall": 78, "costExp": 150, "chanceDelta": 0.076, "riskDelta": 0.054, "basisZh": "传中一出现就当它已经没了" }
+    ],
+    "counter": { "role": "shooter", "attr": "physical", "coefficient": 0.0007, "labelZh": "对手高点冲撞" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你吼开后卫，双拳把传中砸向中圈，小禁区是你的领地。",
+      "fail": "出击与后卫撞在一起，球落在无人区，被对手抢先捅向空门。"
+    }
+  },
+  {
+    "id": "mv_sweeper_keeper",
+    "nameZh": "清道夫出击",
+    "family": "goalkeeping",
+    "rarity": "rare",
+    "positions": ["GK"],
+    "targets": ["save:sweeper", "clearance:turn"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.022, "basisZh": "在球形成射门之前就处理掉" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.034, "basisZh": "把单刀化解成一次界外球" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.046, "basisZh": "防线敢压到中场，因为身后有你" }
+    ],
+    "counter": { "role": "shooter", "attr": "pace", "coefficient": 0.0009, "labelZh": "对手插上的速度" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你冲出禁区，在大脚解围之前先把球踢向边线。",
+      "fail": "出击远了半步，球吊过你的头顶，砸进空门。"
+    }
+  },
+  {
+    "id": "mv_door_frame",
+    "nameZh": "门线站位学",
+    "family": "goalkeeping",
+    "rarity": "common",
+    "positions": ["GK"],
+    "targets": ["save:position", "clearance:shield"],
+    "levels": [
+      { "level": 1, "minOverall": 44, "costExp": 16, "chanceDelta": 0.01, "riskDelta": 0.01, "basisZh": "站位替你省下一次扑救" },
+      { "level": 2, "minOverall": 56, "costExp": 34, "chanceDelta": 0.024, "riskDelta": 0.016, "basisZh": "近角永远被你封死" },
+      { "level": 3, "minOverall": 68, "costExp": 60, "chanceDelta": 0.038, "riskDelta": 0.024, "basisZh": "对手只能去想难的那条路" }
+    ],
+    "counter": { "role": "shooter", "attr": "mental", "coefficient": 0.0004, "labelZh": "对手的冷静程度" },
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你往前站了半步，把近角关掉，对手只能选择高难度的远角。",
+      "fail": "站位判断差一格，球从你与立柱之间那条缝穿过去。"
+    }
+  },
+  {
+    "id": "mv_ice_nerve",
+    "nameZh": "门前冷静",
+    "family": "goalkeeping",
+    "rarity": "common",
+    "positions": ["GK"],
+    "targets": ["save:punch", "clearance:calm"],
+    "levels": [
+      { "level": 1, "minOverall": 46, "costExp": 18, "chanceDelta": 0.012, "riskDelta": 0.01, "basisZh": "不慌，先决定球去哪" },
+      { "level": 2, "minOverall": 58, "costExp": 36, "chanceDelta": 0.028, "riskDelta": 0.016, "basisZh": "把混乱的一次进攻变成半场组织" },
+      { "level": 3, "minOverall": 70, "costExp": 64, "chanceDelta": 0.042, "riskDelta": 0.024, "basisZh": "手抛球直接发动反击" }
+    ],
+    "unlock": { "via": ["exp", "matchDrop"] },
+    "textZh": {
+      "success": "你没有盲拳，把球稳稳接住，再用手抛球让全队压上去。",
+      "fail": "你多抱了一秒，球被补射的前锋捅走。"
+    }
+  },
+  {
+    "id": "mv_arm_span",
+    "nameZh": "展臂封角",
+    "family": "goalkeeping",
+    "rarity": "rare",
+    "positions": ["GK"],
+    "targets": ["save:position", "save:reflex"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "把身体摊成一面墙" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "角度越窄你越稳" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "对手开始挑射，因为他没别的路" }
+    ],
+    "counter": { "role": "shooter", "attr": "shooting", "coefficient": 0.0005, "labelZh": "对手的射门角度" },
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你把四肢全部展开，球打在你手臂上弹回场内。",
+      "fail": "摊得不够开，球从腋下穿过。"
+    }
+  },
+  {
+    "id": "mv_denial_rush",
+    "nameZh": "弃门封角",
+    "family": "goalkeeping",
+    "rarity": "signature",
+    "positions": ["GK"],
+    "targets": ["save:rush", "clearance:hoof"],
+    "levels": [
+      { "level": 1, "minOverall": 56, "costExp": 44, "chanceDelta": 0.024, "riskDelta": 0.03, "basisZh": "用身体缩小一切角度" },
+      { "level": 2, "minOverall": 68, "costExp": 90, "chanceDelta": 0.054, "riskDelta": 0.046, "basisZh": "对手提前起脚也没用" },
+      { "level": 3, "minOverall": 80, "costExp": 160, "chanceDelta": 0.082, "riskDelta": 0.06, "basisZh": "让单刀变成一次界外球" }
+    ],
+    "counter": { "role": "shooter", "attr": "dribbling", "coefficient": 0.0008, "labelZh": "对手的过门将能力" },
+    "unlock": { "via": ["exp", "mentor", "matchDrop"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "你冲出去把自己摊在球前，对手的射门打在你脸上弹向边线。",
+      "fail": "出击被一个假动作骗过，球从你腿间滚向空门。"
+    }
+  }
+]

@@ -1,0 +1,153 @@
+[
+  {
+    "id": "mv_panenka_nerve",
+    "nameZh": "勺子点球的胆量",
+    "family": "setpiece",
+    "rarity": "legendary",
+    "positions": ["FWD", "MID"],
+    "targets": ["penalty:panenka"],
+    "levels": [
+      { "level": 1, "minOverall": 62, "costExp": 68, "chanceDelta": 0.03, "riskDelta": 0.036, "basisZh": "在关键球上还愿意挑一下" },
+      { "level": 2, "minOverall": 74, "costExp": 140, "chanceDelta": 0.072, "riskDelta": 0.056, "basisZh": "门将站得住，你偏要骗他" },
+      { "level": 3, "minOverall": 86, "costExp": 240, "chanceDelta": 0.106, "riskDelta": 0.078, "basisZh": "让对手门将赛前就开始研究你" }
+    ],
+    "counter": { "role": "keeper", "attr": "mental", "coefficient": 0.0012, "labelZh": "门将的心理准备" },
+    "unlock": { "via": ["exp", "mentor", "matchDrop"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "你轻轻把球挑向中路，门将已经向两侧扑倒在地，球温柔地落进网窝。",
+      "fail": "门将没动，用胸口把那颗温柔的球接住，全场替你尴尬。"
+    }
+  },
+  {
+    "id": "mv_bottom_corner",
+    "nameZh": "贴地死角",
+    "family": "setpiece",
+    "rarity": "rare",
+    "positions": ["FWD", "MID"],
+    "targets": ["penalty:placed", "penalty:lowCorner"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "角度比力量可靠" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "门将下地也差那半只手" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "把点球变成一次几何题" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0008, "labelZh": "门将的下地扑救" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "球贴着草皮钻进底角，门将指尖碰到的只有空气。",
+      "fail": "角度差了一指，球打在边网上。"
+    }
+  },
+  {
+    "id": "mv_wall_bomb",
+    "nameZh": "轰穿人墙",
+    "family": "setpiece",
+    "rarity": "rare",
+    "positions": ["FWD", "MID", "DEF"],
+    "targets": ["freeKick:power", "longShot:powerLong"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.022, "basisZh": "力量让折射变成机会" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.034, "basisZh": "人墙本能地跳起来挡" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.046, "basisZh": "让教练安排两个人站墙" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0006, "labelZh": "门将的接球稳定度" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你把球轰进人墙缝隙，球带着弹地窜进网窝，门将只来得及闭眼。",
+      "fail": "力量全用在球上，它高出横梁飞进球迷区。"
+    }
+  },
+  {
+    "id": "mv_knuckle_dip",
+    "nameZh": "电梯球",
+    "family": "setpiece",
+    "rarity": "signature",
+    "positions": ["FWD", "MID"],
+    "targets": ["longShot:dip", "freeKick:curl"],
+    "levels": [
+      { "level": 1, "minOverall": 54, "costExp": 40, "chanceDelta": 0.022, "riskDelta": 0.024, "basisZh": "球不转，所以没人知道它去哪" },
+      { "level": 2, "minOverall": 66, "costExp": 84, "chanceDelta": 0.05, "riskDelta": 0.038, "basisZh": "门将在最高点还在猜方向" },
+      { "level": 3, "minOverall": 78, "costExp": 150, "chanceDelta": 0.076, "riskDelta": 0.052, "basisZh": "让门将提前移动变成错误" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0006, "labelZh": "门将的判断能力" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "球升到最高点时突然下坠，门将在原地看着它砸进球门。",
+      "fail": "球没有下坠，直直飞出顶网。"
+    }
+  },
+  {
+    "id": "mv_stutter_run",
+    "nameZh": "停顿助跑",
+    "family": "setpiece",
+    "rarity": "rare",
+    "positions": ["FWD"],
+    "targets": ["penalty:stutter", "penalty:power"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.022, "basisZh": "多一步停顿，多一分信息" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.034, "basisZh": "让门将先给出重心" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.046, "basisZh": "整轮点球都在你的节奏里" }
+    ],
+    "counter": { "role": "keeper", "attr": "mental", "coefficient": 0.0009, "labelZh": "门将的耐心" },
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你在助跑末端停了一下，门将重心刚一动，你已经把球推向另一边。",
+      "fail": "停顿之后节奏散了，射门软绵绵地送进门将怀里。"
+    }
+  },
+  {
+    "id": "mv_reserved_power",
+    "nameZh": "留一分力",
+    "family": "setpiece",
+    "rarity": "common",
+    "positions": ["FWD", "MID", "DEF"],
+    "targets": ["penalty:power", "freeKick:short"],
+    "levels": [
+      { "level": 1, "minOverall": 44, "costExp": 16, "chanceDelta": 0.01, "riskDelta": 0.012, "basisZh": "十分力打八分球" },
+      { "level": 2, "minOverall": 56, "costExp": 34, "chanceDelta": 0.024, "riskDelta": 0.018, "basisZh": "控得住的球才有方向" },
+      { "level": 3, "minOverall": 68, "costExp": 60, "chanceDelta": 0.038, "riskDelta": 0.026, "basisZh": "把定位球当成训练课里的第四十次" }
+    ],
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你没有用尽全力，球的落点却因此精确得多。",
+      "fail": "留力留过头，射门没有速度，门将轻松没收。"
+    }
+  },
+  {
+    "id": "mv_short_combo",
+    "nameZh": "战术短传配合",
+    "family": "setpiece",
+    "rarity": "rare",
+    "positions": ["MID", "DEF"],
+    "targets": ["freeKick:short", "freeKick:layoff"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "一次短传让人墙横移" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "拨球的方向算好了" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "让对手的战术板来不及改" }
+    ],
+    "counter": { "role": "marker", "attr": "mental", "coefficient": 0.0005, "labelZh": "对手的反应速度" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你把球横敲，队友回做，跟进的人已经在无人区起脚。",
+      "fail": "配合被打断，球权还给了对手。"
+    }
+  },
+  {
+    "id": "mv_set_cross_target",
+    "nameZh": "定位球喂高点",
+    "family": "setpiece",
+    "rarity": "common",
+    "positions": ["DEF", "MID"],
+    "targets": ["freeKick:cross", "headerDuel:jump"],
+    "levels": [
+      { "level": 1, "minOverall": 46, "costExp": 18, "chanceDelta": 0.012, "riskDelta": 0.012, "basisZh": "落点交给最高那个人" },
+      { "level": 2, "minOverall": 58, "costExp": 36, "chanceDelta": 0.028, "riskDelta": 0.02, "basisZh": "弧线让后卫难起跳" },
+      { "level": 3, "minOverall": 70, "costExp": 64, "chanceDelta": 0.042, "riskDelta": 0.03, "basisZh": "定位球变成常规武器" }
+    ],
+    "counter": { "role": "keeper", "attr": "pace", "coefficient": 0.0004, "labelZh": "门将出击的时机" },
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你的落点避开门将，正好落在队友的额头高度。",
+      "fail": "球又平又慢，门将出击把它收走。"
+    }
+  }
+]

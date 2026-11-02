@@ -11,6 +11,7 @@ import type {
   ExtraAction,
   Foot,
   Id,
+  PlayerMove,
   Position,
   TrainingFocus,
 } from './primitiveTypes'
@@ -24,6 +25,7 @@ export type {
   ExtraAction,
   Foot,
   Id,
+  PlayerMove,
   Position,
   TrainingFocus,
 } from './primitiveTypes'
@@ -63,6 +65,8 @@ export interface Player {
   lifetimeExp: number
   /** 各属性已投点数，决定下一点的价格。 */
   attrInvestment: AttrInvestment
+  /** 已学会的绝技。缺字段按「一条不会」处理，v9 迁移会把老档补成空数组。 */
+  moves?: PlayerMove[]
   form: number
   fitness: number
   sharpness: number

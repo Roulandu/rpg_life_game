@@ -1,0 +1,151 @@
+[
+  {
+    "id": "mv_thread_needle",
+    "nameZh": "穿针直塞",
+    "family": "passing",
+    "rarity": "signature",
+    "positions": ["MID"],
+    "targets": ["throughBall:thread", "counterAttack:through"],
+    "levels": [
+      { "level": 1, "minOverall": 54, "costExp": 40, "chanceDelta": 0.022, "riskDelta": 0.024, "basisZh": "缝隙只有一人宽" },
+      { "level": 2, "minOverall": 66, "costExp": 84, "chanceDelta": 0.05, "riskDelta": 0.038, "basisZh": "球的落点刚好在越位线前" },
+      { "level": 3, "minOverall": 78, "costExp": 150, "chanceDelta": 0.076, "riskDelta": 0.052, "basisZh": "后卫伸脚也只能碰到风" }
+    ],
+    "counter": { "role": "marker", "attr": "pace", "coefficient": 0.001, "labelZh": "中卫的回追速度" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "球从两条小腿之间钻过去，队友接球时面前只剩门将。",
+      "fail": "力量小了一档，球被中卫用胸口挡下。"
+    }
+  },
+  {
+    "id": "mv_weight_of_pass",
+    "nameZh": "力道的分寸",
+    "family": "passing",
+    "rarity": "rare",
+    "positions": ["MID", "DEF"],
+    "targets": ["throughBall:simple", "cross:earlyCross"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "球速刚好让队友不用调整" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "接球人一步到位" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "对手永远差半个身位" }
+    ],
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "这球的力度像量过，队友不用减速就能顺势带向空当。",
+      "fail": "球太软，接球的队友被迫停下，反抢的人到了。"
+    }
+  },
+  {
+    "id": "mv_hold_up_wall",
+    "nameZh": "背身做轴",
+    "family": "passing",
+    "rarity": "rare",
+    "positions": ["FWD", "MID"],
+    "targets": ["throughBall:backPass", "counterAttack:holdUpCounter"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.018, "basisZh": "扛住一人再回做" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.028, "basisZh": "转身方向随对抗变化" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.04, "basisZh": "整条进攻线踩着你转" }
+    ],
+    "counter": { "role": "marker", "attr": "physical", "coefficient": 0.0008, "labelZh": "中卫的身体对抗" },
+    "unlock": { "via": ["exp", "mentor", "specialization"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "你把对手挡在身后，回头把球送到插上的队友脚下。",
+      "fail": "对抗中球被捅掉，反击的火苗熄了。"
+    }
+  },
+  {
+    "id": "mv_over_the_top",
+    "nameZh": "打穿肋部",
+    "family": "passing",
+    "rarity": "signature",
+    "positions": ["MID", "DEF"],
+    "targets": ["throughBall:overTop", "counterAttack:wide"],
+    "levels": [
+      { "level": 1, "minOverall": 56, "costExp": 44, "chanceDelta": 0.024, "riskDelta": 0.026, "basisZh": "越过防线的高球" },
+      { "level": 2, "minOverall": 68, "costExp": 90, "chanceDelta": 0.054, "riskDelta": 0.042, "basisZh": "落点在后卫转身的那一步" },
+      { "level": 3, "minOverall": 80, "costExp": 160, "chanceDelta": 0.082, "riskDelta": 0.058, "basisZh": "一次传球改变整条防线深度" }
+    ],
+    "counter": { "role": "keeper", "attr": "pace", "coefficient": 0.0006, "labelZh": "门将出击的果断" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "球吊过整条后卫线，队友在点球点前胸口停球，直接面对门将。",
+      "fail": "球高也远了，门将一步出球门把落点占住。"
+    }
+  },
+  {
+    "id": "mv_one_touch_out",
+    "nameZh": "一脚出球",
+    "family": "passing",
+    "rarity": "common",
+    "positions": ["MID", "DEF"],
+    "targets": ["throughBall:simple", "throughBall:backPass"],
+    "levels": [
+      { "level": 1, "minOverall": 44, "costExp": 16, "chanceDelta": 0.01, "riskDelta": 0.01, "basisZh": "不停球直接转移" },
+      { "level": 2, "minOverall": 56, "costExp": 34, "chanceDelta": 0.024, "riskDelta": 0.018, "basisZh": "出球前已经看过一圈" },
+      { "level": 3, "minOverall": 68, "costExp": 60, "chanceDelta": 0.038, "riskDelta": 0.026, "basisZh": "反抢的人扑了个空" }
+    ],
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "球到你脚下只停了一瞬就被送出，围抢的五个人原地转圈。",
+      "fail": "第一下没调整好，出球路线被封死。"
+    }
+  },
+  {
+    "id": "mv_cutback_server",
+    "nameZh": "底线倒三角",
+    "family": "passing",
+    "rarity": "signature",
+    "positions": ["FWD", "MID"],
+    "targets": ["cross:cutBack", "bigChance:square"],
+    "levels": [
+      { "level": 1, "minOverall": 54, "costExp": 40, "chanceDelta": 0.022, "riskDelta": 0.024, "basisZh": "贴地回敲到点球点" },
+      { "level": 2, "minOverall": 66, "costExp": 84, "chanceDelta": 0.05, "riskDelta": 0.038, "basisZh": "回做力度让队友只需一步" },
+      { "level": 3, "minOverall": 78, "costExp": 150, "chanceDelta": 0.076, "riskDelta": 0.052, "basisZh": "禁区里最安全的杀招" }
+    ],
+    "counter": { "role": "marker", "attr": "defending", "coefficient": 0.0007, "labelZh": "门线前的封堵" },
+    "unlock": { "via": ["exp", "matchDrop"] },
+    "textZh": {
+      "success": "你沉到底线，把球贴着草皮敲回点球点，队友迎球推射。",
+      "fail": "回敲被伸脚拦截，球滚出远端底线。"
+    }
+  },
+  {
+    "id": "mv_whipped_cross",
+    "nameZh": "强烈旋转传中",
+    "family": "passing",
+    "rarity": "rare",
+    "positions": ["FWD", "MID", "DEF"],
+    "targets": ["cross:whipped", "cross:nearPostCross"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "球的旋转往门里去" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "门将不敢出击" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "碰谁谁进的那种球" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0005, "labelZh": "门将的高空球处理" },
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "传中带着强烈的内旋，绕过前点直奔门里，后卫只能伸腿挡自己人。",
+      "fail": "旋转过了头，球划出一道漂亮的弧线飞出后点。"
+    }
+  },
+  {
+    "id": "mv_safe_recycle",
+    "nameZh": "稳妥回敲",
+    "family": "passing",
+    "rarity": "common",
+    "positions": ["DEF", "MID"],
+    "targets": ["cross:safeCross", "throughBall:backPass"],
+    "levels": [
+      { "level": 1, "minOverall": 42, "costExp": 14, "chanceDelta": 0.008, "riskDelta": 0.008, "basisZh": "先把球保住" },
+      { "level": 2, "minOverall": 54, "costExp": 30, "chanceDelta": 0.02, "riskDelta": 0.014, "basisZh": "回做让全队重新站位" },
+      { "level": 3, "minOverall": 66, "costExp": 56, "chanceDelta": 0.034, "riskDelta": 0.022, "basisZh": "一次安全处理换来下一波" }
+    ],
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你放弃这次传中，把球回敲给插上的队友，进攻重新组织起来。",
+      "fail": "回敲力度太轻，反抢的球员把球截走。"
+    }
+  }
+]

@@ -1,0 +1,150 @@
+[
+  {
+    "id": "mv_forehead_bullet",
+    "nameZh": "铁额轰顶",
+    "family": "aerial",
+    "rarity": "legendary",
+    "positions": ["FWD", "MID", "DEF"],
+    "targets": ["headerDuel:flick", "bigChance:flick"],
+    "levels": [
+      { "level": 1, "minOverall": 60, "costExp": 62, "chanceDelta": 0.028, "riskDelta": 0.032, "basisZh": "额头把球砸成射门" },
+      { "level": 2, "minOverall": 72, "costExp": 130, "chanceDelta": 0.066, "riskDelta": 0.05, "basisZh": "落点压在门将反手侧" },
+      { "level": 3, "minOverall": 84, "costExp": 225, "chanceDelta": 0.1, "riskDelta": 0.07, "basisZh": "让整条后防线记住你的号码" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0005, "labelZh": "门将的门线反应" },
+    "unlock": { "via": ["exp", "mentor", "matchDrop"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "你额头一压，球像被砸下的钉子，直直钉进球门。",
+      "fail": "顶得太正，门将在胸前把球抱稳。"
+    }
+  },
+  {
+    "id": "mv_spring_leap",
+    "nameZh": "弹跳冲顶",
+    "family": "aerial",
+    "rarity": "common",
+    "positions": ["FWD", "DEF", "MID"],
+    "targets": ["headerDuel:jump", "cross:nearPostCross"],
+    "levels": [
+      { "level": 1, "minOverall": 44, "costExp": 16, "chanceDelta": 0.01, "riskDelta": 0.01, "basisZh": "起跳时机比高度更要紧" },
+      { "level": 2, "minOverall": 56, "costExp": 34, "chanceDelta": 0.024, "riskDelta": 0.018, "basisZh": "先顶到就是先赢" },
+      { "level": 3, "minOverall": 68, "costExp": 60, "chanceDelta": 0.038, "riskDelta": 0.026, "basisZh": "两个人同时起跳你先到" }
+    ],
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你抢在后卫之前起跳，额头把传中顶向地面，球弹进球门。",
+      "fail": "起跳早了半拍，球从头顶掠过。"
+    }
+  },
+  {
+    "id": "mv_nape_flick",
+    "nameZh": "脑后摆渡",
+    "family": "aerial",
+    "rarity": "rare",
+    "positions": ["FWD", "MID"],
+    "targets": ["headerDuel:flick", "headerDuel:holdUp"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "用后颈把球蹭向队友" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "摆渡方向可以选" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "后卫根本不知道你要往哪顶" }
+    ],
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你没看人，后颈一蹭，球正好落在插上的队友胸口。",
+      "fail": "摆渡力道不够，后卫轻松把球收下。"
+    }
+  },
+  {
+    "id": "mv_back_off_block",
+    "nameZh": "卡位起跳",
+    "family": "aerial",
+    "rarity": "rare",
+    "positions": ["DEF", "MID"],
+    "targets": ["headerDuel:block", "duel:contain"],
+    "levels": [
+      { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.018, "basisZh": "先把对手推出起跳线" },
+      { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.028, "basisZh": "起跳点永远由你占" },
+      { "level": 3, "minOverall": 74, "costExp": 100, "chanceDelta": 0.062, "riskDelta": 0.04, "basisZh": "让对面高点整场没碰到球" }
+    ],
+    "counter": { "role": "marker", "attr": "physical", "coefficient": 0.0007, "labelZh": "对手中锋的对抗" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你用后背把人顶开，自己轻松起跳把传中按在怀里。",
+      "fail": "卡位被反顶开，对手先碰到球。"
+    }
+  },
+  {
+    "id": "mv_first_contact",
+    "nameZh": "争第一点",
+    "family": "aerial",
+    "rarity": "common",
+    "positions": ["DEF", "MID", "GK"],
+    "targets": ["headerDuel:clearHeader", "cross:earlyCross"],
+    "levels": [
+      { "level": 1, "minOverall": 46, "costExp": 18, "chanceDelta": 0.012, "riskDelta": 0.012, "basisZh": "比对手早半步到位" },
+      { "level": 2, "minOverall": 58, "costExp": 36, "chanceDelta": 0.028, "riskDelta": 0.02, "basisZh": "第一点永远归你" },
+      { "level": 3, "minOverall": 70, "costExp": 64, "chanceDelta": 0.042, "riskDelta": 0.03, "basisZh": "传中一到就被清走" }
+    ],
+    "unlock": { "via": ["exp", "matchDrop"] },
+    "textZh": {
+      "success": "你比对手早半步顶到球，把传中拱出禁区。",
+      "fail": "判断错落点，球从两人中间穿过去。"
+    }
+  },
+  {
+    "id": "mv_hang_in_air",
+    "nameZh": "空中滞留",
+    "family": "aerial",
+    "rarity": "signature",
+    "positions": ["FWD", "DEF"],
+    "targets": ["headerDuel:jump", "headerDuel:block"],
+    "levels": [
+      { "level": 1, "minOverall": 54, "costExp": 40, "chanceDelta": 0.022, "riskDelta": 0.024, "basisZh": "在最高点等球" },
+      { "level": 2, "minOverall": 66, "costExp": 84, "chanceDelta": 0.05, "riskDelta": 0.038, "basisZh": "落地前还能改方向" },
+      { "level": 3, "minOverall": 78, "costExp": 150, "chanceDelta": 0.076, "riskDelta": 0.052, "basisZh": "对手落地了你还在线上" }
+    ],
+    "counter": { "role": "marker", "attr": "physical", "coefficient": 0.0009, "labelZh": "对手的中锋对抗" },
+    "unlock": { "via": ["exp", "specialization", "matchDrop"] },
+    "textZh": {
+      "success": "你跳起来之后像挂在空中，等到球落进自己的控制范围。",
+      "fail": "滞空的代价是落地时失去平衡，摔倒在场边。"
+    }
+  },
+  {
+    "id": "mv_storm_brow",
+    "nameZh": "暴雨眉骨",
+    "family": "aerial",
+    "rarity": "signature",
+    "positions": ["DEF", "MID"],
+    "targets": ["headerDuel:flick", "bigChance:shoot"],
+    "levels": [
+      { "level": 1, "minOverall": 56, "costExp": 44, "chanceDelta": 0.024, "riskDelta": 0.026, "basisZh": "眉骨把球压向地面" },
+      { "level": 2, "minOverall": 68, "costExp": 90, "chanceDelta": 0.054, "riskDelta": 0.042, "basisZh": "角球直接砸向门里" },
+      { "level": 3, "minOverall": 80, "costExp": 160, "chanceDelta": 0.082, "riskDelta": 0.058, "basisZh": "让门将只能从网里捡球" }
+    ],
+    "counter": { "role": "keeper", "attr": "goalkeeping", "coefficient": 0.0006, "labelZh": "门将的小禁区控制" },
+    "unlock": { "via": ["exp", "mentor", "specialization"], "mentorRole": "legend" },
+    "textZh": {
+      "success": "眉骨迎着球砸下去，弹地后的射门连门将都没看清。",
+      "fail": "顶到了但压不住，球高高飞出横梁。"
+    }
+  },
+  {
+    "id": "mv_aerial_shield",
+    "nameZh": "空中占位",
+    "family": "aerial",
+    "rarity": "rare",
+    "positions": ["DEF", "GK"],
+    "targets": ["headerDuel:holdUp", "clearance:shield"],
+    "levels": [
+      { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "先把落点圈进自己怀里" },
+      { "level": 2, "minOverall": 60, "costExp": 54, "chanceDelta": 0.036, "riskDelta": 0.026, "basisZh": "对手只能看到你起跳" },
+      { "level": 3, "minOverall": 72, "costExp": 96, "chanceDelta": 0.056, "riskDelta": 0.036, "basisZh": "小禁区里唯一的方向盘" }
+    ],
+    "unlock": { "via": ["exp", "specialization"] },
+    "textZh": {
+      "success": "你提前站在落点上，把球护在自己与门将之间解围出去。",
+      "fail": "起跳被撞偏，球落到对手脚下。"
+    }
+  }
+]

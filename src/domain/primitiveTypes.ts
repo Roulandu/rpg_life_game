@@ -33,3 +33,13 @@ export type ExtraAction = 'media' | 'agent' | 'social' | 'rest' | 'family' | 'no
 export type Archetype = 'speedster' | 'technician' | 'engine' | 'finisher' | 'wall'
 
 export type CareerBackground = 'academy' | 'lowerLeague' | 'overseas'
+
+/**
+ * 一条绝技的持有记录。`level` 用 0 表示「没见过」，1–3 是等级；
+ * `progress` 是比赛与特训攒下的修炼进度，够一格才允许升级（见 `nextMoveLevel`）。
+ */
+export interface PlayerMove {
+  moveId: string
+  level: number
+  progress: number
+}

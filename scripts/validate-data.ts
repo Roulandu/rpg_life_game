@@ -1,7 +1,16 @@
 import denylistJson from '../data/denylist/england.json'
 import knownNamesJson from '../data/names/known.json'
 import transliterationJson from '../data/names/transliteration.json'
-import { EVENT_PACK_NAMES, EVENT_TEMPLATES, eventTemplatesOfPack, hasCjk, nameZhFor } from '../src/domain'
+import {
+  EVENT_PACK_NAMES,
+  EVENT_TEMPLATES,
+  MOVE_PACK_NAMES,
+  MOVES,
+  eventTemplatesOfPack,
+  hasCjk,
+  movesOfPack,
+  nameZhFor,
+} from '../src/domain'
 import { COUNTRY_PACKS, NAME_POOLS, NATIONALITY_WEIGHTS } from '../src/world/datapack'
 import { STARTING_CLUBS } from '../src/world/data/england'
 
@@ -165,6 +174,33 @@ for (const packName of EVENT_PACK_NAMES) {
   }
 }
 
+/**
+ * 绝技内容包：结构、逐级门槛与稀有度预算都由 `src/domain/moves.ts` 在加载时用 Zod 硬校验，
+ * 这里只守规模下限与跨包 id 唯一——想删包或砍数量，必须先在这里解释。
+ */
+const MIN_MOVE_PACKS = 6
+const MIN_MOVES = 64
+const MIN_MOVES_PER_PACK = 8
+
+if (MOVE_PACK_NAMES.length < MIN_MOVE_PACKS) {
+  errors.push(`绝技数据包少于 ${MIN_MOVE_PACKS} 个：当前 ${MOVE_PACK_NAMES.length}`)
+}
+if (MOVES.length < MIN_MOVES) {
+  errors.push(`绝技总数少于 ${MIN_MOVES} 条：当前 ${MOVES.length}`)
+}
+for (const packName of MOVE_PACK_NAMES) {
+  const count = movesOfPack(packName).length
+  if (count < MIN_MOVES_PER_PACK) {
+    errors.push(`绝技包 ${packName} 少于 ${MIN_MOVES_PER_PACK} 条：当前 ${count}`)
+  }
+}
+const seenMoveIds = new Set<string>()
+for (const move of MOVES) {
+  if (seenMoveIds.has(move.id)) errors.push(`绝技 id 重复：${move.id}`)
+  seenMoveIds.add(move.id)
+  if (LATIN.test(move.nameZh)) errors.push(`绝技名残留拉丁字母：${move.id} → ${move.nameZh}`)
+}
+
 const clubCount = COUNTRY_PACKS.reduce((sum, pack) => sum + pack.clubs.length, 0)
 if (errors.length > 0) {
   console.error(`数据包校验失败（${errors.length} 项）：`)
@@ -173,5 +209,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `数据包校验通过：${COUNTRY_PACKS.length} 个国家、${clubCount} 家俱乐部、${seenLeagueIds.size} 个联赛、${Object.keys(NAME_POOLS).length} 个姓名池、${EVENT_TEMPLATES.length} 个事件模板。`,
+  `数据包校验通过：${COUNTRY_PACKS.length} 个国家、${clubCount} 家俱乐部、${seenLeagueIds.size} 个联赛、${Object.keys(NAME_POOLS).length} 个姓名池、${EVENT_TEMPLATES.length} 个事件模板、${MOVES.length} 条绝技。`,
 )
