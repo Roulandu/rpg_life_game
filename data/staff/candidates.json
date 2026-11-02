@@ -1,0 +1,24 @@
+{
+  "candidates": [
+    { "id": "staff:doctor:hayes", "role": "doctor", "name": "Margaret Hayes", "nameZh": "玛格丽特·海斯", "quality": 92 },
+    { "id": "staff:doctor:ferreira", "role": "doctor", "name": "Tomas Ferreira", "nameZh": "托马斯·费雷拉", "quality": 84 },
+    { "id": "staff:doctor:lin", "role": "doctor", "name": "林兆安", "nameZh": "林兆安", "quality": 77 },
+    { "id": "staff:doctor:nair", "role": "doctor", "name": "Priya Nair", "nameZh": "普里娅·奈尔", "quality": 71 },
+    { "id": "staff:doctor:grant", "role": "doctor", "name": "Oliver Grant", "nameZh": "奥利弗·格兰特", "quality": 63 },
+    { "id": "staff:doctor:chen", "role": "doctor", "name": "陈立群", "nameZh": "陈立群", "quality": 56 },
+
+    { "id": "staff:psychologist:rossi", "role": "psychologist", "name": "Sofia Rossi", "nameZh": "索菲娅·罗西", "quality": 90 },
+    { "id": "staff:psychologist:shen", "role": "psychologist", "name": "沈明轩", "nameZh": "沈明轩", "quality": 83 },
+    { "id": "staff:psychologist:whitfield", "role": "psychologist", "name": "Ella Whitfield", "nameZh": "埃拉·惠特菲尔德", "quality": 75 },
+    { "id": "staff:psychologist:kim", "role": "psychologist", "name": "Daniel Kim", "nameZh": "丹尼尔·金", "quality": 67 },
+    { "id": "staff:psychologist:okonkwo", "role": "psychologist", "name": "Amara Okonkwo", "nameZh": "阿玛拉·奥孔科", "quality": 61 },
+    { "id": "staff:psychologist:zhao", "role": "psychologist", "name": "赵可欣", "nameZh": "赵可欣", "quality": 55 },
+
+    { "id": "staff:trainer:vance", "role": "trainer", "name": "Marcus Vance", "nameZh": "马库斯·万斯", "quality": 91 },
+    { "id": "staff:trainer:petrov", "role": "trainer", "name": "Ivan Petrov", "nameZh": "伊万·彼得罗夫", "quality": 86 },
+    { "id": "staff:trainer:gao", "role": "trainer", "name": "高振宇", "nameZh": "高振宇", "quality": 78 },
+    { "id": "staff:trainer:dubois", "role": "trainer", "name": "Leon Dubois", "nameZh": "莱昂·杜布瓦", "quality": 70 },
+    { "id": "staff:trainer:riley", "role": "trainer", "name": "Jack Riley", "nameZh": "杰克·莱利", "quality": 64 },
+    { "id": "staff:trainer:berg", "role": "trainer", "name": "Tomas Berg", "nameZh": "托马斯·贝里", "quality": 57 }
+  ]
+}

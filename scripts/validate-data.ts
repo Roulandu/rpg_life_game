@@ -6,6 +6,9 @@ import {
   EVENT_TEMPLATES,
   MOVE_PACK_NAMES,
   MOVES,
+  STAFF_CANDIDATES,
+  STAFF_POOL_SIZE,
+  STAFF_ROLE_ORDER,
   eventTemplatesOfPack,
   hasCjk,
   movesOfPack,
@@ -201,6 +204,30 @@ for (const move of MOVES) {
   if (LATIN.test(move.nameZh)) errors.push(`绝技名残留拉丁字母：${move.id} → ${move.nameZh}`)
 }
 
+/**
+ * 个人团队内容池：结构与取值范围由 `src/domain/staff.ts` 的 Zod 在加载时硬校验，
+ * 这里守规模下限与中文名——把某个角色的候选删到不足两季的选择面，必须先在这里解释。
+ */
+const MIN_STAFF_PER_ROLE = STAFF_POOL_SIZE * 2
+const seenStaffIds = new Set<string>()
+for (const candidate of STAFF_CANDIDATES) {
+  if (seenStaffIds.has(candidate.id)) errors.push(`团队成员 id 重复：${candidate.id}`)
+  seenStaffIds.add(candidate.id)
+  if (!candidate.id.startsWith(`staff:${candidate.role}:`)) {
+    errors.push(`团队成员 id 的角色段与实际角色不一致：${candidate.id}（${candidate.role}）`)
+  }
+  if (!hasCjk(candidate.nameZh)) errors.push(`团队成员中文名不是汉字：${candidate.id}`)
+  if (LATIN.test(candidate.nameZh)) {
+    errors.push(`团队成员中文名残留拉丁字母：${candidate.id} → ${candidate.nameZh}`)
+  }
+}
+for (const role of STAFF_ROLE_ORDER) {
+  const count = STAFF_CANDIDATES.filter((item) => item.role === role).length
+  if (count < MIN_STAFF_PER_ROLE) {
+    errors.push(`角色 ${role} 的候选少于 ${MIN_STAFF_PER_ROLE} 人：当前 ${count}`)
+  }
+}
+
 const clubCount = COUNTRY_PACKS.reduce((sum, pack) => sum + pack.clubs.length, 0)
 if (errors.length > 0) {
   console.error(`数据包校验失败（${errors.length} 项）：`)
@@ -209,5 +236,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `数据包校验通过：${COUNTRY_PACKS.length} 个国家、${clubCount} 家俱乐部、${seenLeagueIds.size} 个联赛、${Object.keys(NAME_POOLS).length} 个姓名池、${EVENT_TEMPLATES.length} 个事件模板、${MOVES.length} 条绝技。`,
+  `数据包校验通过：${COUNTRY_PACKS.length} 个国家、${clubCount} 家俱乐部、${seenLeagueIds.size} 个联赛、${Object.keys(NAME_POOLS).length} 个姓名池、${EVENT_TEMPLATES.length} 个事件模板、${MOVES.length} 条绝技、${STAFF_CANDIDATES.length} 名可聘团队成员。`,
 )

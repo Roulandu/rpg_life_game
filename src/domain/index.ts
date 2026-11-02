@@ -224,3 +224,17 @@ export {
   legendRelationshipId,
   makeLegendRelationship,
 } from './relationships'
+export {
+  STAFF_CANDIDATES,
+  STAFF_POOL_SIZE,
+  STAFF_ROLE_ORDER,
+  STAFF_ROLE_SPECS,
+  buildStaffPool,
+  findStaffCandidate,
+  hasStaffRole,
+  staffFactors,
+  staffPotency,
+  staffWeeklyCostOf,
+  staffWeeklyTotal,
+} from './staff'
+export type { StaffCandidate, StaffFactors, StaffMember, StaffRole, StaffRoleSpec } from './staff'
