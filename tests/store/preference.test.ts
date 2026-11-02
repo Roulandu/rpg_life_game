@@ -56,6 +56,16 @@ describe('主题偏好 store', () => {
     expect(useGameStore.getState().themePreference).toBe('dark')
   })
 
+  it('系统配色上报后不用改偏好也跟着换肤', () => {
+    useGameStore.setState({ themePreference: 'system', systemScheme: 'dark' })
+
+    useGameStore.getState().setSystemScheme('light')
+
+    expect(useGameStore.getState().systemScheme).toBe('light')
+    expect(selectResolvedTheme(useGameStore.getState())).toBe('light')
+    expect(useGameStore.getState().themePreference).toBe('system')
+  })
+
   it('解析主题时跟随系统或使用显式偏好', () => {
     expect(selectResolvedTheme({ themePreference: 'system', systemScheme: 'light' })).toBe('light')
     expect(selectResolvedTheme({ themePreference: 'dark', systemScheme: 'light' })).toBe('dark')
