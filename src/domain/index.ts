@@ -104,7 +104,9 @@ export {
   RARITY_LABELS,
   RARITY_ORDER,
   allMoves,
+  buildMoveRegistry,
   movesOfPack,
+  parseMovePack,
 } from './moves'
 export type {
   MoveBonusTerm,
@@ -115,7 +117,9 @@ export type {
   MoveFamily,
   MoveLevelSpec,
   MoveOpponents,
+  MovePack,
   MovePositionGroup,
+  MoveRegistry,
   MoveRarity,
   MoveUnlock,
   MoveUnlockPath,

@@ -215,7 +215,39 @@ export const MOVE_PACK_NAMES = [
   'setpiece',
 ] as const
 
-const MOVE_PACKS: { name: string; moves: unknown }[] = [
+export interface MovePack {
+  name: string
+  moves: unknown
+}
+
+export interface MoveRegistry {
+  list: MoveDefinition[]
+  index: Map<string, MoveDefinition[]>
+}
+
+/** 内容门禁的可复用入口：原始 JSON 数组 → 绝技定义，坏数据直接抛中文原因。 */
+export function parseMovePack(moves: unknown): MoveDefinition[] {
+  return moveSchema.array().parse(moves) as MoveDefinition[]
+}
+
+/** 逐包解析并跨包查重：id 撞车会让索引互相覆盖，所以宁可启动即失败。 */
+export function buildMoveRegistry(packs: MovePack[]): MoveRegistry {
+  const list: MoveDefinition[] = []
+  const index = new Map<string, MoveDefinition[]>()
+  for (const pack of packs) {
+    const moves = parseMovePack(pack.moves)
+    for (const move of moves) {
+      if (list.some((item) => item.id === move.id)) {
+        throw new Error(`绝技 id 在不同数据包里重复：${move.id}（${pack.name}）`)
+      }
+      list.push(move)
+    }
+    index.set(pack.name, moves)
+  }
+  return { list, index }
+}
+
+const MOVE_PACKS: MovePack[] = [
   { name: 'shooting', moves: shootingJson },
   { name: 'dribbling', moves: dribblingJson },
   { name: 'passing', moves: passingJson },
@@ -226,24 +258,11 @@ const MOVE_PACKS: { name: string; moves: unknown }[] = [
   { name: 'setpiece', moves: setpieceJson },
 ]
 
-const PACK_INDEX = new Map<string, MoveDefinition[]>()
+const REGISTRY = buildMoveRegistry(MOVE_PACKS)
 
-function parsePacks(): MoveDefinition[] {
-  const list: MoveDefinition[] = []
-  for (const pack of MOVE_PACKS) {
-    const moves = moveSchema.array().parse(pack.moves) as MoveDefinition[]
-    for (const move of moves) {
-      if (list.some((item) => item.id === move.id)) {
-        throw new Error(`绝技 id 在不同数据包里重复：${move.id}（${pack.name}）`)
-      }
-      list.push(move)
-    }
-    PACK_INDEX.set(pack.name, moves)
-  }
-  return list
-}
+const PACK_INDEX = REGISTRY.index
 
-export const MOVES: MoveDefinition[] = parsePacks()
+export const MOVES: MoveDefinition[] = REGISTRY.list
 
 /** 全表只读：调用方拿到的是同一份对象，不要原地改。 */
 export function allMoves(): MoveDefinition[] {
