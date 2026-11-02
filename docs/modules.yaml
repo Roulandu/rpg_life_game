@@ -68,6 +68,7 @@ modules:
       - docs/features/daily-turn.md
       - docs/features/daily-events.md
       - docs/features/matchday.md
+      - docs/features/player-moves.md
       - docs/features/names-i18n.md
     testImpact: strict
     platformCapabilities: [core]
@@ -83,6 +84,7 @@ modules:
       - tests/world/**/*.test.ts
     docs:
       - docs/features/growth-exp.md
+      - docs/features/player-moves.md
       - docs/features/world-generation.md
       - docs/features/names-i18n.md
     testImpact: strict
@@ -108,6 +110,7 @@ modules:
     tests: [tests/db/**/*.test.ts]
     docs:
       - docs/features/saves.md
+      - docs/features/player-moves.md
       - docs/features/names-i18n.md
       - docs/data-model.md
     testImpact: strict
@@ -141,6 +144,7 @@ modules:
     tests: [tests/**/*.test.ts]
     docs:
       - docs/features/growth-exp.md
+      - docs/features/player-moves.md
       - docs/data-model.md
       - docs/interfaces/engine-api.md
       - docs/features/calendar-dates.md
