@@ -4,6 +4,7 @@ import type { Rng } from '../lib'
 import { createRng } from '../lib'
 import { buildMediaReaction } from './keyMomentNarrative'
 import { appendEvent, appendFulltime, pickManOfTheMatch } from './matchReport'
+import { grantMoveDrops } from './moveDrops'
 import { computeUserRating, rollUserMatchEvents, updateUserAfterMatch } from './matchUser'
 
 interface FinalizeContext {
@@ -109,6 +110,7 @@ function settleUser(ctx: FinalizeContext): boolean {
     minutes: report.userMinutes,
     rng,
   })
+  grantMoveDrops(world, report)
   recordUserMinutes(user, report)
   tallyGoalStats(world, report)
   for (const event of extras.events) appendEvent(report, event)

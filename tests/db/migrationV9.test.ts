@@ -61,11 +61,16 @@ describe('存档迁移 v8 -> v9 绝技账本与特训槽', () => {
   it('停在开球的旧档迁移后能接着踢完', () => {
     const migrated = migrateWorld(v8LiveWorld())
     expect(migrated.lastMatch?.status).toBe('live')
+    expect(migrated.players[migrated.playerId].moves).toEqual([])
 
     const result = advanceDay(migrated)
 
     expect(result.world.lastMatch?.status).toBe('final')
-    expect(result.world.players[result.world.playerId].moves).toEqual([])
+    // 迁移只补一份空账本；踢完这一场允许掉下修炼进度，但绝不凭空升到高阶。
+    for (const held of result.world.players[result.world.playerId].moves ?? []) {
+      expect(held.level).toBeLessThanOrEqual(1)
+      expect(held.progress).toBeGreaterThanOrEqual(0)
+    }
   })
 
   it('迁移后的存档立刻能把持有的绝技算进关键回合概率', () => {
