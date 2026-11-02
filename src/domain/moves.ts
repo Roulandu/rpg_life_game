@@ -141,6 +141,35 @@ const unlockSchema = z
     }
   })
 
+/** 逐级曲线：门槛、花费、加成必须一起抬高，且都不越过该稀有度的预算。 */
+function levelCurveIssues(move: { id: string; rarity: MoveRarity; levels: MoveLevelSpec[] }): string[] {
+  const issues: string[] = []
+  const [one, two, three] = move.levels
+  if (!one || !two || !three) {
+    return [`等级必须凑满 ${MOVE_MAX_LEVEL} 档：${move.id}`]
+  }
+  const grows = (pick: (level: MoveLevelSpec) => number) =>
+    pick(two) > pick(one) && pick(three) > pick(two)
+  if (!grows((level) => level.minOverall)) {
+    issues.push(`综合分门槛必须逐级抬高：${move.id}`)
+  }
+  if (!grows((level) => level.costExp)) {
+    issues.push(`升级花费必须逐级抬高：${move.id}`)
+  }
+  if (!grows((level) => level.chanceDelta)) {
+    issues.push(`成功率加成必须逐级抬高：${move.id}`)
+  }
+  for (const level of move.levels) {
+    if (level.chanceDelta > RARITY_CHANCE_BUDGET[move.rarity]) {
+      issues.push(`${move.rarity} 级绝技的加成越过预算：${move.id} L${level.level}`)
+    }
+  }
+  if (move.levels.some((level, index) => level.level !== index + 1)) {
+    issues.push(`等级编号必须是 1/2/3：${move.id}`)
+  }
+  return issues
+}
+
 const moveSchema = z
   .object({
     id: z.string().min(1),
@@ -175,29 +204,8 @@ const moveSchema = z
         ctx.addIssue({ code: 'custom', message: `未知关键回合类型：${parts[0]}`, path: ['targets'] })
       }
     }
-    const [one, two, three] = move.levels
-    const grows = (pick: (level: MoveLevelSpec) => number) =>
-      pick(two) > pick(one) && pick(three) > pick(two)
-    if (!grows((level) => level.minOverall)) {
-      ctx.addIssue({ code: 'custom', message: `综合分门槛必须逐级抬高：${move.id}`, path: ['levels'] })
-    }
-    if (!grows((level) => level.costExp)) {
-      ctx.addIssue({ code: 'custom', message: `升级花费必须逐级抬高：${move.id}`, path: ['levels'] })
-    }
-    if (!grows((level) => level.chanceDelta)) {
-      ctx.addIssue({ code: 'custom', message: `成功率加成必须逐级抬高：${move.id}`, path: ['levels'] })
-    }
-    for (const level of move.levels) {
-      if (level.chanceDelta > RARITY_CHANCE_BUDGET[move.rarity]) {
-        ctx.addIssue({
-          code: 'custom',
-          message: `${move.rarity} 级绝技的加成越过预算：${move.id} L${level.level}`,
-          path: ['levels'],
-        })
-      }
-    }
-    if (move.levels.some((level, index) => level.level !== index + 1)) {
-      ctx.addIssue({ code: 'custom', message: `等级编号必须是 1/2/3：${move.id}`, path: ['levels'] })
+    for (const message of levelCurveIssues(move)) {
+      ctx.addIssue({ code: 'custom', message, path: ['levels'] })
     }
   })
 
