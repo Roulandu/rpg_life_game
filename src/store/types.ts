@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand'
 import type {
   AttrKey,
   CareerCreateOptions,
+  InvestmentKind,
   SaveSummary,
   WeeklyPlan,
   WorldState,
@@ -10,6 +11,7 @@ import type {
   DayResult,
   FastForwardResult,
   InvestOutcome,
+  InvestResult,
   MoveInvestOutcome,
   SeasonTransition,
   TurnResult,
@@ -51,6 +53,8 @@ export interface GameStore {
   setWeekPlan: (plan: WeeklyPlan) => Promise<boolean>
   investExp: (attrKey: AttrKey, points: number) => Promise<InvestOutcome | null>
   investMoveExp: (moveId: string) => Promise<MoveInvestOutcome | null>
+  investMoney: (kind: InvestmentKind, principal: number) => Promise<InvestResult | null>
+  redeemInvestment: (investmentId: string) => Promise<InvestResult | null>
   resolveKeyMoment: (momentId: string, optionId: string) => Promise<void>
   skipKeyMoments: () => Promise<void>
   finishLiveMatch: () => Promise<void>

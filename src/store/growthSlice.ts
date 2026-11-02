@@ -1,8 +1,8 @@
 import { ATTR_LABELS, MOVE_LEVEL_MARKS, moveById } from '../domain'
-import type { AttrKey, WorldState } from '../domain'
+import type { AttrKey } from '../domain'
 import { investAttribute, investMove } from '../engine'
 import type { InvestOutcome, InvestReject, MoveInvestOutcome, MoveInvestReject } from '../engine'
-import { messageOf, persist } from './helpers'
+import { commitSettled, messageOf } from './helpers'
 import type { GameStore, StoreGet, StoreSet, StoreSlice } from './types'
 
 type GrowthSlice = Pick<GameStore, 'investExp' | 'investMoveExp'>
@@ -38,15 +38,6 @@ function moveNoticeOf(outcome: MoveInvestOutcome): string {
   const name = moveById(outcome.moveId)?.nameZh ?? '这门绝技'
   const mark = MOVE_LEVEL_MARKS[outcome.level - 1] ?? ''
   return `${name} 练到 ${mark} 级（花 ${outcome.cost} 经验，剩 ${outcome.expLeft}）`
-}
-
-/** 成交后的写入只有一条路径：换世界、清错误、给播报、落盘。 */
-async function commitSettled(set: StoreSet, get: StoreGet, next: WorldState, notice: string) {
-  next.updatedAt = new Date().toISOString()
-  set({ world: next, error: null, notice })
-  const saved = await persist(next, get().saveId)
-  if (saved.ok) set({ saveId: saved.summary.id })
-  else set({ error: `保存失败：${saved.error}` })
 }
 
 async function commitInvest(
