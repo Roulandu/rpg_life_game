@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import type { WorldState } from '../../src/domain'
 import { STAFF_ROLE_SPECS, buildStaffPool } from '../../src/domain'
 import { StaffScreen } from '../../src/ui/screens/StaffScreen'
+import { MorePrimaryColumn } from '../../src/ui/screens/more/MorePrimaryColumn'
 import { useGameStore } from '../../src/store/gameStore'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
@@ -124,5 +125,18 @@ describe('个人团队页的操作', () => {
     fireEvent.click(screen.getByRole('button', { name: '解雇 测试成员' }))
 
     expect(release).toHaveBeenCalledWith(doctor.id)
+  })
+
+  it('更多页把个人团队入口摆在资金运用旁边', () => {
+    const world = teamWorld(RICH)
+    useGameStore.setState({ world, hydrated: true })
+    render(
+      <MemoryRouter>
+        <MorePrimaryColumn world={world} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('个人团队')).toBeTruthy()
+    expect(screen.getByText('队医、心理咨询师与私人教练')).toBeTruthy()
   })
 })

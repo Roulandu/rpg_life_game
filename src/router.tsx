@@ -12,6 +12,7 @@ import { MoreScreen } from './ui'
 import { ProfileScreen } from './ui'
 import { ScheduleScreen } from './ui'
 import { SettingsScreen } from './ui'
+import { StaffScreen } from './ui'
 import { TeamPlayerScreen } from './ui'
 import { TeamScreen } from './ui'
 import { TimelineScreen } from './ui'
@@ -36,6 +37,7 @@ export const router = createHashRouter([
           { path: 'moves', element: <MovesScreen /> },
           { path: 'moves/:moveId', element: <MoveDetailScreen /> },
           { path: 'finance', element: <FinanceScreen /> },
+          { path: 'staff', element: <StaffScreen /> },
           { path: 'profile', element: <ProfileScreen /> },
           { path: 'more', element: <MoreScreen /> },
           { path: 'settings', element: <SettingsScreen /> },
