@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import legacyJson from '../../data/events/legacy.json'
 import matchweekJson from '../../data/events/matchweek.json'
 import dailyLifeJson from '../../data/events/daily-life.json'
@@ -8,6 +7,8 @@ import financeJson from '../../data/events/finance.json'
 import staffJson from '../../data/events/staff.json'
 import milestonesJson from '../../data/events/milestones.json'
 import type { Id } from './primitiveTypes'
+import type { EventTemplateContent } from './eventSchema'
+import { templateSchema } from './eventSchema'
 
 export type EffectOp =
   | 'morale'
@@ -23,10 +24,15 @@ export type EffectOp =
   | 'money'
   | 'injuryDays'
   | 'exp'
+  | 'legendTrust'
+  | 'learnMove'
+  | 'moveProgress'
 
 export interface Effect {
   op: EffectOp
   delta: number
+  /** 绝技类效果（learnMove / moveProgress）必须点名是哪一条绝技；delta 是授予等级或进度格数。 */
+  moveId?: string
 }
 
 export interface EventChoice {
@@ -124,72 +130,7 @@ export const EVENT_SCOPE_FIELDS = [
 /** 白名单字段名：拼错或多加字段会编译报错；漏项由投影测试兜住。 */
 export type EventScopeField = (typeof EVENT_SCOPE_FIELDS)[number]
 
-const effectSchema = z.object({
-  op: z.enum([
-    'morale',
-    'fitness',
-    'sharpness',
-    'confidence',
-    'coachTrust',
-    'teammateTrust',
-    'agentTrust',
-    'familyTrust',
-    'mediaRep',
-    'fanRep',
-    'money',
-    'injuryDays',
-    'exp',
-  ]),
-  delta: z.number(),
-})
-
-const choiceSchema = z.object({
-  id: z.string().min(1),
-  label: z.string().min(1),
-  description: z.string().min(1).optional(),
-  effects: z.array(effectSchema),
-})
-
-const conditionSchema = z.object({
-  field: z.string().min(1),
-  op: z.enum(['eq', 'lt', 'lte', 'gte', 'between', 'in']),
-  value: z.unknown(),
-})
-
-const templateSchema = z
-  .object({
-    id: z.string().min(1),
-    title: z.string().min(1),
-    body: z.string().min(1),
-    sender: z.string().min(1),
-    weight: z.number().positive(),
-    expiresDays: z.number().int().min(1).max(21),
-    cooldownDays: z.number().int().min(0).max(120),
-    blocking: z.boolean(),
-    guaranteed: z.boolean(),
-    once: z.boolean().optional(),
-    maxPerSeason: z.number().int().min(1).optional(),
-    weekdays: z.array(z.number().int().min(1).max(7)).min(1).optional(),
-    when: z.array(conditionSchema),
-    choices: z.array(choiceSchema).min(2),
-    resultTexts: z.record(z.string(), z.string().min(1)).optional(),
-  })
-  .strict()
-  .superRefine((template, ctx) => {
-    const seen = new Set<string>()
-    for (const choice of template.choices) {
-      if (seen.has(choice.id)) {
-        ctx.addIssue({ code: 'custom', message: `选项 id 重复：${choice.id}`, path: ['choices'] })
-      }
-      seen.add(choice.id)
-    }
-    if (template.blocking && template.choices.some((choice) => choice.effects.length === 0)) {
-      ctx.addIssue({ code: 'custom', message: '拦截性事件不能有空效果选项', path: ['choices'] })
-    }
-  })
-
-export type EventCondition = z.infer<typeof conditionSchema>
-export type EventTemplateContent = z.infer<typeof templateSchema>
+export type { EventCondition, EventTemplateContent } from './eventSchema'
 
 const SCOPE_SET = new Set<string>(EVENT_SCOPE_FIELDS)
 
@@ -223,7 +164,16 @@ function assertWhitelist(templates: EventTemplateContent[]): EventTemplateConten
  * 事件内容包按类别分文件：legacy 保持文案逐字不变，新类别一个文件一类，
  * 注册顺序即加载顺序，跨包 id 重复直接拒绝，避免出现「后一份覆盖前一份」。
  */
-export const EVENT_PACK_NAMES = ['legacy', 'matchweek', 'daily-life', 'media', 'club', 'finance', 'staff', 'milestones'] as const
+export const EVENT_PACK_NAMES = [
+  'legacy',
+  'matchweek',
+  'daily-life',
+  'media',
+  'club',
+  'finance',
+  'staff',
+  'milestones',
+] as const
 
 const EVENT_PACKS: { name: string; templates: unknown }[] = [
   { name: 'legacy', templates: legacyJson },
@@ -238,10 +188,15 @@ const EVENT_PACKS: { name: string; templates: unknown }[] = [
 
 const PACK_INDEX = new Map<string, EventTemplateContent[]>()
 
+/** 内容门禁的可复用入口：原始 JSON 数组 → 事件模板，坏数据直接抛中文原因。 */
+export function parseEventPack(templates: unknown): EventTemplateContent[] {
+  return templateSchema.array().parse(templates) as EventTemplateContent[]
+}
+
 function parsePacks(): EventTemplateContent[] {
   const list: EventTemplateContent[] = []
   for (const pack of EVENT_PACKS) {
-    const templates = templateSchema.array().parse(pack.templates)
+    const templates = parseEventPack(pack.templates)
     for (const template of templates) {
       if (list.some((item) => item.id === template.id)) {
         throw new Error(`事件模板 id 在不同数据包里重复：${template.id}（${pack.name}）`)

@@ -1,3 +1,4 @@
+import { moveById } from '../domain'
 import type { Effect, EffectOp, ExtraAction, Player } from '../domain'
 import { formatMoneyShort } from '../lib'
 
@@ -22,6 +23,15 @@ export const EFFECT_LABELS: Record<EffectOp, string> = {
   money: '金钱',
   injuryDays: '伤停天数',
   exp: '经验',
+  legendTrust: '名宿信任',
+  learnMove: '学绝技',
+  moveProgress: '绝技进度',
+}
+
+/** 绝技类效果点名到具体那一招：玩家要看懂「学会什么」，而不是裸字段名。 */
+function moveEffectText(effect: Effect): string {
+  const name = moveById(effect.moveId ?? '')?.nameZh ?? '一门绝技'
+  return effect.op === 'learnMove' ? `学会 ${name}` : `${name} 进度 +${effect.delta}`
 }
 
 export function effectText(effect: Effect): string {
@@ -33,6 +43,7 @@ export function effectText(effect: Effect): string {
     const days = Math.abs(effect.delta)
     return effect.delta < 0 ? `伤停缩短 ${days} 天` : `伤停延长 ${days} 天`
   }
+  if (effect.op === 'learnMove' || effect.op === 'moveProgress') return moveEffectText(effect)
   return `${EFFECT_LABELS[effect.op]} ${effect.delta >= 0 ? '+' : ''}${effect.delta}`
 }
 

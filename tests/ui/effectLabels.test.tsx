@@ -14,6 +14,13 @@ describe('事件效果的中文标签', () => {
     expect(effectText({ op: 'coachTrust', delta: 2 })).toBe('教练信任 +2')
   })
 
+  it('绝技效果点名到那一招，不露出 learnMove 这种字段名', () => {
+    expect(effectText({ op: 'learnMove', delta: 1, moveId: 'mv_rainbow' })).toBe('学会 彩虹过人')
+    expect(effectText({ op: 'moveProgress', delta: 2, moveId: 'mv_rainbow' })).toBe('彩虹过人 进度 +2')
+    expect(effectText({ op: 'learnMove', delta: 1 })).toBe('学会 一门绝技')
+    expect(effectText({ op: 'legendTrust', delta: 6 })).toBe('名宿信任 +6')
+  })
+
   it('同一选项的多个效果串成一行，顺序与数据包一致', () => {
     expect(effectList([{ op: 'injuryDays', delta: -7 }, { op: 'fitness', delta: -5 }])).toBe(
       '伤停缩短 7 天 · 体能 -5',

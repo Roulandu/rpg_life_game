@@ -81,6 +81,7 @@ export {
   EVENT_TEMPLATES,
   eventTemplateById,
   eventTemplatesOfPack,
+  parseEventPack,
 } from './eventContent'
 export type {
   Effect,
