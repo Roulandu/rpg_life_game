@@ -144,7 +144,14 @@ export interface LeagueTableRow {
   form: ('W' | 'D' | 'L')[]
 }
 
-export type RelationshipRole = 'coach' | 'teammate' | 'agent' | 'family' | 'media' | 'fan'
+export type RelationshipRole =
+  | 'coach'
+  | 'teammate'
+  | 'agent'
+  | 'family'
+  | 'media'
+  | 'fan'
+  | 'legend'
 
 export interface Relationship {
   id: Id

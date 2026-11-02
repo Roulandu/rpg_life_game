@@ -1,4 +1,4 @@
-import { displayName, nameZhFor, overall } from '../domain'
+import { displayName, makeLegendRelationship, nameZhFor, overall } from '../domain'
 import type { Club, Finance, Id, Player, Relationship, WorldState } from '../domain'
 import { createRng, type Rng } from '../lib'
 import { START_SEASON } from './constants'
@@ -98,6 +98,8 @@ function addFixedRelationships(context: RelationshipContext): void {
     summary: '球迷还不太认识你，一次亮眼表现就能改变印象。',
     lastInteractionWeek: 0,
   }
+  const legend = makeLegendRelationship(user.id)
+  relationships[legend.id] = legend
 }
 
 export function createRelationships(

@@ -54,5 +54,7 @@ export function relationshipLabel(role: RelationshipRole): string {
       return '媒体'
     case 'fan':
       return '球迷'
+    case 'legend':
+      return '名宿'
   }
 }

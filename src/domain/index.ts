@@ -206,3 +206,10 @@ export type {
 } from './types'
 export type { SaveRecord, SaveSummary } from './saveTypes'
 export { displayName, hasCjk, nameZhFor } from './names'
+export {
+  LEGEND_NAME,
+  LEGEND_START_TRUST,
+  LEGEND_SUMMARY,
+  legendRelationshipId,
+  makeLegendRelationship,
+} from './relationships'

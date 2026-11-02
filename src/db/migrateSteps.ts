@@ -6,6 +6,7 @@ import {
   emptyAttrInvestment,
   eventTemplateById,
   fixtureDayOf,
+  makeLegendRelationship,
   nameZhFor,
 } from '../domain'
 import type { GameEvent, KeyMoment, MatchReport, Player, Relationship, WorldState } from '../domain'
@@ -213,6 +214,16 @@ function migrateMoves(world: WorldState): void {
   world.weekPlan.specialization ??= null
 }
 
+/**
+ * v9 还没有名宿：关系表里查不到这个人，事件包里的 learnMove / legendTrust 在老档上会静默失效。
+ * 只在确实没有名宿时补一条，玩家已经刷出来的信任与文案原样保留。
+ */
+function migrateLegend(world: WorldState): void {
+  if (Object.values(world.relationships).some((relationship) => relationship.role === 'legend')) return
+  const legend = makeLegendRelationship(world.playerId)
+  world.relationships[legend.id] = legend
+}
+
 /** v1 及更早的存档没有逐日计划：放在表尾，让上面几步先把时钟补出来再整体清空。 */
 function clearPendingPlan(world: WorldState): void {
   world.pendingDayPlan = null
@@ -225,5 +236,6 @@ export const MIGRATION_STEPS: MigrationStep[] = [
   { from: 7, run: migrateEventDays },
   { from: 8, run: migrateGrowth },
   { from: 9, run: migrateMoves },
+  { from: 10, run: migrateLegend },
   { from: 2, run: clearPendingPlan },
 ]
