@@ -47,7 +47,7 @@ export type {
 export type { Effect, EffectOp, EventChoice, GameEvent } from './eventContent'
 
 export type { CareerEntry, Contract, Injury, Reputation, SeasonStat } from './playerTypes'
-export type { Finance, FinanceLedgerEntry, Investment, InvestmentKind } from './finance'
+export type { Finance, FinanceLedgerEntry, Investment, InvestmentKind, InvestmentKindSpec } from './finance'
 
 export interface Player {
   id: Id

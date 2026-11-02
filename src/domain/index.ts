@@ -149,6 +149,14 @@ export type {
   PitchPoint,
 } from './pitch'
 export { computeClubStrength } from './strength'
+export {
+  INVESTMENT_KINDS,
+  INVESTMENT_KIND_ORDER,
+  exitFeeOf,
+  holdingsValue,
+  termDaysOf,
+  unrealizedGain,
+} from './finance'
 export { CURRENT_SAVE_VERSION } from './version'
 export type {
   BeatKind,
@@ -182,6 +190,7 @@ export type {
   Injury,
   Investment,
   InvestmentKind,
+  InvestmentKindSpec,
   KeyMoment,
   KeyMomentKind,
   KeyMomentOption,
