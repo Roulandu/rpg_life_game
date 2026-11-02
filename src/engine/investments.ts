@@ -1,26 +1,32 @@
 import { INVESTMENT_KINDS, absoluteDay, exitFeeOf, termDaysOf } from '../domain'
 import type { Investment, InvestmentKind, WorldState } from '../domain'
 import { createRng } from '../lib'
-import { dailyId } from './dayContext'
+import { dailyId, matchInProgress } from './dayContext'
 import { pushFinanceLedger } from './financeDaily'
 
-export type InvestReject = 'unknownKind' | 'belowMinimum' | 'notEnoughCash' | 'unknownInvestment'
+export type InvestmentReject =
+  | 'matchLive'
+  | 'unknownKind'
+  | 'belowMinimum'
+  | 'notEnoughCash'
+  | 'unknownInvestment'
 
 export interface InvestResult {
   ok: boolean
-  reason: InvestReject | null
+  reason: InvestmentReject | null
   investment: Investment | null
   proceeds: number
 }
 
 const NEWS_KEEP = 80
 
-function rejected(reason: InvestReject): InvestResult {
+function rejected(reason: InvestmentReject): InvestResult {
   return { ok: false, reason, investment: null, proceeds: 0 }
 }
 
 /** 开仓是即刻实现的现金转移：钱当天就离开余额并进流水，之后的涨跌只挂在持仓上。 */
 export function openInvestment(world: WorldState, kind: InvestmentKind, principal: number): InvestResult {
+  if (matchInProgress(world)) return rejected('matchLive')
   const spec = INVESTMENT_KINDS[kind]
   if (!spec) return rejected('unknownKind')
   const amount = Math.round(principal)
@@ -65,6 +71,7 @@ function announceExit(world: WorldState, investment: Investment, gain: number): 
 
 /** 赎回按现值结算：锁定期内还要从现值里再扣一笔罚息。 */
 export function closeInvestment(world: WorldState, investmentId: string): InvestResult {
+  if (matchInProgress(world)) return rejected('matchLive')
   const index = world.finance.investments.findIndex((item) => item.id === investmentId)
   if (index < 0) return rejected('unknownInvestment')
   const investment = world.finance.investments[index]

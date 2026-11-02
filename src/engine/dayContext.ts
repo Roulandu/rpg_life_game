@@ -11,3 +11,12 @@ export function dailyId(world: WorldState, prefix: string, suffix = ''): string 
   const tail = suffix ? `:${suffix}` : ''
   return `${prefix}:${world.season}:${world.week}:${world.day}${tail}`
 }
+
+/**
+ * 今天这场比赛还没踢完。属性投资与投资动作都靠它闸门：关键回合的成功率在开球时就锁进选项，
+ * 中途改世界会让已预抽的 roll 与文案对不上。只读 `pendingDayPlan` 与战报状态，不 import day.ts，
+ * 免得走出 day → investments → day 的环。
+ */
+export function matchInProgress(world: WorldState): boolean {
+  return Boolean(world.pendingDayPlan) || world.lastMatch?.status === 'live'
+}

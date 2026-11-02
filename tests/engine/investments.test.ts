@@ -151,6 +151,27 @@ describe('赎回把落袋的盈亏播报出来', () => {
   })
 })
 
+describe('比赛进行中不动钱', () => {
+  it('停在开球的那天不能开仓', () => {
+    const world = cashWorld()
+    world.pendingDayPlan = { ...world.weekPlan, fixtureId: 'fixture:test' }
+    const snapshot = structuredClone(world)
+
+    expect(openInvestment(world, 'deposit', 20000).reason).toBe('matchLive')
+    expect(world).toEqual(snapshot)
+  })
+
+  it('停在开球的那天也不能赎回', () => {
+    const world = cashWorld()
+    openInvestment(world, 'bond', 100000)
+    const snapshot = structuredClone(world)
+    world.pendingDayPlan = { ...world.weekPlan, fixtureId: 'fixture:test' }
+
+    expect(closeInvestment(world, firstHolding(world)).reason).toBe('matchLive')
+    expect(world.finance).toEqual(snapshot.finance)
+  })
+})
+
 describe('周日利息结算', () => {
   it('活期存款每周结一次利息，本金不波动', () => {
     const world = cashWorld()

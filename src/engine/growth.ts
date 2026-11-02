@@ -17,7 +17,7 @@ import {
   roundAttr,
 } from '../domain'
 import type { AttrKey, MoveDefinition, Player, WorldState } from '../domain'
-import { dailyId } from './dayContext'
+import { dailyId, matchInProgress } from './dayContext'
 
 /** 经验的五个来源，写新闻与后续统计要靠它区分「谁给的」。 */
 export type ExpReason = 'training' | 'match' | 'event' | 'staff' | 'specialization'
@@ -96,14 +96,6 @@ export interface InvestOutcome {
   cost: number
   value: number
   expLeft: number
-}
-
-/**
- * 比赛中禁止改属性：关键回合的成功率在开球时就锁进选项，中途抬高属性会让已预抽的 roll 与文案对不上。
- * 只读 `pendingDayPlan` 与战报状态，不 import day.ts，免得走出 day → training → growth → day 的环。
- */
-function matchInProgress(world: WorldState): boolean {
-  return Boolean(world.pendingDayPlan) || world.lastMatch?.status === 'live'
 }
 
 function rejected(world: WorldState, attrKey: AttrKey, reason: InvestReject): InvestOutcome {

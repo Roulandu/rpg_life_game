@@ -10,6 +10,8 @@ export type {
   RatingExpInput,
 } from './growth'
 export { resolveEvent } from './events'
+export { closeInvestment, openInvestment } from './investments'
+export type { InvestResult, InvestmentReject } from './investments'
 export { expireEvents, generateDailyEvents } from './eventsDaily'
 export { buildEventScope, scopeMatches } from './eventCondition'
 export {
