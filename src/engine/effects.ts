@@ -1,6 +1,7 @@
 import { clamp } from '../domain'
 import type { Effect, Player, WorldState } from '../domain'
 import { grantExp } from './growth'
+import { applyMoveEffect } from './moveMentor'
 import { adjustRelationship, adjustRoleTrust, getRelationshipByRole } from './relationships'
 
 /** 现金类效果直接改余额并留一条流水，单位是便士。 */
@@ -51,6 +52,9 @@ function applyStatusEffect(world: WorldState, user: Player, effect: Effect): voi
     case 'familyTrust':
       adjustRelationship(getRelationshipByRole(world, 'family'), delta)
       break
+    case 'legendTrust':
+      adjustRelationship(getRelationshipByRole(world, 'legend'), delta)
+      break
     case 'mediaRep':
       user.reputation.media = clamp(user.reputation.media + delta, 0, 100)
       adjustRelationship(getRelationshipByRole(world, 'media'), delta)
@@ -79,6 +83,11 @@ export function applyEffects(world: WorldState, effects: Effect[], label = '事�
     // 经验只能经 grantExp 入账：负值事件不该把已攒的经验扣走。
     if (effect.op === 'exp') {
       grantExp(world, effect.delta, 'event')
+      continue
+    }
+    // 绝技的授予与点拨走名宿路径自己的闸门：位置不符、门槛不够都不会写进档案。
+    if (effect.op === 'learnMove' || effect.op === 'moveProgress') {
+      applyMoveEffect(world, user, effect)
       continue
     }
     applyStatusEffect(world, user, effect)
