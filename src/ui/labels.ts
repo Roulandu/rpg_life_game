@@ -1,4 +1,4 @@
-import { moveById } from '../domain'
+import { allMoves, moveById } from '../domain'
 import type {
   Effect,
   EffectOp,
@@ -49,6 +49,29 @@ export const MOVE_PATH_LABELS: Record<MoveUnlockPath, string> = {
   mentor: '名宿传授',
   specialization: '周三特训',
   matchDrop: '比赛掉落',
+}
+
+export type BasisTermKind = 'move' | 'counter' | 'term'
+
+export interface BasisTerm {
+  text: string
+  kind: BasisTermKind
+}
+
+const MOVE_NAMES = new Set(allMoves().map((move) => move.nameZh))
+
+/**
+ * 引擎把每一项概率依据冻成一句「、」分隔的文本，结算只比大小不重算。
+ * 界面按来源给它分色：以「对手」开头的是对位压制，首词命中绝技名的是招数加成，其余是自身属性。
+ */
+export function basisTermsOf(basisZh?: string): BasisTerm[] {
+  if (!basisZh) return []
+  return basisZh.split('、').map((text) => {
+    let kind: BasisTermKind = 'term'
+    if (text.startsWith('对手')) kind = 'counter'
+    else if (MOVE_NAMES.has(text.split(' ')[0] ?? '')) kind = 'move'
+    return { text, kind }
+  })
 }
 
 export const EFFECT_LABELS: Record<EffectOp, string> = {
