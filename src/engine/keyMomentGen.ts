@@ -47,7 +47,7 @@ function countCap(minutes: number): number {
   return 3
 }
 
-/** 一次关键回合生成的全部输入；`opponents` 必须在这里备齐，之后不再改概率。 */
+/** 一次关键回合生成的全部输入；`opponents` 与 `psychBonus` 必须在这里备齐，之后不再改概率。 */
 export interface KeyMomentRequest {
   player: Player
   rng: Rng
@@ -55,10 +55,11 @@ export interface KeyMomentRequest {
   isHome: boolean
   startMinute?: number
   opponents?: OpponentPair | null
+  psychBonus?: number
 }
 
 export function generateKeyMoments(request: KeyMomentRequest): KeyMoment[] {
-  const { player, rng, minutes, isHome, startMinute = 0, opponents = null } = request
+  const { player, rng, minutes, isHome, startMinute = 0, opponents = null, psychBonus = 0 } = request
   if (minutes <= 0) return []
   const windowStart = Math.max(1, startMinute + 2)
   const windowEnd = Math.min(89, startMinute + minutes - 1)
@@ -77,7 +78,7 @@ export function generateKeyMoments(request: KeyMomentRequest): KeyMoment[] {
     const minute = Math.max(lastMinute + 1, Math.min(windowEnd, target))
     if (minute <= lastMinute) break
     lastMinute = minute
-    const options = optionsFor(kind, { player, isHome, opponents })
+    const options = optionsFor(kind, { player, isHome, opponents, psychBonus })
     const safest = [...options].sort((a, b) => b.successChance - a.successChance)[0] as KeyMomentOption
     moments.push({
       id: `km:${player.id}:${index}`,

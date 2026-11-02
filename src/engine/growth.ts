@@ -18,6 +18,7 @@ import {
 } from '../domain'
 import type { AttrKey, MoveDefinition, Player, WorldState } from '../domain'
 import { dailyId, matchInProgress } from './dayContext'
+import { staffFactorsOf } from './staff'
 
 /** 经验的五个来源，写新闻与后续统计要靠它区分「谁给的」。 */
 export type ExpReason = 'training' | 'match' | 'event' | 'staff' | 'specialization'
@@ -55,11 +56,25 @@ function hasInvested(user: Player): boolean {
 /**
  * 经验发放的唯一入口：`exp` 会随花费减少，`lifetimeExp` 只增不减，
  * 后者用来解锁单属性上限，所以任何来源都不能绕过这里直接改字段。
+ * 私教只给「练」这两条链路加成，比赛表现与事件馈赠不受影响。
  */
+const TRAINED_REASONS: ExpReason[] = ['training', 'specialization']
+
+function staffExpFactor(world: WorldState, reason: ExpReason): number {
+  return TRAINED_REASONS.includes(reason) ? staffFactorsOf(world).expFactor : 1
+}
+
+/** 私教让属性投资打折：折扣是省经验，不是白送，所以最少仍要付 1 点。 */
+function staffInvestCost(world: WorldState, base: number): number {
+  const discount = staffFactorsOf(world).investDiscount
+  if (discount <= 0) return base
+  return Math.max(1, Math.round(base * (1 - discount)))
+}
+
 export function grantExp(world: WorldState, amount: number, reason: ExpReason): number {
   const user = world.players[world.playerId]
   if (!user) return 0
-  const gain = Math.max(0, Math.round(amount))
+  const gain = Math.max(0, Math.round(amount * staffExpFactor(world, reason)))
   if (gain === 0) return 0
 
   const before = user.exp
@@ -122,7 +137,7 @@ export function investAttribute(world: WorldState, attrKey: AttrKey, points: num
   if (!fitsPotential(user, attrKey, points)) return rejected(world, attrKey, 'overPotential')
 
   const invested = user.attrInvestment[attrKey] ?? 0
-  const cost = investmentSeriesCost(invested, points)
+  const cost = staffInvestCost(world, investmentSeriesCost(invested, points))
   if (cost > user.exp) return rejected(world, attrKey, 'notEnoughExp')
 
   user.exp -= cost

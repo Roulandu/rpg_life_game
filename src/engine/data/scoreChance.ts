@@ -45,6 +45,8 @@ export interface KindContext {
   player: Player
   isHome: boolean
   opponents?: OpponentPair | null
+  /** 心理咨询师折算出来的心态加成：只补给失败代价重的选项。 */
+  psychBonus?: number
 }
 
 const ROLES: OpponentRole[] = ['keeper', 'marker', 'shooter']
@@ -121,6 +123,15 @@ export function scoreChance(
 
 const NO_OPPONENT: OpponentPair = { keeper: null, marker: null, shooter: null }
 
+/** 失败代价重到这一档的选项才吃心态加成：护球和回做不是心理问题，是选择问题。 */
+const HIGH_RISK_FAIL_RATING = -0.3
+
+function psychTerms(context: KindContext, row: OptionRow): MoveBonusTerm[] {
+  const bonus = context.psychBonus ?? 0
+  if (bonus <= 0 || row.ratingOnFail > HIGH_RISK_FAIL_RATING) return []
+  return [{ text: `心态疏导 ${percent(bonus)}`, delta: bonus }]
+}
+
 /**
  * 把选项表算成一组带概率的选项。绝技与对手压制必须在这里全部就位：
  * 关键回合的 roll 在生成阶段就抽完了，结算阶段不能再改概率。
@@ -140,6 +151,7 @@ export function buildOptionTable(
           terms: [
             ...(row.terms ?? []),
             ...resolveMoveTerms(context.player, kind, row.id, context.opponents ?? NO_OPPONENT),
+            ...psychTerms(context, row),
           ],
         }
     const { successChance, successBasisZh } = scoreChance(context.player, withMoves, context.opponents)

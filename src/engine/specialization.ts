@@ -2,6 +2,7 @@ import { MOVE_MAX_LEVEL, moveById, moveFitsPosition } from '../domain'
 import type { WorldState } from '../domain'
 import { trainMove } from './moveProgress'
 import { grantExp } from './growth'
+import { staffFactorsOf } from './staff'
 
 /**
  * 职责：每周一次的「特训槽」日结算——把周计划里指定的那条绝技练出进度，攒满一格就升级。
@@ -21,7 +22,8 @@ export function applySpecialization(world: WorldState): void {
   const held = user.moves?.some((item) => item.moveId === move.id && item.level < MOVE_MAX_LEVEL)
   const learns = move.unlock.via.includes('specialization')
   if (!held && !learns) return
-  if (trainMove(world, user, move, SPECIALIZATION_PROGRESS, 'specialization')) {
+  const gain = SPECIALIZATION_PROGRESS * staffFactorsOf(world).specializationFactor
+  if (trainMove(world, user, move, gain, 'specialization')) {
     grantExp(world, SPECIALIZATION_EXP, 'specialization')
   }
 }

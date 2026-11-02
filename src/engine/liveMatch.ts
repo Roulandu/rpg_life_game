@@ -8,6 +8,7 @@ import { pickScorer } from './matchGoals'
 import { resolveOpponents } from './matchOpponent'
 import { appendGoal, computeAttendance, createLiveReport } from './matchReport'
 import { prepareUserFixture } from './liveSetup'
+import { staffFactorsOf } from './staff'
 
 export function startUserMatch(world: WorldState, fixture: Fixture): MatchReport {
   if (fixture.report?.status === 'live') {
@@ -30,6 +31,7 @@ export function startUserMatch(world: WorldState, fixture: Fixture): MatchReport
         isHome: setup.isHome,
         startMinute: setup.userStarted ? 0 : 90 - setup.userMinutes,
         opponents,
+        psychBonus: staffFactorsOf(world).psychBonus,
       })
     : []
   const attendance = computeAttendance(setup.homeClub, rng)
