@@ -59,7 +59,7 @@
     "nameZh": "倚人护球",
     "family": "dribbling",
     "rarity": "rare",
-    "positions": ["FWD", "MID", "DEF"],
+    "positions": ["MID", "DEF"],
     "targets": ["duel:shoulder", "clearance:shield"],
     "levels": [
       { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "用背把对手挡在球外" },

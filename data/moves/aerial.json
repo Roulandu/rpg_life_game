@@ -41,7 +41,7 @@
     "nameZh": "脑后摆渡",
     "family": "aerial",
     "rarity": "rare",
-    "positions": ["FWD", "MID"],
+    "positions": ["FWD", "DEF"],
     "targets": ["headerDuel:flick", "headerDuel:holdUp"],
     "levels": [
       { "level": 1, "minOverall": 48, "costExp": 26, "chanceDelta": 0.016, "riskDelta": 0.016, "basisZh": "用后颈把球蹭向队友" },

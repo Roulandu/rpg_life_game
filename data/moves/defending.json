@@ -137,7 +137,7 @@
     "nameZh": "逼抢号角",
     "family": "defending",
     "rarity": "common",
-    "positions": ["MID", "FWD"],
+    "positions": ["MID", "DEF"],
     "targets": ["duel:commit", "clearance:hoof"],
     "levels": [
       { "level": 1, "minOverall": 46, "costExp": 18, "chanceDelta": 0.012, "riskDelta": 0.014, "basisZh": "第一脚压迫让对面慌" },

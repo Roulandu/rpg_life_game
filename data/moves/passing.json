@@ -60,7 +60,7 @@
     "nameZh": "打穿肋部",
     "family": "passing",
     "rarity": "signature",
-    "positions": ["MID", "DEF"],
+    "positions": ["MID", "FWD"],
     "targets": ["throughBall:overTop", "counterAttack:wide"],
     "levels": [
       { "level": 1, "minOverall": 56, "costExp": 44, "chanceDelta": 0.024, "riskDelta": 0.026, "basisZh": "越过防线的高球" },
@@ -79,7 +79,7 @@
     "nameZh": "一脚出球",
     "family": "passing",
     "rarity": "common",
-    "positions": ["MID", "DEF"],
+    "positions": ["MID", "FWD"],
     "targets": ["throughBall:simple", "throughBall:backPass"],
     "levels": [
       { "level": 1, "minOverall": 44, "costExp": 16, "chanceDelta": 0.01, "riskDelta": 0.01, "basisZh": "不停球直接转移" },

@@ -1,8 +1,17 @@
 import { ATTR_KEYS, allMoves, moveFitsPosition } from '../../src/domain'
-import type { AttrKey, KeyMoment, KeyMomentKind, MatchReport, Player, WorldState } from '../../src/domain'
-import { playDay } from '../../src/engine/day'
+import type {
+  AttrKey,
+  KeyMoment,
+  KeyMomentKind,
+  MatchReport,
+  Player,
+  Position,
+  WorldState,
+} from '../../src/domain'
+import { generateKeyMoments, playDay } from '../../src/engine'
 import { optionsFor } from '../../src/engine/data/keyMomentOptions'
 import type { OpponentPair } from '../../src/engine/data/scoreChance'
+import { createRng } from '../../src/lib'
 import { generateWorld } from '../../src/world/generator'
 import { rival } from './keyMomentRivals'
 import { TEST_NOW, testOptions } from './career'
@@ -63,6 +72,29 @@ export function isConstantOption(
   const high = find(90)
   if (!low || !high) return false
   return low.successChance === high.successChance && !(low.successBasisZh ?? '').includes('%')
+}
+
+/**
+ * 某个位置组真能碰上的关键回合类型：反复调用引擎的生成器抽样出来，
+ * 不在测试里重抄一份 kindPool 表——引擎改了池子，这里跟着变。
+ */
+export function kindsSeenBy(position: Position, samples = 200): Set<KeyMomentKind> {
+  const player = { ...balancePlayer(), position }
+  const seen = new Set<KeyMomentKind>()
+  for (let index = 0; index < samples; index += 1) {
+    const rng = createRng(1000 + index, 'balance-probe', position)
+    for (const moment of generateKeyMoments({ player, rng, minutes: 90, isHome: true })) {
+      seen.add(moment.kind)
+    }
+  }
+  return seen
+}
+
+const GROUP_SAMPLE: Record<string, Position> = { GK: 'GK', DEF: 'CB', MID: 'CM', FWD: 'ST' }
+
+/** 位置组 → 该组抽得出的关键回合类型集合。 */
+export function kindsSeenByGroup(group: string): Set<KeyMomentKind> {
+  return kindsSeenBy(GROUP_SAMPLE[group] as Position)
 }
 
 export interface SeasonBalance {

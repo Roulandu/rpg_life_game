@@ -6,6 +6,7 @@ import {
   chanceOf,
   eliteFoes,
   isConstantOption,
+  kindsSeenByGroup,
   optionsOf,
   replaySeason,
   setAttributes,
@@ -23,6 +24,12 @@ const HARD_CEILING = 0.92
 
 const FOES = eliteFoes()
 const BARE = balancePlayer()
+const KINDS_BY_GROUP: Record<string, Set<KeyMomentKind>> = {
+  GK: kindsSeenByGroup('GK'),
+  DEF: kindsSeenByGroup('DEF'),
+  MID: kindsSeenByGroup('MID'),
+  FWD: kindsSeenByGroup('FWD'),
+}
 
 const bareSeason = replaySeason(424242, 0)
 const loadedSeason = replaySeason(424242, 3)
@@ -63,6 +70,30 @@ function meanOf(values: number[]): number {
 
 function meanGainOf(rarity: MoveRarity): number {
   return meanOf(GAINS.filter((gain) => gain.rarity === rarity).map((gain) => gain.gain))
+}
+
+/** 绝技声明的位置组里，是否一个目标选项都触发不了：卖出去就用不了的假位置。 */
+function unusableGroups(): string[] {
+  const list: string[] = []
+  for (const move of allMoves()) {
+    for (const group of move.positions) {
+      const reachable = move.targets.some((target) => KINDS_BY_GROUP[group].has(targetParts(target)[0]))
+      if (!reachable) list.push(`${move.id}@${group}`)
+    }
+  }
+  return list
+}
+
+/** 目标选项 id 在对应的关键回合表里根本找不到：写错一个字母就永远不生效。 */
+function deadTargets(): string[] {
+  const list: string[] = []
+  for (const move of allMoves()) {
+    for (const target of move.targets) {
+      const [kind, optionId] = targetParts(target)
+      if (chanceOf(BARE, FOES, kind, optionId) === null) list.push(`${move.id} -> ${target}`)
+    }
+  }
+  return list
 }
 
 /** 属性 92 + 满级绝技的最理想情况，仍然不许顶破硬上限。 */
@@ -139,6 +170,16 @@ describe('整季关键回合成功率带', () => {
       expect(loadedSeason.optionIdsByKind[kind]).toEqual(table)
       expect(table.length).toBeGreaterThanOrEqual(4)
     }
+  })
+})
+
+describe('绝技位置与选项不退化', () => {
+  it('回归: 绝技声明的每个位置组都至少有一个目标选项真能在那个位置触发', () => {
+    expect(unusableGroups()).toEqual([])
+  })
+
+  it('绝技目标都指得到真实选项，没有写错选项 id 的死数据', () => {
+    expect(deadTargets()).toEqual([])
   })
 })
 
