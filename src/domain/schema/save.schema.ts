@@ -126,6 +126,10 @@ export const worldSchema = z
         sponsorships: z.array(z.unknown()),
       })
       .passthrough(),
+    // v11 之前没有个人团队：旧档缺字段时放行，由 v12 迁移补成空名册。
+    staff: z
+      .array(z.object({ id: z.string(), role: z.string() }).passthrough())
+      .optional(),
     news: z.array(z.unknown()),
     season: z.number().int().positive(),
     week: z.number().int().positive(),

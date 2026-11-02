@@ -235,6 +235,14 @@ function migrateFinance(world: WorldState): void {
   finance.investments ??= []
 }
 
+/**
+ * v11 还没有个人团队：世界顶层连 `staff` 都不存在，雇过谁、每周付多少都没地方记。
+ * 只补一张空名册——招聘池是按种子与赛季推导出来的，不进存档，所以旧档不用重建市场。
+ */
+function migrateStaff(world: WorldState): void {
+  world.staff ??= []
+}
+
 /** v1 及更早的存档没有逐日计划：放在表尾，让上面几步先把时钟补出来再整体清空。 */
 function clearPendingPlan(world: WorldState): void {
   world.pendingDayPlan = null
@@ -249,5 +257,6 @@ export const MIGRATION_STEPS: MigrationStep[] = [
   { from: 9, run: migrateMoves },
   { from: 10, run: migrateLegend },
   { from: 11, run: migrateFinance },
+  { from: 12, run: migrateStaff },
   { from: 2, run: clearPendingPlan },
 ]

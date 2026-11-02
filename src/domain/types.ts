@@ -4,6 +4,7 @@ import type { GameEvent } from './eventContent'
 import type { Finance } from './finance'
 import type { Fixture, MatchReport } from './matchTypes'
 import type { CareerEntry, Contract, Injury, Reputation, SeasonStat } from './playerTypes'
+import type { StaffMember } from './staff'
 import type {
   Archetype,
   AttrInvestment,
@@ -207,6 +208,8 @@ export interface WorldState {
   /** 模板 id → 上次生成它的绝对日序；每日事件靠它做冷却，避免同一周内刷屏。 */
   eventMemory: Record<string, number>
   finance: Finance
+  /** 玩家自己雇的个人团队（队医 / 心理咨询师 / 私人教练），在职即按周扣钱并每天生效。 */
+  staff: StaffMember[]
   news: NewsItem[]
   season: number
   week: number
