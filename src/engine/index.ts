@@ -1,6 +1,6 @@
 export { applyChatActionProposal } from './chatAction'
 export { applyEffects } from './effects'
-export { TRAINING_EXP, grantExp, investAttribute, ratingToExp } from './growth'
+export { TRAINING_EXP, grantExp, investAttribute, investMove, ratingToExp } from './growth'
 export type { ExpReason, InvestOutcome, InvestReject, RatingExpInput } from './growth'
 export { resolveEvent } from './events'
 export { expireEvents, generateDailyEvents } from './eventsDaily'

@@ -121,8 +121,11 @@ export type {
   MoveUnlockPath,
 } from './moves'
 export {
+  MOVE_LEVEL_MARKS,
   investMoveCost,
   moveById,
+  moveFitsPosition,
+  moveLevelGatePassed,
   moveLevelOf,
   movesTargeting,
   nextMoveLevel,

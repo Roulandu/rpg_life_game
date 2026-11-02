@@ -2,15 +2,21 @@ import {
   ATTR_KEYS,
   INVEST_FIRST_COST,
   INVEST_HARD_CAP,
+  MOVE_LEVEL_MARKS,
   attributeCap,
   canInvestAttribute,
   clamp,
   displayName,
   fitsPotential,
+  investMoveCost,
   investmentSeriesCost,
+  moveById,
+  moveFitsPosition,
+  moveLevelGatePassed,
+  moveLevelOf,
   roundAttr,
 } from '../domain'
-import type { AttrKey, Player, WorldState } from '../domain'
+import type { AttrKey, MoveDefinition, Player, WorldState } from '../domain'
 import { dailyId } from './dayContext'
 
 /** 经验的五个来源，写新闻与后续统计要靠它区分「谁给的」。 */
@@ -131,4 +137,78 @@ export function investAttribute(world: WorldState, attrKey: AttrKey, points: num
   user.attrInvestment[attrKey] = invested + points
   user.attributes[attrKey] = clamp(roundAttr(user.attributes[attrKey] + points), 10, INVEST_HARD_CAP)
   return { ok: true, reason: null, attrKey, points, cost, value: user.attributes[attrKey], expLeft: user.exp }
+}
+
+export type MoveInvestReject =
+  | 'noUser'
+  | 'unknownMove'
+  | 'matchLive'
+  | 'wrongPosition'
+  | 'maxed'
+  | 'overLevel'
+  | 'notEnoughExp'
+
+export interface MoveInvestOutcome {
+  ok: boolean
+  reason: MoveInvestReject | null
+  moveId: string
+  /** 成交后的等级；被拒时给出当前等级，界面据此决定按钮文案。 */
+  level: number
+  cost: number
+  expLeft: number
+}
+
+function moveRejected(
+  user: Player | undefined,
+  moveId: string,
+  level: number,
+  reason: MoveInvestReject,
+): MoveInvestOutcome {
+  return { ok: false, reason, moveId, level, cost: 0, expLeft: user?.exp ?? 0 }
+}
+
+function moveInvestBlocker(
+  world: WorldState,
+  user: Player,
+  move: MoveDefinition,
+  cost: number,
+): MoveInvestReject | null {
+  if (matchInProgress(world)) return 'matchLive'
+  if (!moveFitsPosition(move, user.position)) return 'wrongPosition'
+  if (!moveLevelGatePassed(move, user)) return 'overLevel'
+  if (cost > user.exp) return 'notEnoughExp'
+  return null
+}
+
+/**
+ * 花经验解锁或升级一条绝技：位置不符、已经满级、综合分不够、买不起四种情况整笔拒绝，不做部分成交。
+ * 和属性投资共用「比赛中不许改」这条刹车——选项的概率在开球时就锁进了战报。
+ */
+export function investMove(world: WorldState, moveId: string): MoveInvestOutcome {
+  const user = world.players[world.playerId]
+  if (!user) return moveRejected(undefined, moveId, 0, 'noUser')
+  const move = moveById(moveId)
+  if (!move) return moveRejected(user, moveId, 0, 'unknownMove')
+  const level = moveLevelOf(user, move.id)
+  const cost = investMoveCost(move, level)
+  if (cost === null) return moveRejected(user, moveId, level, 'maxed')
+  const blocker = moveInvestBlocker(world, user, move, cost)
+  if (blocker) return moveRejected(user, moveId, level, blocker)
+
+  user.exp -= cost
+  const held = (user.moves ??= []).find((item) => item.moveId === move.id)
+  if (held) held.level = level + 1
+  else user.moves?.push({ moveId: move.id, level: 1, progress: 0 })
+
+  const mark = MOVE_LEVEL_MARKS[level] ?? ''
+  world.news.unshift({
+    id: dailyId(world, 'news:move', move.id),
+    season: world.season,
+    week: world.week,
+    day: world.day,
+    title: level === 0 ? `学会${move.nameZh}` : `${move.nameZh} 练到 ${mark} 级`,
+    body: `${displayName(user)} 把 ${move.nameZh} 练成了 ${mark} 级，下次遇到对位球员时这一档会真的写进成功率。`,
+    kind: 'club',
+  })
+  return { ok: true, reason: null, moveId: move.id, level: level + 1, cost, expLeft: user.exp }
 }

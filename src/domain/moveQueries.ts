@@ -1,4 +1,4 @@
-import { ATTR_LABELS, overall, round1 } from './attributes'
+import { ATTR_LABELS, overall, positionGroup, round1 } from './attributes'
 import { MOVE_PROGRESS_PER_LEVEL, MOVES } from './moves'
 import type {
   MoveBonusTerm,
@@ -7,7 +7,7 @@ import type {
   MoveDefinition,
   MoveOpponents,
 } from './moves'
-import type { AttrKey, KeyMomentKind, Player, PlayerMove } from './types'
+import type { AttrKey, KeyMomentKind, Player, PlayerMove, Position } from './types'
 
 /**
  * 绝技查询与概率折算：数据加载与结构校验在 `./moves`，这里只做只读索引。
@@ -45,6 +45,17 @@ export function investMoveCost(move: MoveDefinition, currentLevel: number): numb
   return move.levels[Math.max(0, currentLevel)].costExp
 }
 
+/** 位置闸门：绝技只喂给真正用得上它的位置组，投错了位置等于把经验烧掉。 */
+export function moveFitsPosition(move: MoveDefinition, position: Position): boolean {
+  return move.positions.includes(positionGroup(position))
+}
+
+/** 这一档的门槛够不够：`currentLevel` 是已练到的级数，要买的是下一级。 */
+export function moveLevelGatePassed(move: MoveDefinition, player: Player): boolean {
+  const next = move.levels[Math.max(0, moveLevelOf(player, move.id))]
+  return next !== undefined && overall(player) >= next.minOverall
+}
+
 /** 修炼进度攒满一格、且综合分过门槛时给出的新持有记录；不满足条件返回 null。 */
 export function nextMoveLevel(player: Player, move: MoveDefinition): PlayerMove | null {
   const held = player.moves?.find((item) => item.moveId === move.id)
@@ -57,7 +68,7 @@ export function nextMoveLevel(player: Player, move: MoveDefinition): PlayerMove 
 const ROLE_LABELS: Record<MoveCounterRole, string> = { keeper: '门将', marker: '后卫', shooter: '前锋' }
 
 /** 罗马数字用 Unicode 区码，避免界面里出现拉丁字母 I/II/III。 */
-const LEVEL_MARKS = ['Ⅰ', 'Ⅱ', 'Ⅲ']
+export const MOVE_LEVEL_MARKS = ['Ⅰ', 'Ⅱ', 'Ⅲ']
 
 function percentText(delta: number): string {
   const points = round1(Math.abs(delta) * 100)
@@ -90,7 +101,7 @@ export function resolveMoveTerms(
     if (level < 1) continue
     const spec = move.levels[level - 1]
     terms.push({
-      text: `${move.nameZh} ${LEVEL_MARKS[level - 1] ?? ''} ${percentText(spec.chanceDelta)}`,
+      text: `${move.nameZh} ${MOVE_LEVEL_MARKS[level - 1] ?? ''} ${percentText(spec.chanceDelta)}`,
       delta: spec.chanceDelta,
     })
     if (move.counter) {
