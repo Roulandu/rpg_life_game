@@ -1,4 +1,4 @@
-import type { KeyMomentOption } from '../../domain'
+import type { KeyMomentKind, KeyMomentOption } from '../../domain'
 import { buildOptionTable, type KindContext, type OptionRow } from './scoreChance'
 
 const bigChanceRows: OptionRow[] = [
@@ -212,26 +212,26 @@ const longShotRows: OptionRow[] = [
   },
 ]
 
-export function buildBigChance(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(bigChanceRows, context)
+export function buildBigChance(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(bigChanceRows, context, kind)
 }
 
-export function buildThroughBall(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(throughBallRows, context)
+export function buildThroughBall(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(throughBallRows, context, kind)
 }
 
-export function buildOneOnOne(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(oneOnOneRows, context)
+export function buildOneOnOne(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(oneOnOneRows, context, kind)
 }
 
-export function buildCounterAttack(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(counterAttackRows, context)
+export function buildCounterAttack(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(counterAttackRows, context, kind)
 }
 
-export function buildCross(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(crossRows, context)
+export function buildCross(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(crossRows, context, kind)
 }
 
-export function buildLongShot(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(longShotRows, context)
+export function buildLongShot(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(longShotRows, context, kind)
 }

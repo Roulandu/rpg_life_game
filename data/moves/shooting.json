@@ -62,7 +62,7 @@
     "family": "shooting",
     "rarity": "common",
     "positions": ["FWD", "MID"],
-    "targets": ["bigChance:hold"],
+    "targets": ["bigChance:shoot", "counterAttack:shootEarly"],
     "levels": [
       { "level": 1, "minOverall": 46, "costExp": 18, "chanceDelta": 0.012, "riskDelta": 0.012, "basisZh": "第一下触球就完成射门" },
       { "level": 2, "minOverall": 58, "costExp": 36, "chanceDelta": 0.028, "riskDelta": 0.02, "basisZh": "不等调整，直接起脚" },

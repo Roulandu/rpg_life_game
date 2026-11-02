@@ -1,5 +1,5 @@
-import { ATTR_LABELS, clamp, round1 } from '../../domain'
-import type { AttrKey, KeyMomentOption, Player } from '../../domain'
+import { ATTR_LABELS, clamp, resolveMoveTerms, round1 } from '../../domain'
+import type { AttrKey, KeyMomentKind, KeyMomentOption, MoveBonusTerm, Player } from '../../domain'
 
 /** 属性权重：`系数 × 属性值` 直接进概率，所以 0.004 表示每 1 点属性 +0.4%。 */
 export type AttrWeights = Partial<Record<AttrKey, number>>
@@ -19,17 +19,12 @@ export interface OpponentWeights {
   shooter?: AttrWeights
 }
 
-/** 绝技加成：M1.10 的 data/moves 会往这里塞条目，公式本身不需要改。 */
-export interface MoveBonus {
-  labelZh: string
-  delta: number
-}
-
+/** 绝技与对手压制折算好的概率条目，文本直接进依据行。 */
 export interface ScoreChanceInput {
   base: number
   actor?: AttrWeights
   opponent?: OpponentWeights
-  moves?: MoveBonus[]
+  terms?: MoveBonusTerm[]
   low: number
   high: number
   /** 常量选项（不吃任何属性）自带一句依据。 */
@@ -100,8 +95,8 @@ function opponentTerms(opponents: OpponentPair, weights: OpponentWeights): Term[
 function collectTerms(player: Player, input: ScoreChanceInput, opponents: OpponentPair | null): Term[] {
   const terms = input.actor ? actorTerms(player, input.actor) : []
   if (input.opponent && opponents) terms.push(...opponentTerms(opponents, input.opponent))
-  for (const move of input.moves ?? []) {
-    terms.push({ text: `${move.labelZh} ${percent(move.delta)}`, delta: move.delta })
+  for (const move of input.terms ?? []) {
+    terms.push({ text: move.text, delta: move.delta })
   }
   return terms
 }
@@ -124,9 +119,30 @@ export function scoreChance(
   }
 }
 
-export function buildOptionTable(rows: OptionRow[], context: KindContext): KeyMomentOption[] {
+const NO_OPPONENT: OpponentPair = { keeper: null, marker: null, shooter: null }
+
+/**
+ * 把选项表算成一组带概率的选项。绝技与对手压制必须在这里全部就位：
+ * 关键回合的 roll 在生成阶段就抽完了，结算阶段不能再改概率。
+ * 常量选项（`low === high`）不吃属性，也不给绝技让路，依据仍是自带的那句话。
+ */
+export function buildOptionTable(
+  rows: OptionRow[],
+  context: KindContext,
+  kind: KeyMomentKind,
+): KeyMomentOption[] {
   return rows.map((row) => {
-    const { successChance, successBasisZh } = scoreChance(context.player, row, context.opponents)
+    const isConstant = row.low === row.high
+    const withMoves: OptionRow = isConstant
+      ? row
+      : {
+          ...row,
+          terms: [
+            ...(row.terms ?? []),
+            ...resolveMoveTerms(context.player, kind, row.id, context.opponents ?? NO_OPPONENT),
+          ],
+        }
+    const { successChance, successBasisZh } = scoreChance(context.player, withMoves, context.opponents)
     const { id, labelZh, descriptionZh, ratingOnSuccess, ratingOnFail, extra } = row
     return { id, labelZh, descriptionZh, successChance, successBasisZh, ratingOnSuccess, ratingOnFail, ...extra }
   })

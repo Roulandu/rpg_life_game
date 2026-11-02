@@ -136,7 +136,7 @@
     "family": "passing",
     "rarity": "common",
     "positions": ["DEF", "MID"],
-    "targets": ["cross:safeCross", "throughBall:backPass"],
+    "targets": ["throughBall:simple", "clearance:calm"],
     "levels": [
       { "level": 1, "minOverall": 42, "costExp": 14, "chanceDelta": 0.008, "riskDelta": 0.008, "basisZh": "先把球保住" },
       { "level": 2, "minOverall": 54, "costExp": 30, "chanceDelta": 0.02, "riskDelta": 0.014, "basisZh": "回做让全队重新站位" },

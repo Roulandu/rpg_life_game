@@ -1,4 +1,4 @@
-import type { KeyMomentOption } from '../../domain'
+import type { KeyMomentKind, KeyMomentOption } from '../../domain'
 import { buildOptionTable, type KindContext, type OptionRow } from './scoreChance'
 
 const penaltyRows: OptionRow[] = [
@@ -71,10 +71,10 @@ const freeKickRows: OptionRow[] = [
   },
 ]
 
-export function buildPenalty(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(penaltyRows, context)
+export function buildPenalty(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(penaltyRows, context, kind)
 }
 
-export function buildFreeKick(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(freeKickRows, context)
+export function buildFreeKick(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(freeKickRows, context, kind)
 }

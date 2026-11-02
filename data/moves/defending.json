@@ -43,7 +43,7 @@
     "family": "defending",
     "rarity": "rare",
     "positions": ["DEF", "MID"],
-    "targets": ["duel:foul"],
+    "targets": ["duel:contain", "duel:drop"],
     "levels": [
       { "level": 1, "minOverall": 50, "costExp": 28, "chanceDelta": 0.018, "riskDelta": 0.03, "basisZh": "拉衣角不吃牌" },
       { "level": 2, "minOverall": 62, "costExp": 58, "chanceDelta": 0.04, "riskDelta": 0.044, "basisZh": "犯规位置离球门足够远" },

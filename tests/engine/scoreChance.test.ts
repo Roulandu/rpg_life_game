@@ -89,14 +89,14 @@ describe('关键回合的成功率公式', () => {
       base: 0.3,
       actor: { dribbling: 0.004 },
       opponent: { marker: { defending: 0.001 } },
-      moves: [{ labelZh: '彩虹过人', delta: 0.073 }],
+      terms: [{ text: '彩虹过人 Ⅲ +7.3%', delta: 0.073 }],
       low: 0.2,
       high: 0.8,
     }
 
     const result = scoreChance(strongPlayer(), formula, pairWith(null, withAttr('defending', 70)))
 
-    expect(result.successBasisZh).toContain('彩虹过人 +7.3%')
+    expect(result.successBasisZh).toContain('彩虹过人 Ⅲ +7.3%')
     expect(result.successBasisZh).toContain('对手后卫 防守 70 -7%')
     expect(result.successChance).toBe(0.671)
   })

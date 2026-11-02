@@ -18,7 +18,10 @@ import type { KindContext } from './scoreChance'
 
 export type { KindContext } from './scoreChance'
 
-const OPTION_BUILDERS: Record<KeyMomentKind, (context: KindContext) => KeyMomentOption[]> = {
+const OPTION_BUILDERS: Record<
+  KeyMomentKind,
+  (context: KindContext, kind: KeyMomentKind) => KeyMomentOption[]
+> = {
   bigChance: buildBigChance,
   penalty: buildPenalty,
   throughBall: buildThroughBall,
@@ -79,5 +82,5 @@ export const KIND_TRIGGERS: Record<KeyMomentKind, string> = {
 }
 
 export function optionsFor(kind: KeyMomentKind, context: KindContext): KeyMomentOption[] {
-  return OPTION_BUILDERS[kind](context)
+  return OPTION_BUILDERS[kind](context, kind)
 }

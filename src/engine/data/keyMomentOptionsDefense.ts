@@ -1,4 +1,4 @@
-import type { KeyMomentOption } from '../../domain'
+import type { KeyMomentKind, KeyMomentOption } from '../../domain'
 import { buildOptionTable, type KindContext, type OptionRow } from './scoreChance'
 
 const duelRows: OptionRow[] = [
@@ -141,18 +141,18 @@ const headerDuelRows: OptionRow[] = [
   },
 ]
 
-export function buildDuel(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(duelRows, context)
+export function buildDuel(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(duelRows, context, kind)
 }
 
-export function buildSave(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(saveRows, context)
+export function buildSave(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(saveRows, context, kind)
 }
 
-export function buildClearance(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(clearanceRows, context)
+export function buildClearance(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(clearanceRows, context, kind)
 }
 
-export function buildHeaderDuel(context: KindContext): KeyMomentOption[] {
-  return buildOptionTable(headerDuelRows, context)
+export function buildHeaderDuel(context: KindContext, kind: KeyMomentKind): KeyMomentOption[] {
+  return buildOptionTable(headerDuelRows, context, kind)
 }
