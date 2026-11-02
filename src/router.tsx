@@ -5,6 +5,8 @@ import { CreateCareerScreen } from './ui'
 import { DashboardScreen } from './ui'
 import { InboxScreen } from './ui'
 import { MatchdayScreen } from './ui'
+import { MoveDetailScreen } from './ui'
+import { MovesScreen } from './ui'
 import { MoreScreen } from './ui'
 import { ProfileScreen } from './ui'
 import { ScheduleScreen } from './ui'
@@ -30,6 +32,8 @@ export const router = createHashRouter([
           { path: 'inbox', element: <InboxScreen /> },
           { path: 'team', element: <TeamScreen /> },
           { path: 'team/:playerId', element: <TeamPlayerScreen /> },
+          { path: 'moves', element: <MovesScreen /> },
+          { path: 'moves/:moveId', element: <MoveDetailScreen /> },
           { path: 'profile', element: <ProfileScreen /> },
           { path: 'more', element: <MoreScreen /> },
           { path: 'settings', element: <SettingsScreen /> },

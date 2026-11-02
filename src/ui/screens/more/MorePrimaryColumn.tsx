@@ -1,4 +1,4 @@
-import { Landmark, Settings, Wallet } from 'lucide-react'
+import { Landmark, Settings, Sparkles, Wallet } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { WorldState } from '../../../domain'
 import { formatMoney, formatMoneyShort } from '../../../lib'
@@ -11,6 +11,7 @@ export function MorePrimaryColumn({ world }: { world: WorldState }) {
   return (
     <>
       <Card className="mb-3 p-0">
+        <MenuRow icon={<Sparkles size={16} />} label="绝技" hint="招牌动作与修炼进度" onClick={() => navigate('/moves')} />
         <MenuRow icon={<Landmark size={16} />} label="生涯时间线" hint="赛季记录与荣誉" onClick={() => navigate('/timeline')} />
         <MenuRow icon={<Settings size={16} />} label="设置" hint="AI、叙事与数据" onClick={() => navigate('/settings')} />
       </Card>
