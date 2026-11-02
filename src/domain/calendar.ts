@@ -5,6 +5,7 @@ export const DEFAULT_EXTRA_ACTION: ExtraAction = 'none'
 export const DEFAULT_WEEK_PLAN: WeeklyPlan = {
   training: DEFAULT_TRAINING_FOCUS,
   extra: DEFAULT_EXTRA_ACTION,
+  specialization: null,
 }
 
 export const DAYS_PER_WEEK = 7

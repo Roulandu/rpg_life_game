@@ -247,6 +247,15 @@ function migrateGrowth(world: WorldState): void {
   }
 }
 
+/**
+ * v8 还没有绝技层：球员的 `moves` 与周计划的 `specialization` 槽整体缺失。
+ * 补成「一条不会 + 本周不练」，让持有判断只有一条取值路径。
+ */
+function migrateMoves(world: WorldState): void {
+  for (const player of Object.values(world.players)) player.moves ??= []
+  world.weekPlan.specialization ??= null
+}
+
 export function migrateWorld(input: WorldState): WorldState {
   if (input.version > CURRENT_SAVE_VERSION) {
     throw new Error('这个存档来自更新版本的游戏，请先更新。')
@@ -273,6 +282,7 @@ export function migrateWorld(input: WorldState): WorldState {
   if (sourceVersion < 6) migrateNames(world)
   if (sourceVersion < 7) migrateEventDays(world)
   if (sourceVersion < 8) migrateGrowth(world)
+  if (sourceVersion < 9) migrateMoves(world)
   if (sourceVersion < 2) world.pendingDayPlan = null
   world.version = CURRENT_SAVE_VERSION
   return assertWorld(world)

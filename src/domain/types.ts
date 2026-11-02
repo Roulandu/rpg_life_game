@@ -258,6 +258,8 @@ export interface CareerCreateOptions {
 export interface WeeklyPlan {
   training: TrainingFocus
   extra: ExtraAction
+  /** 本周三特训槽练的绝技 id；缺字段按「本周不练绝技」处理，v9 迁移会补成 null。 */
+  specialization?: Id | null
 }
 
 /** 比赛日停下来等玩家处理时保存的当日计划；其余时间恒为 null。 */
