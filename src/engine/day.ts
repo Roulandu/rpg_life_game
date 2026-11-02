@@ -1,7 +1,8 @@
 import { DAYS_PER_WEEK, absoluteDay, computeClubStrength, weekDayRoles } from '../domain'
 import type { Fixture, GameEvent, MatchReport, WeekDayRoles, WorldState } from '../domain'
 import { expireEvents, generateDailyEvents } from './eventsDaily'
-import { settleWeekFinance, updatePlayerValue } from './finance'
+import { updatePlayerValue } from './finance'
+import { accrueDailyFinance, postWeeklyLedger } from './financeDaily'
 import { autoResolveKeyMoments, finalizeMatchday, hasPendingKeyMoments } from './keyMoments'
 import { startUserMatch } from './liveMatch'
 import { getUserFixtureOnDay, simulateDayFixtures } from './match'
@@ -78,6 +79,7 @@ function runMorning(world: WorldState, roles: WeekDayRoles): DayStopReason | nul
     if (club) club.strength = computeClubStrength(club, world.players)
   }
   const healed = advanceInjuries(world)
+  accrueDailyFinance(world)
   const plan = world.weekPlan
   if (roles.trainingDays.includes(world.day)) applyDailyTraining(world, plan.training)
   if (roles.extraDay === world.day) applyDailyAction(world, plan.extra)
@@ -105,7 +107,7 @@ function closeDay(world: WorldState, match: MatchReport | null, stopReason: DayS
   const dayPlayed = world.day
   const dayReport = simulateDayFixtures(world)
   const weeklyMatch = weekMatch(world, match)
-  if (world.day === DAYS_PER_WEEK) settleWeekFinance(world)
+  if (world.day === DAYS_PER_WEEK) postWeeklyLedger(world)
   // 每日事件看的是「今天这场」，不是本周任意一场：赛后事件必须落在赛后当天。
   const created = generateDailyEvents(world, dayReport ?? match)
   const event = created[0] ?? null

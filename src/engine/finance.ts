@@ -1,55 +1,6 @@
 import { clamp, overall, round1 } from '../domain'
 import type { Player, WorldState } from '../domain'
 
-export interface WeeklyFinanceResult {
-  income: number
-  expenses: number
-  net: number
-}
-
-export function recomputeWeeklyExpenses(world: WorldState): void {
-  const user = world.players[world.playerId]
-  world.finance.weeklyWage = user?.contract.wageWeekly ?? 0
-  world.finance.weeklyExpenses = Math.round(world.finance.weeklyWage * 0.18) + 15000
-}
-
-export function settleWeekFinance(world: WorldState): WeeklyFinanceResult {
-  const user = world.players[world.playerId]
-  recomputeWeeklyExpenses(world)
-  const sponsorship = world.finance.sponsorships
-    .filter((deal) => deal.endSeason >= world.season)
-    .reduce((sum, deal) => sum + deal.weekly, 0)
-  const income = world.finance.weeklyWage + sponsorship
-  const expenses = world.finance.weeklyExpenses
-  const net = income - expenses
-
-  world.finance.balance += net
-  world.finance.ledger.unshift({
-    week: world.week,
-    season: world.season,
-    type: 'wage',
-    amount: net,
-    label: sponsorship > 0 ? '周薪、赞助与开销' : '周薪与开销',
-  })
-  world.finance.ledger = world.finance.ledger.slice(0, 120)
-
-  if (user && world.finance.balance < 0) {
-    user.morale = clamp(user.morale - 1, 0, 100)
-    if (world.week % 4 === 0) {
-      world.news.unshift({
-        id: `news:finance:debt:${world.season}:${world.week}`,
-        season: world.season,
-        week: world.week,
-        title: '账户余额告急',
-        body: '经纪人来电提醒你，最近的支出已经超过了收入。',
-        kind: 'system',
-      })
-      world.news = world.news.slice(0, 80)
-    }
-  }
-  return { income, expenses, net }
-}
-
 export function estimateValue(player: Player): number {
   const ability = overall(player)
   const ageFactor =
