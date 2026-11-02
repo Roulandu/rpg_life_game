@@ -120,7 +120,7 @@ sequenceDiagram
 ### 设置与版本
 
 - 默认 LLM：`openai` / `gpt-4.1-mini` / `standard` / `template`，温度 0.85，`max_tokens`。
-- `world.version = CURRENT_SAVE_VERSION`（当前 `7`），`engineVersion = ENGINE_VERSION`（当前 `0.8.0`）。这两个字段是回放基准的身份：`hashState` 把 `ENGINE_VERSION` 也算进去，所以只改版本号也会位移哈希。
+- `world.version = CURRENT_SAVE_VERSION`（当前 `12`），`engineVersion = ENGINE_VERSION`（当前 `0.14.0`）。这两个字段是回放基准的身份：`hashState` 把 `ENGINE_VERSION` 也算进去，所以只改版本号也会位移哈希。
 - 同一 seed、同一数据包、同一选项必须生成逐字节等价的世界（时间字段除外）。
 
 ### 不可变条件

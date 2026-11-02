@@ -79,7 +79,7 @@ sequenceDiagram
   participant INV as investments
 
   DAY->>FIN: accrueDailyFinance（每天，晨间）
-  FIN->>FIN: pendingIncome += (周薪+赞助)/7，pendingExpenses += 开销/7
+  FIN->>FIN: pendingIncome += (周薪+赞助)/7，pendingExpenses += (生活开销+团队周薪)/7
   FIN->>FIN: applyDebtPenalty（余额为负则每天掉士气）
   DAY->>DAY: 比赛、事件、advanceClock
   DAY->>FIN: postWeeklyLedger（day === 7）
@@ -123,7 +123,7 @@ sequenceDiagram
 | 字段 | 类型 | 说明 |
 |---|---|---|
 | `pendingIncome` | number | 本周已挣未入账（分），周日清零 |
-| `pendingExpenses` | number | 本周已花未入账（分），周日清零 |
+| `pendingExpenses` | number | 本周已花未入账（分），周日清零；v12 起含个人团队周薪（`staffWeeklyTotal / 7`） |
 | `investments` | `Investment[]` | 持仓账本，新开的排在最前 |
 
 `Investment = { id, kind, name, principal, rateBps, openedDay, termDays?, earlyExitFee?, value?, risk }`。id 走 `dailyId(world, 'inv', kind)`，因此带赛季/周/日三段，同日同品种也不会撞车。`termDays` 与 `earlyExitFee` 是可选的：v10 及更早的存档没这两个字段，读取一律经 `termDaysOf` / `exitFeeOf` 兜底为 0，绝不在调用点各写一套 `?? 0`。
@@ -134,7 +134,7 @@ domain 层的纯估值口：`holdingsValue`（现值合计）、`unrealizedGain`
 
 引擎返回值统一是 `InvestResult = { ok, reason, investment, proceeds }`，`InvestmentReject` 五码：`matchLive / unknownKind / belowMinimum / notEnoughCash / unknownInvestment`。`src/engine/index.ts` 只透出 `openInvestment` / `closeInvestment` 给 store，日累计与周日结算在引擎内部由 `day.ts` 调用，不经公共入口。store 把每个拒绝码配成一句中文，`belowMinimum` 额外把这道门槛的英镑数报出来。
 
-存档：`CURRENT_SAVE_VERSION = 11`，`MIGRATION_STEPS` 新增 `{ from: 11, run: migrateFinance }`，实现只有三行 `??=`（缺才补、有则不动），不折现、不重开仓、不清仓、不产生流水。
+存档：`MIGRATION_STEPS` 新增 `{ from: 11, run: migrateFinance }`，实现只有三行 `??=`（缺才补、有则不动），不折现、不重开仓、不清仓、不产生流水。`CURRENT_SAVE_VERSION` 当时是 11，v12 起为 12（个人团队名册），见 [个人团队](private-staff.md)。
 
 ## 失败与降级
 
@@ -180,7 +180,7 @@ domain 层的纯估值口：`holdingsValue`（现值合计）、`unrealizedGain`
 | 抽屉列出四档、余额不足置灰、未选金额前确认禁用、选中后条款摘要、开仓与赎回调用 store 动作、「更多」页入口 | tests/ui/financeActions.test.tsx |
 | 页内与抽屉 44px 触控、抽屉网格不超过 2 列、无超手机安全宽度的固定像素 | tests/ui/financeLayout.test.tsx |
 | 赛季估值与奖金不进日粒度账 | tests/engine/finance.test.ts |
-| 同种子整季回放哈希稳定 | golden（`quality/golden/season-seed-42.json`，engine 0.13.0 / `3b40c1fbe0ca642b`） |
+| 同种子整季回放哈希稳定 | golden（`quality/golden/season-seed-42.json`，engine 0.14.0 / `0977f1c7baccb177`；本批交付时是 0.13.0 / `3b40c1fbe0ca642b`，v12 起随个人团队重算） |
 
 ## 变更记录
 
@@ -192,3 +192,4 @@ domain 层的纯估值口：`holdingsValue`（现值合计）、`unrealizedGain`
 | 2026-11-02 | 存档升 v11：`Finance.pendingIncome / pendingExpenses / investments` 进入结构，`migrateFinance` 只做 `??=` 补齐；`ENGINE_VERSION` 升 0.13.0、回放基准 `a53d784da26c391d` → `3b40c1fbe0ca642b` |
 | 2026-11-02 | 新增 `src/engine/financeDaily.ts`：周薪/赞助/开销按 1/7 日累计、周日一次折现并只写一条流水、欠款惩罚改为 −0.15 士气/天 + 每 28 日一条告急；`src/engine/finance.ts` 只留估值、奖金与赛季声望 |
 | 2026-11-02 | `src/domain/finance.ts` 从 `types.ts` 拆出，承载 `InvestmentKind` 条款表（起投额、年化、周波动、锁定期、罚息）与 `holdingsValue` / `unrealizedGain` / `termDaysOf` / `exitFeeOf` 四个纯口 |
+| 2026-11-02 | 个人团队接入日累计：`accrueDailyFinance` 的待支出同时挂上团队周薪（`staffWeeklyTotal(world.staff) / 7`），周日那条周账流水的标签在有团队开销时带上「团队薪酬」；存档升 v12 只补 `staff: []`，财务结构本身不变；`ENGINE_VERSION` 随 v12 升 0.14.0，回放基准 `3b40c1fbe0ca642b` → `0515c620b8b5f310` → `0977f1c7baccb177` |
