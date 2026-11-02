@@ -1,4 +1,4 @@
-import { DAYS_PER_WEEK, absoluteDay, clamp, round1 } from '../domain'
+import { DAYS_PER_WEEK, absoluteDay, clamp, round1, staffWeeklyTotal } from '../domain'
 import type { FinanceLedgerEntry, WorldState } from '../domain'
 
 export interface WeeklyFinanceResult {
@@ -52,7 +52,7 @@ export function accrueDailyFinance(world: WorldState): void {
   refreshWeeklyRates(world)
   const income = world.finance.weeklyWage + weeklySponsorshipIncome(world)
   world.finance.pendingIncome += income / DAYS_PER_WEEK
-  world.finance.pendingExpenses += world.finance.weeklyExpenses / DAYS_PER_WEEK
+  world.finance.pendingExpenses += (world.finance.weeklyExpenses + staffWeeklyTotal(world.staff)) / DAYS_PER_WEEK
   applyDebtPenalty(world)
 }
 
@@ -67,6 +67,14 @@ export function pushFinanceLedger(
   world.finance.ledger = world.finance.ledger.slice(0, LEDGER_KEEP)
 }
 
+/** 周日流水的标签只列真的发生过的口径：没赞助就不提赞助，没雇人就不提团队。 */
+function weeklyLedgerLabel(world: WorldState): string {
+  const parts = ['周薪']
+  if (weeklySponsorshipIncome(world) > 0) parts.push('赞助')
+  if (world.staff.length > 0) parts.push('团队薪酬')
+  return `${parts.join('、')}与开销`
+}
+
 /** 周日一次入账：两个累计器各取整一次，因此七天份额加起来正好是周口径金额。 */
 export function postWeeklyLedger(world: WorldState): WeeklyFinanceResult {
   const finance = world.finance
@@ -77,11 +85,6 @@ export function postWeeklyLedger(world: WorldState): WeeklyFinanceResult {
   finance.balance += net
   finance.pendingIncome = 0
   finance.pendingExpenses = 0
-  pushFinanceLedger(
-    world,
-    'wage',
-    net,
-    weeklySponsorshipIncome(world) > 0 ? '周薪、赞助与开销' : '周薪与开销',
-  )
+  pushFinanceLedger(world, 'wage', net, weeklyLedgerLabel(world))
   return { income, expenses, net }
 }
