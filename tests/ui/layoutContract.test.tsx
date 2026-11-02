@@ -7,6 +7,8 @@ import {
   CreateCareerScreen,
   DashboardScreen,
   InboxScreen,
+  MoveDetailScreen,
+  MovesScreen,
   ScheduleScreen,
   TeamPlayerScreen,
   TeamScreen,
@@ -220,6 +222,56 @@ describe('手机宽度契约', () => {
     expect(baseGrids.length).toBeGreaterThan(0)
     for (const token of baseGrids) {
       expect(Number(token.replace('grid-cols-', ''))).toBeLessThanOrEqual(3)
+    }
+  })
+})
+
+describe('绝技页手机契约', () => {
+  it('图鉴行、我在练的行与详情页按钮都是 44px 触控目标', () => {
+    loadWorld()
+
+    const list = renderWithRouter(<MovesScreen />, { initialEntries: ['/moves'] })
+    const rows = touchTargets(list.container)
+    expect(rows.length).toBeGreaterThan(2)
+    for (const row of rows) {
+      expect(minHeightPx(row.className)).toBeGreaterThanOrEqual(44)
+    }
+    cleanup()
+
+    const detail = renderWithRouter(
+      <Routes>
+        <Route path="/moves/:moveId" element={<MoveDetailScreen />} />
+      </Routes>,
+      { initialEntries: ['/moves/mv_rainbow'] },
+    )
+    for (const row of touchTargets(detail.container)) {
+      expect(minHeightPx(row.className)).toBeGreaterThanOrEqual(44)
+    }
+  })
+
+  it('绝技两页手机端占满宽度、桌面收到 760px，且没有超过手机安全宽度的固定像素', () => {
+    loadWorld()
+
+    const containers = [
+      renderWithRouter(<MovesScreen />, { initialEntries: ['/moves'] }).container,
+      renderWithRouter(
+        <Routes>
+          <Route path="/moves/:moveId" element={<MoveDetailScreen />} />
+        </Routes>,
+        { initialEntries: ['/moves/mv_rainbow'] },
+      ).container,
+    ]
+
+    for (const container of containers) {
+      const root = container.firstElementChild as HTMLElement
+      expect(root.className).toContain('page-pad')
+      expect(root.className).toContain('sm:mx-auto')
+      expect(root.className).toContain('sm:max-w-[760px]')
+      const tooWide = tokensIn(container).filter((token) => {
+        const match = /^(?:w|min-w|max-w)-\[(\d+(?:\.\d+)?)px\]$/.exec(token)
+        return match !== null && Number(match[1]) > PHONE_SAFE_PX
+      })
+      expect(tooWide).toEqual([])
     }
   })
 })

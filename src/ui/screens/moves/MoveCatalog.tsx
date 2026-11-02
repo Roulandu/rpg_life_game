@@ -22,7 +22,7 @@ export function MoveCatalog({ moves, user, locked, onInvest }: MoveCatalogProps)
           const top = move.levels[move.levels.length - 1]
           return (
             <li key={move.id} className="flex min-h-[44px] items-center gap-2 px-3 py-2.5">
-              <Link to={`/moves/${move.id}`} className="min-w-0 flex-1 active:bg-white/5">
+              <Link to={`/moves/${move.id}`} className="min-h-[44px] min-w-0 flex-1 active:bg-white/5">
                 <span className="block truncate text-sm text-text">{move.nameZh}</span>
                 <span className="mt-0.5 block text-[10px] text-dim">
                   <span>{MOVE_FAMILY_LABELS[move.family]}</span>
