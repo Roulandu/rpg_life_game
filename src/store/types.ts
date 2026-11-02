@@ -10,6 +10,7 @@ import type {
   DayResult,
   FastForwardResult,
   InvestOutcome,
+  MoveInvestOutcome,
   SeasonTransition,
   TurnResult,
 } from '../engine'
@@ -49,6 +50,7 @@ export interface GameStore {
   advanceToNextEvent: () => Promise<FastForwardResult | null>
   setWeekPlan: (plan: WeeklyPlan) => Promise<boolean>
   investExp: (attrKey: AttrKey, points: number) => Promise<InvestOutcome | null>
+  investMoveExp: (moveId: string) => Promise<MoveInvestOutcome | null>
   resolveKeyMoment: (momentId: string, optionId: string) => Promise<void>
   skipKeyMoments: () => Promise<void>
   finishLiveMatch: () => Promise<void>
