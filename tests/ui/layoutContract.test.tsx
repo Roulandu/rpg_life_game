@@ -16,37 +16,15 @@ import {
 import { useGameStore } from '../../src/store/gameStore'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
+import {
+  loadWorld,
+  minHeightPx,
+  tokensIn,
+  tooWideTokens,
+  touchTargets,
+} from './layoutHarness'
 import { renderWithRouter } from './renderScreen'
 import { resetUiStore } from './resetStore'
-
-/** 手机上放不进 360px 视口的固定像素宽度阈值（页面左右各留 16px 内边距）。 */
-const PHONE_SAFE_PX = 340
-
-function tokensIn(container: HTMLElement): string[] {
-  return Array.from(new Set(container.querySelectorAll<HTMLElement>('*'))).flatMap((el) =>
-    (el.getAttribute('class') ?? '').split(/\s+/),
-  ).filter(Boolean)
-}
-
-/** Tailwind 任意值与档位都算出来：min-h-[44px] → 44，min-h-11 → 44。 */
-function minHeightPx(classList: string): number {
-  const arbitrary = /(?:^|\s)min-h-\[(\d+(?:\.\d+)?)px\](?:\s|$)/.exec(classList)
-  if (arbitrary) return Number(arbitrary[1])
-  const step = /(?:^|\s)min-h-(\d+)(?:\s|$)/.exec(classList)
-  if (step) return Number(step[1]) * 4
-  // .btn-primary / .btn-secondary / .btn-ghost 在 styles.css 里统一 min-h-11
-  return /(?:^|\s)btn-(?:primary|secondary|ghost)(?:\s|$)/.test(classList) ? 44 : 0
-}
-
-function touchTargets(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>('a, button'))
-}
-
-function loadWorld() {
-  const world = generateWorld(testOptions(), TEST_NOW)
-  useGameStore.setState({ world, hydrated: true, saves: [] })
-  return world
-}
 
 /** 平静日的今天区没有可点目标，所以造一条本周待处理事件，把「去处理事件」按钮逼出来。 */
 function loadWorldWithOpenEvent() {
@@ -155,10 +133,7 @@ describe('建号页手机契约', () => {
 
   it('页面里没有超过手机安全宽度的固定像素宽度', () => {
     const { container } = renderWithRouter(<CreateCareerScreen />, { initialEntries: ['/create'] })
-    const tooWide = tokensIn(container).filter((token) => {
-      const match = /^(?:w|min-w|max-w)-\[(\d+(?:\.\d+)?)px\]$/.exec(token)
-      return match !== null && Number(match[1]) > PHONE_SAFE_PX
-    })
+    const tooWide = tooWideTokens(container)
     expect(tooWide).toEqual([])
   })
 })
@@ -201,10 +176,7 @@ describe('手机宽度契约', () => {
     ]
 
     for (const container of containers) {
-      const tooWide = tokensIn(container).filter((token) => {
-        const match = /^(?:w|min-w|max-w)-\[(\d+(?:\.\d+)?)px\]$/.exec(token)
-        return match !== null && Number(match[1]) > PHONE_SAFE_PX
-      })
+      const tooWide = tooWideTokens(container)
       expect(tooWide).toEqual([])
     }
   })
@@ -267,10 +239,7 @@ describe('绝技页手机契约', () => {
       expect(root.className).toContain('page-pad')
       expect(root.className).toContain('sm:mx-auto')
       expect(root.className).toContain('sm:max-w-[760px]')
-      const tooWide = tokensIn(container).filter((token) => {
-        const match = /^(?:w|min-w|max-w)-\[(\d+(?:\.\d+)?)px\]$/.exec(token)
-        return match !== null && Number(match[1]) > PHONE_SAFE_PX
-      })
+      const tooWide = tooWideTokens(container)
       expect(tooWide).toEqual([])
     }
   })
