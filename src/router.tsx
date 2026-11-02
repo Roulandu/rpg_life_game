@@ -3,6 +3,7 @@ import { App } from './app/App'
 import { GameLayout } from './app/GameLayout'
 import { CreateCareerScreen } from './ui'
 import { DashboardScreen } from './ui'
+import { FinanceScreen } from './ui'
 import { InboxScreen } from './ui'
 import { MatchdayScreen } from './ui'
 import { MoveDetailScreen } from './ui'
@@ -34,6 +35,7 @@ export const router = createHashRouter([
           { path: 'team/:playerId', element: <TeamPlayerScreen /> },
           { path: 'moves', element: <MovesScreen /> },
           { path: 'moves/:moveId', element: <MoveDetailScreen /> },
+          { path: 'finance', element: <FinanceScreen /> },
           { path: 'profile', element: <ProfileScreen /> },
           { path: 'more', element: <MoreScreen /> },
           { path: 'settings', element: <SettingsScreen /> },
