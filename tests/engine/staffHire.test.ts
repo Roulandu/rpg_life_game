@@ -43,12 +43,15 @@ describe('雇佣个人团队', () => {
     expect(world.staff).toHaveLength(1)
   })
 
-  it('余额付不起第一周周薪时拒绝雇佣', () => {
+  it('余额付不起第一周周薪时拒绝雇佣，并把这道门槛报出来', () => {
     const world = staffed([])
     const offer = offerOf(world, 'trainer')
     world.finance.balance = offer.weeklyCost - 1
 
-    expect(hireStaff(world, offer.id).reason).toBe('notEnoughBalance')
+    const result = hireStaff(world, offer.id)
+
+    expect(result.reason).toBe('notEnoughBalance')
+    expect(result.weeklyCost).toBe(offer.weeklyCost)
     expect(world.staff).toEqual([])
   })
 

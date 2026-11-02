@@ -36,11 +36,12 @@ function hireBlocker(world: WorldState, candidate: StaffCandidate | null): Staff
 /**
  * 雇一个人：先付得起第一周周薪才准进门，之后每周按 1/7 挂进待入账。
  * 周薪与水平随人一起进存档，所以换季换了招聘池也不会影响已经请进来的人。
+ * 被拒时同样把候选人带回去：UI 要报出「差多少钱」，而不是只说「付不起」。
  */
 export function hireStaff(world: WorldState, candidateId: string): StaffHireOutcome {
   const candidate = staffCandidatesOf(world).find((item) => item.id === candidateId) ?? null
   const reason = hireBlocker(world, candidate)
-  if (reason || !candidate) return rejected(reason ?? 'unknownCandidate', null)
+  if (reason || !candidate) return rejected(reason ?? 'unknownCandidate', candidate)
 
   world.staff.push({ ...candidate, hiredDay: absoluteDay(world.week, world.day) })
   return { ok: true, reason: null, candidate, weeklyCost: candidate.weeklyCost }
