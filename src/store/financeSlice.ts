@@ -2,6 +2,7 @@ import { INVESTMENT_KINDS } from '../domain'
 import type { InvestmentKind, WorldState } from '../domain'
 import { closeInvestment, openInvestment } from '../engine'
 import type { InvestResult, InvestmentReject } from '../engine'
+import { formatMoney } from '../lib'
 import { commitSettled, messageOf } from './helpers'
 import type { GameStore, StoreGet, StoreSet, StoreSlice } from './types'
 
@@ -22,7 +23,7 @@ const REJECT_TEXT: Record<Exclude<InvestmentReject, null>, string> = {
 function openRejectText(kind: InvestmentKind, reason: InvestmentReject | null): string {
   if (reason === 'belowMinimum') {
     const spec = INVESTMENT_KINDS[kind]
-    return `${spec.label}最低起投 £${spec.minPrincipal}。`
+    return `${spec.label}最低起投 ${formatMoney(spec.minPrincipal)}。`
   }
   return REJECT_TEXT[reason ?? 'unknownKind']
 }
@@ -30,13 +31,13 @@ function openRejectText(kind: InvestmentKind, reason: InvestmentReject | null): 
 /** 播报只报已经实现的事实：开仓报扣掉的钱，赎回报到手的钱，锁定期内额外说明吃了罚息。 */
 function noticeOf(mode: MoneyMode, next: WorldState, result: InvestResult): string {
   const investment = result.investment
-  const balance = next.finance.balance
+  const balance = formatMoney(next.finance.balance)
   if (mode === 'close' && investment) {
     const gross = investment.value ?? investment.principal
     const verb = gross - result.proceeds > 0 ? '提前赎回' : '赎回'
-    return `${verb} ${investment.name} 到手 £${result.proceeds}，余额 £${balance}`
+    return `${verb} ${investment.name} 到手 ${formatMoney(result.proceeds)}，余额 ${balance}`
   }
-  return `开仓 ${investment?.name ?? ''} £${investment?.principal ?? 0}，余额 £${balance}`
+  return `开仓 ${investment?.name ?? ''} ${formatMoney(investment?.principal ?? 0)}，余额 ${balance}`
 }
 
 /** 存取两个动作共用一条流水线：克隆世界、跑引擎、拒绝就报文案，成交才落盘。 */

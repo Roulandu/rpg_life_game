@@ -1,6 +1,6 @@
 import { INVESTMENT_KINDS, absoluteDay, exitFeeOf, termDaysOf } from '../domain'
 import type { Investment, InvestmentKind, WorldState } from '../domain'
-import { createRng } from '../lib'
+import { createRng, formatMoney } from '../lib'
 import { dailyId, matchInProgress } from './dayContext'
 import { pushFinanceLedger } from './financeDaily'
 
@@ -60,7 +60,7 @@ function announceExit(world: WorldState, investment: Investment, gain: number): 
     season: world.season,
     week: world.week,
     day: world.day,
-    title: `赎回 ${investment.name}：${gain > 0 ? '赚' : '亏'} £${Math.abs(gain)}`,
+    title: `赎回 ${investment.name}：${gain > 0 ? '赚' : '亏'} ${formatMoney(Math.abs(gain))}`,
     body: gain > 0
       ? '这笔投资在锁定期外卖出，账面收益变成了能花的现金。'
       : '这笔投资卖在了本金之下，落袋的是折价。',

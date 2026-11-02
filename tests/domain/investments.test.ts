@@ -5,7 +5,6 @@ import { INVESTMENT_KINDS, INVESTMENT_KIND_ORDER, holdingsValue, unrealizedGain 
 function holding(principal: number, value?: number): Investment {
   return { id: 'inv:test', kind: 'deposit', name: '测试持仓', principal, rateBps: 210, openedDay: 1, risk: 0, value }
 }
-
 describe('资金去处条款表', () => {
   it('四种去处都在册且各有一条中文标题与说明', () => {
     const kinds = INVESTMENT_KIND_ORDER
@@ -28,11 +27,20 @@ describe('资金去处条款表', () => {
       expect(spec.rateBps).toBeLessThanOrEqual(1200)
       expect(spec.weeklyVol).toBeGreaterThanOrEqual(0)
       expect(spec.weeklyVol).toBeLessThanOrEqual(0.12)
-      expect(spec.minPrincipal).toBeGreaterThanOrEqual(1000)
+      expect(spec.minPrincipal).toBeGreaterThanOrEqual(100000)
       expect(spec.termDays).toBeGreaterThanOrEqual(0)
       expect(spec.earlyExitFee).toBeGreaterThanOrEqual(0)
       expect(spec.earlyExitFee).toBeLessThanOrEqual(0.15)
     }
+  })
+
+  it('四档起投额拉开成需要取舍的阶梯，不是人人一次买光', () => {
+    const mins = INVESTMENT_KIND_ORDER.map((kind) => INVESTMENT_KINDS[kind].minPrincipal)
+
+    // 世界把金额一律存成分：新手周薪是 5 位数、开局余额约 126 万。
+    // 起投额若停在 4~5 位数，等于「£100 买一套公寓」，投资就没有取舍可言。
+    expect(new Set(mins).size).toBe(4)
+    expect(Math.max(...mins) / Math.min(...mins)).toBeGreaterThanOrEqual(20)
   })
 
   it('只有会波动的品种才收提前赎回罚金', () => {
