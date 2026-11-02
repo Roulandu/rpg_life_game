@@ -10,6 +10,7 @@ import { getUserFixtureOnDay, simulateDayFixtures } from './match'
 import { endSeason } from './season'
 import type { SeasonTransition } from './season'
 import { applySpecialization } from './specialization'
+import { applyStaffDailyEffects } from './staff'
 import { advanceInjuries, applyDailyAction, applyDailyTraining } from './training'
 
 export type DayStopReason = 'matchday' | 'event' | 'milestone'
@@ -85,6 +86,7 @@ function runMorning(world: WorldState, roles: WeekDayRoles): DayStopReason | nul
   if (roles.trainingDays.includes(world.day)) applyDailyTraining(world, plan.training)
   if (roles.extraDay === world.day) applyDailyAction(world, plan.extra)
   if (roles.specializationDay === world.day) applySpecialization(world)
+  applyStaffDailyEffects(world)
   expireEvents(world)
   return healed ? 'milestone' : null
 }

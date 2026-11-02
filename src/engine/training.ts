@@ -4,6 +4,7 @@ import type { Rng } from '../lib'
 import { dailyId, dayRng } from './dayContext'
 import { applyEffects } from './effects'
 import { TRAINING_EXP, grantExp } from './growth'
+import { staffInjuryChance, staffInjuryDays } from './staff'
 
 /** 一周有五个训练槽（周一到周五，减去比赛日），所以单次量 = 原周量 ÷ 5。 */
 const PER_DAY = 1 / 5
@@ -35,11 +36,11 @@ function trainInjury(world: WorldState, focus: TrainingFocus, rng: Rng): void {
   const riskFactor =
     focus === 'physical' ? 1.5 : focus === 'technical' ? 0.8 : focus === 'tactical' ? 0.7 : 0.25
   const ageRisk = user.age >= 30 ? 1.3 : 1
-  const chance = 0.012 * PER_DAY * (1 + ((100 - user.fitness) / 100) * 1.2) * riskFactor * ageRisk
-  if (!rng.chance(chance)) return
+  const raw = 0.012 * PER_DAY * (1 + ((100 - user.fitness) / 100) * 1.2) * riskFactor * ageRisk
+  if (!rng.chance(staffInjuryChance(world, raw))) return
 
   const kind = rng.pick(['脚踝扭伤', '大腿肌肉拉伤', '膝盖不适', '腹股沟拉伤', '疲劳性损伤'])
-  const days = rng.int(7, 35)
+  const days = staffInjuryDays(world, rng.int(7, 35))
   user.injury = { kind, daysLeft: days, severity: rng.int(1, 3) }
   world.news.unshift({
     id: dailyId(world, 'news:injury'),

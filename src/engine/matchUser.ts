@@ -4,6 +4,7 @@ import type { Rng } from '../lib'
 import { computeClubStrength } from '../domain'
 import { pickInjuryKind } from './matchGoals'
 import { grantExp, ratingToExp } from './growth'
+import { staffInjuryChance, staffInjuryDays } from './staff'
 import { adjustRelationship, adjustRoleTrust, coachTrust, getRelationshipByRole } from './relationships'
 
 export interface SelectionResult {
@@ -83,6 +84,7 @@ interface UserMatchEvents {
 }
 
 export function rollUserMatchEvents(
+  world: WorldState,
   user: Player,
   goals: number,
   assists: number,
@@ -99,12 +101,12 @@ export function rollUserMatchEvents(
       isUser: true,
     })
   }
-  const injuryChance = 0.012 * (1 + (100 - user.fitness) / 100) * (user.position === 'GK' ? 0.5 : 1)
-  if (rng.chance(injuryChance)) {
+  const raw = 0.012 * (1 + (100 - user.fitness) / 100) * (user.position === 'GK' ? 0.5 : 1)
+  if (rng.chance(staffInjuryChance(world, raw))) {
     injured = true
     user.injury = {
       kind: pickInjuryKind(rng),
-      daysLeft: rng.int(14, 56),
+      daysLeft: staffInjuryDays(world, rng.int(14, 56)),
       severity: rng.int(1, 3),
     }
     events.push({
