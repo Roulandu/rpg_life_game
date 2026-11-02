@@ -47,7 +47,7 @@ interface FastForwardResult {
 
 `days[*].world` 指向同一份对象，只有末项是最新状态；调用方只应使用 `fast.days.at(-1)`。
 
-一天的顺序（`playDay`，不可交换）：`day === 1` 刷新用户俱乐部强度 → `advanceInjuries` → 训练日 `applyDailyTraining` → 活动日 `applyDailyAction` → `expireEvents` → 今天有场次则 `startUserMatch`/`finalizeMatchday` → `simulateDayFixtures` → `day === 7` 时 `settleWeekFinance` → `generateDailyEvents(world, 今天这场)` → `absoluteDay % 21 === 0` 时 `updatePlayerValue` → 时钟 +1 天（跨周/跨赛季时进位）→ 清空 `pendingDayPlan`。
+一天的顺序（`playDay`，不可交换）：`day === 1` 刷新用户俱乐部强度 → `advanceInjuries` → `accrueDailyFinance`（刷新周薪/开销口径 → 周薪与赞助、开销各按 1/7 挂进待入账 → 欠款按日罚士气）→ 训练日 `applyDailyTraining` → 活动日 `applyDailyAction` → `expireEvents` → 今天有场次则 `startUserMatch`/`finalizeMatchday` → `simulateDayFixtures` → `day === 7` 时 `postWeeklyLedger`（两个累计器各取整一次、写**一条**周账流水并清零）紧接 `settleInvestmentsWeekly`（先逐笔结利息、再给波动品种漫步一次现值）→ `generateDailyEvents(world, 今天这场)` → `absoluteDay % 21 === 0` 时 `updatePlayerValue` → 时钟 +1 天（跨周/跨赛季时进位）→ 清空 `pendingDayPlan`。
 
 ## 周回合（日步进的适配器）
 
@@ -101,7 +101,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.12.0'`（与 `world.version = 10` 一起构成回放基准的身份）
+- `ENGINE_VERSION = '0.13.0'`（与 `world.version = 11` 一起构成回放基准的身份）
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -234,14 +234,25 @@ interface TurnResult {
 
 ## 训练、财务、关系、退役
 
+财务一步的口径（按分记价、一周一条流水、浮盈不进余额、四种去处的条款）见 [资金运用](../features/finance-daily.md)。
+
 | 函数 | 签名 | 行为 |
 |---|---|---|
 | `advanceInjuries` | `(world) => boolean` | 每天递减 `injury.daysLeft`；伤愈时清空伤病、体能 +10、写新闻并返回 `true`（日步进据此产生 `milestone`） |
 | `applyDailyTraining` | `(world, focus) => void` | 按年龄、设施、教练、体能与**打法协同**计算**当日**成长与受伤概率；单次量 = 原周量 × `1/5`；伤停期间的合练不成长也不产经验，正常训练另经 `grantExp(world, TRAINING_EXP[focus], 'training')` 发经验 |
 | `dailyGrowth` | `(user, club, focus) => number` | 纯函数：单次训练成长量，末项乘 `styleSynergy(focus, club.style)`（命中打法偏好 1.12，否则 1），再乘 `PER_DAY` |
 | `applyDailyAction` | `(world, action) => void` | 应用媒体/经纪人/社交/休息/家庭效果（每周一次，落在活动日） |
-| `settleWeekFinance` | `(world) => WeeklyFinanceResult` | 结算周薪、支出、赞助，写流水 |
+| `refreshWeeklyRates` | `(world) => void` | 用今天的合同刷新 `weeklyWage` 与 `weeklyExpenses`（＝周薪 × 0.18 + 15000 分），换合同当天生效 |
+| `weeklySponsorshipIncome` | `(world) => number` | 未过期赞助的周收入合计 |
+| `accrueDailyFinance` | `(world) => void` | 每天把收入与开销各按 1/7 挂进 `pendingIncome / pendingExpenses`，**不动余额**；随后按日执行欠款惩罚（−0.15 士气/天，每 28 个绝对日一条告急新闻） |
+| `pushFinanceLedger` | `(world, type, amount, label) => void` | 写流水的唯一口：`unshift` 后截到 120 条，保证余额与流水的增减对得上账 |
+| `postWeeklyLedger` | `(world) => WeeklyFinanceResult` | 周日一次入账：两个累计器各取整一次、`balance += net`、清零，并只写**一条** `wage` 流水（有赞助时标签是「周薪、赞助与开销」） |
+| `openInvestment` | `(world, kind, principal) => InvestResult` | 开仓：闸门依次为 `matchLive / unknownKind / belowMinimum / notEnoughCash`，成交即扣现金、写 `investment` 流水、`unshift` 持仓；只有会波动的品种才写 `value` |
+| `closeInvestment` | `(world, investmentId) => InvestResult` | 赎回：按现值结算，`heldDays < termDaysOf` 时再扣 `exitFeeOf` 罚息；销账、回现金、写流水，浮盈或浮亏落一条当日新闻 |
+| `settleInvestmentsWeekly` | `(world) => void` | 周日一拍：先逐笔结利息（`本金或现值 × rateBps / 10000 / 52`，进余额并进流水），再给波动品种做一次价值漫步 |
 | `updatePlayerValue` | `(world) => void` | 按表现与年龄更新身价 |
+| `investMoney` | `(kind, principal) => Promise<InvestResult \| null>` | store 侧动作（`src/store/financeSlice.ts`）：`structuredClone` → `openInvestment` → 拒绝只置 `error`、成交才落盘 → `notice`「开仓 X £Y，余额 £Z」 |
+| `redeemInvestment` | `(investmentId) => Promise<InvestResult \| null>` | 同上走 `closeInvestment`；锁定期内播报用「提前赎回」，金额报到手净额 |
 | `paySeasonBonuses` | `(world, summary) => void` | 赛季奖金与升级/夺冠奖励 |
 | `reputationAfterSeason` | `(world, averageRating) => void` | 赛季声望变化 |
 | `getRelationshipByRole` | `(world, role) => Relationship \| undefined` | 按角色取关系 |
@@ -276,7 +287,7 @@ interface TurnResult {
 
 不同业务域必须使用不同的 `parts`，避免新增逻辑改变旧随机流。例如 `createRng(seed, 'match', fixture.id)` 与 `createRng(seed, 'event', world.season, world.week)` 相互独立。
 
-按天执行的步骤（训练与伤病、每日新闻、事件选项副作用）走 `dayRng(world, tag)` 与 `dailyId(world, prefix)`（`src/engine/dayContext.ts`，域尾追加 `season/week/day`）——id 不带日会让同周七天撞键，新闻与副作用记录因此互相覆盖。事件 id 同样带日段（`event:<season>:<week>:<day>:<templateId>`），掷骰用 `dayRng(world, 'event')`。仍按周拍的一步（`settleWeekFinance` 的余额告急新闻）继续用 `season/week` 作键，因为它们设计上每周只产出一条。`Fixture.id` 保持 `fixture:<leagueId>:<season>:<week>:<index>`：它同时是比赛随机盐，日粒度改造不得改其结构。
+按天执行的步骤（训练与伤病、每日新闻、事件选项副作用）走 `dayRng(world, tag)` 与 `dailyId(world, prefix)`（`src/engine/dayContext.ts`，域尾追加 `season/week/day`）——id 不带日会让同周七天撞键，新闻与副作用记录因此互相覆盖。事件 id 同样带日段（`event:<season>:<week>:<day>:<templateId>`），掷骰用 `dayRng(world, 'event')`。仍按周拍的一步继续用 `season/week` 作键：投资账本的价值漫步取 `createRng(seed, 'market', investmentId, season, week)`，因为一只持仓一周只该被踢一脚——按日建域会让同一笔钱一周波动七次，而中途另存的存档再接着踢就会出现两条轨迹。持仓 id 反过来必须带日（`dailyId(world, 'inv', kind)` → `inv:<season>:<week>:<day>:<kind>`），否则同一周买两笔活期会撞键；余额告急新闻也从「每周一条」改成按日打 id（`news:finance:debt:<season>:<week>:<day>`），靠每 28 个绝对日一次的条件控制频率。`Fixture.id` 保持 `fixture:<leagueId>:<season>:<week>:<index>`：它同时是比赛随机盐，日粒度改造不得改其结构。
 
 ## 领域工具
 
@@ -322,7 +333,7 @@ interface TurnResult {
 | `loadWorld` | `(id) => Promise<WorldState \| null>` | 读取、schema 校验并迁移旧版本；迁移后回写数据库 |
 | `listSaves` | `() => Promise<SaveSummary[]>` | 按更新时间倒序 |
 | `deleteSave` | `(id) => Promise<void>` | 删除并清理 `lastSaveId` |
-| `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON（`saveVersion` 取 `CURRENT_SAVE_VERSION`，当前 10） |
+| `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON（`saveVersion` 取 `CURRENT_SAVE_VERSION`，当前 11） |
 | `importWorld` | `(text) => WorldState` | 校验原始 checksum 后迁移到当前版本；不落库 |
 
 `downloadWorld`（`(world) => void`，触发浏览器下载）已从 `db/repository` 迁到 `store/exportSave`，经 `platform/fileExport.downloadTextFile` 落地。
@@ -344,6 +355,7 @@ interface TurnResult {
 - 存档 v9 给每个球员补 `moves: []`、给周计划补 `specialization: null`，这两个字段参与 `hashState`，因此 `ENGINE_VERSION` 升到 `0.10.0`，基准 `c43d95700e96f860` → `d3170bbf49ce3b2f`。绝技层本身不消耗随机数，新生成的世界没人持有绝技，`resolveMoveTerms` 返回空数组，关键回合概率与 0.9.0 同源。
 - 比赛表现掉落（`grantMoveDrops` 在终场往 `user.moves` 写进度并可能插新闻）把基准推到 `0.11.0` / `d3170bbf49ce3b2f` → `82fe56a7e245ea77`；它用独立 RNG 域 `moveDrop`，不动其他步骤的随机流。
 - 名宿批次把基准推到 `0.12.0` / `82fe56a7e245ea77` → `a53d784da26c391d`：`generateWorld` 多一条 `rel:legend:${playerId}` 关系，事件池多注册 mentor 包 9 条模板（权重 28），`rng.weighted` 的候选集与权重分布随之改变。
+- 存档 v11 给 `Finance` 补 `pendingIncome / pendingExpenses / investments` 三个键，`hashState` 覆盖整个 world，因此结构本身就位移：实测这一步把 `a53d784da26c391d` 变成 `41c1aa6857d93818`。之后的两笔行为提交（周日整周结算改「日累计 + 周日取整」、投资利息与漫步）在同一份 v11 结构上复跑回放仍得 `41c1aa6857d93818`——前者终局金额与旧口径相同（改的是可读的中间态，不是结果），后者在回放里没有任何开仓入口所以空转。基准最终停在 `0.13.0` / `3b40c1fbe0ca642b`，差值纯粹来自 `ENGINE_VERSION` 字符串本身（把常量临时回退 0.12.0 复跑得回 `41c1aa6857d93818`）。
 - 基线由 `npm run quality:golden` 重新生成；脚本连续跑两次确认同 hash 后才写入。
 - 修改任何影响引擎输出的规则时，必须评估是否需要升 `ENGINE_VERSION` 并更新回放；哈希变化而版本未升会被 `check-anti-regression` 拦截。
 - 事件内容不参与接口签名：`data/events/*.json` 扩容只改 `world.events[*].choices` 的内容，因此接口文档里事件相关条目见 `docs/features/daily-events.md`，本文件只在引擎语义变化时升版本。
@@ -365,3 +377,4 @@ interface TurnResult {
 | 2026-11-02 | 新增成长接口：`grantExp`/`ratingToExp`/`investAttribute`（engine）与 `investmentCost`/`investmentSeriesCost`/`attributeCap`/`canInvestAttribute`/`fitsPotential`/`maxInvestable`（domain），建号点买 `allocationBudget`/`checkAllocation`/`applyAllocation`；world 公共入口新增 `previewUserStart`，另有内部 `draftUserBase`/`resolveUserAttributes`/`makeUserContract`；`EffectOp` 增至 13 个（`exp`）；`ENGINE_VERSION` 0.8.0 → 0.9.0，golden `43de8568604868f8` → `c43d95700e96f860`，`CURRENT_SAVE_VERSION`/`world.version` 升到 8 | 绿茵人生 M1.10a（经验成长与属性投资） |
 | 2026-11-02 | 新增绝技接口：domain 侧 `MOVES`/`allMoves`/`movesOfPack`/`parseMovePack`/`buildMoveRegistry`（`moves.ts`）与 `moveById`/`movesTargeting`/`moveLevelOf`/`investMoveCost`/`moveFitsPosition`/`moveLevelGatePassed`/`nextMoveLevel`/`resolveMoveTerms`（`moveQueries.ts`）；engine 侧 `investMove`（`growth.ts`）、`applySpecialization`（`specialization.ts`）、`grantMoveDrops`（`moveDrops.ts`）、`trainMove`/`announceMoveLevel`（`moveProgress.ts`）；`buildOptionTable` 增加 `kind` 入参并为非常量行自动挂绝技项；存档 v9 补 `Player.moves` 与 `weekPlan.specialization`；`ENGINE_VERSION` 0.9.0 → 0.11.0，golden `c43d95700e96f860` → `d3170bbf49ce3b2f` → `82fe56a7e245ea77`，`CURRENT_SAVE_VERSION` 升到 9 | 绿茵人生 M1.10b（绝技 64 条与三条获取路径） |
 | 2026-11-02 | 新增名宿路径：`applyMoveEffect`/`teachMoveByMentor`/`advanceMoveByMentor`（`moveMentor.ts`），`EffectOp` 增至 16 个（`learnMove`/`moveProgress`/`legendTrust`），`RelationshipRole` 加 `legend` 与 domain 侧 `makeLegendRelationship`，事件池新增 mentor 包 9 条模板；存档 v10 为老档补俱乐部名宿；`ENGINE_VERSION` 0.11.0 → 0.12.0，golden `82fe56a7e245ea77` → `a53d784da26c391d`，`CURRENT_SAVE_VERSION` 升到 10 | 绿茵人生 M1.11（名宿传授绝技） |
+| 2026-11-02 | 财务改为日粒度并开放资金运用：新增 `refreshWeeklyRates`/`weeklySponsorshipIncome`/`accrueDailyFinance`/`pushFinanceLedger`/`postWeeklyLedger`（`financeDaily.ts`）与 `openInvestment`/`closeInvestment`/`settleInvestmentsWeekly`（`investments.ts`，后两者经公共入口透出给 store），删除 `settleWeekFinance`；日步进顺序补上「晨间 `accrueDailyFinance`」与「周日 `postWeeklyLedger` + `settleInvestmentsWeekly`」；价值漫步用周域 `createRng(seed,'market',id,season,week)`、持仓 id 带日段；`ENGINE_VERSION` 0.12.0 → 0.13.0，回放基准 `a53d784da26c391d` → `41c1aa6857d93818`（v11 三个新键）→ `3b40c1fbe0ca642b`（版本串本身），`CURRENT_SAVE_VERSION` 升到 11 | 绿茵人生 M1.12（资金运用） |

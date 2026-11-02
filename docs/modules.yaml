@@ -38,6 +38,7 @@ modules:
       - docs/features/saves.md
       - docs/features/appearance.md
       - docs/features/player-moves.md
+      - docs/features/finance-daily.md
     testImpact: via-module
     platformCapabilities: [ui]
     knownViolations: []
@@ -56,6 +57,7 @@ modules:
       - docs/features/appearance.md
       - docs/features/matchday.md
       - docs/features/player-moves.md
+      - docs/features/finance-daily.md
     testImpact: strict
     platformCapabilities: [session]
     knownViolations: []
@@ -72,6 +74,7 @@ modules:
       - docs/features/matchday.md
       - docs/features/player-moves.md
       - docs/features/names-i18n.md
+      - docs/features/finance-daily.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []
@@ -114,6 +117,7 @@ modules:
       - docs/features/saves.md
       - docs/features/player-moves.md
       - docs/features/names-i18n.md
+      - docs/features/finance-daily.md
       - docs/data-model.md
     testImpact: strict
     platformCapabilities: [persistence]
@@ -153,6 +157,7 @@ modules:
       - docs/features/daily-events.md
       - docs/features/team-squad.md
       - docs/features/names-i18n.md
+      - docs/features/finance-daily.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []

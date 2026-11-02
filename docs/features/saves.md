@@ -6,6 +6,8 @@ code:
   - src/db/db.ts
   - src/db/repository.ts
   - src/db/migrate.ts
+  - src/db/migrateSteps.ts
+  - src/domain/finance.ts
   - src/domain/schema/save.schema.ts
   - src/domain/eventContent.ts
   - data/events/legacy.json
@@ -28,6 +30,7 @@ tests:
   - tests/db/migrationV5.test.ts
   - tests/db/migrationV6.test.ts
   - tests/db/migrationV7.test.ts
+  - tests/db/migrationV11.test.ts
   - tests/fixtures/saveV6.ts
   - tests/db/repository.test.ts
   - tests/store/store.test.ts
@@ -143,7 +146,7 @@ sequenceDiagram
 5. **用迁移前的原始 world** 重新计算 checksum 并比对，失败 → “存档校验失败，文件可能已损坏”。
 6. 迁移到当前版本并生成新存档 ID 写入，不覆盖原存档。
 
-当前 `CURRENT_SAVE_VERSION = 10`，迁移步骤表在 `src/db/migrateSteps.ts`（`MIGRATION_STEPS`，数组顺序即执行顺序），`src/db/migrate.ts` 只负责克隆存档、补 live 报告、按表跑步骤并 `assertWorld` 收尾，提供 v1 → … → v10 连续迁移：
+当前 `CURRENT_SAVE_VERSION = 11`，迁移步骤表在 `src/db/migrateSteps.ts`（`MIGRATION_STEPS`，数组顺序即执行顺序），`src/db/migrate.ts` 只负责克隆存档、补 live 报告、按表跑步骤并 `assertWorld` 收尾，提供 v1 → … → v11 连续迁移：
 
 - v1 → v2：所有已有比赛报告补 `status: 'final'`、`currentMinute: 90`、`goals: []`；`pendingWeekPlan = null`。
 - v2 → v3：live 报告补 `stats`（控球按 `currentMinute` 均分、射门/射正=进球、角球 0）与 `lineups`（主客各 11 人）；**保留** `pendingWeekPlan`，旧 live 存档可继续播放到终场。
@@ -154,8 +157,9 @@ sequenceDiagram
 - v7 → v8：成长账本登场。每个 `players[*]` 补 `exp = 0`、`lifetimeExp = 0`、`attrInvestment`（十字段全 0，好让投资曲线第一点价格稳定在 6）；已有值一律不覆盖，脏档只抹一半时其余字段各补各的。
 - v8 → v9：绝技层登场。每个 `players[*]` 补 `moves = []`（「一条不会」），`weekPlan.specialization` 补 `null`（「本周不练」），让持有判断只有一条取值路径。schema 侧靠 `playerSchema` 的 `.passthrough()` 放行，`attributesSchema` 的精确十字段不受影响。
 - v9 → v10：名宿登场。`RelationshipRole` 加 `'legend'`，关系表里没有名宿时由 `makeLegendRelationship(world.playerId)` 补一条（id `rel:legend:${playerId}`、`nameZh` 与 `name` 同为「俱乐部名宿」、信任 40）；已经有名宿的存档原样保留，绝不覆盖玩家刷出来的信任。不补这一步，老档读到 `data/events/mentor.json` 时 `learnMove` / `legendTrust` 会查不到关系而静默失效。
+- v10 → v11：资金运用登场。`finance` 补 `pendingIncome = 0`、`pendingExpenses = 0`、`investments = []`，三条都是 `??=`——缺才补、有则不动，所以已经带持仓与待入账的脏档原样保留，迁移**不折现、不重开仓、不清仓、也不写流水**，老档余额一分不变。schema 把三个新键声明成可选，v10 文件在校验阶段不被拒；停在开球的旧档迁移后仍能接着踢完那场，踢完当天就能开仓。
 - 终场旧报告不伪造统计与首发，UI 遇到缺失时隐藏对应面板。
-- 迁移幂等；只前进不后退；`saveVersion > 10` 直接拒绝。
+- 迁移幂等；只前进不后退；`saveVersion > 11` 直接拒绝。
 - `loadWorld` 在 schema 校验后迁移，发生迁移时回写数据库并同步摘要。
 - 导入顺序固定为“解析 → 版本检查 → checksum（原始数据）→ 迁移”，禁止先迁移后校验。
 
@@ -244,6 +248,7 @@ sequenceDiagram
 | v6 → v7 每日事件：日序/过期日/发件人/拦截性回灌、冷却表按模板重建、未知模板落回兜底发件人、迁移后推进不重复生成、导出导入往返等值、重复迁移恒等、v6 文件直接导入即完成迁移 | `tests/db/migrationV7.test.ts`、`tests/fixtures/saveV6.ts` |
 | v7 → v8 成长账本：`exp / lifetimeExp / attrInvestment` 补齐、脏档已有值不覆盖、导出导入往返等值、重复迁移恒等 | `tests/db/migrationV8.test.ts` |
 | v8 → v9 绝技账本与特训槽：全员空 `moves`、已有绝技记录不清、v8 文件导入即迁移、live 档迁移后踢完、迁移后绝技立刻进关键回合概率 | `tests/db/migrationV9.test.ts` |
+| v10 → v11 财务结构：老档补零待入账与空持仓且余额不动、不折现不重复入账、已带投资的脏档原样保留、导出导入往返等值、重复迁移幂等、v10 文件导入即迁移、live 档迁移后踢完、新世界自带三字段 | `tests/db/migrationV11.test.ts` |
 | v9 → v10 名宿关系：老档补 `rel:legend:${playerId}`、有名宿的脏档保留信任与文案、`legendTrust` 迁移后真的写得进关系、导出导入往返等值、重复迁移恒等、live 档迁移后踢完、新档自带名宿 | `tests/db/migrationV10.test.ts`、`tests/fixtures/saveV9.ts` |
 | Zod 校验失败 | `tests/db/save.test.ts` |
 | store 自动保存与载入 | `tests/store/store.test.ts` |
@@ -282,3 +287,4 @@ sequenceDiagram
 | 2026-11-02 | 存档升 v8：`Player.exp / lifetimeExp / attrInvestment` 进入结构，v7→v8 `migrateGrowth` 缺才补、有则不动（`ENGINE_VERSION` 0.9.0） | 绿茵人生 M1.10a（经验成长） |
 | 2026-11-02 | 存档升 v9：`Player.moves` 与 `weekPlan.specialization` 进入结构，v8→v9 `migrateMoves` 补空账本与空槽；停在开球的旧档迁移后仍可踢完，踢完允许掉进度但不会凭空升到高阶（`ENGINE_VERSION` 0.10.0 → 0.11.0） | 绿茵人生 M1.10b / M1.11（绝技与获取路径） |
 | 2026-11-02 | 存档升 v10：`RelationshipRole` 加 `'legend'`，名宿关系的 id/文案/起始信任集中到 `src/domain/relationships.ts`，世界生成与 v9→v10 迁移共用同一工厂；迁移步骤整体抽到 `src/db/migrateSteps.ts` 的 `MIGRATION_STEPS` 表（`ENGINE_VERSION` 0.12.0，回放基准 `82fe56a7e245ea77` → `a53d784da26c391d`） | 绿茵人生 M1.11（名宿传授） |
+| 2026-11-02 | 存档升 v11：`Finance.pendingIncome / pendingExpenses / investments` 进入结构，`migrateFinance` 只做三条 `??=`（不折现、不重开仓、不产生流水）；`CURRENT_SAVE_VERSION` 升到 11，`ENGINE_VERSION` 0.13.0，回放基准 `a53d784da26c391d` → `3b40c1fbe0ca642b` | 绿茵人生 M1.12（资金运用） |

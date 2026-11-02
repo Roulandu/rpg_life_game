@@ -129,9 +129,9 @@ sequenceDiagram
 
 `playDay` 是引擎唯一的日结算体，顺序即引擎语义，改序要升 `ENGINE_VERSION` 并重算 golden：
 
-1. **晨间** `runMorning`：`day === 1` 时刷新用户俱乐部 `strength`（其余 39 队不再每天重算）→ `advanceInjuries`（`daysLeft - 1`，归零则伤愈、体能 +10、写「伤愈复出」新闻并返回 `true` 计为里程碑）→ 训练日 `applyDailyTraining` → 活动日 `applyDailyAction` → `expireEvents`。
+1. **晨间** `runMorning`：`day === 1` 时刷新用户俱乐部 `strength`（其余 39 队不再每天重算）→ `advanceInjuries`（`daysLeft - 1`，归零则伤愈、体能 +10、写「伤愈复出」新闻并返回 `true` 计为里程碑）→ `accrueDailyFinance`（刷新周薪与开销口径 → 收入与开销各按 1/7 挂进待入账 → 欠款按日罚士气；**不动余额**，见 [资金运用](finance-daily.md)）→ 训练日 `applyDailyTraining` → 活动日 `applyDailyAction` → `expireEvents`。
 2. **比赛**：`getUserFixtureOnDay` 命中今天则 `kickoff` —— `startUserMatch` 建 live 报告；若仍有待处理关键回合，写 `pendingDayPlan = { ...weekPlan, fixtureId }` 并**冻结时钟**返回 `live: true`；否则 `finalizeMatchday` 当场踢完。
-3. **收尾** `closeDay`：`simulateDayFixtures`（当天其余场次）→ `day === 7` 时 `settleWeekFinance` → `generateDailyEvents(world, 今天这场)`（见 [每日事件](daily-events.md)）→ `absoluteDay % 21 === 0` 时 `updatePlayerValue` → `advanceClock` → 清空 `pendingDayPlan`。
+3. **收尾** `closeDay`：`simulateDayFixtures`（当天其余场次）→ `day === 7` 时 `postWeeklyLedger`（待入账折成现金、只写一条周账流水）紧接 `settleInvestmentsWeekly`（先结利息再做一次价值漫步）→ `generateDailyEvents(world, 今天这场)`（见 [每日事件](daily-events.md)）→ `absoluteDay % 21 === 0` 时 `updatePlayerValue` → `advanceClock` → 清空 `pendingDayPlan`。
 
 ### 停止条件与优先级
 
@@ -359,3 +359,4 @@ store 调用：
 | 2026-11-02 | 训练成长接入教练打法协同（命中打法偏好的训练重点 ×1.12，`dailyGrowth` 导出为纯函数）；队伍页新增球员详情页与教练打法说明，见 [队伍与一线队名单](team-squad.md)；engine 升 0.5.2 并重算回放基准 | 绿茵人生 M1.5 |
 | 2026-11-02 | 360/390px 视口用手同源 iframe 量到真实布局（两档均无横向溢出）：主页「安排本周/完整赛程/全部消息」17px、赛程与收件箱 tab 36px 低于 44px，已提到 44px，并由 `tests/ui/layoutContract.test.tsx` 结构断言守住（无 CDP 仿真、`window.resizeTo` 对标签页无效） | 绿茵人生 M1.6 验收兜底 |
 | 2026-11-02 | 事件从「周日 72% 一条」改为「每天最多一条 + 条件白名单 + 冷却表」：`generateWeeklyEvent` 退役，`closeDay` 改调 `generateDailyEvents(world, 今天这场)`，`stopReason = 'event'` 只在拦截性事件时产生；新增 `world.eventMemory`（存档 v7）；主页「今天」与收件箱改按日口径。详见 [每日事件](daily-events.md)；engine 0.6.0，golden 重算 | 绿茵人生 M1.7 |
+| 2026-11-02 | 日步进接入资金运用：晨间补 `accrueDailyFinance`（收入/开销按 1/7 挂待入账、欠款按日罚士气，不动余额），周日收尾把 `settleWeekFinance` 换成 `postWeeklyLedger` + `settleInvestmentsWeekly`（一条周账流水 + 结利息后一次价值漫步）；比赛进行中（`pendingDayPlan` 或 live 战报）开仓与赎回整笔拒绝 |
