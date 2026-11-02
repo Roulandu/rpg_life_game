@@ -18,7 +18,11 @@ function rowCopy(investment: Investment, today: number): RowCopy {
 
   return {
     current: investment.value ?? investment.principal,
-    gain: investment.value === undefined ? null : investment.value - investment.principal,
+    // 现值等于本金时「+£0」只是噪音：开仓当天就该长得和没涨跌一样。
+    gain:
+      investment.value === undefined || investment.value === investment.principal
+        ? null
+        : investment.value - investment.principal,
     lock: term > 0 ? `锁定期还剩 ${left} 天` : '随取随用',
     fee: locked && fee > 0 ? `提前赎回要付罚息（${(fee * 100).toFixed(0)}%）` : null,
     action: locked ? '赎回' : '取出',

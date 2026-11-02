@@ -105,7 +105,9 @@ describe('财务页的持仓区', () => {
     expect(within(row).getByText('+£9,000')).toBeInTheDocument()
     expect(within(row).getByText('锁定期还剩 252 天')).toBeInTheDocument()
   })
+})
 
+describe('财务页持仓行何时不报涨跌', () => {
   it('不波动的品种不报现值差，只报年化利率', () => {
     loadWorld([holding({ id: 'inv:deposit', openedDay: 3 })])
     renderFinance()
@@ -115,7 +117,30 @@ describe('财务页的持仓区', () => {
     expect(within(row).queryByText(/^[+-]£/)).toBeNull()
   })
 
-  it('持仓合计与未实现盈亏走同一份口径，多笔一起列', () => {
+  it('刚开仓的波动持仓现值等于本金，不报一条 £0 的涨跌占位', () => {
+    loadWorld([
+      holding({
+        id: 'inv:bond',
+        kind: 'bond',
+        name: '俱乐部债券',
+        principal: 400000,
+        value: 400000,
+        risk: 0.012,
+        termDays: 168,
+        earlyExitFee: 0.02,
+        openedDay: 3,
+      }),
+    ])
+    renderFinance()
+
+    const row = screen.getByRole('listitem', { name: /俱乐部债券/ })
+    expect(within(row).getByText('£4,000')).toBeInTheDocument()
+    expect(within(row).queryByText(/^[+-]£0$/)).toBeNull()
+  })
+})
+
+describe('财务页的持仓合计', () => {
+  it('合计与未实现盈亏走同一份口径，多笔一起列', () => {
     loadWorld([
       holding({ id: 'inv:a' }),
       holding({ id: 'inv:b', kind: 'property', name: '城市公寓', principal: 3000000, value: 2700000, risk: 0.035 }),
