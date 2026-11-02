@@ -1,0 +1,383 @@
+[
+  {
+    "id": "mt_rainbow_lesson",
+    "title": "空训练场边的老前锋",
+    "body": "你加练到只剩你一个人，铁丝网外面有人看了很久。他说他在这个球场进过两百个球，见过太多人把彩虹过人练成只会摔倒的动作。他把球踢回来，让你再做一次，这次别抬头。",
+    "sender": "名宿",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 60,
+    "blocking": true,
+    "guaranteed": false,
+    "weekdays": [3],
+    "when": [
+      { "field": "positionGroup", "op": "in", "value": ["MID", "FWD"] },
+      { "field": "age", "op": "lte", "value": 26 }
+    ],
+    "choices": [
+      {
+        "id": "learn",
+        "label": "请他把动作拆开讲一遍",
+        "description": "放下手机，认真学一次。",
+        "effects": [
+          { "op": "learnMove", "delta": 1, "moveId": "mv_rainbow" },
+          { "op": "legendTrust", "delta": 6 },
+          { "op": "confidence", "delta": 3 }
+        ]
+      },
+      {
+        "id": "drill",
+        "label": "只跟他练起势的那一下",
+        "description": "不求学会，先把手感练出来。",
+        "effects": [
+          { "op": "moveProgress", "delta": 2, "moveId": "mv_rainbow" },
+          { "op": "legendTrust", "delta": 3 },
+          { "op": "sharpness", "delta": 2 }
+        ]
+      },
+      {
+        "id": "polite",
+        "label": "道谢后继续自己练",
+        "description": "你不想在别人面前露怯。",
+        "effects": [
+          { "op": "legendTrust", "delta": 1 },
+          { "op": "confidence", "delta": -1 }
+        ]
+      }
+    ],
+    "resultTexts": {
+      "learn": "他讲了四十分钟，最后一句是：别抬头，抬头就晚了。第二天训练你把那一下使了出来。",
+      "drill": "你没学会整套动作，但起势那一下终于不像在表演了。",
+      "polite": "他点点头就走。走出铁丝网时回头说了句：年轻人，机会只有一次。"
+    }
+  },
+  {
+    "id": "mt_wall_hold",
+    "title": "背身做轴的旧中场",
+    "body": "俱乐部大厅里那张旧照片上的人今天来了。他说你每次背身都急着转身，所以身后的人一推你就丢球。他让你站在他身边，只练一件事：把球护住，把队友等上来。",
+    "sender": "名宿",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 45,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "positionGroup", "op": "in", "value": ["MID", "FWD"] },
+      { "field": "lastPlayed", "op": "gte", "value": 1 }
+    ],
+    "choices": [
+      {
+        "id": "learn",
+        "label": "跟他练护球这一课",
+        "description": "先当一面墙，再当一把刀。",
+        "effects": [
+          { "op": "learnMove", "delta": 1, "moveId": "mv_hold_up_wall" },
+          { "op": "legendTrust", "delta": 5 },
+          { "op": "morale", "delta": 2 }
+        ]
+      },
+      {
+        "id": "progress",
+        "label": "把已经会的部分再磨一磨",
+        "description": "不学新的，先把手上的练稳。",
+        "effects": [
+          { "op": "moveProgress", "delta": 2, "moveId": "mv_hold_up_wall" },
+          { "op": "fitness", "delta": -2 }
+        ]
+      }
+    ],
+    "resultTexts": {
+      "learn": "那天你护住了十七次球，被断了一次。他说第一次能到这个数就算入门。",
+      "progress": "你没学新东西，但那次转身之后终于肯等队友上来了。"
+    }
+  },
+  {
+    "id": "mt_storm_brow",
+    "title": "雨里的一堂头球课",
+    "body": "下着雨的空场，那位老中卫站在门柱旁边等你。他说头球不是跳得高，是早半步到点。他让你连续顶二十个传中，每个都要喊出来。",
+    "sender": "名宿",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 50,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "positionGroup", "op": "in", "value": ["DEF", "MID"] },
+      { "field": "daysSinceMatch", "op": "lte", "value": 4 }
+    ],
+    "choices": [
+      {
+        "id": "learn",
+        "label": "把早半步的那一下学到手",
+        "description": "要点比高度重要。",
+        "effects": [
+          { "op": "learnMove", "delta": 1, "moveId": "mv_storm_brow" },
+          { "op": "legendTrust", "delta": 5 },
+          { "op": "confidence", "delta": 2 }
+        ]
+      },
+      {
+        "id": "progress",
+        "label": "只把落点判断练熟",
+        "description": "先把眼睛练出来。",
+        "effects": [
+          { "op": "moveProgress", "delta": 2, "moveId": "mv_storm_brow" },
+          { "op": "sharpness", "delta": 1 }
+        ]
+      }
+    ],
+    "resultTexts": {
+      "learn": "第二十一个球你提前到了点，球砸在横梁下面弹进网。他说这就叫早半步。",
+      "progress": "雨里的二十个传中，你判断对了十五个。"
+    }
+  },
+  {
+    "id": "mt_dirty_clean",
+    "title": "什么叫聪明的犯规",
+    "body": "那位老后腰坐在替补席的长椅上看你训练。他说你黄牌多不是因为脏，是因为晚。他示范了怎么在半转身时把对方的推进拦下来而不让裁判看见后背。",
+    "sender": "名宿",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 55,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "positionGroup", "op": "in", "value": ["DEF", "MID"] },
+      { "field": "mediaRep", "op": "lte", "value": 70 }
+    ],
+    "choices": [
+      {
+        "id": "learn",
+        "label": "学那一下半转身的拦截",
+        "description": "早伸手，晚吃牌。",
+        "effects": [
+          { "op": "learnMove", "delta": 1, "moveId": "mv_tactical_foul" },
+          { "op": "legendTrust", "delta": 4 },
+          { "op": "mediaRep", "delta": -1 }
+        ]
+      },
+      {
+        "id": "read",
+        "label": "改学读传球线路",
+        "description": "能不犯规就不犯规。",
+        "effects": [
+          { "op": "moveProgress", "delta": 2, "moveId": "mv_intercept_read" },
+          { "op": "confidence", "delta": 1 }
+        ]
+      }
+    ],
+    "resultTexts": {
+      "learn": "两周后你吃到本赛季第一张黄牌，裁判的手势是拦推进，不是亮鞋底。",
+      "read": "你没学会犯规，学会的是提前站到球该去的路上。"
+    }
+  },
+  {
+    "id": "mt_keeper_reflex",
+    "title": "门线前的老影子",
+    "body": "训练结束后，那位老将穿着门将服站在小禁区里。他说反应不是天赋，是把自己放到球必到的位置上。他让你只练起跳前的那半步。",
+    "sender": "名宿",
+    "weight": 4,
+    "expiresDays": 3,
+    "cooldownDays": 60,
+    "blocking": true,
+    "guaranteed": false,
+    "when": [
+      { "field": "positionGroup", "op": "eq", "value": "GK" }
+    ],
+    "choices": [
+      {
+        "id": "learn",
+        "label": "把那半步学到手",
+        "description": "先站到球该去的地方。",
+        "effects": [
+          { "op": "learnMove", "delta": 1, "moveId": "mv_cat_reflex" },
+          { "op": "legendTrust", "delta": 6 },
+          { "op": "confidence", "delta": 3 }
+        ]
+      },
+      {
+        "id": "drill",
+        "label": "只练反应，不学招式",
+        "description": "把手感练出来就行。",
+        "effects": [
+          { "op": "moveProgress", "delta": 2, "moveId": "mv_cat_reflex" },
+          { "op": "fitness", "delta": -3 }
+        ]
+      },
+      {
+        "id": "rest",
+        "label": "今天肩伤还没好，先收工",
+        "description": "别拿一场比赛换一只手臂。",
+        "effects": [
+          { "op": "legendTrust", "delta": 1 },
+          { "op": "fitness", "delta": 2 }
+        ]
+      }
+    ],
+    "resultTexts": {
+      "learn": "他扑了十个点球样子的射门，让你只学起跳前的半步。第二天你的扑救数据第一次上了队报。",
+      "drill": "你没学会那招，但起跳不再靠猜。",
+      "rest": "他说：门将会因为怕疼输掉比赛，也会因为算得准赢下比赛。你点头收工。"
+    }
+  },
+  {
+    "id": "mt_denial_rush",
+    "title": "弃门还是留在线上",
+    "body": "老门将看你处理单刀的方式不满意。他说冲出去不是勇敢，是把选择权交给自己；留在线上是把选择权交给对方。今天他只想让你练一种：算准那两步。",
+    "sender": "名宿",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 50,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "positionGroup", "op": "eq", "value": "GK" },
+      { "field": "injuryDaysLeft", "op": "eq", "value": 0 }
+    ],
+    "choices": [
+      {
+        "id": "learn",
+        "label": "学他算那两步",
+        "description": "封角比扑球更省命。",
+        "effects": [
+          { "op": "learnMove", "delta": 1, "moveId": "mv_denial_rush" },
+          { "op": "legendTrust", "delta": 5 }
+        ]
+      },
+      {
+        "id": "progress",
+        "label": "把已有的判断再磨两格",
+        "description": "先不出名，先不失误。",
+        "effects": [
+          { "op": "moveProgress", "delta": 2, "moveId": "mv_denial_rush" },
+          { "op": "sharpness", "delta": 2 }
+        ]
+      }
+    ],
+    "resultTexts": {
+      "learn": "下一次单刀你晚出半步，对方把球推到了你早就在的位置上。",
+      "progress": "你练了四十分钟起步时机，没学新招式，但心里有数了。"
+    }
+  },
+  {
+    "id": "mt_panenka_nerve",
+    "title": "十二码前的胆量课",
+    "body": "点球点旁边，那位老中场把球摆好。他说勺子点球不是耍人，是知道自己敢不敢。他让你先练三十个大力抽射，再练十个推中间，最后问你：你上一次推中间是几岁？",
+    "sender": "名宿",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 60,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "positionGroup", "op": "in", "value": ["MID", "FWD"] },
+      { "field": "confidence", "op": "gte", "value": 45 }
+    ],
+    "choices": [
+      {
+        "id": "learn",
+        "label": "学那一下推中间",
+        "description": "敢把球交给门将的手。",
+        "effects": [
+          { "op": "learnMove", "delta": 1, "moveId": "mv_panenka_nerve" },
+          { "op": "legendTrust", "delta": 5 },
+          { "op": "confidence", "delta": 4 }
+        ]
+      },
+      {
+        "id": "power",
+        "label": "先练三十米的胆量",
+        "description": "远射至少不用看门将的脸。",
+        "effects": [
+          { "op": "moveProgress", "delta": 2, "moveId": "mv_long_range_thunder" },
+          { "op": "morale", "delta": 2 }
+        ]
+      }
+    ],
+    "resultTexts": {
+      "learn": "下一次联赛的点球，你把球推中间，门将自己摔进了网里。",
+      "power": "三十个抽射里有九个打飞，但他说不后悔的那一下是对的。"
+    }
+  },
+  {
+    "id": "mt_counter_blitz",
+    "title": "由守转攻的那三秒",
+    "body": "老边锋在战术板前画了四线，说反击不是跑得快，是前三秒谁在谁前面。他说你每次都跑得太早，所以每次都一个人在中场接球。",
+    "sender": "名宿",
+    "weight": 3,
+    "expiresDays": 4,
+    "cooldownDays": 50,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "positionGroup", "op": "in", "value": ["DEF", "MID", "FWD"] },
+      { "field": "seasonProgress", "op": "gte", "value": 0.15 }
+    ],
+    "choices": [
+      {
+        "id": "learn",
+        "label": "按他画的线重跑一遍",
+        "description": "前三秒决定一切。",
+        "effects": [
+          { "op": "learnMove", "delta": 1, "moveId": "mv_counter_blitz" },
+          { "op": "legendTrust", "delta": 5 },
+          { "op": "sharpness", "delta": 2 }
+        ]
+      },
+      {
+        "id": "header",
+        "label": "改学冲后点的头球",
+        "description": "跑到点上，剩下的交给额头。",
+        "effects": [
+          { "op": "moveProgress", "delta": 2, "moveId": "mv_forehead_bullet" },
+          { "op": "confidence", "delta": 1 }
+        ]
+      }
+    ],
+    "resultTexts": {
+      "learn": "两天后的比赛你按那条线跑，第一次在禁区里拿到球时身边还有两个人。",
+      "header": "后点的头球你练了二十次，进了七个。他说够了。"
+    }
+  },
+  {
+    "id": "mt_striker_sense",
+    "title": "门前那半步的嗅觉",
+    "body": "俱乐部的历史射手王坐在看台上看了你半场训练。他下来只说了一件事：你总是等球到位才动，而门前的球永远不到位。他让你站在门线上，看他踢二十个传中，只练启动时机。",
+    "sender": "名宿",
+    "weight": 3,
+    "expiresDays": 3,
+    "cooldownDays": 60,
+    "once": true,
+    "blocking": false,
+    "guaranteed": false,
+    "when": [
+      { "field": "positionGroup", "op": "eq", "value": "FWD" },
+      { "field": "age", "op": "lte", "value": 24 }
+    ],
+    "choices": [
+      {
+        "id": "learn",
+        "label": "把启动时机学到手",
+        "description": "球还没到，人已经先动。",
+        "effects": [
+          { "op": "learnMove", "delta": 1, "moveId": "mv_striker_instinct" },
+          { "op": "legendTrust", "delta": 6 },
+          { "op": "confidence", "delta": 3 }
+        ]
+      },
+      {
+        "id": "progress",
+        "label": "只练二十次启动",
+        "description": "先把那半步练进身体里。",
+        "effects": [
+          { "op": "moveProgress", "delta": 3, "moveId": "mv_striker_instinct" },
+          { "op": "fitness", "delta": -2 }
+        ]
+      }
+    ],
+    "resultTexts": {
+      "learn": "他说：你终于不再等球了。那天你回去把训练日志第一页写满了同一个词。",
+      "progress": "二十次启动，他叫停了三次，说那三次你早了半步。"
+    }
+  }
+]

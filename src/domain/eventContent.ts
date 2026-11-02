@@ -6,6 +6,7 @@ import clubJson from '../../data/events/club.json'
 import financeJson from '../../data/events/finance.json'
 import staffJson from '../../data/events/staff.json'
 import milestonesJson from '../../data/events/milestones.json'
+import mentorJson from '../../data/events/mentor.json'
 import type { Id } from './primitiveTypes'
 import type { EventTemplateContent } from './eventSchema'
 import { templateSchema } from './eventSchema'
@@ -173,6 +174,7 @@ export const EVENT_PACK_NAMES = [
   'finance',
   'staff',
   'milestones',
+  'mentor',
 ] as const
 
 const EVENT_PACKS: { name: string; templates: unknown }[] = [
@@ -184,6 +186,7 @@ const EVENT_PACKS: { name: string; templates: unknown }[] = [
   { name: 'finance', templates: financeJson },
   { name: 'staff', templates: staffJson },
   { name: 'milestones', templates: milestonesJson },
+  { name: 'mentor', templates: mentorJson },
 ]
 
 const PACK_INDEX = new Map<string, EventTemplateContent[]>()

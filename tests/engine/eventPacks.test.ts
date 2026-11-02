@@ -23,6 +23,7 @@ const PACK_ROWS: readonly [
   ['finance', 'fn_', 10, 6, ['银行', '经纪人', '房东', '保险公司']],
   ['staff', 'st_', 10, 5, ['队医', '心理咨询师', '私教', '体能教练', '营养师']],
   ['milestones', 'ms_', 10, 6, ['体育总监', '经纪人', '家人', '青训旧友']],
+  ['mentor', 'mt_', 9, 4, ['名宿']],
 ]
 
 const EXPECTATIONS: PackExpectation[] = PACK_ROWS.map(
