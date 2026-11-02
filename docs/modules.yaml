@@ -28,6 +28,7 @@ modules:
     allowedDeps: [store, domain, lib, platform]
     tests: [tests/ui/**/*.test.tsx]
     docs:
+      - docs/features/growth-exp.md
       - docs/features/daily-turn.md
       - docs/features/daily-events.md
       - docs/features/matchday.md
@@ -46,6 +47,7 @@ modules:
     allowedDeps: [engine, world, llm, db, platform, domain, lib]
     tests: [tests/store/**/*.test.ts]
     docs:
+      - docs/features/growth-exp.md
       - docs/features/daily-turn.md
       - docs/features/daily-events.md
       - docs/features/saves.md
@@ -62,6 +64,7 @@ modules:
     allowedDeps: [domain, lib]
     tests: [tests/engine/**/*.test.ts]
     docs:
+      - docs/features/growth-exp.md
       - docs/features/daily-turn.md
       - docs/features/daily-events.md
       - docs/features/matchday.md
@@ -79,6 +82,7 @@ modules:
       - tests/db/save.test.ts
       - tests/world/**/*.test.ts
     docs:
+      - docs/features/growth-exp.md
       - docs/features/world-generation.md
       - docs/features/names-i18n.md
     testImpact: strict
@@ -136,6 +140,7 @@ modules:
     allowedDeps: [lib]
     tests: [tests/**/*.test.ts]
     docs:
+      - docs/features/growth-exp.md
       - docs/data-model.md
       - docs/interfaces/engine-api.md
       - docs/features/calendar-dates.md

@@ -86,6 +86,10 @@ interface TurnResult {
 | 函数 | 签名 | 行为 |
 |---|---|---|
 | `generateWorld` | `(options: CareerCreateOptions, now: string) => WorldState` | 生成联赛、俱乐部、阵容、用户球员、赛程、关系、财务、新闻与默认设置 |
+| `previewUserStart` | `(options: CareerCreateOptions) => CareerPreview` | **公共入口**（`src/world/index.ts` 导出，经 `store/selectors.ts` 的 `selectCareerPreview` 转发给界面）：建号属性预览与真正生成走同一份 `draftUserBase`，返回基准属性、点买结果、综合分、预算、已用点数与校验问题；不写世界、不落盘 |
+| `draftUserBase` | `(options: CareerCreateOptions) => UserBaseDraft` | world 内部函数（未进公共入口，位置 `src/world/userDraft.ts`）：用户基准的唯一生成处，`normal → makeAttributes → int 潜力 → pickFoot` 的 RNG 流顺序不可变，改动会让同种子存档分叉 |
+| `resolveUserAttributes` | `(options, base) => AllocationResult` | world 内部函数：把点买方案施加到基准属性上并给出校验结论；不合法时 `applied` 仍等于基准属性 |
+| `makeUserContract` | `(club, wageWeekly, age) => Contract` | world 内部函数：按年龄决定合同年限（≤18 岁 3 年，否则 2 年）与签字费（4 倍周薪） |
 | `generateFixtures` | `(leagues, seed, season) => Record<Id, Fixture>` | 每个联赛生成双循环赛程，主客尽量均衡。位置：`src/domain/fixtures.ts`（原 `world/generator.ts`），供 `world` 与 `engine/turn` 共用 |
 | `computeClubStrength` | `(club, players, options?) => ClubStrength` | 按 GK/DEF/MID/FWD 选最强 11 人计算攻防。位置：`src/domain/strength.ts`（原 `world/generator.ts`），供 `world` 与 `engine/match`、`engine/turn` 共用 |
 | `getUserPlayer` | `(world) => Player` | 取用户球员，缺失时抛错 |
@@ -97,7 +101,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.8.0'`（与 `world.version = 7` 一起构成回放基准的身份）
+- `ENGINE_VERSION = '0.9.0'`（与 `world.version = 8` 一起构成回放基准的身份）
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -185,12 +189,32 @@ interface TurnResult {
 
 事件是“引擎事实 + 玩家选择”的组合；LLM 只能改写标题/正文，不能新增选项、改变效果或 `templateId`。模板内容在 `data/events/*.json`，由 `src/domain/eventContent.ts` 的 Zod 模式与 `assertWhitelist` 在加载时硬校验。
 
+## 成长与经验
+
+位于 `src/engine/growth.ts`（写入）与 `src/domain/growth.ts`（算式），规则与边界见 `docs/features/growth-exp.md`。
+
+| 函数 | 签名 | 行为 |
+|---|---|---|
+| `grantExp` | `(world, amount, reason: 'training' \| 'match' \| 'event' \| 'staff' \| 'specialization') => number` | 经验入账的唯一入口：负值与非整数先 `Math.max(0, Math.round(...))`，同一次 `exp` 与 `lifetimeExp` 一起涨；主角首次攒够 6 点且尚未投过时写一条当日新闻（`dailyId(world, 'news:exp', reason)`），之后不再重复播报 |
+| `ratingToExp` | `({ rating, minutes, goals, assists }) => number` | 纯函数：`(rating − 6.5) × 8 × minutes / 90 + goals × 6 + assists × 4`，评分 ≥7.8 另加 4，未出场或差评截 0 |
+| `investAttribute` | `(world, attrKey, points) => InvestOutcome` | 就地修改世界：七道闸门依次为无主角 / 非正整数点数 / 比赛中（`pendingDayPlan` 或 live 报告）/ 位置闸门 / 单属性上限 / 潜力闸门 / 经验不足；任一不过就整笔拒绝并回 `InvestReject` 码，不做部分成交 |
+| `TRAINING_EXP` | `Record<TrainingFocus, number>` | 训练课每次的经验产出（恢复课 1 点，其余 2 点） |
+| `investmentCost` / `investmentSeriesCost` | `(invested) => number` / `(invested, points) => number` | 纯算式：`6 + 2k` 递增单价与连投总价；UI 显示与引擎扣费共用 |
+| `attributeCap` | `(player) => number` | `min(96, 40 + floor(lifetimeExp / 20))`，随累计经验解锁 |
+| `canInvestAttribute` | `(attrKey, position) => boolean` | 十项属性都可投，仅 `goalkeeping` 需要 `positionGroup === 'GK'` |
+| `fitsPotential` | `(player, attrKey, points) => boolean` | 抬高后的 `computeOverall ≤ potential` |
+| `maxInvestable` | `(player, attrKey) => number` | 同时受「买得起 / 练得到上限 / 不越过潜力」三条约束的最大点数 |
+| `allocationBudget` / `checkAllocation` / `applyAllocation` | 见 `src/domain/allocation.ts` | 建号点买：预算 `(age − 16) × 3 + 4`（青训 +3）、单项 ≤ +4、总和 ≤ 预算、加完不越过潜力；非法问题以 `AllocationIssue[]` 返回 |
+| `investExp` | `(attrKey, points) => Promise<InvestOutcome \| null>` | store 侧唯一动作（`src/store/growthSlice.ts`）：`structuredClone` → `investAttribute` → 落盘 → `notice`/`error` |
+
+`grantExp` 只 import `dayContext` 与 `domain`，不 import `day.ts`；比赛进行中判定读 `world.pendingDayPlan` 与 `world.lastMatch.status`，避免 `day → training → growth → day` 的循环依赖。
+
 ## 训练、财务、关系、退役
 
 | 函数 | 签名 | 行为 |
 |---|---|---|
 | `advanceInjuries` | `(world) => boolean` | 每天递减 `injury.daysLeft`；伤愈时清空伤病、体能 +10、写新闻并返回 `true`（日步进据此产生 `milestone`） |
-| `applyDailyTraining` | `(world, focus) => void` | 按年龄、设施、教练、体能与**打法协同**计算**当日**成长与受伤概率；单次量 = 原周量 × `1/5` |
+| `applyDailyTraining` | `(world, focus) => void` | 按年龄、设施、教练、体能与**打法协同**计算**当日**成长与受伤概率；单次量 = 原周量 × `1/5`；伤停期间的合练不成长也不产经验，正常训练另经 `grantExp(world, TRAINING_EXP[focus], 'training')` 发经验 |
 | `dailyGrowth` | `(user, club, focus) => number` | 纯函数：单次训练成长量，末项乘 `styleSynergy(focus, club.style)`（命中打法偏好 1.12，否则 1），再乘 `PER_DAY` |
 | `applyDailyAction` | `(world, action) => void` | 应用媒体/经纪人/社交/休息/家庭效果（每周一次，落在活动日） |
 | `settleWeekFinance` | `(world) => WeeklyFinanceResult` | 结算周薪、支出、赞助，写流水 |
@@ -275,7 +299,7 @@ interface TurnResult {
 | `loadWorld` | `(id) => Promise<WorldState \| null>` | 读取、schema 校验并迁移旧版本；迁移后回写数据库 |
 | `listSaves` | `() => Promise<SaveSummary[]>` | 按更新时间倒序 |
 | `deleteSave` | `(id) => Promise<void>` | 删除并清理 `lastSaveId` |
-| `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON（`saveVersion` 取 `CURRENT_SAVE_VERSION`，当前 5） |
+| `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON（`saveVersion` 取 `CURRENT_SAVE_VERSION`，当前 8） |
 | `importWorld` | `(text) => WorldState` | 校验原始 checksum 后迁移到当前版本；不落库 |
 
 `downloadWorld`（`(world) => void`，触发浏览器下载）已从 `db/repository` 迁到 `store/exportSave`，经 `platform/fileExport.downloadTextFile` 落地。
@@ -293,6 +317,7 @@ interface TurnResult {
 - `quality/golden/season-seed-42.json` 记录 seed 42 赛季回放的 `engineVersion` 与最终状态哈希。
 - 连续控球、球位推进、射门/进球同源、球场位置模型与存档 v4 都改变过引擎输出，因此 `ENGINE_VERSION` 一路升到 `0.4.1`。
 - 存档 v5 把结算粒度从周改成天（训练/伤病/新闻按天执行、强度重算与身价评估改拍、比赛按日命中），引擎输出必然变化，因此 `ENGINE_VERSION` 升到 `0.5.0` 并重算 golden。
+- 存档 v8 让训练与比赛开始产出经验（`grantExp` 写进 `Player.exp / lifetimeExp`，赛后结算多一步 `ratingToExp`），球员对象参与哈希，因此 `ENGINE_VERSION` 升到 `0.9.0`，基准 `43de8568604868f8` → `c43d95700e96f860`。建号点买本身不改哈希路径：`allocation` 只做整数加法，`draftUserBase` 的随机流位置与点买前完全一致。
 - 基线由 `npm run quality:golden` 重新生成；脚本连续跑两次确认同 hash 后才写入。
 - 修改任何影响引擎输出的规则时，必须评估是否需要升 `ENGINE_VERSION` 并更新回放；哈希变化而版本未升会被 `check-anti-regression` 拦截。
 - 事件内容不参与接口签名：`data/events/*.json` 扩容只改 `world.events[*].choices` 的内容，因此接口文档里事件相关条目见 `docs/features/daily-events.md`，本文件只在引擎语义变化时升版本。
@@ -311,3 +336,4 @@ interface TurnResult {
 | 2026-11-02 | 新增 `domain/coachStyle.ts` 打法模型；`matchUser` 抽出并导出 `selectionScore`，评分末项加 `(styleFit − 0.5) × 4`；`training` 抽出并导出 `dailyGrowth`，成长量乘 `styleSynergy`；`ENGINE_VERSION` 升到 0.5.2，重算 golden（种子 42 的回放计划不命中风格加成，哈希变化来自世界内的 `engineVersion` 字符串） | 绿茵人生 M1.5 |
 | 2026-11-02 | 接口签名不变；`ENGINE_VERSION` 0.6.0 → 0.7.0 并重算 golden（事件内容从 11 条扩到 87 条，`world.events[*].choices` 参与哈希），`EffectOp` 新增 `injuryDays` | 绿茵人生 M1.8（事件内容扩容） |
 | 2026-11-02 | `generateKeyMoments` 改为 `KeyMomentRequest` 对象入参并随公共入口导出类型；新增引擎内部 `matchOpponent.resolveOpponents` 与 `data/scoreChance`（`scoreChance`/`buildOptionTable`/`OptionRow`/`KindContext`/`OpponentPair`），12 类选项全部改为公式表并读对手门将/后卫/前锋属性；删除 `data/optionUtils.ts`；`ENGINE_VERSION` 0.7.0 → 0.8.0，golden `5fdf2872b99372c2` → `43de8568604868f8` | 绿茵人生 M1.9（对手对抗） |
+| 2026-11-02 | 新增成长接口：`grantExp`/`ratingToExp`/`investAttribute`（engine）与 `investmentCost`/`investmentSeriesCost`/`attributeCap`/`canInvestAttribute`/`fitsPotential`/`maxInvestable`（domain），建号点买 `allocationBudget`/`checkAllocation`/`applyAllocation`；world 公共入口新增 `previewUserStart`，另有内部 `draftUserBase`/`resolveUserAttributes`/`makeUserContract`；`EffectOp` 增至 13 个（`exp`）；`ENGINE_VERSION` 0.8.0 → 0.9.0，golden `43de8568604868f8` → `c43d95700e96f860`，`CURRENT_SAVE_VERSION`/`world.version` 升到 8 | 绿茵人生 M1.10a（经验成长与属性投资） |

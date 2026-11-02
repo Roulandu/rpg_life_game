@@ -5,6 +5,8 @@ modules: [world, domain, engine, lib]
 code:
   - src/world/generator.ts
   - src/world/constants.ts
+  - src/world/userDraft.ts
+  - src/world/attributeFactory.ts
   - src/world/playerFactory.ts
   - src/world/clubFactory.ts
   - src/world/initialState.ts
@@ -12,12 +14,16 @@ code:
   - src/world/datapack.ts
   - src/world/data/england.ts
   - src/domain/attributes.ts
+  - src/domain/allocation.ts
 tests:
   - tests/engine/world.test.ts
   - tests/engine/season.test.ts
   - tests/engine/determinism.test.ts
   - tests/world/queries.test.ts
   - tests/world/generation.test.ts
+  - tests/world/allocation.test.ts
+  - tests/world/careerPreview.test.ts
+  - tests/world/nameZh.test.ts
 diagrams: [sequence]
 last_reviewed: 2026-11-02
 ---
@@ -75,11 +81,16 @@ sequenceDiagram
 
 ### 用户球员
 
+基准由 `src/world/userDraft.ts` 的 `draftUserBase` 唯一产出，`makeUserPlayer` 与建号预览 `previewUserStart` 都调用它，因此界面看到的数字与落盘存档必然相同。
+
+- 随机流顺序固定：`createRng(seed, 'user', name, age, position)` → `normal(0, 2.5)` → `makeAttributes`（十次抽样）→ `int(0, 10)`（潜力）→ `pickFoot`。任何插入抽样或改序的改动都会让同种子存档分叉。
 - 年龄 `clamp(options.age, 16, 21)`。
 - 基础能力：`46 + (age - 16) * 2 + rng.normal(0, 2.5)`。
 - 潜力：`clamp(baseAbility + 24 + rng.int(0, 10) - (age - 16) * 2, 60, 92)`。
 - 出身与原型通过 `backgroundBonus` / `archetypeBonus` 加属性，最后统一 clamp 到 10–96。
-- 初始状态：体能 88、士气 70、信心 58、状态 55、锐度 52、伤病为空。
+- 建号点买（`options.allocation`，可选）在 `applyBonuses` 之后施加：预算 `(age − 16) × 3 + 4`（青训背景 +3）、单项 ≤ +4、总和 ≤ 预算、加完 `computeOverall ≤ potential`；**不消耗随机数**，所以同种子的基准属性与潜力与点买前完全一致。
+- 点买非法（越预算 / 越单项 / 越潜力 / 非门将点门将 / 点数非正整数）时 `checkAllocation` 报出 `AllocationIssue[]`，`makeUserPlayer` 整份忽略并回落基准属性——世界层不信任 UI 传上来的数字。
+- 初始状态：体能 88、士气 70、信心 58、状态 55、锐度 52、伤病为空；成长账本 `exp = 0`、`lifetimeExp = 0`、`attrInvestment` 十字段全 0。
 - 合同：周薪按能力/层级/年龄计算；18 岁及以下 3 年，否则 2 年；含 4 周薪水的签约奖金。
 - 初始声望较低（本地 18、国家 8、媒体 15），随表现成长。
 
@@ -168,6 +179,10 @@ sequenceDiagram
 | 只读查询：俱乐部/球员/联赛/赛程/年龄权重 | `tests/world/queries.test.ts` |
 | 未知俱乐部回退默认球队 | `tests/world/generation.test.ts` |
 | 同 seed 输出一致 | `tests/engine/determinism.test.ts` |
+| 建号点买施加到球员生成、且不移动种子流位置 | `tests/world/allocation.test.ts` |
+| 建号预览的属性/潜力与真正生成的存档深度相等 | `tests/world/careerPreview.test.ts` |
+| 点买非法（超预算 / 单项超 4 / 非整数 / 负数 / 非门将点门将）整份作废，不留半套加点 | `tests/world/allocation.test.ts` |
+| 加点同步影响位置判定与出场角色 | `tests/world/allocation.test.ts` |
 | 生成结果可存档并读回 | `tests/db/save.test.ts` |
 
 手动验收：
@@ -194,3 +209,4 @@ sequenceDiagram
 | 2026-11-02 | 新世界额外写入 `eventMemory = {}`（v7 事件冷却表），`events` 仍为 `{}`；其余抽样顺序与生成内容不变，引擎 0.6.0 的重算来自每日事件生成器换轨 | 绿茵人生 M1.7 |
 | 2026-11-02 | 生成侧完全不变：抽样顺序、球员、教练、俱乐部、赛程、财务与关系一个字节都没动。引擎升到 0.7.0 是因为世界状态里嵌入的事件内容变了（`world.events[*].choices` 参与 `hashState`），而事件模板从 11 条扩到 87 条改变了当天抽到哪一条；golden `c11f736b834051db` → `5fdf2872b99372c2` | 绿茵人生 M1.8（事件内容扩容） |
 | 2026-11-02 | 生成侧仍然完全不变：`createWorld` 不 import 关键回合模块，球员/教练/赛程一个字节都没动。引擎升到 0.8.0 是因为 golden 回放会踢比赛，而 `MatchReport.keyMoments[*].options` 里的 `successChance` / `successBasisZh` 参与 `hashState`；对手对抗公式让这些字段全部重算，golden `5fdf2872b99372c2` → `43de8568604868f8` | 绿茵人生 M1.9（对手对抗概率） |
+| 2026-11-02 | 用户基准抽到 `src/world/userDraft.ts`（`draftUserBase` / `resolveUserAttributes` / `previewUserStart` / `makeUserContract`），属性抽样口径抽到 `src/world/attributeFactory.ts`；建号点买 `options.allocation` 在 `applyBonuses` 之后施加，不消耗随机数、非法整份作废；成长账本 `exp / lifetimeExp / attrInvestment` 由 `emptyAttrInvestment()` 起步；存档 8 / 引擎 0.9.0（经验来源改变引擎输出，golden 重算） | 绿茵人生 M1.10a（经验成长与建号点买） |
