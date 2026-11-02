@@ -1,5 +1,13 @@
 import { moveById } from '../domain'
-import type { Effect, EffectOp, ExtraAction, Player } from '../domain'
+import type {
+  Effect,
+  EffectOp,
+  ExtraAction,
+  KeyMomentKind,
+  MoveFamily,
+  MoveUnlockPath,
+  Player,
+} from '../domain'
 import { formatMoneyShort } from '../lib'
 
 export const SQUAD_ROLE_LABELS: Record<Player['squadRole'], string> = {
@@ -7,6 +15,40 @@ export const SQUAD_ROLE_LABELS: Record<Player['squadRole'], string> = {
   rotation: '轮换',
   starter: '主力',
   star: '核心',
+}
+
+export const MOVE_FAMILY_LABELS: Record<MoveFamily, string> = {
+  shooting: '射门',
+  dribbling: '盘带',
+  passing: '传球',
+  aerial: '空中',
+  defending: '防守',
+  goalkeeping: '门将',
+  tempo: '节奏',
+  setpiece: '定位球',
+}
+
+/** 详情页只说这一招落在哪一类回合上：选项 id 是引擎数据，不该让玩家读裸英文。 */
+export const MOVE_KIND_LABELS: Record<KeyMomentKind, string> = {
+  bigChance: '绝佳机会',
+  penalty: '点球',
+  throughBall: '直塞',
+  duel: '一对一防守',
+  save: '扑救',
+  clearance: '解围',
+  freeKick: '任意球',
+  headerDuel: '争顶',
+  oneOnOne: '单刀',
+  counterAttack: '反击',
+  cross: '传中',
+  longShot: '远射',
+}
+
+export const MOVE_PATH_LABELS: Record<MoveUnlockPath, string> = {
+  exp: '经验解锁',
+  mentor: '名宿传授',
+  specialization: '周三特训',
+  matchDrop: '比赛掉落',
 }
 
 export const EFFECT_LABELS: Record<EffectOp, string> = {
