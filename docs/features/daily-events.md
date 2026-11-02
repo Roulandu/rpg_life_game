@@ -57,7 +57,7 @@ last_reviewed: 2026-11-02
 
 三件事同时成立才算交付：
 
-1. **内容数据化**：事件模板进 `data/events/*.json`，由 `src/domain/eventContent.ts` 用 Zod 校验并硬白名单；新增一类生活事件只改 JSON，不改引擎。当前 8 个数据包共 87 条模板。
+1. **内容数据化**：事件模板进 `data/events/*.json`，由 `src/domain/eventContent.ts` 用 Zod 校验并硬白名单；新增一类生活事件只改 JSON，不改引擎。当前 9 个数据包共 96 条模板。
 2. **可验证的触发条件**：条件是一个 27 字段白名单投影上的合取式（`{field, op, value}`），不是表达式语言；内容作者写不出图灵完备的东西，测试也能枚举。
 3. **频率重标定**：旧口径「周日 72% 出一条」摊成「每天一小概率 + 赛后/伤病当天必出」，全季总量由测试锁在 `[40, 80]` 区间。
 
@@ -147,6 +147,7 @@ sequenceDiagram
 | `finance` | `fn_` | 10 | 6 天 | 银行、经纪人、房东、保险公司、赞助商 |
 | `staff` | `st_` | 10 | 5 天 | 队医、心理咨询师、私教、体能教练、营养师 |
 | `milestones` | `ms_` | 10 | 6 天 | 体育总监、经纪人、家人、青训旧友、队友 |
+| `mentor` | `mt_` | 9 | 4 天 | 名宿 |
 
 契约由 `tests/engine/eventPacks.test.ts` 的 `PACK_ROWS` 驱动：每加一个类别就在这里加一行，断言「已注册、条数达标、id 前缀统一、`expiresDays` 不超该类别上限、`cooldownDays ≥ expiresDays`、每个选项至少一个效果、必备发件人出现」。`npm run validate:data` 再兜一层规模下限：包 ≥7、模板总数 ≥72、单包 ≥8——精简内容必须是一次显式决策，不能靠顺手删除。
 
@@ -198,7 +199,7 @@ LLM 只重写**一条**被选中事件的标题与正文（`highlightEventId`）
 
 公开入口（`src/domain/index.ts`）：`EVENT_TEMPLATES`、`eventTemplateById`、`EVENT_PACK_NAMES`、`eventTemplatesOfPack`、`EVENT_SCOPE_FIELDS`、`EVENT_BODY_TOKENS`，类型 `GameEvent`、`EventCondition`、`EventScope`、`EventTemplateContent`、`Effect`、`EffectOp`、`EventChoice`（这几个类型已从 `src/domain/types.ts` 迁到 `src/domain/eventContent.ts`，`types.ts` 只做再导出）。
 
-`EffectOp` 当前 12 个：`morale` `fitness` `sharpness` `confidence` `coachTrust` `teammateTrust` `agentTrust` `familyTrust` `mediaRep` `fanRep` `money` `injuryDays`。`applyEffects` 把 `money` 与 `injuryDays` 分别交给 `applyMoneyEffect`/`applyInjuryEffect`，其余走 `applyStatusEffect` 的 clamp 通道（单条效果增量限制在 ±15）。
+`EffectOp` 当前 16 个：`morale` `fitness` `sharpness` `confidence` `coachTrust` `teammateTrust` `agentTrust` `familyTrust` `legendTrust` `mediaRep` `fanRep` `money` `injuryDays` `exp` `learnMove` `moveProgress`。`applyEffects` 把 `money` 与 `injuryDays` 分别交给 `applyMoneyEffect`/`applyInjuryEffect`，`exp` 交给 `grantExp`，`learnMove`/`moveProgress` 交给 `applyMoveEffect`（绝技获取的名宿路径，见 `docs/features/player-moves.md`），其余走 `applyStatusEffect` 的 clamp 通道（单条效果增量限制在 ±15）。`Effect` 因此多了一个可选字段 `moveId`：只有绝技类算子用它点名，老存档里不带该字段的效果对象照旧可读。
 
 存档影响（v6 → v7）：
 
@@ -264,3 +265,4 @@ LLM 只重写**一条**被选中事件的标题与正文（`highlightEventId`）
 |---|---|---|
 | 2026-11-02 | 初版：事件模板外迁 `data/events/legacy.json`（11 条逐字保留），新增条件白名单投影 `eventCondition.ts`、日生成器 `eventsDaily.ts`（一天最多一条 + 保证型赛后事件）、`world.eventMemory` 冷却，存档 v6→v7；`generateWeeklyEvent` 退役，主页「今天」与收件箱改按日口径 | 绿茵人生 M1.7 |
 | 2026-11-02 | 内容池从 11 条扩到 87 条：新增 `matchweek`(12)/`daily-life`(12)/`media`(12)/`club`(10)/`finance`(10)/`staff`(10)/`milestones`(10) 七个类别包，`EVENT_PACK_NAMES` + `eventTemplatesOfPack` 提供按类取包；`EffectOp` 增加 `injuryDays`，`injury_concern` 的提前复出从引擎硬编码改成数据声明；结果文案纳入同一套插值；`validate:data` 加规模下限（包 ≥7、模板 ≥72、单包 ≥8），分类与数值契约进 `tests/engine/eventPacks.test.ts`；`ENGINE_VERSION` 0.6.0 → 0.7.0 并重算回放基准（`c11f736b834051db` → `5fdf2872b99372c2`） | 绿茵人生 M1.8 |
+| 2026-11-02 | 新增第 9 个包 `mentor`（`mt_`，9 条「名宿的一课」，发件人一律「名宿」，冷却 45–60 天）：`EffectOp` 从 12 个增至 16 个（`exp`、`legendTrust`、`learnMove`、`moveProgress`），`Effect` 加可选 `moveId`；绝技类效果的加载期闸门拆到 `src/domain/eventSchema.ts` 的 `moveEffectIssues`——必须点名真实绝技且该绝技确实开了 `mentor` 获取路径；关系层加 `legend` 角色（名宿），存档 v9→v10 为老档补这条关系；`ENGINE_VERSION` 0.11.0 → 0.12.0，回放基准 `82fe56a7e245ea77` → `a53d784da26c391d` | 绿茵人生 M1.11（名宿传授） |

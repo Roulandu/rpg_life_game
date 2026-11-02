@@ -115,8 +115,8 @@ sequenceDiagram
 | `previewUserStart(options)` / `draftUserBase` / `resolveUserAttributes` | src/world/userDraft.ts | 建号预览与真正生成共用的同一份基准 |
 | `selectCareerPreview(options)` | src/store/selectors.ts | `ui` 不允许 import `world`，预览经 store 转发 |
 | `investExp(attrKey, points)` | src/store/growthSlice.ts | `structuredClone` → 校验 → 落盘 → `notice`/`error` |
-| `EffectOp 'exp'` | src/domain/eventContent.ts | 事件选项可以直接发经验，共 13 个 op |
-| `CURRENT_SAVE_VERSION = 8` / `ENGINE_VERSION = '0.9.0'` | src/domain/version.ts、src/world/constants.ts | 成长账本进入存档结构 |
+| `EffectOp 'exp'` | src/domain/eventContent.ts | 事件选项可以直接发经验，`EffectOp` 现有 16 个 |
+| `CURRENT_SAVE_VERSION = 10` / `ENGINE_VERSION = '0.12.0'` | src/domain/version.ts、src/world/constants.ts | 成长账本自 v8 进入存档结构；v9 补绝技账本、v10 补名宿关系 |
 
 ## 失败与降级
 

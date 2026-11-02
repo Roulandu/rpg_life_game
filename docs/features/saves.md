@@ -143,7 +143,7 @@ sequenceDiagram
 5. **用迁移前的原始 world** 重新计算 checksum 并比对，失败 → “存档校验失败，文件可能已损坏”。
 6. 迁移到当前版本并生成新存档 ID 写入，不覆盖原存档。
 
-当前 `CURRENT_SAVE_VERSION = 7`，`src/db/migrate.ts` 提供 v1 → v2 → v3 → v4 → v5 → v6 → v7 连续迁移：
+当前 `CURRENT_SAVE_VERSION = 10`，迁移步骤表在 `src/db/migrateSteps.ts`（`MIGRATION_STEPS`，数组顺序即执行顺序），`src/db/migrate.ts` 只负责克隆存档、补 live 报告、按表跑步骤并 `assertWorld` 收尾，提供 v1 → … → v10 连续迁移：
 
 - v1 → v2：所有已有比赛报告补 `status: 'final'`、`currentMinute: 90`、`goals: []`；`pendingWeekPlan = null`。
 - v2 → v3：live 报告补 `stats`（控球按 `currentMinute` 均分、射门/射正=进球、角球 0）与 `lineups`（主客各 11 人）；**保留** `pendingWeekPlan`，旧 live 存档可继续播放到终场。
@@ -151,8 +151,11 @@ sequenceDiagram
 - v4 → v5：周时钟换成日时钟。`fixtures[*].day` 由 `dayForRound(round)` 补齐（纯推导，不消耗 RNG）；`injury.weeksLeft` 换算成 `daysLeft = max(1, round(weeksLeft × 7))` 并删除旧字段；`pendingWeekPlan` 改名 `pendingDayPlan`；`weekPlan` 缺省补 `DEFAULT_WEEK_PLAN`；仍有 live 报告时把 `day` 摆回该场比赛所在的那一天，读档后可以接着踢完这场；迁移末尾用 `assertWorld` 把关。
 - v5 → v6：补中文人名。`Player.nameZh`、`Club.coach.nameZh`、`Relationship.nameZh` 由 `nameZhFor(name, nationality)` 生成（已有值不覆盖，所以重复执行是恒等变换）；战报里 `scorerName / assistName / motmName / events[].text / mediaReaction / 关键回合文案`、新闻与事件的标题正文与选项、关系摘要按「原名 → 中文名」整词替换；首发名单条目按 `playerId` 回查补 `nameZh`。只改文案，不动 `roll`、时钟与 `fixture.id`，停在关键回合的存档迁移后仍能踢完。
 - v6 → v7：事件从周拍改日拍。每条 `events[*]` 补 `day`（回灌为 `DAYS_PER_WEEK`，因为旧事件本来就是周日生成的）、`createdAtDay = absoluteDay(createdAtWeek, day)`、`expiresDay = absoluteDay(expiresWeek, DAYS_PER_WEEK)`、`sender` 与 `blocking`（优先取 `data/events/*.json` 的模板，未知模板落回「俱乐部」/ `true`）；`world.eventMemory` 由现存事件按模板取最大绝对日序重建，否则旧档读进来第一周会被同一模板刷屏。不消耗 RNG，不触碰时钟、`pendingDayPlan` 与任何 `roll`。
+- v7 → v8：成长账本登场。每个 `players[*]` 补 `exp = 0`、`lifetimeExp = 0`、`attrInvestment`（十字段全 0，好让投资曲线第一点价格稳定在 6）；已有值一律不覆盖，脏档只抹一半时其余字段各补各的。
+- v8 → v9：绝技层登场。每个 `players[*]` 补 `moves = []`（「一条不会」），`weekPlan.specialization` 补 `null`（「本周不练」），让持有判断只有一条取值路径。schema 侧靠 `playerSchema` 的 `.passthrough()` 放行，`attributesSchema` 的精确十字段不受影响。
+- v9 → v10：名宿登场。`RelationshipRole` 加 `'legend'`，关系表里没有名宿时由 `makeLegendRelationship(world.playerId)` 补一条（id `rel:legend:${playerId}`、`nameZh` 与 `name` 同为「俱乐部名宿」、信任 40）；已经有名宿的存档原样保留，绝不覆盖玩家刷出来的信任。不补这一步，老档读到 `data/events/mentor.json` 时 `learnMove` / `legendTrust` 会查不到关系而静默失效。
 - 终场旧报告不伪造统计与首发，UI 遇到缺失时隐藏对应面板。
-- 迁移幂等；只前进不后退；`saveVersion > 7` 直接拒绝。
+- 迁移幂等；只前进不后退；`saveVersion > 10` 直接拒绝。
 - `loadWorld` 在 schema 校验后迁移，发生迁移时回写数据库并同步摘要。
 - 导入顺序固定为“解析 → 版本检查 → checksum（原始数据）→ 迁移”，禁止先迁移后校验。
 
@@ -239,6 +242,9 @@ sequenceDiagram
 | v4 → v5 日时钟：`dayForRound` 反推赛程日序、`weeksLeft → daysLeft`、`pendingWeekPlan → pendingDayPlan`、live 比赛把时钟摆回开球日、默认 `weekPlan`、导出导入往返等值 | `tests/db/migrationV5.test.ts`、`tests/fixtures/saveV4.ts` |
 | v5 → v6 中文人名：实体补 `nameZh`、战报/新闻/事件/关系摘要整词汉化、阵容按 id 回查、live 档迁移后踢完、导出导入往返等值、重复迁移恒等、v4 沿链同样汉化 | `tests/db/migrationV6.test.ts`、`tests/fixtures/saveV5.ts` |
 | v6 → v7 每日事件：日序/过期日/发件人/拦截性回灌、冷却表按模板重建、未知模板落回兜底发件人、迁移后推进不重复生成、导出导入往返等值、重复迁移恒等、v6 文件直接导入即完成迁移 | `tests/db/migrationV7.test.ts`、`tests/fixtures/saveV6.ts` |
+| v7 → v8 成长账本：`exp / lifetimeExp / attrInvestment` 补齐、脏档已有值不覆盖、导出导入往返等值、重复迁移恒等 | `tests/db/migrationV8.test.ts` |
+| v8 → v9 绝技账本与特训槽：全员空 `moves`、已有绝技记录不清、v8 文件导入即迁移、live 档迁移后踢完、迁移后绝技立刻进关键回合概率 | `tests/db/migrationV9.test.ts` |
+| v9 → v10 名宿关系：老档补 `rel:legend:${playerId}`、有名宿的脏档保留信任与文案、`legendTrust` 迁移后真的写得进关系、导出导入往返等值、重复迁移恒等、live 档迁移后踢完、新档自带名宿 | `tests/db/migrationV10.test.ts`、`tests/fixtures/saveV9.ts` |
 | Zod 校验失败 | `tests/db/save.test.ts` |
 | store 自动保存与载入 | `tests/store/store.test.ts` |
 | 逐日推进与只存周计划的落盘（不推进时钟） | `tests/store/dayStore.test.ts` |
@@ -273,3 +279,6 @@ sequenceDiagram
 | 2026-11-02 | `summarizeWorld` 摘要补 `day`（旧行缺字段落回周一），`SaveSummary` / `SaveRecord` 抽到 `src/domain/saveTypes.ts`；摘要为只写派生投影，不升存档版本 | 绿茵人生 M1.3 |
 | 2026-11-02 | 存档升 v6：`Player / Club.coach / Relationship / MatchLineupPlayer` 补 `nameZh`，v5→v6 迁移把战报、新闻、事件、关系摘要里的拉丁原名整词换成中文名；`playerSchema.nameZh` 可选（校验先于迁移），迁移后 `assertWorld` 把关；live 档迁移后仍可踢完 | 绿茵人生 M1.4（中文人名） |
 | 2026-11-02 | 存档升 v7：`WorldState.eventMemory` 与事件 `day / createdAtDay / expiresDay / sender / blocking`；`eventMemory` 在 schema 里可选（校验先于迁移），v6→v7 用现存事件重建冷却表；日/过期字段靠 `events` 的 `.passthrough()` 放行，事件 id 加日段 | 绿茵人生 M1.7（每日事件） |
+| 2026-11-02 | 存档升 v8：`Player.exp / lifetimeExp / attrInvestment` 进入结构，v7→v8 `migrateGrowth` 缺才补、有则不动（`ENGINE_VERSION` 0.9.0） | 绿茵人生 M1.10a（经验成长） |
+| 2026-11-02 | 存档升 v9：`Player.moves` 与 `weekPlan.specialization` 进入结构，v8→v9 `migrateMoves` 补空账本与空槽；停在开球的旧档迁移后仍可踢完，踢完允许掉进度但不会凭空升到高阶（`ENGINE_VERSION` 0.10.0 → 0.11.0） | 绿茵人生 M1.10b / M1.11（绝技与获取路径） |
+| 2026-11-02 | 存档升 v10：`RelationshipRole` 加 `'legend'`，名宿关系的 id/文案/起始信任集中到 `src/domain/relationships.ts`，世界生成与 v9→v10 迁移共用同一工厂；迁移步骤整体抽到 `src/db/migrateSteps.ts` 的 `MIGRATION_STEPS` 表（`ENGINE_VERSION` 0.12.0，回放基准 `82fe56a7e245ea77` → `a53d784da26c391d`） | 绿茵人生 M1.11（名宿传授） |

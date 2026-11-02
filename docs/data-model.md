@@ -25,9 +25,9 @@ flowchart TD
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| `version` | number | 世界结构版本，当前 `8` |
+| `version` | number | 世界结构版本，当前 `10` |
 | `seed` | number | 世界种子，决定生成、赛程、比赛与事件 |
-| `engineVersion` | string | 生成世界的引擎版本，当前 `0.9.0` |
+| `engineVersion` | string | 生成世界的引擎版本，当前 `0.12.0` |
 | `createdAt` / `updatedAt` | ISO string | 创建与最近更新时间 |
 | `playerId` | Id | 用户球员 ID |
 | `clubId` | Id | 用户当前俱乐部 ID |
@@ -35,14 +35,14 @@ flowchart TD
 | `clubs` | `Record<Id, Club>` | 全部俱乐部，含教练、阵容、强度 |
 | `leagues` | `Record<Id, League>` | 联赛与升降级名额 |
 | `fixtures` | `Record<Id, Fixture>` | 赛季赛程与比赛报告引用 |
-| `relationships` | `Record<Id, Relationship>` | 教练、队友、经纪人、家人、媒体、球迷 |
+| `relationships` | `Record<Id, Relationship>` | 教练、队友、经纪人、家人、媒体、球迷、名宿 |
 | `events` | `Record<Id, GameEvent>` | 开放/已处理/过期事件，每天最多新增一条 |
 | `eventMemory` | `Record<模板 id, 季内绝对日序>` | 事件冷却表；v7 新增，赛季切换时清空 |
 | `finance` | `Finance` | 余额、周薪、支出、流水、赞助 |
 | `news` | `NewsItem[]` | 新闻，保留最近 120 条 |
 | `season` / `week` / `day` / `totalWeeks` | number | 当前赛季、周次（1–38）、周内日序（1–7，周一 = 1）、总周数 |
 | `lastMatch` | `MatchReport \| null` | 最近一场用户比赛，含实时状态、进球与关键回合 |
-| `weekPlan` | `WeeklyPlan` | 本周模板 `{ training, extra }`，每周排一次，日步进自动执行 |
+| `weekPlan` | `WeeklyPlan` | 本周模板 `{ training, extra, specialization }`，每周排一次，日步进自动执行 |
 | `pendingDayPlan` | `PendingDayPlan?` | `WeeklyPlan & { fixtureId: Id \| null }`；停在开球那天时存在，当日结算完清空 |
 | `seasonSummaries` | `SeasonSummary[]` | 赛季总结 |
 | `retired` | boolean? | 是否已退役 |
@@ -56,7 +56,7 @@ flowchart TD
 
 | 类型 | 关键字段 | 不变量 |
 |---|---|---|
-| `Player` | 中文名 `nameZh`、属性、潜力、成长账本（`exp / lifetimeExp / attrInvestment`）、状态、合同、声望、伤病、赛季/生涯统计 | 属性 10–96；年龄 14–60；用户球员必须存在于 `players`；`name` 保留原名（存档 id、合同、导出文件名），`nameZh` 是展示名，取值只走 `displayName`；成长三字段的写入约定见 `docs/features/growth-exp.md`：`exp` 只经引擎 `grantExp` 增加、`lifetimeExp` 只增不减、`attrInvestment` 由 v8 迁移补成十字段全 0，`computeOverall ≤ potential` 由 `investAttribute` 与建号 `checkAllocation` 分别把关（`playerSchema` 是 `.passthrough()`，不把这些列为必填键，旧文件仍能读取） |
+| `Player` | 中文名 `nameZh`、属性、潜力、成长账本（`exp / lifetimeExp / attrInvestment`）、绝技账本（`moves: PlayerMove[]`）、状态、合同、声望、伤病、赛季/生涯统计 | 属性 10–96；年龄 14–60；用户球员必须存在于 `players`；`name` 保留原名（存档 id、合同、导出文件名），`nameZh` 是展示名，取值只走 `displayName`；成长三字段的写入约定见 `docs/features/growth-exp.md`：`exp` 只经引擎 `grantExp` 增加、`lifetimeExp` 只增不减、`attrInvestment` 由 v8 迁移补成十字段全 0，`computeOverall ≤ potential` 由 `investAttribute` 与建号 `checkAllocation` 分别把关；`moves` 的写入约定见 `docs/features/player-moves.md`：只有 `trainMove` / `investMove` / `teachMoveByMentor` 三个口能改，`level` 上限 3、攒满 3 格进度才升级（`playerSchema` 是 `.passthrough()`，不把这些列为必填键，旧文件仍能读取） |
 | `Club` | 联赛、层级、声望、预算、设施、阵容、教练、强度 | `squadIds` 指向真实球员；`leagueId` 指向真实联赛 |
 | `League` | 俱乐部列表、升降级名额 | `clubIds` 与俱乐部 `leagueId` 一致 |
 | `Fixture` | 赛季、周次、轮次、周内日、主客、状态、比分 | 状态为 `scheduled / live / played`；live 比分随分钟实时写入；已结束必须有比分；同一赛季每队 38 场；`day` 是 1–7 的周内日序，缺省时由 `fixtureDayOf = day ?? dayForRound(round)` 推导（v4→v5 迁移按轮次补齐，不改 `id`） |
@@ -71,13 +71,13 @@ flowchart TD
 | `KeyMoment` | `minute / kind / roll / triggerZh? / options / outcome? / defaultOptionId` | 12 类；每场 5–7 次；每回合恰好 5 个选项；`roll` 生成后固定 |
 | `KeyMomentOption` | `labelZh / successChance / successBasisZh? / 效果字段` | `defaultOptionId` 指向成功率最高项；`successChance` 由 `scoreChance` 公式（基线 + 我方属性 + 绝技 − 对手门将/后卫/前锋）在开场算定，`successBasisZh` 逐项写「名称 值 ±百分比」，结算只比 `roll < successChance` |
 | `Injury` | `kind / daysLeft / severity` | `daysLeft` 是**剩余天数**（1–7 天内可跨周），每天由 `advanceInjuries` 减 1；归零即伤愈并清空 |
-| `WeeklyPlan` | `training / extra` | 每周模板；`world.day` 决定当天是否执行训练或额外安排 |
+| `WeeklyPlan` | `training / extra / specialization` | 每周模板；`world.day` 决定当天是否执行训练、额外安排或特训；`specialization` 是绝技 id（v9 起存在，缺省 `null` 表示本周不练） |
 | `PendingDayPlan` | `training / extra / fixtureId` | 只在停在开球那天存在；当日收尾时清空；v4→v5 迁移由 `pendingWeekPlan` 改名并把时钟摆回比赛日 |
 | `NewsItem` | `id / season / week / day? / title / body / kind` | 日步骤产生的新闻带 `day`；`id` 由 `dailyId` 生成，同周七天不撞键 |
 | `GameEvent` | 模板、发件人 `sender?`、正文、`day / createdAtDay / expiresDay`、`blocking?`、选项、状态 | 一天最多一条（id 带日段）；`expiresDay` 早于当前绝对日必须过期；旧档缺 `expiresDay` 时回落 `expiresWeek` 那一周的最后一天；LLM 只能改标题与正文，不能改选项、效果与有效期。类型定义与数据包 Zod 模式同在 `src/domain/eventContent.ts` |
-| `EventTemplateContent` | `id / title / body / sender / weight / expiresDays / cooldownDays / blocking / guaranteed / once? / maxPerSeason? / weekdays? / when[] / choices / resultTexts?` | 来自 `data/events/*.json`（8 个类别包共 87 条，`EVENT_PACK_NAMES` 注册、`eventTemplatesOfPack` 按类取）；条件字段 ∈ `EVENT_SCOPE_FIELDS`（27 项白名单）、正文占位符 ∈ `EVENT_BODY_TOKENS`（5 项）；`weight > 0`、`1 ≤ expiresDays ≤ 21`、`0 ≤ cooldownDays ≤ 120`、`choices ≥ 2` 且选项 id 唯一、`blocking` 事件不许有空效果选项 |
-| `Effect` | `op / delta` | `op` 共 13 个：8 项状态与关系走 `clamp(±15)`；`money` 的 `delta` 是**英镑整数**（引擎 `×100` 写进按分记价的 `balance` 与账本）；`injuryDays` 的 `delta` 是**天**，只作用在已有伤病上、最低 1 天，不能凭空造伤；`exp` 的 `delta` 是**经验点**，负值截 0（坏事件不得扣走已攒经验） |
-| `Relationship` | 角色、中文名 `nameZh`、信任、紧张、摘要 | 信任/紧张 0–100 |
+| `EventTemplateContent` | `id / title / body / sender / weight / expiresDays / cooldownDays / blocking / guaranteed / once? / maxPerSeason? / weekdays? / when[] / choices / resultTexts?` | 来自 `data/events/*.json`（9 个类别包共 96 条，`EVENT_PACK_NAMES` 注册、`eventTemplatesOfPack` 按类取）；条件字段 ∈ `EVENT_SCOPE_FIELDS`（27 项白名单）、正文占位符 ∈ `EVENT_BODY_TOKENS`（5 项）；`weight > 0`、`1 ≤ expiresDays ≤ 21`、`0 ≤ cooldownDays ≤ 120`、`choices ≥ 2` 且选项 id 唯一、`blocking` 事件不许有空效果选项 |
+| `Effect` | `op / delta / moveId?` | `op` 共 16 个：4 项状态（士气/体能/锐度/自信）与 7 项关系（教练/队友/经纪人/家人/名宿/媒体/球迷）走 `clamp(±15)`；`money` 的 `delta` 是**英镑整数**（引擎 `×100` 写进按分记价的 `balance` 与账本）；`injuryDays` 的 `delta` 是**天**，只作用在已有伤病上、最低 1 天，不能凭空造伤；`exp` 的 `delta` 是**经验点**，负值截 0（坏事件不得扣走已攒经验）；`learnMove` / `moveProgress` 是绝技获取的名宿路径，必须带 `moveId`，`delta` 分别是「授予几级」与「攒几格进度」，位置不符或综合分够不到门槛时由引擎闸门降级成攒进度、不写等级（加载期 `moveEffectIssues` 还要求该绝技确实开了 `mentor` 路径） |
+| `Relationship` | 角色、中文名 `nameZh`、信任、紧张、摘要 | 信任/紧张 0–100；`role ∈ coach / teammate / agent / family / media / fan / legend`，其中 `legend`（俱乐部名宿）的 id、名称、起始信任与摘要由 `src/domain/relationships.ts` 的 `makeLegendRelationship(userId)` 单点定义，世界生成与 v9→v10 迁移共用，绝技传授路径靠它落地 `legendTrust` |
 | `Finance` | 余额、周薪、支出、流水 | 流水金额带符号；结算后余额与流水一致 |
 
 ### 常用枚举
@@ -115,8 +115,8 @@ flowchart TD
 ```json
 {
   "format": "pitch-life-save",
-  "saveVersion": 8,
-  "engineVersion": "0.9.0",
+  "saveVersion": 10,
+  "engineVersion": "0.12.0",
   "exportedAt": "2026-10-26T12:00:00.000Z",
   "checksum": "<hashString(canonicalStringify(world))>",
   "world": { "...": "WorldState" }
@@ -126,19 +126,20 @@ flowchart TD
 规则：
 
 1. `format` 必须等于 `pitch-life-save`。
-2. `saveVersion` 来自 `CURRENT_SAVE_VERSION`，当前为 `8`。
+2. `saveVersion` 来自 `CURRENT_SAVE_VERSION`，当前为 `10`。
 3. `checksum` 按 `lib.canonicalStringify` 规范化后计算；对象键排序、`undefined` 视为 `null`。
 4. `importWorld` 依次执行：JSON 解析 → `saveEnvelopeSchema`（含 world 结构）→ 拒绝更高版本 → **用原始 world 重算 checksum 比对** → 迁移到当前版本。
 5. 任何一步失败都抛出中文错误，不写入 IndexedDB。
 
 `world.version` 与 envelope `saveVersion` 是两个维度：
 
-- `world.version` 描述世界结构本身，当前为 `8`。
-- `saveVersion` 描述存档封装与迁移契约，当前为 `8`。
+- `world.version` 描述世界结构本身，当前为 `10`。
+- `saveVersion` 描述存档封装与迁移契约，当前为 `10`。
 - 结构变化时必须同时评估；旧版本 world 在加载/导入时迁移到当前结构。
 - `day` / `weekPlan` / `pendingDayPlan` 在 `worldSchema` 里是**可选**字段：v5 之前的存档缺少它们，而校验发生在迁移之前，必填会让旧档直接被拒。迁移负责补齐，`assertWorld` 负责在补齐后把关。
 - `eventMemory` 同理是**可选**：v6 存档没有冷却表，`events` 记录本身是 `.passthrough()`，所以事件的 `day / createdAtDay / expiresDay / sender / blocking` 与新闻的 `day` 都不需要写进 schema，只由迁移补齐。
 - 成长账本（`exp / lifetimeExp / attrInvestment`）同样不写进 `playerSchema` 必填键：`.passthrough()` 让 v7 文件继续可读，`migrateGrowth` 负责「缺才补、有则不动」。
+- 绝技账本 `Player.moves`、`WeekPlan.specialization` 与名宿关系也不进 schema 必填键：`migrateMoves` / `migrateLegend` 负责补齐，`assertWorld` 在补齐后把关。
 
 ## IndexedDB
 
@@ -169,7 +170,7 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 
 ## 迁移策略
 
-当前 `CURRENT_SAVE_VERSION = 8`，由 `src/db/migrate.ts` 提供 v1 → v2 → v3 → v4 → v5 → v6 → v7 → v8 连续迁移。
+当前 `CURRENT_SAVE_VERSION = 10`：步骤表在 `src/db/migrateSteps.ts` 的 `MIGRATION_STEPS`（数组顺序即执行顺序，`from` 不要求单调），`src/db/migrate.ts` 负责克隆、补 live 报告、按表执行与 `assertWorld` 收尾，提供 v1 → v2 → … → v10 连续迁移。
 
 | 版本 | 变更 | 迁移 |
 |---|---|---|
@@ -181,14 +182,16 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 6 | 中文人名：`Player.nameZh`、`Club.coach.nameZh`、`Relationship.nameZh`、`MatchLineupPlayer.nameZh`、`PitchPlayer.nameZh`（`name` 语义不变，仍用于存档 id、合同与导出文件名） | 实体按 `nameZhFor(name, nationality)` 补齐中文名，已有值不覆盖（幂等）；历史文本按「原名 → 中文名」整词替换：战报 `events[].text` / `mediaReaction` / 关键回合文案与结算文案、`scorerName` / `assistName` / `motmName`、新闻与事件的标题正文选项与结果文案、关系摘要；首发名单条目按 `playerId` 回查补 `nameZh`。不改动时钟与 `fixture.id`，停在关键回合的 live 档迁移后仍能踢完；`world.version = 6` |
 | 7 | 每日事件：`WorldState.eventMemory`（模板 id → 季内绝对日序）、`GameEvent.day / createdAtDay / expiresDay / sender / blocking`、事件 id 加日段 | `events[*]` 的 `day` 回灌为 `DAYS_PER_WEEK`（旧事件本来就是周日拍的），`createdAtDay = absoluteDay(createdAtWeek, day)`，`expiresDay = absoluteDay(expiresWeek, DAYS_PER_WEEK)`；`sender`/`blocking` 优先取数据包、未知模板落回「俱乐部」/`true`；`eventMemory` 由现存事件按模板取最大日序重建（不清会让旧档第一周被同一模板刷屏）；`migrateEventDays` 不消耗 RNG、不触碰时钟与 `pendingDayPlan`；末尾 `assertWorld` 把关；`world.version = 7` |
 | 8 | 成长账本：`Player.exp / lifetimeExp / attrInvestment`（`AttrInvestment = Record<AttrKey, number>`，定义在 `src/domain/primitiveTypes.ts`），以及新档建号可选入参 `CareerCreateOptions.allocation`（不落盘，只影响生成的属性） | `migrateGrowth()` 遍历 `Object.values(world.players)`，用 `??=` 三段补齐：`exp ??= 0`、`lifetimeExp ??= 0`、`attrInvestment ??= emptyAttrInvestment()`（十字段全 0，保证投资曲线第一点价格稳定在 6 经验）。已有值一律不覆盖，脏档里玩家已攒的经验不会被清零；不新建球员对象，避免丢掉 v7 的其它字段；不消耗 RNG、不触碰时钟与 `pendingDayPlan`；`playerSchema` 未加必填键，v7 文件的兼容性不变；末尾 `assertWorld` 把关；`world.version = 8` |
+| 9 | 绝技账本：`Player.moves: PlayerMove[]`（`{ moveId, level, progress }`）、`WeekPlan.specialization: string \| null`；绝技内容 64 条进 `data/moves/*.json` | `migrateMoves()`：每个 `players[*]` 用 `??=` 补 `moves = []`，`weekPlan.specialization ??= null`；已有绝技记录不清；不消耗 RNG、不动时钟 |
+| 10 | 名宿：`RelationshipRole` 加 `'legend'`，`Effect` 加可选 `moveId`，`EffectOp` 增至 16（`legendTrust / learnMove / moveProgress`），事件包增至 9 个 | `migrateLegend()`：关系表里没有任何 `role === 'legend'` 时补 `makeLegendRelationship(world.playerId)`，已有则原样保留（信任与文案都不覆盖）；`MIGRATION_STEPS` 表新增 `{ from: 10 }` 一行 |
 
 迁移规则：
 
 - 迁移幂等，可重复执行；只前进不后退。
 - 旧档中未完成的关键回合保留：v1 报告走旧版 `final` 结算路径；v2 live 报告迁移后保留待处理回合（v5 起键名为 `pendingDayPlan`），可继续实时播放到终场；v3 live 报告补 `liveState` 后可继续播放；v4→v5 把时钟摆回 live 比赛那一天，读档后仍能踢完这场；v5→v6 只改名字与文案，不触碰 `roll`、时钟与首发 id，迁移后关键回合仍能按原判定结算；v6→v7 只补事件字段与冷却表，不触碰时钟、`pendingDayPlan` 与任何 `roll`；v7→v8 只补成长账本，同样不触碰时钟、`pendingDayPlan` 与 `roll`，迁移后既能接着踢完停在开球的那场，也能立刻 `investAttribute`。
 - `loadWorld` 在 schema 校验后迁移；发生迁移时回写数据库并同步摘要。
-- `importWorld` 必须先校验 checksum，再做迁移；拒绝 `saveVersion > 8`。
-- 旧客户端遇到 v8 存档会按现有版本检查拒绝读取；不提供降级迁移。
+- `importWorld` 必须先校验 checksum，再做迁移；拒绝 `saveVersion > 10`。
+- 旧客户端遇到 v10 存档会按现有版本检查拒绝读取；不提供降级迁移。
 
 任何存档结构变化必须满足：
 
@@ -244,3 +247,5 @@ Android 使用 Capacitor SecureStorage，不写 `secrets` 表。清除 Key 时�
 | 2026-11-02 | 无存档结构变化：事件内容池从 11 条扩到 87 条（新增 7 个类别包），`EffectOp` 增加 `injuryDays`（单位＝天，只作用于已有伤病）并把 `money` 钉成整英镑；`ENGINE_VERSION` 升 0.7.0、回放基准 `c11f736b834051db` → `5fdf2872b99372c2` | M1.8 事件内容扩容 |
 | 2026-11-02 | 无存档结构变化：`KeyMomentOption.successChance / successBasisZh` 改由 `scoreChance` 公式表产出并读对面首发的门将/后卫/前锋属性（`resolveOpponents` 回查 `world.players`），`data/optionUtils.ts` 删除；这些字段嵌在 `MatchReport.keyMoments` 里参与 `hashState`，故 `ENGINE_VERSION` 升 0.8.0、回放基准 `5fdf2872b99372c2` → `43de8568604868f8`；`CURRENT_SAVE_VERSION` 仍为 7，旧档字段形状不变，只是同一场重放会得到新概率 | M1.9 对手对抗概率 |
 | 2026-11-02 | 存档升 v8：`Player.exp / lifetimeExp / attrInvestment` 进入结构（schema 仍 `.passthrough()`，靠 `migrateGrowth` 缺才补、有则不动）；建号新增可选入参 `CareerCreateOptions.allocation`（不落盘，点买不消耗 RNG，种子流位置不变）；`EffectOp` 增至 13 个（新增 `exp`，负值截 0）；训练与比赛结算开始产经验，引擎语义变化令 `ENGINE_VERSION` 升 0.9.0、回放基准 `43de8568604868f8` → `c43d95700e96f860` | M1.10a 经验成长与属性投资 |
+| 2026-11-02 | 存档升 v9：`Player.moves: PlayerMove[]`（`{ moveId, level, progress }`，0 级＝还没学会但在攒进度）与 `WeekPlan.specialization: string \| null` 进入结构，靠 `playerSchema` / `weekPlan` 的 `.passthrough()` 放行、由 `migrateMoves` 补齐；绝技内容 64 条落 `data/moves/*.json`（八大家族 ×8，四档稀有度，`RARITY_CHANCE_BUDGET` 上限 4.5%/6.5%/8.5%/11%），`MOVE_MAX_LEVEL = 3`、`MOVE_PROGRESS_PER_LEVEL = 3`；特训槽与比赛掉落（评分 ≥7.8）开始写进度，`ENGINE_VERSION` 升 0.10.0 再升 0.11.0、回放基准 `c43d95700e96f860` → `82fe56a7e245ea77` | M1.10b / M1.11 绝技与获取路径 |
+| 2026-11-02 | 存档升 v10：`RelationshipRole` 加 `'legend'`（俱乐部名宿），名宿关系由 `src/domain/relationships.ts` 的 `makeLegendRelationship(userId)` 单点定义，世界生成与 `migrateLegend` 共用；`EffectOp` 增至 16 个（`legendTrust / learnMove / moveProgress`）并给 `Effect` 加可选 `moveId`，Zod 模式与绝技效果闸门从 `eventContent.ts` 拆到 `src/domain/eventSchema.ts`；事件包增至 9 个（`mentor` 9 条）共 96 条模板；迁移步骤抽成 `src/db/migrateSteps.ts` 的 `MIGRATION_STEPS` 表；`ENGINE_VERSION` 升 0.12.0、回放基准 `82fe56a7e245ea77` → `a53d784da26c391d` | M1.11 名宿传授 |

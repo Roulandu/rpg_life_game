@@ -101,7 +101,7 @@ interface TurnResult {
 
 常量：
 
-- `ENGINE_VERSION = '0.9.0'`（与 `world.version = 8` 一起构成回放基准的身份）
+- `ENGINE_VERSION = '0.12.0'`（与 `world.version = 10` 一起构成回放基准的身份）
 - `START_SEASON = 2026`
 - `TOTAL_WEEKS = 38`
 
@@ -156,13 +156,14 @@ interface TurnResult {
 
 | 函数 | 签名 | 行为 |
 |---|---|---|
-| `scoreChance` | `(player, input: ScoreChanceInput, opponents?: OpponentPair \| null) => { successChance, successBasisZh }` | `clamp(base + Σ actorCoef×我的属性 + Σ move.delta − Σ opponentCoef×对手属性, low, high)`，0.1% 粒度取整；无项可加时回落到 `flatBasisZh` |
-| `buildOptionTable` | `(rows: OptionRow[], context: KindContext) => KeyMomentOption[]` | 把一类的选项表逐行套公式，产出恰好同样数量与顺序的选项 |
+| `scoreChance` | `(player, input: ScoreChanceInput, opponents?: OpponentPair \| null) => { successChance, successBasisZh }` | `clamp(base + Σ actorCoef×我的属性 + Σ input.terms − Σ opponentCoef×对手属性, low, high)`，0.1% 粒度取整；无项可加时回落到 `flatBasisZh` |
+| `buildOptionTable` | `(rows: OptionRow[], context: KindContext, kind: KeyMomentKind) => KeyMomentOption[]` | 把一类的选项表逐行套公式，产出恰好同样数量与顺序的选项；非常量行自动追加 `resolveMoveTerms` 给出的绝技与对手段 |
 | `resolveOpponents` | `(world, source: { homeId, awayId, lineups? }) => OpponentPair \| null` | 从对面首发回查 `world.players`，给出 `keeper/marker/shooter`；同分取先出现者；无阵容返回 `null`；纯读取不消耗 RNG |
 
 - `KindContext = { player, isHome, opponents? }` 是 12 类 builder 的唯一入参；`opponents` 缺失时选项退化为「只看自己属性」。
 - 系数单位是「每 1 点属性对概率的贡献」，`0.0012` = 每点 0.12%，因此表里的数字可与依据文本直接对账。
-- 绝技（M1.10）通过 `ScoreChanceInput.moves: { labelZh, delta }[]` 挂载，不需要改公式。
+- `low === high` 的常量选项既不吃属性也不挂绝技，保持「文案写死多少就是多少」。
+- 绝技加成由 `domain/moveQueries.ts` 的 `resolveMoveTerms` 在这一步注入，公式本身不需要为某条绝技改；见下面的「绝技」。
 
 ## 领域比赛辅助
 
@@ -183,7 +184,7 @@ interface TurnResult {
 | `buildEventScope` | `(world, match: MatchReport \| null) => EventScope` | 条件白名单投影（27 字段，一天构建一次）：日历段 + `bodyPart` + `identityPart` + `surroundingsPart` |
 | `scopeMatches` | `(scope, conditions) => boolean` | 合取求值，运算符只有 `eq / in / lt / lte / gte / between`；字段不在白名单则抛错 |
 | `resolveEvent` | `(world, eventId, choiceId) => GameEvent \| null` | 应用选项效果、写结果文本、标记 `resolved`；无效/重复返回 `null` |
-| `applyEffects` | `(world, effects, label?) => void` | 统一应用 `Effect[]`，写财务/关系/新闻等副作用 |
+| `applyEffects` | `(world, effects, label?) => void` | 统一应用 `Effect[]`，写财务/关系/新闻等副作用；`exp` 只经 `grantExp` 入账，`learnMove` / `moveProgress` 转给名宿路径的闸门（见「绝技」），其余走状态与关系的 clamp 分支 |
 
 已退役：`generateWeeklyEvent`（周日 72% 拍一条）。它的上下文 if/else 阶梯改成了数据包里的 `when` 条件，`match` 参数改为**当天的战报**，因此赛后事件落在比赛当天而不是下周日。
 
@@ -208,6 +209,28 @@ interface TurnResult {
 | `investExp` | `(attrKey, points) => Promise<InvestOutcome \| null>` | store 侧唯一动作（`src/store/growthSlice.ts`）：`structuredClone` → `investAttribute` → 落盘 → `notice`/`error` |
 
 `grantExp` 只 import `dayContext` 与 `domain`，不 import `day.ts`；比赛进行中判定读 `world.pendingDayPlan` 与 `world.lastMatch.status`，避免 `day → training → growth → day` 的循环依赖。
+
+## 绝技
+
+数据与只读折算在 `src/domain/moves.ts`（Zod 模式 + 内容门禁）与 `src/domain/moveQueries.ts`（索引、闸门、概率折算），写入路径在 `src/engine/`。规则与边界见 `docs/features/player-moves.md`。
+
+| 函数/常量 | 位置 | 行为 |
+|---|---|---|
+| `MOVES` / `allMoves` / `movesOfPack` | `domain/moves.ts` | 8 个家族包 × 8 条 = 64 条绝技的只读索引；`buildMoveRegistry` 逐包解析并跨包查重 id，id 撞车直接抛中文原因 |
+| `parseMovePack`（内部 `levelCurveIssues`） | `domain/moves.ts` | 内容门禁：Zod 之外还要「三档等级编号 1/2/3、`minOverall`/`costExp`/`chanceDelta` 逐级抬高、加成不越过 `RARITY_CHANCE_BUDGET`、`targets` 指向真实的关键回合类型」。规模下限与中文名不残留拉丁字母由 `npm run validate:data` 守 |
+| `moveById` / `movesTargeting` | `domain/moveQueries.ts` | `targets` 写成 `关键回合id:选项id`，所以一个选项可被多条绝技命中，反向索引一次建好 |
+| `moveLevelOf` / `investMoveCost` / `moveLevelGatePassed` / `moveFitsPosition` / `nextMoveLevel` | `domain/moveQueries.ts` | 持有查询与升级判定；`nextMoveLevel` 要求「进度攒满 `MOVE_PROGRESS_PER_LEVEL` **且**综合分过该档 `minOverall`」，等级 0 也算（攒满才第一次真的学会） |
+| `resolveMoveTerms` | `domain/moveQueries.ts` | `(player, kind, optionId, opponents) => MoveBonusTerm[]`：把持有绝技的 `chanceDelta` 与 `counter.role` 对应的对手属性项折成概率依据；只在关键回合生成阶段调用 |
+| `investMove` | `src/engine/growth.ts` | 经验路径：闸门依次为主角缺失 / 未知绝技 / 已满级 / 比赛中 / 位置不符 / 综合分不够 / 经验不足，任一不过整笔拒绝并回 `MoveInvestReject` 码；成交后写当日新闻并返回 `{ level, cost, expLeft }` |
+| `applySpecialization` | `src/engine/specialization.ts` | 特训路径：`day.ts` 在特训日调用，读 `world.weekPlan.specialization`，每次 `SPECIALIZATION_PROGRESS = 1` 格进度 + `SPECIALIZATION_EXP = 1` 经验；受伤当天不练 |
+| `grantMoveDrops` | `src/engine/moveDrops.ts` | 掉落路径：`matchFinalize` 在终场调用，把踢成功的关键回合折算成进度；候选要 `unlock.via` 含 `matchDrop` 且位置对得上，抽签域 `createRng(seed, 'moveDrop', fixtureId, momentId)`，评分门槛 `MOVE_DROP_MIN_RATING = 7.8` |
+| `applyMoveEffect` → `teachMoveByMentor` / `advanceMoveByMentor` | `src/engine/moveMentor.ts` | 名宿路径：`applyEffects` 见 `learnMove` / `moveProgress` 就转进来。授予等级受综合分门槛约束（想跳几级就得够到第几级），够不着时退化成攒 `MENTOR_PROGRESS = 1` 格；已练到更高档时只补进度，**绝不降级** |
+| `trainMove` / `announceMoveLevel` | `src/engine/moveProgress.ts` | 三条攒进度路径的唯一落地口：满级后不再攒，跨门槛时按 `MoveTrainSource` 的口径（特训 / 比赛 / 名宿）播报同一条新闻标题 |
+
+- `MOVE_MAX_LEVEL = 3`、`MOVE_PROGRESS_PER_LEVEL = 3`、`MOVE_LEVEL_MARKS = ['Ⅰ','Ⅱ','Ⅲ']`（Unicode 罗马数字，界面不会出现拉丁 I/II/III）。
+- `Player.moves: PlayerMove[]`（`{ moveId, level, progress }`）与 `world.weekPlan.specialization` 都由存档 v9 补齐，v9 及更早的旧档不会因缺字段而 `assertWorld` 失败。
+- 只有 `trainMove`、`investMove`、`teachMoveByMentor` 三个口能改绝技账本；UI 与 store 不直接写 `player.moves`。
+- `data/moves/*.json` 与 `data/events/mentor.json` 都是静态导入的数据包，`npm run validate:data` 会跑同一套门禁。
 
 ## 训练、财务、关系、退役
 
@@ -299,7 +322,7 @@ interface TurnResult {
 | `loadWorld` | `(id) => Promise<WorldState \| null>` | 读取、schema 校验并迁移旧版本；迁移后回写数据库 |
 | `listSaves` | `() => Promise<SaveSummary[]>` | 按更新时间倒序 |
 | `deleteSave` | `(id) => Promise<void>` | 删除并清理 `lastSaveId` |
-| `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON（`saveVersion` 取 `CURRENT_SAVE_VERSION`，当前 8） |
+| `exportWorld` | `(world) => string` | 生成带 checksum 的 JSON（`saveVersion` 取 `CURRENT_SAVE_VERSION`，当前 10） |
 | `importWorld` | `(text) => WorldState` | 校验原始 checksum 后迁移到当前版本；不落库 |
 
 `downloadWorld`（`(world) => void`，触发浏览器下载）已从 `db/repository` 迁到 `store/exportSave`，经 `platform/fileExport.downloadTextFile` 落地。
@@ -318,6 +341,9 @@ interface TurnResult {
 - 连续控球、球位推进、射门/进球同源、球场位置模型与存档 v4 都改变过引擎输出，因此 `ENGINE_VERSION` 一路升到 `0.4.1`。
 - 存档 v5 把结算粒度从周改成天（训练/伤病/新闻按天执行、强度重算与身价评估改拍、比赛按日命中），引擎输出必然变化，因此 `ENGINE_VERSION` 升到 `0.5.0` 并重算 golden。
 - 存档 v8 让训练与比赛开始产出经验（`grantExp` 写进 `Player.exp / lifetimeExp`，赛后结算多一步 `ratingToExp`），球员对象参与哈希，因此 `ENGINE_VERSION` 升到 `0.9.0`，基准 `43de8568604868f8` → `c43d95700e96f860`。建号点买本身不改哈希路径：`allocation` 只做整数加法，`draftUserBase` 的随机流位置与点买前完全一致。
+- 存档 v9 给每个球员补 `moves: []`、给周计划补 `specialization: null`，这两个字段参与 `hashState`，因此 `ENGINE_VERSION` 升到 `0.10.0`，基准 `c43d95700e96f860` → `d3170bbf49ce3b2f`。绝技层本身不消耗随机数，新生成的世界没人持有绝技，`resolveMoveTerms` 返回空数组，关键回合概率与 0.9.0 同源。
+- 比赛表现掉落（`grantMoveDrops` 在终场往 `user.moves` 写进度并可能插新闻）把基准推到 `0.11.0` / `d3170bbf49ce3b2f` → `82fe56a7e245ea77`；它用独立 RNG 域 `moveDrop`，不动其他步骤的随机流。
+- 名宿批次把基准推到 `0.12.0` / `82fe56a7e245ea77` → `a53d784da26c391d`：`generateWorld` 多一条 `rel:legend:${playerId}` 关系，事件池多注册 mentor 包 9 条模板（权重 28），`rng.weighted` 的候选集与权重分布随之改变。
 - 基线由 `npm run quality:golden` 重新生成；脚本连续跑两次确认同 hash 后才写入。
 - 修改任何影响引擎输出的规则时，必须评估是否需要升 `ENGINE_VERSION` 并更新回放；哈希变化而版本未升会被 `check-anti-regression` 拦截。
 - 事件内容不参与接口签名：`data/events/*.json` 扩容只改 `world.events[*].choices` 的内容，因此接口文档里事件相关条目见 `docs/features/daily-events.md`，本文件只在引擎语义变化时升版本。
@@ -337,3 +363,5 @@ interface TurnResult {
 | 2026-11-02 | 接口签名不变；`ENGINE_VERSION` 0.6.0 → 0.7.0 并重算 golden（事件内容从 11 条扩到 87 条，`world.events[*].choices` 参与哈希），`EffectOp` 新增 `injuryDays` | 绿茵人生 M1.8（事件内容扩容） |
 | 2026-11-02 | `generateKeyMoments` 改为 `KeyMomentRequest` 对象入参并随公共入口导出类型；新增引擎内部 `matchOpponent.resolveOpponents` 与 `data/scoreChance`（`scoreChance`/`buildOptionTable`/`OptionRow`/`KindContext`/`OpponentPair`），12 类选项全部改为公式表并读对手门将/后卫/前锋属性；删除 `data/optionUtils.ts`；`ENGINE_VERSION` 0.7.0 → 0.8.0，golden `5fdf2872b99372c2` → `43de8568604868f8` | 绿茵人生 M1.9（对手对抗） |
 | 2026-11-02 | 新增成长接口：`grantExp`/`ratingToExp`/`investAttribute`（engine）与 `investmentCost`/`investmentSeriesCost`/`attributeCap`/`canInvestAttribute`/`fitsPotential`/`maxInvestable`（domain），建号点买 `allocationBudget`/`checkAllocation`/`applyAllocation`；world 公共入口新增 `previewUserStart`，另有内部 `draftUserBase`/`resolveUserAttributes`/`makeUserContract`；`EffectOp` 增至 13 个（`exp`）；`ENGINE_VERSION` 0.8.0 → 0.9.0，golden `43de8568604868f8` → `c43d95700e96f860`，`CURRENT_SAVE_VERSION`/`world.version` 升到 8 | 绿茵人生 M1.10a（经验成长与属性投资） |
+| 2026-11-02 | 新增绝技接口：domain 侧 `MOVES`/`allMoves`/`movesOfPack`/`parseMovePack`/`buildMoveRegistry`（`moves.ts`）与 `moveById`/`movesTargeting`/`moveLevelOf`/`investMoveCost`/`moveFitsPosition`/`moveLevelGatePassed`/`nextMoveLevel`/`resolveMoveTerms`（`moveQueries.ts`）；engine 侧 `investMove`（`growth.ts`）、`applySpecialization`（`specialization.ts`）、`grantMoveDrops`（`moveDrops.ts`）、`trainMove`/`announceMoveLevel`（`moveProgress.ts`）；`buildOptionTable` 增加 `kind` 入参并为非常量行自动挂绝技项；存档 v9 补 `Player.moves` 与 `weekPlan.specialization`；`ENGINE_VERSION` 0.9.0 → 0.11.0，golden `c43d95700e96f860` → `d3170bbf49ce3b2f` → `82fe56a7e245ea77`，`CURRENT_SAVE_VERSION` 升到 9 | 绿茵人生 M1.10b（绝技 64 条与三条获取路径） |
+| 2026-11-02 | 新增名宿路径：`applyMoveEffect`/`teachMoveByMentor`/`advanceMoveByMentor`（`moveMentor.ts`），`EffectOp` 增至 16 个（`learnMove`/`moveProgress`/`legendTrust`），`RelationshipRole` 加 `legend` 与 domain 侧 `makeLegendRelationship`，事件池新增 mentor 包 9 条模板；存档 v10 为老档补俱乐部名宿；`ENGINE_VERSION` 0.11.0 → 0.12.0，golden `82fe56a7e245ea77` → `a53d784da26c391d`，`CURRENT_SAVE_VERSION` 升到 10 | 绿茵人生 M1.11（名宿传授绝技） |
