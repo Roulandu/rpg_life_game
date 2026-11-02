@@ -4,6 +4,7 @@ import type { StaffCandidate, StaffMember } from '../../src/domain'
 import type { WorldState } from '../../src/domain/types'
 import { advanceDay } from '../../src/engine'
 import { migrateWorld } from '../../src/db/migrate'
+import { MIGRATION_STEPS } from '../../src/db/migrateSteps'
 import { exportWorld, importWorld } from '../../src/db/repository'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
@@ -92,5 +93,22 @@ describe('存档迁移 v11 -> v12 个人团队名册', () => {
 
     expect(staffOf(world)).toHaveLength(1)
     expect(staffOf(world)?.[0]).toMatchObject({ id: candidate.id, weeklyCost: candidate.weeklyCost })
+  })
+})
+
+describe('v12 迁移步骤在表里的登记', () => {
+  it('迁移表里挂着 v11→v12 这一步：从表尾删掉它，老档就没有名册', () => {
+    const step = MIGRATION_STEPS.find((item) => item.from === CURRENT_SAVE_VERSION)
+    expect(step).toBeDefined()
+
+    const legacy = v11World() as StaffView
+    expect(legacy.staff).toBeUndefined()
+    step!.run(legacy as WorldState)
+    expect(legacy.staff).toEqual([])
+
+    // 已带在职成员的脏档不能被这一步清空。
+    const hired = v11HiredWorld()
+    step!.run(hired)
+    expect(hired.staff).toHaveLength(1)
   })
 })
