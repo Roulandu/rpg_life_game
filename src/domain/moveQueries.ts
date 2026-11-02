@@ -56,10 +56,13 @@ export function moveLevelGatePassed(move: MoveDefinition, player: Player): boole
   return next !== undefined && overall(player) >= next.minOverall
 }
 
-/** 修炼进度攒满一格、且综合分过门槛时给出的新持有记录；不满足条件返回 null。 */
+/**
+ * 修炼进度攒满一格、且综合分过门槛时给出的新持有记录；不满足条件返回 null。
+ * 等级 0 也算：特训与比赛掉落先攒进度，攒满才第一次真的学会（门槛取 levels[0]）。
+ */
 export function nextMoveLevel(player: Player, move: MoveDefinition): PlayerMove | null {
   const held = player.moves?.find((item) => item.moveId === move.id)
-  if (!held || held.level < 1 || held.level >= move.levels.length) return null
+  if (!held || held.level >= move.levels.length) return null
   if (held.progress < MOVE_PROGRESS_PER_LEVEL) return null
   if (overall(player) < move.levels[held.level].minOverall) return null
   return { moveId: move.id, level: held.level + 1, progress: 0 }

@@ -96,6 +96,7 @@ export { generateFixtures } from './fixtures'
 export { KEY_MOMENT_KINDS } from './keyMomentKinds'
 export { effectsSummary, successBasisText } from './keyMomentView'
 export {
+  MOVE_MAX_LEVEL,
   MOVE_PACK_NAMES,
   MOVE_POSITION_GROUPS,
   MOVE_PROGRESS_PER_LEVEL,
