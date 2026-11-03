@@ -8,9 +8,10 @@ export interface CommitInfo {
   authorDate: string
 }
 
-function run(args: string[], allowFailure: boolean): string {
+function run(args: string[], allowFailure: boolean, cwd?: string): string {
   try {
-    return execFileSync('git', args, {
+    return execFileSync('git', ['-c', 'core.quotePath=false', ...args], {
+      cwd,
       encoding: 'utf8',
       maxBuffer: 32 * 1024 * 1024,
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -21,12 +22,12 @@ function run(args: string[], allowFailure: boolean): string {
   }
 }
 
-export function git(args: string[], allowFailure = false): string {
-  return run(args, allowFailure)
+export function git(args: string[], allowFailure = false, cwd?: string): string {
+  return run(args, allowFailure, cwd)
 }
 
-export function hasRef(ref: string): boolean {
-  return git(['rev-parse', '--verify', ref], true) !== ''
+export function hasRef(ref: string, cwd?: string): boolean {
+  return git(['rev-parse', '--verify', ref], true, cwd) !== ''
 }
 
 export function resolveBase(explicit?: string): string {
@@ -44,9 +45,9 @@ export function resolveBase(explicit?: string): string {
   return 'HEAD'
 }
 
-export function mergeBase(base: string): string {
-  if (!hasRef(base)) throw new Error(`对比基线不可达：${base}`)
-  const resolved = git(['merge-base', base, 'HEAD'], true)
+export function mergeBase(base: string, cwd?: string): string {
+  if (!hasRef(base, cwd)) throw new Error(`对比基线不可达：${base}`)
+  const resolved = git(['merge-base', base, 'HEAD'], true, cwd)
   if (!resolved) {
     throw new Error(`无法找到 ${base} 与 HEAD 的共同祖先；请确认 base 属于当前仓库。`)
   }
@@ -58,8 +59,8 @@ export function diffNames(from: string, to: string): string[] {
   return out ? out.split('\n').map((line) => line.trim()).filter(Boolean) : []
 }
 
-export function stagedFiles(): string[] {
-  const out = git(['diff', '--name-only', '--cached', 'HEAD'], true)
+export function stagedFiles(cwd?: string): string[] {
+  const out = git(['diff', '--name-only', '--cached', 'HEAD'], true, cwd)
   return out ? out.split('\n').map((line) => line.trim()).filter(Boolean) : []
 }
 
