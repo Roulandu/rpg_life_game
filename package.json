@@ -9,6 +9,7 @@
     "build:native": "tsc --noEmit && vite build --mode native",
     "android:sync": "npm run build:native && cap sync android",
     "android:open": "cap open android",
+    "android:doctor": "tsx scripts/quality/check-device.ts",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint src tests scripts",
     "validate:data": "tsx scripts/validate-data.ts",
