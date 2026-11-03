@@ -112,13 +112,15 @@ Trailer：
 CI 在任意分支 push、`v*` 标签、PR、手动触发与每周定时运行；没有 PR 也要等分支推送的 CI。push 之后必须等结果，失败要修到绿才算交付完成：
 
 ```bash
-gh run list --commit $(git rev-parse HEAD) --limit 1   # 定位 run
-gh run watch <run-id> --exit-status                    # 等待结果
-gh run view <run-id> --log-failed                      # 失败日志
-gh pr checks --watch                                   # PR 全量检查
+npm run ci:wait                                          # 默认：轮询 Actions 到结论，未通过/超时退出码 1
+npm run ci:wait -- --sha=<40位> --timeout=900 --json      # 指定提交、改超时或要机器可读输出
+gh run list --commit $(git rev-parse HEAD) --limit 1   # 装了 gh：定位 run
+gh run watch <run-id> --exit-status                      # 装了 gh：等待结果
+gh run view <run-id> --log-failed                        # 装了 gh：失败日志
+gh pr checks --watch                                     # 装了 gh：PR 全量检查
 ```
 
-失败时：取日志 → 本地用同一命令复现 → 新增提交修复后重新 push → 再次等待，循环到全绿。
+失败时：取日志 → 本地用同一命令复现 → 新增提交修复后重新 push → 再次等待，循环到全绿。没装 gh 时用 `npm run ci:wait -- --json` 拿到失败 run 的 `html_url`，在 Actions 页面读日志。
 
 - 禁止 `--amend` 已推送提交。
 - 禁止靠重跑、删测试、跳过测试、抬高基线或 `--no-verify` 过关。

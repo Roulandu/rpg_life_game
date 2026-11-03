@@ -42,8 +42,9 @@ npm run quality:secrets      # 全仓密钥扫描
 npm run docs:build           # 生成 docs/00-项目文档/02-架构设计/03-模块清单-生成.md
 npm run hooks:install        # 安装 commit-msg / pre-commit
 npm run hooks:doctor         # 检查 hooks 是否生效
-gh run list --commit $(git rev-parse HEAD) --limit 1  # 定位本次 push 的 CI
-gh run watch <run-id> --exit-status                   # 等待并返回 CI 结论
+npm run ci:wait              # 等本次 HEAD 的 CI 结论（仓库自带，不需要 gh CLI）
+gh run list --commit $(git rev-parse HEAD) --limit 1  # 定位本次 push 的 CI（装了 gh 才可用）
+gh run watch <run-id> --exit-status                   # 等待并返回 CI 结论（装了 gh 才可用）
 ```
 
 ## 提交
@@ -59,8 +60,9 @@ gh run watch <run-id> --exit-status                   # 等待并返回 CI 结�
 
 - CI 在**任意分支 push**、`v*` 标签、PR、手动触发与每周定时运行；没有 PR 也能验证，但 push 后必须等到该 commit 的 CI 结束。
 - 未出结果不得声称完成，也不得开始无关的新任务；本地通过不等于远端通过。
-- 定位并等待：push 用 `gh run list --commit $(git rev-parse HEAD) --limit 1` + `gh run watch <run-id> --exit-status`；PR 用 `gh pr checks --watch`。
-- CI 失败必须主动修复：`gh run view <run-id> --log-failed` 取日志，本地用同一命令复现，修复后新增提交并重新 push，再次等待，直到全绿。
+- 定位并等待：默认用 `npm run ci:wait`（轮询 GitHub Actions REST API，成功退出码 0，未通过或超时退出码 1）；本机装了 gh 时也可以用 `gh run list --commit $(git rev-parse HEAD) --limit 1` + `gh run watch <run-id> --exit-status`；PR 用 `gh pr checks --watch`。
+- `npm run ci:wait` 的可选参数：`--sha`（默认 HEAD）、`--repo`（默认取 git remote）、`--timeout`（秒，默认 900）、`--interval`（秒，默认 20）、`--json`；私有仓库或限流严重时可设 `GITHUB_TOKEN`。
+- CI 失败必须主动修复：装了 gh 用 `gh run view <run-id> --log-failed` 取日志；没有 gh 就从 `npm run ci:wait -- --json` 的 `html_url` 打开对应 run 看日志，本地用同一命令复现，修复后新增提交并重新 push，再次等待，直到全绿。
 - 已推送提交不得 `--amend`；不得靠重跑、删测试、跳过测试、抬高基线或 `--no-verify` 过关。
 - 重跑只用于 runner、网络等基础设施故障，且必须等到最终结果；断网或无权限时如实说明“CI 未出结果”，不得默认通过。
 - 合入或打 tag 产生新 SHA 时必须重新验证新 SHA，不能沿用旧结果。

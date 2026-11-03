@@ -31,6 +31,7 @@
     "quality:golden": "tsx scripts/quality/update-golden.ts",
     "quality:report": "tsx scripts/quality/report.ts",
     "quality:file": "tsx scripts/quality/inspect-file.ts",
+    "ci:wait": "tsx scripts/quality/check-ci.ts",
     "check:tech-debt": "npm run quality:tech-debt",
     "check:duplication": "npm run quality:duplication",
     "check:boundaries": "npm run quality:boundaries",
