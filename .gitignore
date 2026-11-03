@@ -31,3 +31,4 @@ coverage/
 
 # Quality tool cache
 quality/.cache/
+quality/reports/

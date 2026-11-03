@@ -12,6 +12,8 @@ export interface KnownViolation {
 export interface ModuleDef {
   path: string
   publicEntry: string | null
+  description: string
+  contracts?: string[]
   allowedDeps: string[]
   tests: string[]
   docs: string[]

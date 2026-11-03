@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { baselineFiles, validateCommitMessage } from './lib/commit'
+import { loadGovernance, recordExists } from './lib/governance'
 import { stagedFiles } from './lib/git'
 import { repoRoot } from './lib/manifest'
 
@@ -16,6 +17,15 @@ function messagePath(): string {
 }
 
 function main(): void {
+  let governance
+  try {
+    governance = loadGovernance()
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error))
+    process.exitCode = 1
+    return
+  }
+
   const path = messagePath()
   const message = readFileSync(path, 'utf8')
   const files = stagedFiles()
@@ -23,13 +33,15 @@ function main(): void {
     changedFiles: files,
     verifyPaths: true,
     baselineChanged: baselineFiles(files).length > 0,
+    governance,
+    recordExists: (id) => recordExists(repoRoot, governance, id),
   })
 
   for (const warning of result.warnings) console.warn(`警告：${warning}`)
   if (result.errors.length > 0) {
     console.error('提交信息不符合规范：')
     for (const error of result.errors) console.error(`  - ${error}`)
-    console.error('规范见 docs/process/commit.md。')
+    console.error('规范见 docs/00-项目文档/05-开发规范/02-中文提交与变更记录规范.md。')
     process.exitCode = 1
     return
   }

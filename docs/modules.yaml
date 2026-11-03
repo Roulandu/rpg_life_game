@@ -1,4 +1,4 @@
-version: 1
+version: 2
 
 # src 根目录下的组合根文件归属到 app
 rootModule: app
@@ -13,11 +13,12 @@ modules:
   app:
     path: src/app
     publicEntry: src/app/index.ts
+    description: 组合根：启动、路由与跨模块装配，不承载业务规则。
     allowedDeps: [ui, store, platform, domain, lib]
     tests: [tests/app/**/*.test.tsx]
     docs:
-      - docs/architecture/overview.md
-      - docs/features/appearance.md
+      - docs/00-项目文档/02-架构设计/01-总体架构.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/01-外观与主题.md
     testImpact: exempt
     platformCapabilities: [composition]
     knownViolations: []
@@ -25,21 +26,22 @@ modules:
   ui:
     path: src/ui
     publicEntry: src/ui/index.ts
+    description: 页面与组件：展示状态、收集用户操作，不直接读写持久化。
     allowedDeps: [store, domain, lib, platform]
     tests: [tests/ui/**/*.test.tsx]
     docs:
-      - docs/features/growth-exp.md
-      - docs/features/daily-turn.md
-      - docs/features/daily-events.md
-      - docs/features/matchday.md
-      - docs/features/team-squad.md
-      - docs/features/names-i18n.md
-      - docs/features/gm-agent.md
-      - docs/features/saves.md
-      - docs/features/appearance.md
-      - docs/features/player-moves.md
-      - docs/features/finance-daily.md
-      - docs/features/private-staff.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/07-经验成长与属性投资.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/04-每日回合.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/03-每日事件.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/08-比赛日与关键回合.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/13-队伍与球员详情.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/09-中文人名与显示名.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/06-AI-GM-Agent.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/12-存档与导入导出.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/01-外观与主题.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/10-绝技与球员动作.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/05-资金运用.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/11-个人团队与员工.md
     testImpact: via-module
     platformCapabilities: [ui]
     knownViolations: []
@@ -47,19 +49,20 @@ modules:
   store:
     path: src/store
     publicEntry: src/store/index.ts
+    description: 用例与状态编排：协调 engine、world、llm、db 完成一次完整操作。
     allowedDeps: [engine, world, llm, db, platform, domain, lib]
     tests: [tests/store/**/*.test.ts]
     docs:
-      - docs/features/growth-exp.md
-      - docs/features/daily-turn.md
-      - docs/features/daily-events.md
-      - docs/features/saves.md
-      - docs/features/gm-agent.md
-      - docs/features/appearance.md
-      - docs/features/matchday.md
-      - docs/features/player-moves.md
-      - docs/features/finance-daily.md
-      - docs/features/private-staff.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/07-经验成长与属性投资.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/04-每日回合.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/03-每日事件.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/12-存档与导入导出.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/06-AI-GM-Agent.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/01-外观与主题.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/08-比赛日与关键回合.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/10-绝技与球员动作.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/05-资金运用.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/11-个人团队与员工.md
     testImpact: strict
     platformCapabilities: [session]
     knownViolations: []
@@ -67,17 +70,20 @@ modules:
   engine:
     path: src/engine
     publicEntry: src/engine/index.ts
+    description: 确定性核心规则：回合、比赛、成长、财务与关键时刻结算。
+    contracts:
+      - docs/00-项目文档/04-接口与数据/01-引擎公共接口.md
     allowedDeps: [domain, lib]
     tests: [tests/engine/**/*.test.ts]
     docs:
-      - docs/features/growth-exp.md
-      - docs/features/daily-turn.md
-      - docs/features/daily-events.md
-      - docs/features/matchday.md
-      - docs/features/player-moves.md
-      - docs/features/names-i18n.md
-      - docs/features/finance-daily.md
-      - docs/features/private-staff.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/07-经验成长与属性投资.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/04-每日回合.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/03-每日事件.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/08-比赛日与关键回合.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/10-绝技与球员动作.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/09-中文人名与显示名.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/05-资金运用.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/11-个人团队与员工.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []
@@ -85,16 +91,17 @@ modules:
   world:
     path: src/world
     publicEntry: src/world/index.ts
+    description: 世界与球员生成：按种子构建联赛、球队与初始赛季。
     allowedDeps: [domain, lib]
     tests:
       - tests/engine/world.test.ts
       - tests/db/save.test.ts
       - tests/world/**/*.test.ts
     docs:
-      - docs/features/growth-exp.md
-      - docs/features/player-moves.md
-      - docs/features/world-generation.md
-      - docs/features/names-i18n.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/07-经验成长与属性投资.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/10-绝技与球员动作.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/14-世界生成.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/09-中文人名与显示名.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []
@@ -102,11 +109,15 @@ modules:
   llm:
     path: src/llm
     publicEntry: src/llm/index.ts
+    description: AI GM 叙事与受约束提案；失败时降级为模板，不修改游戏事实。
+    contracts:
+      - docs/00-项目文档/04-接口与数据/02-Agent工具契约.md
+      - docs/00-项目文档/04-接口与数据/05-LLM代理配置.md
     allowedDeps: [domain, lib, platform]
     tests: [tests/llm/**/*.test.ts]
     docs:
-      - docs/features/gm-agent.md
-      - docs/features/names-i18n.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/06-AI-GM-Agent.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/09-中文人名与显示名.md
     testImpact: strict
     platformCapabilities: [http, secure-storage]
     knownViolations: []
@@ -114,15 +125,18 @@ modules:
   db:
     path: src/db
     publicEntry: src/db/index.ts
+    description: 存档持久化：IndexedDB 读写、版本迁移、导出与导入校验。
+    contracts:
+      - docs/00-项目文档/04-接口与数据/03-数据模型与存储设计.md
     allowedDeps: [domain, lib]
     tests: [tests/db/**/*.test.ts]
     docs:
-      - docs/features/saves.md
-      - docs/features/player-moves.md
-      - docs/features/names-i18n.md
-      - docs/features/finance-daily.md
-      - docs/features/private-staff.md
-      - docs/data-model.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/12-存档与导入导出.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/10-绝技与球员动作.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/09-中文人名与显示名.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/05-资金运用.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/11-个人团队与员工.md
+      - docs/00-项目文档/04-接口与数据/03-数据模型与存储设计.md
     testImpact: strict
     platformCapabilities: [persistence]
     knownViolations: []
@@ -130,12 +144,15 @@ modules:
   platform:
     path: src/platform
     publicEntry: src/platform/index.ts
+    description: 平台端口实现：在 Web/Android 间隔离存储、文件、生命周期与外观能力。
+    contracts:
+      - docs/00-项目文档/02-架构设计/04-跨平台适配设计.md
     allowedDeps: [lib]
     tests: [tests/platform/**/*.test.ts]
     docs:
-      - docs/architecture/platform-strategy.md
-      - docs/features/saves.md
-      - docs/features/appearance.md
+      - docs/00-项目文档/02-架构设计/04-跨平台适配设计.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/12-存档与导入导出.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/01-外观与主题.md
     testImpact: exempt
     platformCapabilities:
       - secure-storage
@@ -150,19 +167,22 @@ modules:
   domain:
     path: src/domain
     publicEntry: src/domain/index.ts
+    description: 领域模型与契约：类型、schema、纯函数与不变量，保持平台无关。
+    contracts:
+      - docs/00-项目文档/04-接口与数据/03-数据模型与存储设计.md
     allowedDeps: [lib]
     tests: [tests/**/*.test.ts]
     docs:
-      - docs/features/growth-exp.md
-      - docs/features/player-moves.md
-      - docs/data-model.md
-      - docs/interfaces/engine-api.md
-      - docs/features/calendar-dates.md
-      - docs/features/daily-events.md
-      - docs/features/team-squad.md
-      - docs/features/names-i18n.md
-      - docs/features/finance-daily.md
-      - docs/features/private-staff.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/07-经验成长与属性投资.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/10-绝技与球员动作.md
+      - docs/00-项目文档/04-接口与数据/03-数据模型与存储设计.md
+      - docs/00-项目文档/04-接口与数据/01-引擎公共接口.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/02-赛历与日期.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/03-每日事件.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/13-队伍与球员详情.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/09-中文人名与显示名.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/05-资金运用.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/11-个人团队与员工.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []
@@ -170,11 +190,12 @@ modules:
   lib:
     path: src/lib
     publicEntry: src/lib/index.ts
+    description: 无业务依赖的通用工具；不引用任何上层模块。
     allowedDeps: []
     tests: [tests/**/*.test.ts]
     docs:
-      - docs/architecture/overview.md
-      - docs/features/calendar-dates.md
+      - docs/00-项目文档/02-架构设计/01-总体架构.md
+      - docs/00-项目文档/03-功能设计/01-功能规则与流程/02-赛历与日期.md
     testImpact: strict
     platformCapabilities: [core]
     knownViolations: []

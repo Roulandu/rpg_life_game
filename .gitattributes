@@ -2,3 +2,6 @@
 
 # Git hooks 必须在 Windows 与 Linux 上保持一致的行尾
 .githooks/* text eol=lf
+
+# 生成文件按 LF 逐字节比对，避免 Windows 检出 CRLF 后误报
+docs/00-项目文档/02-架构设计/03-模块清单-生成.md text eol=lf

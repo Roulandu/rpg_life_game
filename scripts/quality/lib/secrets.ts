@@ -9,18 +9,31 @@ const SECRET_PATTERNS = [
   { id: 'private-key', pattern: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/ },
 ]
 
-export function scanSecrets(files: string[]): string[] {
+const EXCLUDED_PREFIXES = ['node_modules/', 'dist/', 'coverage/', 'quality/reports/']
+
+export function isExcludedSecretFile(file: string): boolean {
+  const normalized = file.split('\\').join('/')
+  return EXCLUDED_PREFIXES.some((prefix) => normalized.startsWith(prefix))
+}
+
+export function scanSecretText(file: string, text: string): string[] {
+  const problems: string[] = []
+  for (const secret of SECRET_PATTERNS) {
+    if (secret.pattern.test(text)) problems.push(`疑似密钥（${secret.id}）：${file}`)
+  }
+  return problems
+}
+
+export function scanSecrets(files: string[], root = repoRoot): string[] {
   const problems: string[] = []
   for (const file of files) {
-    const absolute = resolve(repoRoot, file)
+    const absolute = resolve(root, file)
     if (!existsSync(absolute)) continue
     const stats = statSync(absolute)
     if (!stats.isFile() || stats.size > 512 * 1024) continue
     const text = readFileSync(absolute, 'utf8')
     if (text.includes('\u0000')) continue
-    for (const secret of SECRET_PATTERNS) {
-      if (secret.pattern.test(text)) problems.push(`疑似密钥（${secret.id}）：${file}`)
-    }
+    problems.push(...scanSecretText(file, text))
   }
   return problems
 }

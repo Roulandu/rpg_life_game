@@ -1,0 +1,23 @@
+version: 1
+effectiveFrom: "2026-11-03"
+changeRecordDir: docs/00-项目文档/08-变更与治理/01-变更记录
+verificationRecordDir: docs/00-项目文档/08-变更与治理/02-验证记录
+requiredTypes: [feat, fix, refactor, perf]
+levels:
+  standard:
+    - 背景与目标
+    - 验收条件
+    - 影响范围
+    - 方案与取舍
+    - 验证证据
+    - 防回归
+    - 文档影响
+    - 兼容与回滚
+    - 技术债与例外
+    - 验收结论
+  light:
+    - 背景与目标
+    - 验收条件
+    - 验证证据
+    - 文档影响
+    - 验收结论

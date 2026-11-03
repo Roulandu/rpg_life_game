@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { shouldRequireChangeRecord, type GovernanceConfig } from './governance'
 import { repoRoot, toPosix } from './manifest'
 
 export const COMMIT_SECTIONS = [
@@ -17,6 +18,9 @@ export interface CommitValidationOptions {
   changedFiles: string[]
   verifyPaths?: boolean
   baselineChanged?: boolean
+  governance?: GovernanceConfig
+  authorDate?: string
+  recordExists?: (id: string) => boolean
 }
 
 export interface CommitValidationResult {
@@ -51,10 +55,10 @@ function parseSections(message: string): Map<string, string> {
   return result
 }
 
-function parseTrailers(message: string): Map<string, string> {
+export function parseTrailers(message: string): Map<string, string> {
   const trailers = new Map<string, string>()
   for (const line of message.replace(/\r\n/g, '\n').split('\n')) {
-    const match = line.match(/^([A-Z][A-Za-z-]+):\s*(.+)$/)
+    const match = line.match(/^([A-Z][A-Za-z-]+|变更记录)[:：]\s*(.+)$/)
     if (match?.[1] && match[2]) trailers.set(match[1], match[2].trim())
   }
   return trailers
@@ -111,6 +115,22 @@ export function validateCommitMessage(
     )
   }
   const type = (header?.[1] as CommitType | undefined) ?? undefined
+  const trailers = parseTrailers(normalized)
+  const changeRecord = trailers.get('变更记录') ?? ''
+  const changeRequired =
+    options.governance !== undefined &&
+    shouldRequireChangeRecord(options.governance, type, options.authorDate)
+
+  if (changeRequired && !changeRecord) {
+    errors.push('feat/fix/refactor/perf 提交必须包含「变更记录: CHG-YYYYMMDD-NNN」。')
+  } else if (changeRecord) {
+    const id = changeRecord.split(/[\s，,;；]+/)[0] ?? ''
+    if (!/^CHG-\d{8}-\d{3}$/.test(id)) {
+      errors.push('变更记录 Trailer 必须是 CHG-YYYYMMDD-NNN。')
+    } else if (options.recordExists && !options.recordExists(id)) {
+      errors.push(`变更记录不存在：${id}（需放在 governance.yaml 的 changeRecordDir）。`)
+    }
+  }
 
   const sections = parseSections(normalized)
   for (const name of COMMIT_SECTIONS) {
@@ -166,7 +186,6 @@ export function validateCommitMessage(
     if (!greenLine) errors.push('refactor/perf 提交必须包含 GREEN: 通过证据。')
   }
 
-  const trailers = parseTrailers(normalized)
   const docsImpact = trailers.get('Docs-Impact') ?? ''
   if (!docsImpact) {
     errors.push('缺少 Docs-Impact 标记：updated 或 none: <理由>。')

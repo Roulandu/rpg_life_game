@@ -12,6 +12,8 @@ interface KnownViolation {
 interface ModuleEntry {
   path: string
   publicEntry: string | null
+  description?: string
+  contracts?: string[]
   allowedDeps: string[]
   tests?: string[]
   docs?: string[]
@@ -38,7 +40,7 @@ interface Manifest {
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '..', '..')
 const manifestPath = resolve(root, 'docs/modules.yaml')
-const outputPath = resolve(root, 'docs/architecture/modules.md')
+const outputPath = resolve(root, 'docs/00-项目文档/02-架构设计/03-模块清单-生成.md')
 const checkOnly = process.argv.includes('--check')
 
 function fail(message: string): never {
@@ -72,18 +74,18 @@ function render(manifest: Manifest): string {
     '',
     '## 模块清单',
     '',
-    '| 模块 | 路径 | 公共入口 | 允许依赖 | 测试影响 | 平台能力 | 测试 | 文档 |',
-    '|---|---|---|---|---|---|---|---|',
+    '| 模块 | 职责 | 路径 | 公共入口 | 允许依赖 | 测试影响 | 平台能力 | 测试 | 文档 | 契约 |',
+    '|---|---|---|---|---|---|---|---|---|---|',
   ]
 
   for (const name of names) {
     const module = manifest.modules[name]
     lines.push(
-      `| \`${name}\` | \`${cell(module.path)}\` | ${
+      `| \`${name}\` | ${cell(module.description ?? '—')} | \`${cell(module.path)}\` | ${
         module.publicEntry ? `\`${cell(module.publicEntry)}\`` : '—'
       } | ${plainList(module.allowedDeps)} | \`${cell(module.testImpact)}\` | ${plainList(
         module.platformCapabilities,
-      )} | ${codeList(module.tests)} | ${codeList(module.docs)} |`,
+      )} | ${codeList(module.tests)} | ${codeList(module.docs)} | ${codeList(module.contracts)} |`,
     )
   }
 
@@ -189,7 +191,7 @@ if (checkOnly) {
   if (!existsSync(outputPath)) fail(`缺少生成文件 ${outputPath}`)
   const current = readFileSync(outputPath, 'utf8')
   if (current !== content) {
-    fail('docs/architecture/modules.md 与 modules.yaml 不一致，请运行 npm run docs:build')
+    fail('docs/00-项目文档/02-架构设计/03-模块清单-生成.md 与 modules.yaml 不一致，请运行 npm run docs:build')
   }
   console.log('模块索引已是最新。')
 } else {

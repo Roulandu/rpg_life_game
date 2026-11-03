@@ -16,9 +16,18 @@ description: 在 rpg_life_game 中按治理流程交付任何 src/tests/docs 改
    npm run quality:file -- <path>
    ```
 
-3. 读 `docs/modules.yaml` 找到模块、允许依赖、相关测试、相关文档。
-4. 读对应 `docs/features/*.md` 与 `docs/process/anti-regression.md`。
+3. 读 `docs/modules.yaml` 找到模块、职责、契约、允许依赖、相关测试、相关文档。
+4. 读对应 `docs/00-项目文档/03-功能设计/01-功能规则与流程/*.md` 与 `docs/00-项目文档/06-测试与质量/01-测试与回归策略.md`。
 5. 用一句话声明本次范围；不顺手改无关代码。
+
+## 变更记录
+
+在 `docs/00-项目文档/08-变更与治理/01-变更记录/` 新建 `CHG-YYYYMMDD-NNN-中文标题.md`：
+
+- `feat/fix/refactor/perf` 必须建，`docs/chore/test` 可豁免。
+- 写清背景与目标、验收条件、影响范围；实现过程中补验证证据。
+- 状态：`draft` → `verified` → `accepted`；未推送时写“CI 待执行”，不得写“CI 通过”。
+- 章节与字段要求见 `docs/00-项目文档/08-变更与治理/00-治理说明.md`。
 
 ## RED
 
@@ -39,7 +48,7 @@ description: 在 rpg_life_game 中按治理流程交付任何 src/tests/docs 改
 3. 跑该模块相关测试，再跑：
 
    ```bash
-   npm run check:fast
+   npm run verify -- --fast
    ```
 
 4. 没有命令输出，不得声称通过。
@@ -53,8 +62,8 @@ description: 在 rpg_life_game 中按治理流程交付任何 src/tests/docs 改
 ## 文档
 
 1. 更新对应功能文档：业务规则、时序、接口、失败降级、测试映射、变更记录。
-2. 数据结构变化更新 `docs/data-model.md`。
-3. 接口变化更新 `docs/interfaces/*`。
+2. 数据结构变化更新 `docs/00-项目文档/04-接口与数据/03-数据模型与存储设计.md`。
+3. 接口变化更新 `docs/00-项目文档/04-接口与数据/01-引擎公共接口.md` 或 `02-Agent工具契约.md`。
 4. 模块清单变化运行：
 
    ```bash
@@ -67,7 +76,7 @@ description: 在 rpg_life_game 中按治理流程交付任何 src/tests/docs 改
 
 ```bash
 npm run quality:report
-npm run check
+npm run verify -- --full --base origin/main
 ```
 
 检查：
@@ -75,12 +84,14 @@ npm run check
 - 无新增模块违规。
 - 无新增技术债/重复率上升。
 - 测试数量未减少。
-- 文档已同步。
+- 文档与契约已同步。
 - 覆盖率 floor 未下降。
+- CHG 记录了真实命令、退出码与未执行项。
+- 验证报告写入 `quality/reports/verify-<sha>[-dirty].json`。
 
 ## 提交
 
-使用六段中文模板（见 `docs/process/commit.md`）：
+使用六段中文模板（见 `docs/00-项目文档/05-开发规范/02-中文提交与变更记录规范.md`）：
 
 - `变更内容`
 - `修改范围`
@@ -93,11 +104,12 @@ Trailer：
 
 - `Docs-Impact: updated | none: <理由>`
 - `Test-Impact: updated | none: <理由> | removed: <理由>`
+- `变更记录: CHG-YYYYMMDD-NNN`（四类提交必填）
 - 改基线时 `Baseline-Update: <理由>`
 
 ## 推送与 CI 闭环
 
-push 之后必须等 CI 结果，失败要修到绿才算交付完成：
+CI 在任意分支 push、`v*` 标签、PR、手动触发与每周定时运行；没有 PR 也要等分支推送的 CI。push 之后必须等结果，失败要修到绿才算交付完成：
 
 ```bash
 gh run list --commit $(git rev-parse HEAD) --limit 1   # 定位 run
@@ -111,6 +123,8 @@ gh pr checks --watch                                   # PR 全量检查
 - 禁止 `--amend` 已推送提交。
 - 禁止靠重跑、删测试、跳过测试、抬高基线或 `--no-verify` 过关。
 - 重跑只用于 runner/网络等基础设施故障，且必须等到最终结果。
+- 合入/tag 产生新 SHA 时必须重新验证新 SHA。
+- artifact 会过期，交付说明记录 run URL 与关键结果。
 - CI 结论写进 PR 描述或交付说明，不说“应该能过”。
 
 ## 停止条件
@@ -118,12 +132,14 @@ gh pr checks --watch                                   # PR 全量检查
 遇到以下情况必须停下来问人，不能硬绕：
 
 - 无法让测试因预期原因失败。
+- 缺少 CHG，或 CHG 状态/章节无法在本次交付内补齐。
 - 需要调高 baseline。
 - 需要新增 `knownViolations` 或循环依赖。
 - 需要改存档结构但不升版本。
-- 文档无法同步且没有合理豁免。
+- 文档或契约无法同步且没有合理豁免。
 - 需要 `--no-verify`、删除测试或跳过测试。
 - CI 失败且需要越出本次范围、改基线或删/跳过测试才能通过。
+- CI 未出结果，或 base 不可达/验证对象漂移。
 
 ## 诚实规则
 
@@ -139,11 +155,13 @@ gh pr checks --watch                                   # PR 全量检查
 
 ```bash
 npm test -- <file>
-npm run check:fast
-npm run check
+npm run verify -- --fast
+npm run verify -- --full --base origin/main
 npm run quality:file -- <path>
 npm run quality:report
+npm run quality:change-records
+npm run quality:secrets
 npm run docs:build
-npm run check:doc-sync -- --base origin/main
-npm run check:test-impact -- --base origin/main
+npm run quality:doc-sync -- --base origin/main
+npm run quality:test-impact -- --base origin/main
 ```

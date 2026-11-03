@@ -32,10 +32,12 @@ function main(): void {
 
   console.log(`文件：${file}`)
   console.log(`模块：${module ?? '未登记（请检查 docs/modules.yaml）'}`)
+  console.log(`职责：${definition?.description ?? '—'}`)
   console.log(`允许依赖：${definition?.allowedDeps.join(', ') ?? '—'}`)
   console.log(`测试影响：${definition?.testImpact ?? '—'}`)
   console.log(`相关文档：${definition?.docs.join(' | ') ?? '—'}`)
-  console.log(`相关测试：${definition?.tests.join(' | ') ?? '—'}`)
+  console.log(`公开契约：${definition?.contracts?.join(' | ') ?? '—'}`)
+  console.log(`必跑测试：${definition?.tests.join(' | ') ?? '—'}`)
 
   if (metrics.length === 0) {
     console.log('当前指标：未超过阈值。')

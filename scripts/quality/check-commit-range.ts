@@ -1,5 +1,7 @@
 import { baselineFiles, validateCommitMessage } from './lib/commit'
 import { commitsSince, resolveBase } from './lib/git'
+import { loadGovernance, recordExists } from './lib/governance'
+import { repoRoot } from './lib/manifest'
 
 function argValue(name: string): string | undefined {
   const prefix = `--${name}=`
@@ -10,32 +12,41 @@ function argValue(name: string): string | undefined {
 }
 
 function main(): void {
-  const base = resolveBase(argValue('base'))
-  const commits = commitsSince(base)
-  if (commits.length === 0) {
-    console.log(`提交范围检查通过：${base}..HEAD 没有提交。`)
-    return
-  }
-
-  const problems: string[] = []
-  for (const commit of commits) {
-    const result = validateCommitMessage(commit.message, {
-      changedFiles: commit.files,
-      verifyPaths: false,
-      baselineChanged: baselineFiles(commit.files).length > 0,
-    })
-    for (const error of result.errors) {
-      problems.push(`${commit.sha.slice(0, 7)} ${commit.subject}：${error}`)
+  try {
+    const governance = loadGovernance()
+    const base = resolveBase(argValue('base'))
+    const commits = commitsSince(base)
+    if (commits.length === 0) {
+      console.log(`提交范围检查通过：${base}..HEAD 没有提交。`)
+      return
     }
-  }
 
-  if (problems.length > 0) {
-    console.error(`提交范围检查失败（${base}..HEAD）：`)
-    for (const problem of problems) console.error(`  - ${problem}`)
+    const problems: string[] = []
+    for (const commit of commits) {
+      const result = validateCommitMessage(commit.message, {
+        changedFiles: commit.files,
+        verifyPaths: false,
+        baselineChanged: baselineFiles(commit.files).length > 0,
+        governance,
+        authorDate: commit.authorDate,
+        recordExists: (id) => recordExists(repoRoot, governance, id),
+      })
+      for (const error of result.errors) {
+        problems.push(`${commit.sha.slice(0, 7)} ${commit.subject}：${error}`)
+      }
+    }
+
+    if (problems.length > 0) {
+      console.error(`提交范围检查失败（${base}..HEAD）：`)
+      for (const problem of problems) console.error(`  - ${problem}`)
+      process.exitCode = 1
+      return
+    }
+    console.log(`提交范围检查通过：${commits.length} 个提交符合规范。`)
+  } catch (error) {
+    console.error(`提交范围检查失败：${error instanceof Error ? error.message : String(error)}`)
     process.exitCode = 1
-    return
   }
-  console.log(`提交范围检查通过：${commits.length} 个提交符合规范。`)
 }
 
 main()

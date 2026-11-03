@@ -45,7 +45,7 @@ function checkGenerated(problems: string[]): void {
   } catch (error) {
     const failure = error as { stdout?: string; stderr?: string }
     problems.push(
-      `docs/architecture/modules.md 与 docs/modules.yaml 不一致：${(failure.stdout ?? failure.stderr ?? '').trim()}`,
+      `docs/00-项目文档/02-架构设计/03-模块清单-生成.md 与 docs/modules.yaml 不一致：${(failure.stdout ?? failure.stderr ?? '').trim()}`,
     )
   }
 }
@@ -58,9 +58,17 @@ function main(): void {
   )
 
   for (const [name, module] of Object.entries(manifest.modules)) {
+    if (typeof module.description !== 'string' || module.description.trim().length === 0) {
+      problems.push(`模块 ${name} 缺少职责说明 description`)
+    }
     if (module.docs.length === 0) problems.push(`模块 ${name} 没有关联文档`)
     for (const doc of module.docs) {
       if (!existsSync(resolve(repoRoot, doc))) problems.push(`模块 ${name} 的文档不存在：${doc}`)
+    }
+    for (const contract of module.contracts ?? []) {
+      if (!existsSync(resolve(repoRoot, contract))) {
+        problems.push(`模块 ${name} 的契约文档不存在：${contract}`)
+      }
     }
   }
 
@@ -100,7 +108,7 @@ function main(): void {
       }
     }
 
-    if (doc.endsWith('architecture/overview.md') && !hasMermaid(body, 'flowchart')) {
+    if (doc.endsWith('02-架构设计/01-总体架构.md') && !hasMermaid(body, 'flowchart')) {
       problems.push(`${doc} 缺少 mermaid flowchart 架构图`)
     }
   }
@@ -113,7 +121,7 @@ function main(): void {
   if (changedSource.length > 0) {
     const changedDocs = new Set(
       changed.filter(
-        (file) => file.startsWith('docs/') && !file.endsWith('architecture/modules.md'),
+        (file) => file.startsWith('docs/') && !file.endsWith('02-架构设计/03-模块清单-生成.md'),
       ),
     )
     const modules = new Set<string>()
@@ -129,13 +137,14 @@ function main(): void {
     for (const module of modules) {
       const definition = manifest.modules[module]
       if (!definition) continue
-      const hasDocChange = definition.docs.some((doc) => changedDocs.has(doc))
+      const moduleDocs = [...definition.docs, ...(definition.contracts ?? [])]
+      const hasDocChange = moduleDocs.some((doc) => changedDocs.has(doc))
       if (!hasDocChange) {
         if (waivers.length > 0) {
           console.log(`模块 ${module} 未同步文档，使用 Docs-Impact 豁免：${waivers.join('；')}`)
         } else {
           problems.push(
-            `模块 ${module} 的代码已改动，但同一次变更没有更新其文档：${definition.docs.join(' 或 ')}`,
+            `模块 ${module} 的代码已改动，但同一次变更没有更新其文档或契约：${moduleDocs.join(' 或 ')}`,
           )
         }
       }
