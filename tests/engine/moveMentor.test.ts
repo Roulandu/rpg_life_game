@@ -8,11 +8,12 @@ import {
   moveLevelOf,
   overall,
 } from '../../src/domain'
-import type { Effect, EventTemplateContent, GameEvent, MoveDefinition, Player, WorldState } from '../../src/domain'
+import type { Effect, EventTemplateContent, MoveDefinition, Player, WorldState } from '../../src/domain'
 import { applyEffects } from '../../src/engine/effects'
 import { resolveEvent } from '../../src/engine/events'
 import { getRelationshipByRole, relationshipLabel } from '../../src/engine/relationships'
 import { freshWorld } from '../fixtures/growth'
+import { openMentorLessonEvent } from '../fixtures/mentorLesson'
 
 /**
  * 职责：验证「名宿传授」这条绝技获取路径——事件给出的 learnMove 直接授予等级，moveProgress 只攒进度，
@@ -61,29 +62,6 @@ function progressOf(user: Player, moveId: string): number {
   return user.moves?.find((item) => item.moveId === moveId)?.progress ?? -1
 }
 
-/** 把数据包里的模板原样挂成一个未处理事件，用来测结算路径。 */
-function openTemplateEvent(world: WorldState, templateId: string, eventId: string): GameEvent {
-  const template = eventTemplatesOfPack('mentor').find((item) => item.id === templateId)
-  if (!template) throw new Error(`名宿事件包缺少模板：${templateId}`)
-  const event: GameEvent = {
-    id: eventId,
-    templateId: template.id,
-    title: template.title,
-    body: template.body,
-    sender: template.sender,
-    season: world.season,
-    week: world.week,
-    day: world.day,
-    createdAtWeek: world.week,
-    expiresWeek: world.week,
-    status: 'open',
-    choices: template.choices,
-    source: 'template',
-  }
-  world.events[eventId] = event
-  return event
-}
-
 /** 绝技类效果算子：learnMove 授予等级，moveProgress 攒进度。 */
 function isMoveEffect(effect: Effect): boolean {
   return effect.op === 'learnMove' || effect.op === 'moveProgress'
@@ -91,19 +69,6 @@ function isMoveEffect(effect: Effect): boolean {
 
 function moveEffectsOf(template: EventTemplateContent): Effect[] {
   return template.choices.flatMap((choice) => choice.effects.filter(isMoveEffect))
-}
-
-/** 从名宿事件包里找出真教彩虹过人的那一课，避免测试靠模板 id 猜内容。 */
-function rainbowLesson(): { templateId: string; choiceId: string } {
-  const template = eventTemplatesOfPack('mentor').find((item) =>
-    moveEffectsOf(item).some((effect) => effect.moveId === RAINBOW_ID),
-  )
-  if (!template) throw new Error('名宿事件包里没有教彩虹过人的一课')
-  const choice = template.choices.find((item) =>
-    item.effects.some((effect) => effect.moveId === RAINBOW_ID),
-  )
-  if (!choice) throw new Error(`名宿事件 ${template.id} 的选项里找不到那一课`)
-  return { templateId: template.id, choiceId: choice.id }
 }
 
 describe('名宿授予绝技等级', () => {
@@ -233,11 +198,10 @@ describe('名宿事件包', () => {
   })
 
   it('主页上接受名宿的一课后，绝技进了球员档案', () => {
-    const lesson = rainbowLesson()
     const { world, user } = draft()
-    openTemplateEvent(world, lesson.templateId, 'event:mentor:learn')
+    const lesson = openMentorLessonEvent(world, RAINBOW_ID, 'event:mentor:learn')
 
-    resolveEvent(world, 'event:mentor:learn', lesson.choiceId)
+    resolveEvent(world, lesson.eventId, lesson.choiceId)
 
     expect(moveLevelOf(user, RAINBOW_ID)).toBeGreaterThanOrEqual(1)
     expect(world.news.some((item) => item.title.includes('彩虹过人'))).toBe(true)
