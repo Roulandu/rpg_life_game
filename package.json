@@ -13,6 +13,7 @@
     "lint": "oxlint src tests scripts",
     "validate:data": "tsx scripts/validate-data.ts",
     "docs:build": "tsx scripts/quality/generate-module-docs.ts",
+    "fixture:moves-career": "tsx scripts/build-moves-career.ts",
     "docs:check": "tsx scripts/quality/generate-module-docs.ts --check",
     "quality:tech-debt": "tsx scripts/quality/check-tech-debt.ts",
     "quality:duplication": "tsx scripts/quality/check-duplication.ts",
