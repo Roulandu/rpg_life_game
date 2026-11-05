@@ -2,14 +2,15 @@
 id: CHG-20261105-001
 title: 修 Windows 下 adb 设备解析误报无在线设备
 type: fix
-status: verified
+status: accepted
 level: standard
 created: 2026-11-05
 updated: 2026-11-05
 scope: [scripts, tests, docs]
-commits: []
+commits:
+  - 2892d586655d4139329978c842e1882efab98ecb
 verification: []
-ciRun: ''
+ciRun: https://github.com/Roulandu/rpg_life_game/actions/runs/42046557445
 ---
 
 ## 背景与目标
@@ -83,4 +84,4 @@ TAB 只出现在 macOS/Linux 的 adb 上，所以该正则在 Windows 上永远�
 
 RED/GREEN 是同一个测试文件 `tests/quality/deviceParse.test.ts`，失败原因与需求直接相关（`parseOnlineDevices is not a function`），修复后 12 例全绿且原有用例数不降。真实设备上的效果已由 `npm run android:doctor` 前后对比证明：同一台 HONOR、同一条命令，从「真机验收暂缓（无在线设备）」变成「1 台在线设备：AAHBVB5411000443 / 真机验收可以开始」。`npm run verify -- --fast` 8 步全绿。
 
-状态为 `verified`：本地门禁通过，**CI 待执行**（本次改动尚未推送）。推送后须用 `npm run ci:wait` 取到该 commit 的最终结论，才能推进到 `accepted` 并回填 `ciRun`。
+状态推进到 `accepted`：本地门禁通过后，批次 0-4 五个提交一起推送 `origin/main`，`npm run ci:wait` 对 HEAD `73100f7` 输出 `CI success：73100f7 → 1 个 run 全部成功。`，run [42046557445](https://github.com/Roulandu/rpg_life_game/actions/runs/42046557445) 结论 `completed/success`。`accepted` 只覆盖设备解析、夹具与门禁本身；真机上的完整验收清单仍需在设备上手动复玩，见上一条未执行项。
