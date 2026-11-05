@@ -1,6 +1,6 @@
 /**
  * 职责：把「真机验收前必须成立的事实」写成纯判定，供 npm run android:doctor 与测试共用同一口径。
- * 边界：只吃探针数据，不碰 adb、文件系统与网络；设备不在场只报警，WebView 负载陈旧必须判失败。
+ * 边界：只吃探针数据与 adb 的文本输出，不碰 adb 调用、文件系统与网络；设备不在场只报警，WebView 负载陈旧必须判失败。
  * 依赖：无外部依赖；探针由 scripts/quality/check-device.ts 采集。
  */
 
@@ -32,6 +32,21 @@ export interface DeviceReport {
   /** 没有 fail 项即为真机验收前置就绪（设备是否在场看 deviceReady）。 */
   ok: boolean
   deviceReady: boolean
+}
+
+/**
+ * 从 `adb devices -l` 的文本里取出 state=device 的序列号。
+ * 行形状是「序列号 <分隔符> state [字段...]」，但分隔符在 Windows 上是连续空格、在 POSIX 上是 TAB，
+ * Windows 还带 CRLF：只认 TAB 会把插着线的真机读成「无在线设备」，整份真机验收清单随之作废。
+ * 所以按空白切出前两列再比 state，而不是在整行里找 device 子串——序列号本身可能含 device。
+ */
+export function parseOnlineDevices(output: string): string[] {
+  const online: string[] = []
+  for (const raw of output.split(/\r?\n/)) {
+    const [serial, state] = raw.trim().split(/\s+/)
+    if (serial && state === 'device') online.push(serial)
+  }
+  return online
 }
 
 function toolchainFindings(probe: DeviceProbe): DeviceFinding[] {

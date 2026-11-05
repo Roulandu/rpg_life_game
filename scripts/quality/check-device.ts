@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { assessDeviceReport, formatDeviceReport, type DeviceProbe } from './lib/device'
+import { assessDeviceReport, formatDeviceReport, parseOnlineDevices, type DeviceProbe } from './lib/device'
 
 const repoRoot = resolve(process.cwd())
 const DIST_INDEX = join(repoRoot, 'dist', 'index.html')
@@ -27,19 +27,11 @@ function adbBinary(home: string): string {
   return home ? join(home, 'platform-tools', process.platform === 'win32' ? 'adb.exe' : 'adb') : 'adb'
 }
 
-/** `adb devices -l` 里只认 state=device 的行；unauthorized/offline 不算能用的设备。 */
-function parseDevices(output: string): string[] {
-  return output
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => /\tdevice(\s|$)/.test(line))
-    .map((line) => line.split('\t')[0])
-}
-
+/** 调 adb 取设备列表；行解析口径在 lib/device.ts 的 parseOnlineDevices，与就绪判定共用同一处。 */
 function collectDevices(home: string): { available: boolean; online: string[] } {
   try {
     const output = execFileSync(adbBinary(home), ['devices', '-l'], { encoding: 'utf8', timeout: 15_000 })
-    return { available: true, online: parseDevices(output) }
+    return { available: true, online: parseOnlineDevices(output) }
   } catch {
     return { available: false, online: [] }
   }
