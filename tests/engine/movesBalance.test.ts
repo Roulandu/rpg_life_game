@@ -31,9 +31,16 @@ const KINDS_BY_GROUP: Record<string, Set<KeyMomentKind>> = {
   FWD: kindsSeenByGroup('FWD'),
 }
 
-const bareSeason = replaySeason(424242, 0)
-const loadedSeason = replaySeason(424242, 3)
-const otherSeedSeason = replaySeason(7, 3)
+/**
+ * 平衡带要按「整季真首发的球员」来统计：坐在替补席的种子一季只有十几个关键回合，
+ * 均值、占比与覆盖率都没有分辨力。这两个种子都跑满 38 场首发。
+ */
+const BALANCE_SEED = 21
+const OTHER_BALANCE_SEED = 58
+
+const bareSeason = replaySeason(BALANCE_SEED, 0)
+const loadedSeason = replaySeason(BALANCE_SEED, 3)
+const otherSeedSeason = replaySeason(OTHER_BALANCE_SEED, 3)
 
 interface Gain {
   rarity: MoveRarity

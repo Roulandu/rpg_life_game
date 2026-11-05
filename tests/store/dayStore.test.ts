@@ -1,9 +1,16 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { TRAINING_LABELS } from '../../src/domain'
+import { TRAINING_LABELS, fixtureDayOf } from '../../src/domain'
 import { listSaves } from '../../src/db/repository'
 import { useGameStore } from '../../src/store/gameStore'
-import { testOptions } from '../fixtures/career'
+import { starterOptions, testOptions } from '../fixtures/career'
 import { clearStore } from '../fixtures/storeHarness'
+
+/** 停点必须落在实时那场球自己的比赛日，而不是某个写死的星期数。 */
+function matchdayOfLiveMatch(): number {
+  const world = useGameStore.getState().world
+  const fixture = world?.fixtures[world.lastMatch?.fixtureId ?? '']
+  return fixture ? fixtureDayOf(fixture) : -1
+}
 
 describe('逐日推进的 store', () => {
   beforeEach(clearStore)
@@ -33,13 +40,13 @@ describe('逐日推进的 store', () => {
   })
 
   it('推进到下一件事停在比赛日并汇总平静日', async () => {
-    await useGameStore.getState().createCareer(testOptions())
+    await useGameStore.getState().createCareer(starterOptions())
 
     const fast = await fastForwardToMatchday()
 
     const world = useGameStore.getState().world
     expect(fast?.stopReason).toBe('matchday')
-    expect(world?.day).toBe(7)
+    expect(world?.day).toBe(matchdayOfLiveMatch())
     expect(world?.lastMatch?.status).toBe('live')
     expect(useGameStore.getState().notice).toContain('个平静日')
   })
@@ -57,14 +64,14 @@ describe('逐日推进的 store', () => {
   })
 
   it('今天的比赛没踢完时拒绝继续往后推日子', async () => {
-    await useGameStore.getState().createCareer(testOptions())
+    await useGameStore.getState().createCareer(starterOptions())
     await fastForwardToMatchday()
 
     const blocked = await useGameStore.getState().advanceDay()
 
     expect(blocked).toBeNull()
     expect(useGameStore.getState().error).toContain('请先')
-    expect(useGameStore.getState().world?.day).toBe(7)
+    expect(useGameStore.getState().world?.day).toBe(matchdayOfLiveMatch())
   })
 
   it('推进摘要说出这一天是训练日、活动日还是休息日', async () => {

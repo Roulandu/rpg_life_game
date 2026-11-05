@@ -63,7 +63,7 @@ export function CareerAttributeCard({ draft }: { draft: CareerDraft }) {
     <Card>
       <SectionTitle right={<span className="chip text-accent">{left} 点可用</span>}>属性点买</SectionTitle>
       <p className="mb-2 text-[11px] leading-relaxed text-dim">
-        综合 {preview.overall.toFixed(1)} · 潜力 {preview.potential.toFixed(1)}。点买不消耗随机数，换种子会重新抽一套基准。
+        综合 {preview.overall.toFixed(1)} · 潜力 {preview.potential.toFixed(1)}。基准只由种子、年龄与位置决定：点买不消耗随机数，换种子会重抽，改名不会。
       </p>
       <ul className="space-y-1.5">
         {keys.map((key) => (

@@ -36,9 +36,10 @@ describe('建号属性点买落到世界生成', () => {
     expect(bought.attributes.shooting).toBe(base.attributes.shooting + 3)
     expect(bought.attributes.passing).toBe(base.attributes.passing + 2)
     expect(bought.attributes.technique).toBe(base.attributes.technique + 4)
-    expect(ATTR_KEYS.reduce((sum, key) => sum + (bought.attributes[key] - base.attributes[key]), 0)).toBe(
-      Math.min(budget, 9),
-    )
+    // 属性各自保留一位小数，逐项相减再累加必然带浮点尾差，所以这里用容差而不是全等。
+    expect(
+      ATTR_KEYS.reduce((sum, key) => sum + (bought.attributes[key] - base.attributes[key]), 0),
+    ).toBeCloseTo(Math.min(budget, 9), 6)
     expect(rngFingerprint(bought)).toBe(rngFingerprint(base))
     expect(computeOverall(bought.position, bought.attributes)).toBeLessThanOrEqual(bought.potential)
   })

@@ -31,9 +31,11 @@ export interface UserBaseDraft {
  * 建号基准：主角的年龄、原始能力值、十项属性与潜力。
  * 这段随机数序列必须与球员工厂完全一致，所以预览与生成共用同一个函数，
  * 也把 `rng` 一起交回调用方，后续 `pickFoot` 才不会读错位。
+ * `name` 刻意不进随机数材料：界面在输入姓名的过程中就实时重算这套数字，
+ * 姓名参与抽签等于给玩家一个刷初始属性的入口。
  */
 export function draftUserBase(options: CareerCreateOptions): UserBaseDraft {
-  const rng = createRng(options.seed, 'user', options.name, options.age, options.position)
+  const rng = createRng(options.seed, 'user', options.age, options.position)
   const age = clamp(options.age, 16, 21)
   const baseAbility = 46 + (age - 16) * 2 + rng.normal(0, 2.5)
   const attributes = makeAttributes(options.position, baseAbility, rng)

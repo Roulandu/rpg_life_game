@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest'
 import type { KeyMoment, WeeklyPlan } from '../../src/domain/types'
 import { useGameStore } from '../../src/store/gameStore'
-import { testOptions } from './career'
+import { starterOptions } from './career'
 import { PLAN } from './matchday'
 
 const { saveWorldMock } = vi.hoisted(() => ({ saveWorldMock: vi.fn() }))
@@ -16,7 +16,7 @@ const plan: WeeklyPlan = PLAN
 export { saveWorldMock }
 
 export async function createLiveCareer() {
-  await useGameStore.getState().createCareer(testOptions())
+  await useGameStore.getState().createCareer(starterOptions())
   useGameStore.getState().updateSettings({ aiMode: 'llm' })
   const result = await useGameStore.getState().advance(plan)
   expect(result?.live).toBe(true)

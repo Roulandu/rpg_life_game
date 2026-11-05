@@ -10,7 +10,7 @@ import { migrateWorld } from '../../src/db/migrate'
 import { PLAN, readyWorld } from '../fixtures/matchday'
 import { legacyWorld } from '../fixtures/legacySave'
 import { resetStore } from '../fixtures/storeHarness'
-import { testOptions } from '../fixtures/career'
+import { starterOptions } from '../fixtures/career'
 
 const plan: WeeklyPlan = PLAN
 
@@ -40,7 +40,7 @@ describe('matchday store', () => {
   })
 
   it('advance 停在 live 比赛，周次不变、已落盘且不触发叙事', async () => {
-    await useGameStore.getState().createCareer(testOptions())
+    await useGameStore.getState().createCareer(starterOptions())
     useGameStore.getState().updateSettings({ aiMode: 'llm' })
     saveWorldMock.mockClear()
     const week = useGameStore.getState().world!.week

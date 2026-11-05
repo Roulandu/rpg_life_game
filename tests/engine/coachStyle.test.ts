@@ -29,6 +29,23 @@ function toCreator(world: WorldState): void {
   user.attributes.stamina = 68
 }
 
+/**
+ * 把球员钉在「主力边缘」：属性完全固定，教练风格成为唯一的自变量。
+ * 用默认建号跑这条断言不行——那批球员整季都在门槛以下，风格带来的不到 1 分只影响
+ * 四十分之一的抽签结果，一发抽签的噪声比信号大，测出来的先后是运气。
+ */
+function toBorderlineCreator(world: WorldState): void {
+  const user = world.players[world.playerId]
+  user.attributes.passing = 70
+  user.attributes.technique = 68
+  user.attributes.dribbling = 64
+  user.attributes.mental = 60
+  user.attributes.physical = 38
+  user.attributes.pace = 44
+  user.attributes.defending = 26
+  user.attributes.stamina = 54
+}
+
 describe('教练风格进入选型与训练', () => {
   it('选型分数把风格契合度算进去，四种风格的得分互不相同', () => {
     const world = worldWithStyle('possession', 'technical')
@@ -73,18 +90,22 @@ describe('教练风格进入选型与训练', () => {
   it('换教练真的会改变出场机会：同一批球员在四种打法下首发数不同', () => {
     const styles: Array<Club['style']> = ['possession', 'counter', 'highPress', 'direct']
     const starts: Record<Club['style'], number> = { possession: 0, counter: 0, highPress: 0, direct: 0 }
+    const draws = 20
 
     for (let index = 1; index <= 40; index += 1) {
       const world = generateWorld(testOptions({ seed: index }), TEST_NOW)
       const club = world.clubs[world.clubId]
+      toBorderlineCreator(world)
       for (const style of styles) {
         club.style = style
-        const rng = createRng(index, 'coach-style', world.week, world.day)
-        if (determineUserSelection(world, club, rng).started) starts[style] += 1
+        for (let draw = 0; draw < draws; draw += 1) {
+          const rng = createRng(index, 'coach-style', draw, world.week, world.day)
+          if (determineUserSelection(world, club, rng).started) starts[style] += 1
+        }
       }
     }
 
-    // 默认建号是技术型中场：控球体系最吃香，长传冲吊最吃亏。
+    // 技术型中场在控球体系下最吃香，长传冲吊最吃亏。
     expect(starts.possession).toBeGreaterThan(starts.direct)
     expect(new Set(Object.values(starts)).size).toBeGreaterThan(1)
   })

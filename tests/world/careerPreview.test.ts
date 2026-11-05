@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeOverall } from '../../src/domain'
+import { ATTR_KEYS, computeOverall } from '../../src/domain'
 import type { AttrAllocation, CareerCreateOptions } from '../../src/domain'
 import { generateWorld } from '../../src/world/generator'
 import { previewUserStart } from '../../src/world/userDraft'
@@ -55,8 +55,26 @@ describe('建号预览与真实存档同源', () => {
       expect(computeOverall(previewOf(allocation).position, preview.attributes)).toBeLessThanOrEqual(preview.potential)
     }
   })
+})
 
-  it('预算只由年龄与背景决定：16 岁 4 点、青训另加 3、21 岁青训 22 点', () => {
+describe('建号基准只由种子、年龄与位置决定', () => {
+  it('回归: 改名会重抽全部初始属性与潜力', () => {
+    const named = previewUserStart(testOptions({ seed: 33557, name: '林远' }))
+    const blank = previewUserStart(testOptions({ seed: 33557, name: '' }))
+    const other = previewUserStart(testOptions({ seed: 33557, name: '周墨' }))
+
+    for (const key of ATTR_KEYS) {
+      expect(blank.baseAttributes[key], `${key} 被姓名重抽了`).toBe(named.baseAttributes[key])
+      expect(other.baseAttributes[key], `${key} 被姓名重抽了`).toBe(named.baseAttributes[key])
+    }
+    expect(blank.potential).toBe(named.potential)
+    expect(other.potential).toBe(named.potential)
+    expect(previewUserStart(testOptions({ seed: 33558, name: '林远' })).potential).not.toBe(named.potential)
+  })
+})
+
+describe('预算只由年龄与背景决定', () => {
+  it('16 岁 4 点、青训另加 3、21 岁青训 22 点', () => {
     expect(previewUserStart(testOptions({ age: 16, background: 'lowerLeague' })).budget).toBe(4)
     expect(previewUserStart(testOptions({ age: 16, background: 'academy' })).budget).toBe(7)
     expect(previewUserStart(testOptions({ age: 21, background: 'overseas' })).budget).toBe(19)

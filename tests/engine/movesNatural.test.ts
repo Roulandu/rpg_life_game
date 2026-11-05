@@ -24,6 +24,8 @@ import { openMentorLessonEvent } from '../fixtures/mentorLesson'
  */
 const SEED = 2026
 const NO_PLAY_SEED = 12345
+/** 掉落要过 7.8 分评分门槛：这个种子整季有 9 场首发、6 场过线，默认属性也能自然掉出等级。 */
+const DROP_SEED = 21
 
 function userOf(world: WorldState): Player {
   return world.players[world.playerId]
@@ -60,7 +62,8 @@ function countUserPlayedFixtures(world: WorldState): number {
 
 describe('整季自然推进的比赛掉落', () => {
   it('默认属性连踢一整季，比赛表现自己就把绝技掉进档案', () => {
-    const user = userOf(season(SEED, 38))
+    // 掉落只认高分出场：换成整季真首发且能过评分门槛的种子，属性仍是生成时那套，不做任何注入。
+    const user = userOf(season(DROP_SEED, 38))
     const records = user.moves ?? []
 
     expect(records.length).toBeGreaterThan(0)
