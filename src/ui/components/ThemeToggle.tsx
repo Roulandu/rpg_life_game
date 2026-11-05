@@ -9,7 +9,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      className="btn-ghost px-2"
+      className="btn-ghost min-w-11 px-2"
       aria-label={dark ? '切换到浅色模式' : '切换到深色模式'}
       onClick={toggleTheme}
     >

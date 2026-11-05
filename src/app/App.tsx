@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { registerBackButton, syncStatusBar, watchSystemScheme } from '../platform'
 import { useGameStore } from '../store'
-import { Toast } from '../ui'
+import { Toast, closeTopModal } from '../ui'
 import { applyTheme, resolveTheme } from './theme'
 
 function Splash() {
@@ -41,10 +41,13 @@ export function App() {
 
   useEffect(
     () =>
-      registerBackButton(async () => {
-        if (!useGameStore.getState().world) return true
-        return saveNow()
-      }),
+      registerBackButton(
+        async () => {
+          if (!useGameStore.getState().world) return true
+          return saveNow()
+        },
+        closeTopModal,
+      ),
     [saveNow],
   )
 

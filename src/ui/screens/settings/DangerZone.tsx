@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { useGameStore } from '../../../store'
 import { Card, SectionTitle } from '../../components/Card'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
 
 interface Props {
   saveId: string | null
@@ -9,6 +11,8 @@ interface Props {
 
 export function DangerZone({ saveId, onRemoved }: Props) {
   const removeSave = useGameStore((state) => state.removeSave)
+  const [confirming, setConfirming] = useState(false)
+
   return (
     <section className="mb-4">
       <SectionTitle>危险操作</SectionTitle>
@@ -20,17 +24,27 @@ export function DangerZone({ saveId, onRemoved }: Props) {
           type="button"
           className="btn-secondary mt-3 w-full border-danger/30 text-danger hover:border-danger/60 hover:text-danger"
           onClick={() => {
-            if (!saveId) return
-            if (window.confirm('删除当前存档？这个操作无法撤销。')) {
-              void removeSave(saveId).then((ok) => {
-                if (ok) onRemoved()
-              })
-            }
+            if (saveId) setConfirming(true)
           }}
         >
           <Trash2 size={15} /> 删除当前存档
         </button>
       </Card>
+
+      <ConfirmDialog
+        open={confirming && saveId !== null}
+        title="删除当前存档"
+        description="删除当前存档会同时移除本地数据，这个操作无法撤销。"
+        onCancel={() => setConfirming(false)}
+        onConfirm={() => {
+          setConfirming(false)
+          if (saveId) {
+            void removeSave(saveId).then((ok) => {
+              if (ok) onRemoved()
+            })
+          }
+        }}
+      />
     </section>
   )
 }

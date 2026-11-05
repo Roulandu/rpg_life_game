@@ -1,7 +1,9 @@
-import { ChevronRight, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { SaveSummary } from '../../../domain'
 import { useGameStore } from '../../../store'
-import { formatDayLabel, formatSeasonLabel } from '../../../lib'
+import { SaveDeleteDialog } from './SaveDeleteDialog'
+import { TitleSaveRow } from './TitleSaveRow'
 
 export function TitleSaveList() {
   const navigate = useNavigate()
@@ -9,6 +11,7 @@ export function TitleSaveList() {
   const saveId = useGameStore((state) => state.saveId)
   const loadGame = useGameStore((state) => state.loadGame)
   const removeSave = useGameStore((state) => state.removeSave)
+  const [pending, setPending] = useState<SaveSummary | null>(null)
 
   if (saves.length === 0) return null
 
@@ -19,45 +22,28 @@ export function TitleSaveList() {
         <span className="text-[10px] text-dim">{saves.length} 个</span>
       </div>
       <div className="space-y-2">
-        {saves.map((save) => {
-          const active = save.id === saveId
-          return (
-            <div key={save.id} className="flex items-stretch gap-2">
-              <button
-                type="button"
-                className="card flex flex-1 items-center justify-between gap-3 p-3 text-left transition hover:border-accent/40"
-                onClick={async () => {
-                  const ok = await loadGame(save.id)
-                  if (ok) navigate('/game')
-                }}
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-text">
-                    {save.playerName}
-                    {active ? <span className="ml-2 text-[10px] text-accent">当前</span> : null}
-                  </p>
-                  <p className="mt-0.5 truncate text-[11px] text-muted">
-                    {save.clubName} · {formatSeasonLabel(save.season)} {formatDayLabel(save.season, save.week, save.day)} · 能力 {save.overall}
-                  </p>
-                </div>
-                <ChevronRight size={16} className="shrink-0 text-dim" />
-              </button>
-              <button
-                type="button"
-                aria-label={`删除 ${save.playerName} 的存档`}
-                className="card grid w-11 place-items-center text-dim transition hover:border-danger/40 hover:text-danger"
-                onClick={() => {
-                  if (window.confirm(`删除 ${save.playerName} 的存档？此操作无法撤销。`)) {
-                    void removeSave(save.id)
-                  }
-                }}
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          )
-        })}
+        {saves.map((save) => (
+          <TitleSaveRow
+            key={save.id}
+            save={save}
+            active={save.id === saveId}
+            onLoad={async (id) => {
+              const ok = await loadGame(id)
+              if (ok) navigate('/game')
+            }}
+            onAskDelete={setPending}
+          />
+        ))}
       </div>
+
+      <SaveDeleteDialog
+        save={pending}
+        onCancel={() => setPending(null)}
+        onConfirm={(save) => {
+          setPending(null)
+          void removeSave(save.id)
+        }}
+      />
     </section>
   )
 }

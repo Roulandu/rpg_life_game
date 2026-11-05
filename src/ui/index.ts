@@ -1,6 +1,6 @@
 export { BottomNav } from './components/BottomNav'
 export { Card, EmptyState, SectionTitle } from './components/Card'
-export { Modal } from './components/Modal'
+export { Modal, closeTopModal } from './components/Modal'
 export { PageHeader } from './components/PageHeader'
 export { SeasonSummaryModal } from './components/SeasonSummaryModal'
 export { StatBar } from './components/StatBar'

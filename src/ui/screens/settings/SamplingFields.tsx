@@ -32,7 +32,7 @@ export function SamplingFields({ settings }: { settings: GameSettings }) {
           min={0.2}
           max={1.2}
           step={0.05}
-          className="mt-3 w-full accent-teal"
+          className="slider mt-3 accent-teal"
           value={settings.temperature ?? 0.85}
           onChange={(event) => updateSettings({ temperature: Number(event.target.value) })}
         />

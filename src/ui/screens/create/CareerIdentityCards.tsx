@@ -66,7 +66,7 @@ function CareerAgeField({ draft }: { draft: CareerDraft }) {
         step={1}
         value={draft.age}
         onChange={(event) => draft.setAge(Number(event.target.value))}
-        className="w-full accent-[var(--color-accent)]"
+        className="slider accent-[var(--color-accent)]"
         aria-label="年龄"
       />
       <div className="mt-1 flex justify-between text-[10px] text-dim">

@@ -45,6 +45,6 @@ describe('标题页存档行', () => {
     renderRow(summary())
 
     expect(screen.getByText('当前')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '删除 林远 的存档' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '删除林远的存档' })).toBeInTheDocument()
   })
 })

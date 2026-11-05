@@ -156,6 +156,11 @@
     @apply min-h-11 w-full rounded-xl border border-line bg-pitch-2 px-3 text-base text-text outline-none placeholder:text-dim focus:border-accent/60 focus:ring-2 focus:ring-accent/15;
   }
 
+  /* 原生 range 默认只有 16px 高，手机上手指按不准，所以把命中盒子撑到 44px，轨道本身仍交给系统绘制。 */
+  .slider {
+    @apply min-h-11 w-full cursor-pointer;
+  }
+
   .label {
     @apply mb-1.5 block text-xs font-medium tracking-wide text-muted;
   }

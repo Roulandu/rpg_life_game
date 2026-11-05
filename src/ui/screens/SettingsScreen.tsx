@@ -68,7 +68,7 @@ export function SettingsScreen() {
       />
 
       {usage && usage.calls > 0 ? <UsageSection usage={usage} /> : null}
-      <PrivacySection />
+      <PrivacySection native={form.native} />
       <LocalDataSection
         season={world.season}
         week={world.week}
