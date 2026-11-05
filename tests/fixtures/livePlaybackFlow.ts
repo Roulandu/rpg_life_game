@@ -13,11 +13,11 @@ export async function playToEnd(): Promise<void> {
       if (!moment) break
       await state.resolveKeyMoment(moment.id, moment.defaultOptionId)
       useGameStore.getState().continueAfterMoment()
-      useGameStore.getState().jumpToNextKeyMoment()
+      await useGameStore.getState().jumpToNextKeyMoment()
       continue
     }
     if (state.livePlayback.phase === 'playing') {
-      state.jumpToNextKeyMoment()
+      await useGameStore.getState().jumpToNextKeyMoment()
       continue
     }
     break

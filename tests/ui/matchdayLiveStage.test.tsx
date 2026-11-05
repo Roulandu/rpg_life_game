@@ -93,7 +93,7 @@ describe('live matchday stage completion', () => {
     expect(useGameStore.getState().world?.week).toBe(week + 1)
   })
 
-  it('替补球员看到登场分钟提示', () => {
+  it('回归: 替补登场用一行预告替代了实时播放', () => {
     const world = liveKickoffWorld()
     world.lastMatch!.userStarted = false
     world.lastMatch!.userMinutes = 25
@@ -101,6 +101,8 @@ describe('live matchday stage completion', () => {
 
     renderWithRouter(<MatchdayScreen />)
 
-    expect(screen.getByText('你将在第 65 分钟登场')).toBeInTheDocument()
+    expect(screen.queryByText(/你将在第/)).not.toBeInTheDocument()
+    expect(screen.getByTestId('live-feed')).toBeInTheDocument()
+    expect(screen.queryByText(/登场/)).not.toBeInTheDocument()
   })
 })

@@ -1,13 +1,15 @@
-import { displayName } from '../domain'
+import { displayName, userEntryMinuteOf, onPitchAt } from '../domain'
 import type {
   Id,
   KeyMoment,
   KeyMomentKind,
   LiveTrackStep,
   MatchEventLine,
+  MatchLineupPlayer,
   MatchReport,
   MatchSide,
   MatchStatLine,
+  Player,
   WorldState,
 } from '../domain'
 import { createRng } from '../lib'
@@ -19,6 +21,7 @@ import {
   addBeatStats,
   appendEvent,
   appendGoal,
+  appendSubAppearance,
   buildGoalText,
   enterHalfTime,
 } from './matchReport'
@@ -64,16 +67,25 @@ function momentumFor(report: MatchReport, minute: number): { user: number; oppon
     : { user: 1 - 0.1 * decay, opponent: 1 + 0.12 * decay }
 }
 
-function carrierPlayer(
-  world: WorldState,
-  context: MatchContext,
-  side: MatchSide,
-  carrierId: Id | undefined,
-) {
+interface CarrierInput {
+  world: WorldState
+  context: MatchContext
+  side: MatchSide
+  carrierId: Id | undefined
+  minute: number
+  entry: number
+}
+
+/** 持球人也要过分钟闸门：登场前的主角不能靠「上游把他标成持球人」绕过。 */
+function carrierPlayer(input: CarrierInput): Player | null {
+  const { world, context, side, carrierId, minute, entry } = input
   if (!carrierId) return null
-  const onPitch = context.lineups[side].some((player) => player.id === carrierId)
+  const lineup: MatchLineupPlayer | undefined = context.lineups[side].find(
+    (player) => player.id === carrierId,
+  )
   const player = world.players[carrierId]
-  return onPitch && player ? player : null
+  if (!lineup || !player) return null
+  return onPitchAt(lineup, entry, minute) ? player : null
 }
 
 interface ScoredGoal {
@@ -89,15 +101,16 @@ function scoreGoal(
   scored: ScoredGoal,
 ): void {
   const { side, minute, carrierId } = scored
+  const entry = userEntryMinuteOf(report)
   const rng = createRng(world.seed, 'goal', report.fixtureId, minute, side)
   const club = side === 'home' ? context.homeClub : context.awayClub
-  const scorer = carrierPlayer(world, context, side, carrierId) ?? pickScorer({
+  const scorer = carrierPlayer({ world, context, side, carrierId, minute, entry }) ?? pickScorer({
     world,
     club,
     rng,
     userClubId: world.clubId,
     minute,
-    userEntryMinute: report.userStarted ? 0 : 90 - report.userMinutes,
+    userEntryMinute: entry,
     userPlayed: report.userPlayed,
   })
   const assist = pickAssister(
@@ -107,7 +120,7 @@ function scoreGoal(
       rng,
       userClubId: world.clubId,
       minute,
-      userEntryMinute: report.userStarted ? 0 : 90 - report.userMinutes,
+      userEntryMinute: entry,
       userPlayed: report.userPlayed,
     },
     scorer,
@@ -152,6 +165,7 @@ function simulateMinute(
     homeXg: context.homeXg,
     awayXg: context.awayXg,
     previous: report.liveState,
+    userEntryMinute: userEntryMinuteOf(report),
     momentum: {
       home: userHome ? momentum.user : momentum.opponent,
       away: userHome ? momentum.opponent : momentum.user,
@@ -165,6 +179,7 @@ function simulateMinute(
 
   report.currentMinute = minute
   report.liveState = beats.liveState
+  appendSubAppearance(report, world.players[world.playerId], minute)
   return {
     minute,
     paused: false,

@@ -23,15 +23,11 @@ interface LiveMatchStageProps {
 export function LiveMatchStage(props: LiveMatchStageProps) {
   const { world, club, match, playback, acting, onPause, onResume, onJump, onSpeed, onFinish } = props
   const stadium = world.clubs[match.homeId]?.stadium ?? club.stadium
-  const entryMinute = match.userPlayed && !match.userStarted ? 90 - match.userMinutes : null
 
   return (
     <>
       <ScoreCard match={match} clubId={club.id} stadium={stadium} liveMinute={match.currentMinute} />
       <PitchMap world={world} match={match} playback={playback} />
-      {entryMinute != null ? (
-        <p className="mb-3 px-1 text-[11px] text-muted">你将在第 {entryMinute} 分钟登场</p>
-      ) : null}
       {match.stats ? (
         <MatchStatsPanel homeName={match.homeName} awayName={match.awayName} stats={match.stats} />
       ) : null}

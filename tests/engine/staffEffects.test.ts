@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { WorldState } from '../../src/domain'
+import type { MatchReport, WorldState } from '../../src/domain'
 import { createRng } from '../../src/lib'
 import { applyStaffDailyEffects, staffFactorsOf, staffInjuryChance, staffInjuryDays } from '../../src/engine/staff'
 import { rollUserMatchEvents } from '../../src/engine/matchUser'
@@ -14,7 +14,15 @@ function injuryDaysOf(world: WorldState, probe: number): number | null {
   const user = userOf(world)
   user.injury = null
   user.fitness = 0
-  rollUserMatchEvents(world, user, 0, 0, createRng(probe, 'staff-probe'))
+  // 这条用例只关心受伤分支的分钟与天数，用一份「首发 90 分钟」的报告即可。
+  const report = {
+    userPlayed: true,
+    userStarted: true,
+    userMinutes: 90,
+    userGoals: 0,
+    userAssists: 0,
+  } as MatchReport
+  rollUserMatchEvents(world, user, report, createRng(probe, 'staff-probe'))
   return userOf(world).injury?.daysLeft ?? null
 }
 

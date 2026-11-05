@@ -1,15 +1,18 @@
 import { advanceLiveMinute } from '../engine'
 import type { LiveMinuteResult } from '../engine'
-import type { MatchReport } from '../domain'
+import type { MatchReport, WorldState } from '../domain'
 import {
   IDLE_PLAYBACK,
   LIVE_SPEEDS,
   historyWith,
   playbackFor,
+  progressOf,
+  shouldPersistTick,
   type LivePhase,
   type LivePlayback,
   type LiveSpeed,
 } from './livePlayback'
+import { persist } from './helpers'
 import type { GameStore, StoreGet, StoreSet, StoreSlice } from './types'
 
 type LiveSlice = Pick<
@@ -51,14 +54,25 @@ function startLivePlayback(set: StoreSet, get: StoreGet): void {
   set({ livePlayback: playbackFor(world) })
 }
 
-function tickLiveMatch(set: StoreSet, get: StoreGet): void {
+/** 播放中的落盘不改动世界内容，只把最新分钟写下去；这里不能碰 updatedAt，否则重放哈希会漂。 */
+async function persistTick(set: StoreSet, get: StoreGet, world: WorldState): Promise<void> {
+  const saved = await persist(world, get().saveId)
+  if (saved.ok) set({ saveId: saved.summary.id })
+  else set({ error: `保存失败：${saved.error}` })
+}
+
+async function tickLiveMatch(set: StoreSet, get: StoreGet): Promise<void> {
   const state = get()
   const world = state.world
   if (!world || state.livePlayback.phase !== 'playing') return
+  const report = world.lastMatch
+  if (!report) return
+  const before = progressOf(report)
   const result = advanceLiveMinute(world)
   if (!result) return
   const phase: LivePhase = result.finished ? 'ended' : result.paused ? 'awaiting' : 'playing'
   set({ world: { ...world }, livePlayback: { ...advancedFrame(state.livePlayback, result), phase } })
+  if (shouldPersistTick(before, result, report)) await persistTick(set, get, world)
 }
 
 function pauseLivePlayback(set: StoreSet, get: StoreGet): void {
@@ -80,30 +94,27 @@ function setLiveSpeed(set: StoreSet, get: StoreGet, speed: LiveSpeed): void {
   set({ livePlayback: { ...playback, speed } })
 }
 
-function jumpToNextKeyMoment(set: StoreSet, get: StoreGet): void {
+function jumpFrames(world: WorldState, start: LivePlayback): { playback: LivePlayback; phase: LivePhase } {
+  let playback = start
+  for (let guard = 0; guard < 180; guard += 1) {
+    const result = advanceLiveMinute(world)
+    if (!result) return { playback, phase: 'idle' }
+    playback = advancedFrame(playback, result)
+    if (result.paused) return { playback, phase: 'awaiting' }
+    if (result.finished) return { playback, phase: 'ended' }
+  }
+  return { playback, phase: 'playing' }
+}
+
+async function jumpToNextKeyMoment(set: StoreSet, get: StoreGet): Promise<void> {
   const state = get()
   const world = state.world
   const running = state.livePlayback.phase === 'playing' || state.livePlayback.phase === 'paused'
   if (!world || !running) return
-  let playback = state.livePlayback
-  let phase: LivePhase = 'playing'
-  for (let guard = 0; guard < 180; guard += 1) {
-    const result = advanceLiveMinute(world)
-    if (!result) {
-      phase = 'idle'
-      break
-    }
-    playback = advancedFrame(playback, result)
-    if (result.paused) {
-      phase = 'awaiting'
-      break
-    }
-    if (result.finished) {
-      phase = 'ended'
-      break
-    }
-  }
-  set({ world: { ...world }, livePlayback: { ...playback, phase } })
+  const startedAt = world.lastMatch?.currentMinute ?? -1
+  const jumped = jumpFrames(world, state.livePlayback)
+  set({ world: { ...world }, livePlayback: { ...jumped.playback, phase: jumped.phase } })
+  if ((world.lastMatch?.currentMinute ?? -1) > startedAt) await persistTick(set, get, world)
 }
 
 function resumedPlayback(

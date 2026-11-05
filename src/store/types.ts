@@ -62,11 +62,11 @@ export interface GameStore {
   skipKeyMoments: () => Promise<void>
   finishLiveMatch: () => Promise<void>
   startLivePlayback: () => void
-  tickLiveMatch: () => void
+  tickLiveMatch: () => Promise<void>
   pauseLivePlayback: () => void
   resumeLivePlayback: () => void
   setLiveSpeed: (speed: LiveSpeed) => void
-  jumpToNextKeyMoment: () => void
+  jumpToNextKeyMoment: () => Promise<void>
   continueAfterMoment: () => void
   narrateTurn: (result: TurnResult) => Promise<void>
   resolveChoice: (eventId: string, choiceId: string) => Promise<void>

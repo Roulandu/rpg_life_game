@@ -64,3 +64,38 @@ export function playbackFor(world: WorldState | null): LivePlayback {
     carrierId: report.liveState?.carrierId ?? null,
   }
 }
+
+/** 每一分钟都落盘会把写入放大 90 倍；超过这个间隔仍要等比分或事件变化才写。 */
+const TICK_PERSIST_MINUTES = 5
+
+export interface LiveProgress {
+  minute: number
+  events: number
+  homeGoals: number
+  awayGoals: number
+}
+
+export function progressOf(report: MatchReport): LiveProgress {
+  return {
+    minute: report.currentMinute,
+    events: report.events.length,
+    homeGoals: report.homeGoals,
+    awayGoals: report.awayGoals,
+  }
+}
+
+/** 不写库的 tick 会让刷新回退到上一次落盘的分钟，所以停表、终场、比分与事件变化都必须落盘。 */
+export function shouldPersistTick(
+  before: LiveProgress,
+  result: { paused: boolean; finished: boolean },
+  report: MatchReport,
+): boolean {
+  if (result.paused || result.finished) return true
+  if (report.currentMinute % TICK_PERSIST_MINUTES === 0) return true
+  const now = progressOf(report)
+  return (
+    now.events !== before.events ||
+    now.homeGoals !== before.homeGoals ||
+    now.awayGoals !== before.awayGoals
+  )
+}

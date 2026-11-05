@@ -101,3 +101,17 @@ describe('关键回合的成功率公式', () => {
     expect(result.successChance).toBe(0.671)
   })
 })
+
+describe('成功率依据文本的小数口径', () => {
+  it('回归: 主角项的属性小数没有口径，和对手项不一样长', () => {
+    const result = scoreChance(
+      withAttr('shooting', 52.911),
+      shootFormula,
+      pairWith(withAttr('goalkeeping', 67.234)),
+    )
+
+    expect(result.successBasisZh).toContain('射门 52.9 ')
+    expect(result.successBasisZh).toContain('对手门将 67.2 ')
+    expect(result.successBasisZh).not.toMatch(/\d\.\d{2,}/)
+  })
+})

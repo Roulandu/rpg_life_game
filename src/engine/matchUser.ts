@@ -1,5 +1,5 @@
-import { clamp, displayName, overall, positionGroup, round1, styleFit } from '../domain'
-import type { Club, MatchEventLine, Player, WorldState } from '../domain'
+import { clamp, displayName, overall, positionGroup, round1, styleFit, userEntryMinuteOf } from '../domain'
+import type { Club, MatchEventLine, MatchReport, Player, WorldState } from '../domain'
 import type { Rng } from '../lib'
 import { computeClubStrength } from '../domain'
 import { pickInjuryKind } from './matchGoals'
@@ -86,16 +86,17 @@ interface UserMatchEvents {
 export function rollUserMatchEvents(
   world: WorldState,
   user: Player,
-  goals: number,
-  assists: number,
+  report: MatchReport,
   rng: Rng,
 ): UserMatchEvents {
   const events: MatchEventLine[] = []
   let injured = false
+  // 登场窗口之外不写主角的事件，但不能改变抽签次数：先照原顺序 roll，再把分钟上钳到登场分钟。
+  const entry = userEntryMinuteOf(report)
   if (rng.chance(0.06)) {
     user.seasonStats.yellowCards += 1
     events.push({
-      minute: rng.int(15, 85),
+      minute: Math.max(entry, rng.int(15, 85)),
       type: 'card',
       text: `${displayName(user)} 因一次战术犯规吃到黄牌。`,
       isUser: true,
@@ -110,15 +111,15 @@ export function rollUserMatchEvents(
       severity: rng.int(1, 3),
     }
     events.push({
-      minute: rng.int(20, 88),
+      minute: Math.max(entry, rng.int(20, 88)),
       type: 'injury',
       text: `${displayName(user)} 在对抗中受伤，无法坚持比赛。`,
       isUser: true,
     })
   }
-  if (goals === 0 && assists === 0 && rng.chance(0.3)) {
+  if (report.userGoals === 0 && report.userAssists === 0 && rng.chance(0.3)) {
     events.push({
-      minute: rng.int(10, 85),
+      minute: Math.max(entry, rng.int(10, 85)),
       type: 'chance',
       text:
         user.position === 'GK'

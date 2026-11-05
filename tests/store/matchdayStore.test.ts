@@ -22,7 +22,7 @@ async function resolveAllButLast(week: number) {
     await useGameStore.getState().resolveKeyMoment(pending[0]!.id, pending[0]!.defaultOptionId)
     expect(useGameStore.getState().world?.week).toBe(week)
     useGameStore.getState().continueAfterMoment()
-    useGameStore.getState().jumpToNextKeyMoment()
+    await useGameStore.getState().jumpToNextKeyMoment()
     pending = pendingMoments()
   }
   return pending
@@ -90,7 +90,7 @@ describe('matchday store completion', () => {
     expect(useGameStore.getState().world?.week).toBe(week)
 
     useGameStore.getState().continueAfterMoment()
-    useGameStore.getState().jumpToNextKeyMoment()
+    await useGameStore.getState().jumpToNextKeyMoment()
     expect(useGameStore.getState().livePlayback.phase).toBe('ended')
 
     saveWorldMock.mockClear()

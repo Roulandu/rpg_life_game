@@ -1,4 +1,4 @@
-import { displayName, positionGroup } from '../domain'
+import { displayName, onPitchAt, positionGroup } from '../domain'
 import type {
   BeatKind,
   Club,
@@ -29,6 +29,8 @@ export interface BeatInput {
   awayXg?: number
   previous?: MatchLiveState | null
   momentum?: Partial<Record<MatchSide, number>>
+  /** 主角登场分钟；默认 0 表示首发或非用户比赛。 */
+  userEntryMinute?: number
 }
 
 export interface BeatResult {
@@ -50,10 +52,17 @@ interface ActorInput {
   seed: number
   fixtureId: string
   minute: number
+  userEntryMinute: number
+}
+
+function entryOf(input: BeatInput): number {
+  return input.userEntryMinute ?? 0
 }
 
 function pickActor(input: ActorInput): MatchLineupPlayer | null {
-  const players = input.lineups?.[input.side] ?? []
+  const players = (input.lineups?.[input.side] ?? []).filter(
+    (player) => onPitchAt(player, input.userEntryMinute, input.minute),
+  )
   const wanted = input.defending ? ['GK', 'DEF'] : ['FWD', 'MID']
   const candidates = players.filter((player) => wanted.includes(positionGroup(player.position)))
   if (candidates.length === 0) return null
@@ -79,13 +88,16 @@ function carrierActor(
   carrierId: Id | undefined,
 ): MatchLineupPlayer | null {
   const found = (input.lineups?.[side] ?? []).find((player) => player.id === carrierId)
-  return found ?? pickActor({
+  // carrier 优先，但登场前的主角不能靠「他是持球人」绕过分钟闸门。
+  if (found && onPitchAt(found, entryOf(input), input.minute)) return found
+  return pickActor({
     lineups: input.lineups,
     side,
     defending: false,
     seed: input.seed,
     fixtureId: input.fixtureId,
     minute: input.minute,
+    userEntryMinute: entryOf(input),
   })
 }
 
@@ -111,8 +123,9 @@ function saveLine(
   return {
     minute: input.minute,
     type: 'save',
-    side: otherSide(side),
-    isUser: false,
+    // 文案主体是射门者，阵营必须与他同侧，否则同一人同一分钟会出现两个阵营徽标。
+    side,
+    isUser: actor?.isUser ?? false,
     text: saveText(textContext(input, side, displayName(actor) || teamName(input, side)), variant),
   }
 }
@@ -139,6 +152,7 @@ function rareEvent(
     seed: input.seed,
     fixtureId: input.fixtureId,
     minute: input.minute,
+    userEntryMinute: entryOf(input),
   })
   const context = textContext(input, side, displayName(actor) || teamName(input, side))
   return {
@@ -165,6 +179,7 @@ export function buildBeats(input: BeatInput): BeatResult {
     previous: input.previous,
     momentum: input.momentum,
     lineups: input.lineups,
+    userEntryMinute: entryOf(input),
   })
   const rng = createRng(input.seed, 'beats', input.fixtureId, input.minute)
   const stats: BeatResult['stats'] = {

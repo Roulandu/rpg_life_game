@@ -90,7 +90,7 @@ function settleUser(ctx: FinalizeContext): boolean {
     keyMomentDelta: momentRatingDelta(report),
   })
   const extras = report.userPlayed
-    ? rollUserMatchEvents(world, user, report.userGoals, report.userAssists, rng)
+    ? rollUserMatchEvents(world, user, report, rng)
     : { events: [], injured: false }
 
   report.userRating = rating

@@ -138,6 +138,7 @@ export {
   resolveMoveTerms,
 } from './moveQueries'
 export { computeLeagueTable, goalDifference, leaguePosition } from './leagueTable'
+export { onPitchAt, userEntryMinuteOf } from './matchMinutes'
 export { buildMatchLineups, selectLineup } from './lineup'
 export type { LineupOptions } from './lineup'
 export { buildPitchFrame } from './pitch'

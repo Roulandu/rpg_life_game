@@ -1,13 +1,13 @@
 {
   "format": "pitch-life-save",
   "saveVersion": 12,
-  "engineVersion": "0.14.0",
-  "exportedAt": "2026-11-03T15:08:32.893Z",
-  "checksum": "b600be0f",
+  "engineVersion": "0.15.0",
+  "exportedAt": "2026-11-05T13:46:13.864Z",
+  "checksum": "5c354d3c",
   "world": {
     "version": 12,
     "seed": 2026,
-    "engineVersion": "0.14.0",
+    "engineVersion": "0.15.0",
     "createdAt": "2026-08-01T00:00:00.000Z",
     "updatedAt": "2026-08-01T00:00:00.000Z",
     "playerId": "player:user:2026",
@@ -80615,7 +80615,7 @@
             {
               "minute": 18,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "扎克·特纳 的射门被 诺丁汉郡 门将飞身扑出。"
             },
@@ -80650,7 +80650,7 @@
             {
               "minute": 32,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "乔丹·穆尔 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -80678,7 +80678,7 @@
             {
               "minute": 34,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "米格尔·费尔南德斯 的劲射被 诺丁汉郡 门将封出底线。"
             },
@@ -80781,7 +80781,7 @@
             {
               "minute": 62,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的劲射被 诺丁汉郡 门将封出底线。"
             },
@@ -80809,7 +80809,7 @@
             {
               "minute": 66,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "米格尔·费尔南德斯 的射门被 诺丁汉郡 门将飞身扑出。"
             },
@@ -80858,7 +80858,7 @@
             {
               "minute": 88,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "马蒂斯·勒鲁瓦 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -80905,7 +80905,7 @@
                   "labelZh": "横传队友",
                   "descriptionZh": "把球送到更好的位置，可能收获一次助攻。",
                   "successChance": 0.581,
-                  "successBasisZh": "传球 54.864 +16.5%、对手后卫 速度 79.3 -6.3%",
+                  "successBasisZh": "传球 54.9 +16.5%、对手后卫 速度 79.3 -6.3%",
                   "ratingOnSuccess": 0.45,
                   "ratingOnFail": -0.1,
                   "assistOnSuccess": true,
@@ -80927,7 +80927,7 @@
                   "labelZh": "挑射吊门",
                   "descriptionZh": "门将站位靠前时，一脚挑射能越过他的头顶。",
                   "successChance": 0.463,
-                  "successBasisZh": "技术 65.771 +19.7%、心理 54.4 +2.7%、对手门将 58.9 -8.2%、对手门将 速度 31.5 -1.9%",
+                  "successBasisZh": "技术 65.8 +19.7%、心理 54.4 +2.7%、对手门将 58.9 -8.2%、对手门将 速度 31.5 -1.9%",
                   "ratingOnSuccess": 1,
                   "ratingOnFail": -0.6,
                   "goalOnSuccess": true,
@@ -80940,7 +80940,7 @@
                   "labelZh": "做球给插上队友",
                   "descriptionZh": "用一次轻巧的做球把防线彻底扯开。",
                   "successChance": 0.593,
-                  "successBasisZh": "传球 54.864 +16.5%、对手后卫 防守 71.3 -7.1%",
+                  "successBasisZh": "传球 54.9 +16.5%、对手后卫 防守 71.3 -7.1%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.15,
                   "assistOnSuccess": true,
@@ -80974,7 +80974,7 @@
                   "labelZh": "直塞身后",
                   "descriptionZh": "最危险也最致命的选择，需要精准的脚法。",
                   "successChance": 0.405,
-                  "successBasisZh": "传球 54.864 +21.9%、对手后卫 防守 71.3 -10.7%、对手后卫 速度 79.3 -4.8%",
+                  "successBasisZh": "传球 54.9 +21.9%、对手后卫 防守 71.3 -10.7%、对手后卫 速度 79.3 -4.8%",
                   "ratingOnSuccess": 0.65,
                   "ratingOnFail": -0.4,
                   "assistOnSuccess": true,
@@ -80986,7 +80986,7 @@
                   "labelZh": "分边转移",
                   "descriptionZh": "把球送到安全区域，保持球队的节奏。",
                   "successChance": 0.822,
-                  "successBasisZh": "传球 54.864 +8.2%",
+                  "successBasisZh": "传球 54.9 +8.2%",
                   "ratingOnSuccess": 0.15,
                   "ratingOnFail": -0.1,
                   "coachOnSuccess": 0.2
@@ -80996,7 +80996,7 @@
                   "labelZh": "自己带球推进",
                   "descriptionZh": "用盘带撕开空间，失败会把球权送回去。",
                   "successChance": 0.546,
-                  "successBasisZh": "盘带 57.164 +17.1%、对手后卫 防守 71.3 -8.6%",
+                  "successBasisZh": "盘带 57.2 +17.1%、对手后卫 防守 71.3 -8.6%",
                   "ratingOnSuccess": 0.35,
                   "ratingOnFail": -0.25,
                   "moraleOnSuccess": 1,
@@ -81007,7 +81007,7 @@
                   "labelZh": "过顶长传",
                   "descriptionZh": "越过整条防线，风险与回报都很高。",
                   "successChance": 0.516,
-                  "successBasisZh": "传球 54.864 +21.9%、技术 65.771 +6.6%、对手门将 速度 31.5 -2.5%、对手后卫 身体 73.9 -4.4%",
+                  "successBasisZh": "传球 54.9 +21.9%、技术 65.8 +6.6%、对手门将 速度 31.5 -2.5%、对手后卫 身体 73.9 -4.4%",
                   "ratingOnSuccess": 0.7,
                   "ratingOnFail": -0.45,
                   "assistOnSuccess": true,
@@ -81052,7 +81052,7 @@
                   "labelZh": "提前传中",
                   "descriptionZh": "在防守球员落位前把球送进禁区。",
                   "successChance": 0.443,
-                  "successBasisZh": "传球 54.864 +16.5%、对手后卫 速度 79.3 -7.9%、对手后卫 防守 71.3 -4.3%",
+                  "successBasisZh": "传球 54.9 +16.5%、对手后卫 速度 79.3 -7.9%、对手后卫 防守 71.3 -4.3%",
                   "ratingOnSuccess": 0.5,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -81063,7 +81063,7 @@
                   "labelZh": "倒三角回传",
                   "descriptionZh": "下底后回敲点球点，制造最舒服的射门角度。",
                   "successChance": 0.421,
-                  "successBasisZh": "传球 54.864 +16.5%、技术 65.771 +6.6%、对手后卫 防守 71.3 -8.6%、对手后卫 速度 79.3 -6.3%",
+                  "successBasisZh": "传球 54.9 +16.5%、技术 65.8 +6.6%、对手后卫 防守 71.3 -8.6%、对手后卫 速度 79.3 -6.3%",
                   "ratingOnSuccess": 0.6,
                   "ratingOnFail": -0.25,
                   "assistOnSuccess": true,
@@ -81076,7 +81076,7 @@
                   "labelZh": "弧线传中",
                   "descriptionZh": "用旋转把球送到门将和后卫之间。",
                   "successChance": 0.46,
-                  "successBasisZh": "技术 65.771 +26.3%、对手门将 58.9 -5.9%、对手后卫 身体 73.9 -4.4%",
+                  "successBasisZh": "技术 65.8 +26.3%、对手门将 58.9 -5.9%、对手后卫 身体 73.9 -4.4%",
                   "ratingOnSuccess": 0.55,
                   "ratingOnFail": -0.25,
                   "assistOnSuccess": true,
@@ -81087,7 +81087,7 @@
                   "labelZh": "前点低平球",
                   "descriptionZh": "把球扫向前点，让队友抢射。",
                   "successChance": 0.484,
-                  "successBasisZh": "传球 54.864 +11%、对手后卫 防守 71.3 -8.6%",
+                  "successBasisZh": "传球 54.9 +11%、对手后卫 防守 71.3 -8.6%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -81130,7 +81130,7 @@
                   "labelZh": "弧线球",
                   "descriptionZh": "绕过人墙，把球兜进球门远角。",
                   "successChance": 0.416,
-                  "successBasisZh": "技术 65.771 +19.7%、射门 54.1 +10.8%、对手门将 58.9 -7.1%、对手后卫 身体 73.9 -5.9%",
+                  "successBasisZh": "技术 65.8 +19.7%、射门 54.1 +10.8%、对手门将 58.9 -7.1%、对手后卫 身体 73.9 -5.9%",
                   "ratingOnSuccess": 1.1,
                   "ratingOnFail": -0.4,
                   "goalOnSuccess": true,
@@ -81156,7 +81156,7 @@
                   "labelZh": "传中找高点",
                   "descriptionZh": "把球送到禁区，让高点队友完成争顶。",
                   "successChance": 0.593,
-                  "successBasisZh": "传球 54.864 +16.5%、对手后卫 防守 71.3 -7.1%",
+                  "successBasisZh": "传球 54.9 +16.5%、对手后卫 防守 71.3 -7.1%",
                   "ratingOnSuccess": 0.5,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -81167,7 +81167,7 @@
                   "labelZh": "短传配合",
                   "descriptionZh": "不直接攻门，用一次短传重新组织进攻。",
                   "successChance": 0.81,
-                  "successBasisZh": "传球 54.864 +11%",
+                  "successBasisZh": "传球 54.9 +11%",
                   "ratingOnSuccess": 0.2,
                   "ratingOnFail": -0.1,
                   "coachOnSuccess": 0.2
@@ -81177,7 +81177,7 @@
                   "labelZh": "做球给后插上",
                   "descriptionZh": "轻轻一拨，让跟进的队友直接起脚。",
                   "successChance": 0.648,
-                  "successBasisZh": "技术 65.771 +13.2%、对手后卫 速度 79.3 -6.3%",
+                  "successBasisZh": "技术 65.8 +13.2%、对手后卫 速度 79.3 -6.3%",
                   "ratingOnSuccess": 0.45,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -81210,7 +81210,7 @@
                   "labelZh": "瞄准死角",
                   "descriptionZh": "用最刁钻的角度考验门将。",
                   "successChance": 0.252,
-                  "successBasisZh": "射门 54.1 +16.2%、技术 65.771 +6.6%、对手门将 58.9 -9.4%、对手门将 心理 55.5 -2.2%",
+                  "successBasisZh": "射门 54.1 +16.2%、技术 65.8 +6.6%、对手门将 58.9 -9.4%、对手门将 心理 55.5 -2.2%",
                   "ratingOnSuccess": 1.1,
                   "ratingOnFail": -0.35,
                   "goalOnSuccess": true,
@@ -81236,7 +81236,7 @@
                   "labelZh": "电梯球",
                   "descriptionZh": "让球在门前突然下坠，门将很难判断。",
                   "successChance": 0.17,
-                  "successBasisZh": "技术 65.771 +19.7%、对手门将 58.9 -8.2%、对手门将 心理 55.5 -4.4%",
+                  "successBasisZh": "技术 65.8 +19.7%、对手门将 58.9 -8.2%、对手门将 心理 55.5 -4.4%",
                   "ratingOnSuccess": 1.2,
                   "ratingOnFail": -0.4,
                   "goalOnSuccess": true,
@@ -81317,7 +81317,7 @@
                   "labelZh": "勺子点球",
                   "descriptionZh": "如果能骗过门将，这会成为本轮话题。",
                   "successChance": 0.461,
-                  "successBasisZh": "技术 65.771 +19.7%、对手门将 心理 55.5 -8.9%、对手门将 58.9 -4.7%",
+                  "successBasisZh": "技术 65.8 +19.7%、对手门将 心理 55.5 -8.9%、对手门将 58.9 -4.7%",
                   "ratingOnSuccess": 1.35,
                   "ratingOnFail": -1.1,
                   "goalOnSuccess": true,
@@ -81839,7 +81839,7 @@
             {
               "minute": 5,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 赫尔港口 门将飞身扑出。"
             },
@@ -81888,7 +81888,7 @@
             {
               "minute": 16,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "查理·怀特 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -81979,7 +81979,7 @@
             {
               "minute": 41,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "巴勃罗·托雷斯 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -82068,7 +82068,7 @@
             {
               "minute": 74,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "詹姆斯·罗宾逊 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -82130,7 +82130,7 @@
                   "labelZh": "带球狂奔",
                   "descriptionZh": "用速度直接冲击对手还没落位的防线。",
                   "successChance": 0.399,
-                  "successBasisZh": "速度 41.2 +16.5%、盘带 57.22 +5.7%、对手门将 40 -2.4%、对手后卫 速度 55.3 -6.6%、对手后卫 防守 65.5 -5.2%",
+                  "successBasisZh": "速度 41.2 +16.5%、盘带 57.2 +5.7%、对手门将 40 -2.4%、对手后卫 速度 55.3 -6.6%、对手后卫 防守 65.5 -5.2%",
                   "ratingOnSuccess": 0.8,
                   "ratingOnFail": -0.5,
                   "goalOnSuccess": true,
@@ -82143,7 +82143,7 @@
                   "labelZh": "直塞前插",
                   "descriptionZh": "一脚穿透防线，让队友直接面对球门。",
                   "successChance": 0.488,
-                  "successBasisZh": "传球 54.925 +22%、对手后卫 防守 65.5 -9.2%",
+                  "successBasisZh": "传球 54.9 +22%、对手后卫 防守 65.5 -9.2%",
                   "ratingOnSuccess": 0.7,
                   "ratingOnFail": -0.45,
                   "assistOnSuccess": true,
@@ -82155,7 +82155,7 @@
                   "labelZh": "分边快攻",
                   "descriptionZh": "把球转移到空当一侧，让反击继续滚动。",
                   "successChance": 0.686,
-                  "successBasisZh": "传球 54.925 +11%、对手后卫 速度 55.3 -4.4%",
+                  "successBasisZh": "传球 54.9 +11%、对手后卫 速度 55.3 -4.4%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.15,
                   "assistOnSuccess": true,
@@ -82224,7 +82224,7 @@
                   "labelZh": "横传队友",
                   "descriptionZh": "把球送到更好的位置，可能收获一次助攻。",
                   "successChance": 0.601,
-                  "successBasisZh": "传球 54.925 +16.5%、对手后卫 速度 55.3 -4.4%",
+                  "successBasisZh": "传球 54.9 +16.5%、对手后卫 速度 55.3 -4.4%",
                   "ratingOnSuccess": 0.45,
                   "ratingOnFail": -0.1,
                   "assistOnSuccess": true,
@@ -82246,7 +82246,7 @@
                   "labelZh": "挑射吊门",
                   "descriptionZh": "门将站位靠前时，一脚挑射能越过他的头顶。",
                   "successChance": 0.497,
-                  "successBasisZh": "技术 65.849 +19.8%、心理 54.4 +2.7%、对手门将 40 -5.6%、对手门将 速度 20 -1.2%",
+                  "successBasisZh": "技术 65.8 +19.8%、心理 54.4 +2.7%、对手门将 40 -5.6%、对手门将 速度 20 -1.2%",
                   "ratingOnSuccess": 1,
                   "ratingOnFail": -0.6,
                   "goalOnSuccess": true,
@@ -82259,7 +82259,7 @@
                   "labelZh": "做球给插上队友",
                   "descriptionZh": "用一次轻巧的做球把防线彻底扯开。",
                   "successChance": 0.599,
-                  "successBasisZh": "传球 54.925 +16.5%、对手后卫 防守 65.5 -6.5%",
+                  "successBasisZh": "传球 54.9 +16.5%、对手后卫 防守 65.5 -6.5%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.15,
                   "assistOnSuccess": true,
@@ -82372,7 +82372,7 @@
                   "labelZh": "提前传中",
                   "descriptionZh": "在防守球员落位前把球送进禁区。",
                   "successChance": 0.47,
-                  "successBasisZh": "传球 54.925 +16.5%、对手后卫 速度 55.3 -5.5%、对手后卫 防守 65.5 -3.9%",
+                  "successBasisZh": "传球 54.9 +16.5%、对手后卫 速度 55.3 -5.5%、对手后卫 防守 65.5 -3.9%",
                   "ratingOnSuccess": 0.5,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -82383,7 +82383,7 @@
                   "labelZh": "倒三角回传",
                   "descriptionZh": "下底后回敲点球点，制造最舒服的射门角度。",
                   "successChance": 0.448,
-                  "successBasisZh": "传球 54.925 +16.5%、技术 65.849 +6.6%、对手后卫 防守 65.5 -7.9%、对手后卫 速度 55.3 -4.4%",
+                  "successBasisZh": "传球 54.9 +16.5%、技术 65.8 +6.6%、对手后卫 防守 65.5 -7.9%、对手后卫 速度 55.3 -4.4%",
                   "ratingOnSuccess": 0.6,
                   "ratingOnFail": -0.25,
                   "assistOnSuccess": true,
@@ -82396,7 +82396,7 @@
                   "labelZh": "弧线传中",
                   "descriptionZh": "用旋转把球送到门将和后卫之间。",
                   "successChance": 0.491,
-                  "successBasisZh": "技术 65.849 +26.3%、对手门将 40 -4%、对手后卫 身体 53.3 -3.2%",
+                  "successBasisZh": "技术 65.8 +26.3%、对手门将 40 -4%、对手后卫 身体 53.3 -3.2%",
                   "ratingOnSuccess": 0.55,
                   "ratingOnFail": -0.25,
                   "assistOnSuccess": true,
@@ -82407,7 +82407,7 @@
                   "labelZh": "前点低平球",
                   "descriptionZh": "把球扫向前点，让队友抢射。",
                   "successChance": 0.491,
-                  "successBasisZh": "传球 54.925 +11%、对手后卫 防守 65.5 -7.9%",
+                  "successBasisZh": "传球 54.9 +11%、对手后卫 防守 65.5 -7.9%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -82450,7 +82450,7 @@
                   "labelZh": "弧线球",
                   "descriptionZh": "绕过人墙，把球兜进球门远角。",
                   "successChance": 0.455,
-                  "successBasisZh": "技术 65.849 +19.8%、射门 54.1 +10.8%、对手门将 40 -4.8%、对手后卫 身体 53.3 -4.3%",
+                  "successBasisZh": "技术 65.8 +19.8%、射门 54.1 +10.8%、对手门将 40 -4.8%、对手后卫 身体 53.3 -4.3%",
                   "ratingOnSuccess": 1.1,
                   "ratingOnFail": -0.4,
                   "goalOnSuccess": true,
@@ -82476,7 +82476,7 @@
                   "labelZh": "传中找高点",
                   "descriptionZh": "把球送到禁区，让高点队友完成争顶。",
                   "successChance": 0.599,
-                  "successBasisZh": "传球 54.925 +16.5%、对手后卫 防守 65.5 -6.5%",
+                  "successBasisZh": "传球 54.9 +16.5%、对手后卫 防守 65.5 -6.5%",
                   "ratingOnSuccess": 0.5,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -82487,7 +82487,7 @@
                   "labelZh": "短传配合",
                   "descriptionZh": "不直接攻门，用一次短传重新组织进攻。",
                   "successChance": 0.81,
-                  "successBasisZh": "传球 54.925 +11%",
+                  "successBasisZh": "传球 54.9 +11%",
                   "ratingOnSuccess": 0.2,
                   "ratingOnFail": -0.1,
                   "coachOnSuccess": 0.2
@@ -82497,7 +82497,7 @@
                   "labelZh": "做球给后插上",
                   "descriptionZh": "轻轻一拨，让跟进的队友直接起脚。",
                   "successChance": 0.667,
-                  "successBasisZh": "技术 65.849 +13.2%、对手后卫 速度 55.3 -4.4%",
+                  "successBasisZh": "技术 65.8 +13.2%、对手后卫 速度 55.3 -4.4%",
                   "ratingOnSuccess": 0.45,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -82530,7 +82530,7 @@
                   "labelZh": "直塞身后",
                   "descriptionZh": "最危险也最致命的选择，需要精准的脚法。",
                   "successChance": 0.428,
-                  "successBasisZh": "传球 54.925 +22%、对手后卫 防守 65.5 -9.8%、对手后卫 速度 55.3 -3.3%",
+                  "successBasisZh": "传球 54.9 +22%、对手后卫 防守 65.5 -9.8%、对手后卫 速度 55.3 -3.3%",
                   "ratingOnSuccess": 0.65,
                   "ratingOnFail": -0.4,
                   "assistOnSuccess": true,
@@ -82542,7 +82542,7 @@
                   "labelZh": "分边转移",
                   "descriptionZh": "把球送到安全区域，保持球队的节奏。",
                   "successChance": 0.822,
-                  "successBasisZh": "传球 54.925 +8.2%",
+                  "successBasisZh": "传球 54.9 +8.2%",
                   "ratingOnSuccess": 0.15,
                   "ratingOnFail": -0.1,
                   "coachOnSuccess": 0.2
@@ -82552,7 +82552,7 @@
                   "labelZh": "自己带球推进",
                   "descriptionZh": "用盘带撕开空间，失败会把球权送回去。",
                   "successChance": 0.553,
-                  "successBasisZh": "盘带 57.22 +17.2%、对手后卫 防守 65.5 -7.9%",
+                  "successBasisZh": "盘带 57.2 +17.2%、对手后卫 防守 65.5 -7.9%",
                   "ratingOnSuccess": 0.35,
                   "ratingOnFail": -0.25,
                   "moraleOnSuccess": 1,
@@ -82563,7 +82563,7 @@
                   "labelZh": "过顶长传",
                   "descriptionZh": "越过整条防线，风险与回报都很高。",
                   "successChance": 0.538,
-                  "successBasisZh": "传球 54.925 +22%、技术 65.849 +6.6%、对手门将 速度 20 -1.6%、对手后卫 身体 53.3 -3.2%",
+                  "successBasisZh": "传球 54.9 +22%、技术 65.8 +6.6%、对手门将 速度 20 -1.6%、对手后卫 身体 53.3 -3.2%",
                   "ratingOnSuccess": 0.7,
                   "ratingOnFail": -0.45,
                   "assistOnSuccess": true,
@@ -82937,8 +82937,8 @@
             {
               "minute": 4,
               "side": "home",
-              "scorerId": "player:club:ENG:2:04:11",
-              "scorerName": "米格尔·费尔南德斯",
+              "scorerId": "player:club:ENG:2:04:12",
+              "scorerName": "瑞安·休斯",
               "assistId": "player:club:ENG:2:04:23",
               "assistName": "尼科·霍夫曼",
               "isUser": false,
@@ -82947,16 +82947,16 @@
             {
               "minute": 29,
               "side": "home",
-              "scorerId": "player:club:ENG:2:04:16",
-              "scorerName": "扎克·特纳",
+              "scorerId": "player:club:ENG:2:04:11",
+              "scorerName": "米格尔·费尔南德斯",
               "isUser": false,
               "isUserAssist": false
             },
             {
               "minute": 34,
               "side": "home",
-              "scorerId": "player:club:ENG:2:04:16",
-              "scorerName": "扎克·特纳",
+              "scorerId": "player:club:ENG:2:04:11",
+              "scorerName": "米格尔·费尔南德斯",
               "isUser": false,
               "isUserAssist": false
             },
@@ -82973,10 +82973,10 @@
             {
               "minute": 37,
               "side": "home",
-              "scorerId": "player:club:ENG:2:04:16",
-              "scorerName": "扎克·特纳",
-              "assistId": "player:club:ENG:2:04:14",
-              "assistName": "托马斯·卡特",
+              "scorerId": "player:club:ENG:2:04:11",
+              "scorerName": "米格尔·费尔南德斯",
+              "assistId": "player:club:ENG:2:04:15",
+              "assistName": "埃利奥特·马什",
               "isUser": false,
               "isUserAssist": false
             },
@@ -82993,8 +82993,8 @@
             {
               "minute": 54,
               "side": "home",
-              "scorerId": "player:club:ENG:2:04:16",
-              "scorerName": "扎克·特纳",
+              "scorerId": "player:club:ENG:2:04:11",
+              "scorerName": "米格尔·费尔南德斯",
               "isUser": false,
               "isUserAssist": false
             },
@@ -83032,7 +83032,7 @@
             {
               "minute": 1,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 考文垂竞技 门将飞身扑出。"
             },
@@ -83041,13 +83041,13 @@
               "type": "shot",
               "side": "home",
               "isUser": false,
-              "text": "米格尔·费尔南德斯 在禁区内起脚，皮球飞入网窝！"
+              "text": "瑞安·休斯 在禁区内起脚，皮球飞入网窝！"
             },
             {
               "minute": 4,
               "type": "goal",
               "side": "home",
-              "text": "第 4 分钟，米格尔·费尔南德斯 为 伯明翰联 破门！ 助攻：尼科·霍夫曼。",
+              "text": "第 4 分钟，瑞安·休斯 为 伯明翰联 破门！ 助攻：尼科·霍夫曼。",
               "isUser": false
             },
             {
@@ -83076,13 +83076,13 @@
               "type": "shot",
               "side": "home",
               "isUser": false,
-              "text": "扎克·特纳 在禁区内起脚，皮球飞入网窝！"
+              "text": "米格尔·费尔南德斯 在禁区内起脚，皮球飞入网窝！"
             },
             {
               "minute": 29,
               "type": "goal",
               "side": "home",
-              "text": "第 29 分钟，扎克·特纳 为 伯明翰联 破门！",
+              "text": "第 29 分钟，米格尔·费尔南德斯 为 伯明翰联 破门！",
               "isUser": false
             },
             {
@@ -83090,20 +83090,20 @@
               "type": "attack",
               "side": "home",
               "isUser": false,
-              "text": "米格尔·费尔南德斯 回撤接应，伯明翰联 重新组织进攻。"
+              "text": "瑞安·休斯 回撤接应，伯明翰联 重新组织进攻。"
             },
             {
               "minute": 34,
               "type": "shot",
               "side": "home",
               "isUser": false,
-              "text": "扎克·特纳 迎球怒射，门将毫无办法！"
+              "text": "米格尔·费尔南德斯 迎球怒射，门将毫无办法！"
             },
             {
               "minute": 34,
               "type": "goal",
               "side": "home",
-              "text": "第 34 分钟，扎克·特纳 为 伯明翰联 破门！",
+              "text": "第 34 分钟，米格尔·费尔南德斯 为 伯明翰联 破门！",
               "isUser": false
             },
             {
@@ -83125,13 +83125,13 @@
               "type": "shot",
               "side": "home",
               "isUser": false,
-              "text": "扎克·特纳 迎球怒射，门将毫无办法！"
+              "text": "米格尔·费尔南德斯 迎球怒射，门将毫无办法！"
             },
             {
               "minute": 37,
               "type": "goal",
               "side": "home",
-              "text": "第 37 分钟，扎克·特纳 为 伯明翰联 破门！ 助攻：托马斯·卡特。",
+              "text": "第 37 分钟，米格尔·费尔南德斯 为 伯明翰联 破门！ 助攻：埃利奥特·马什。",
               "isUser": false
             },
             {
@@ -83165,13 +83165,13 @@
               "type": "shot",
               "side": "home",
               "isUser": false,
-              "text": "扎克·特纳 迎球怒射，门将毫无办法！"
+              "text": "米格尔·费尔南德斯 迎球怒射，门将毫无办法！"
             },
             {
               "minute": 54,
               "type": "goal",
               "side": "home",
-              "text": "第 54 分钟，扎克·特纳 为 伯明翰联 破门！",
+              "text": "第 54 分钟，米格尔·费尔南德斯 为 伯明翰联 破门！",
               "isUser": false
             },
             {
@@ -83215,6 +83215,13 @@
               "side": "home",
               "isUser": false,
               "text": "米格尔·费尔南德斯 带球推进，伯明翰联 把阵型压过中场。"
+            },
+            {
+              "minute": 65,
+              "type": "sub",
+              "side": "home",
+              "text": "第 65 分钟，绿茵夹具 替补登场。",
+              "isUser": true
             },
             {
               "minute": 70,
@@ -83285,7 +83292,7 @@
               "text": "全场结束，伯明翰联 6-2 考文垂竞技。"
             }
           ],
-          "motmName": "扎克·特纳",
+          "motmName": "米格尔·费尔南德斯",
           "motmRating": 7.2,
           "attendance": 19517,
           "keyMoments": [
@@ -83302,7 +83309,7 @@
                   "labelZh": "弧线球",
                   "descriptionZh": "绕过人墙，把球兜进球门远角。",
                   "successChance": 0.451,
-                  "successBasisZh": "技术 65.929 +19.8%、射门 54.1 +10.8%、对手门将 44.2 -5.3%、对手后卫 身体 52.4 -4.2%",
+                  "successBasisZh": "技术 65.9 +19.8%、射门 54.1 +10.8%、对手门将 44.2 -5.3%、对手后卫 身体 52.4 -4.2%",
                   "ratingOnSuccess": 1.1,
                   "ratingOnFail": -0.4,
                   "goalOnSuccess": true,
@@ -83328,7 +83335,7 @@
                   "labelZh": "传中找高点",
                   "descriptionZh": "把球送到禁区，让高点队友完成争顶。",
                   "successChance": 0.609,
-                  "successBasisZh": "传球 55.006 +16.5%、对手后卫 防守 56.5 -5.6%",
+                  "successBasisZh": "传球 55 +16.5%、对手后卫 防守 56.5 -5.6%",
                   "ratingOnSuccess": 0.5,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -83339,7 +83346,7 @@
                   "labelZh": "短传配合",
                   "descriptionZh": "不直接攻门，用一次短传重新组织进攻。",
                   "successChance": 0.81,
-                  "successBasisZh": "传球 55.006 +11%",
+                  "successBasisZh": "传球 55 +11%",
                   "ratingOnSuccess": 0.2,
                   "ratingOnFail": -0.1,
                   "coachOnSuccess": 0.2
@@ -83349,7 +83356,7 @@
                   "labelZh": "做球给后插上",
                   "descriptionZh": "轻轻一拨，让跟进的队友直接起脚。",
                   "successChance": 0.673,
-                  "successBasisZh": "技术 65.929 +13.2%、对手后卫 速度 48.4 -3.9%",
+                  "successBasisZh": "技术 65.9 +13.2%、对手后卫 速度 48.4 -3.9%",
                   "ratingOnSuccess": 0.45,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -83474,7 +83481,7 @@
                   "labelZh": "横传队友",
                   "descriptionZh": "把球送到更好的位置，可能收获一次助攻。",
                   "successChance": 0.606,
-                  "successBasisZh": "传球 55.006 +16.5%、对手后卫 速度 48.4 -3.9%",
+                  "successBasisZh": "传球 55 +16.5%、对手后卫 速度 48.4 -3.9%",
                   "ratingOnSuccess": 0.45,
                   "ratingOnFail": -0.1,
                   "assistOnSuccess": true,
@@ -83496,7 +83503,7 @@
                   "labelZh": "挑射吊门",
                   "descriptionZh": "门将站位靠前时，一脚挑射能越过他的头顶。",
                   "successChance": 0.491,
-                  "successBasisZh": "技术 65.929 +19.8%、心理 54.4 +2.7%、对手门将 44.2 -6.2%、对手门将 速度 20 -1.2%",
+                  "successBasisZh": "技术 65.9 +19.8%、心理 54.4 +2.7%、对手门将 44.2 -6.2%、对手门将 速度 20 -1.2%",
                   "ratingOnSuccess": 1,
                   "ratingOnFail": -0.6,
                   "goalOnSuccess": true,
@@ -83509,7 +83516,7 @@
                   "labelZh": "做球给插上队友",
                   "descriptionZh": "用一次轻巧的做球把防线彻底扯开。",
                   "successChance": 0.609,
-                  "successBasisZh": "传球 55.006 +16.5%、对手后卫 防守 56.5 -5.6%",
+                  "successBasisZh": "传球 55 +16.5%、对手后卫 防守 56.5 -5.6%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.15,
                   "assistOnSuccess": true,
@@ -83967,7 +83974,7 @@
             {
               "minute": 1,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 斯托克竞技 门将飞身扑出。"
             },
@@ -84100,7 +84107,7 @@
             {
               "minute": 28,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "拉斐尔·科斯塔 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -84142,7 +84149,7 @@
             {
               "minute": 42,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "莱奥·帕尔默 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -84182,7 +84189,7 @@
             {
               "minute": 48,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "莱昂·迈尔 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -84217,7 +84224,7 @@
             {
               "minute": 60,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "卢卡斯·施奈德 的射门被 斯托克竞技 门将飞身扑出。"
             },
@@ -84245,7 +84252,7 @@
             {
               "minute": 76,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "安托万·杜朗 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -84280,7 +84287,7 @@
             {
               "minute": 83,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "瑞安·休斯 的射门被 斯托克竞技 门将飞身扑出。"
             },
@@ -84743,7 +84750,7 @@
             {
               "minute": 16,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "基兰·埃文斯 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -84771,7 +84778,7 @@
             {
               "minute": 39,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "卡拉姆·赖特 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -84874,7 +84881,7 @@
             {
               "minute": 81,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "米格尔·费尔南德斯 的射门被 沃特福德竞技 门将飞身扑出。"
             },
@@ -84888,7 +84895,7 @@
             {
               "minute": 86,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "瑞安·休斯 的射门被 沃特福德竞技 门将飞身扑出。"
             },
@@ -85400,7 +85407,7 @@
             {
               "minute": 21,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "瑞安·休斯 的射门被 布里斯托竞技 门将飞身扑出。"
             },
@@ -85414,7 +85421,7 @@
             {
               "minute": 27,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的劲射被 布里斯托竞技 门将封出底线。"
             },
@@ -85566,7 +85573,7 @@
             {
               "minute": 71,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "马尔科·桑切斯 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -86032,7 +86039,7 @@
             {
               "minute": 13,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "瑞安·休斯 的射门被 利兹竞技 门将飞身扑出。"
             },
@@ -86074,7 +86081,7 @@
             {
               "minute": 30,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 利兹竞技 门将飞身扑出。"
             },
@@ -86177,7 +86184,7 @@
             {
               "minute": 69,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "瑞安·休斯 的射门被 利兹竞技 门将飞身扑出。"
             },
@@ -86658,7 +86665,7 @@
             {
               "minute": 2,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "芬恩·韦伯 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -86749,7 +86756,7 @@
             {
               "minute": 40,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "奥利弗·福斯特 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -86824,7 +86831,7 @@
             {
               "minute": 68,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "查理·弗莱彻 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -86838,7 +86845,7 @@
             {
               "minute": 71,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "芬恩·韦伯 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -87493,7 +87500,7 @@
             {
               "minute": 63,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "托马斯·卡特 的劲射被 曼彻斯特城际 门将封出底线。"
             },
@@ -88125,7 +88132,7 @@
             {
               "minute": 52,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "瑞安·休斯 的劲射被 布莱顿海滨 门将封出底线。"
             },
@@ -88146,7 +88153,7 @@
             {
               "minute": 58,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "泰勒·格林 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -88160,7 +88167,7 @@
             {
               "minute": 59,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "内森·罗伯特森 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -88250,7 +88257,7 @@
                   "labelZh": "直塞身后",
                   "descriptionZh": "最危险也最致命的选择，需要精准的脚法。",
                   "successChance": 0.444,
-                  "successBasisZh": "传球 55.341 +22.1%、对手后卫 防守 58.6 -8.8%、对手后卫 速度 48.9 -2.9%",
+                  "successBasisZh": "传球 55.3 +22.1%、对手后卫 防守 58.6 -8.8%、对手后卫 速度 48.9 -2.9%",
                   "ratingOnSuccess": 0.65,
                   "ratingOnFail": -0.4,
                   "assistOnSuccess": true,
@@ -88262,7 +88269,7 @@
                   "labelZh": "分边转移",
                   "descriptionZh": "把球送到安全区域，保持球队的节奏。",
                   "successChance": 0.843,
-                  "successBasisZh": "传球 55.341 +8.3%、稳妥回敲 Ⅱ +2%",
+                  "successBasisZh": "传球 55.3 +8.3%、稳妥回敲 Ⅱ +2%",
                   "ratingOnSuccess": 0.15,
                   "ratingOnFail": -0.1,
                   "coachOnSuccess": 0.2
@@ -88272,7 +88279,7 @@
                   "labelZh": "自己带球推进",
                   "descriptionZh": "用盘带撕开空间，失败会把球权送回去。",
                   "successChance": 0.563,
-                  "successBasisZh": "盘带 57.642 +17.3%、对手后卫 防守 58.6 -7%",
+                  "successBasisZh": "盘带 57.6 +17.3%、对手后卫 防守 58.6 -7%",
                   "ratingOnSuccess": 0.35,
                   "ratingOnFail": -0.25,
                   "moraleOnSuccess": 1,
@@ -88283,7 +88290,7 @@
                   "labelZh": "过顶长传",
                   "descriptionZh": "越过整条防线，风险与回报都很高。",
                   "successChance": 0.54,
-                  "successBasisZh": "传球 55.341 +22.1%、技术 66.29 +6.6%、对手门将 速度 28.3 -2.3%、对手后卫 身体 41.2 -2.5%",
+                  "successBasisZh": "传球 55.3 +22.1%、技术 66.3 +6.6%、对手门将 速度 28.3 -2.3%、对手后卫 身体 41.2 -2.5%",
                   "ratingOnSuccess": 0.7,
                   "ratingOnFail": -0.45,
                   "assistOnSuccess": true,
@@ -88341,7 +88348,7 @@
                   "labelZh": "横传队友",
                   "descriptionZh": "把球送到更好的位置，可能收获一次助攻。",
                   "successChance": 0.607,
-                  "successBasisZh": "传球 55.341 +16.6%、对手后卫 速度 48.9 -3.9%",
+                  "successBasisZh": "传球 55.3 +16.6%、对手后卫 速度 48.9 -3.9%",
                   "ratingOnSuccess": 0.45,
                   "ratingOnFail": -0.1,
                   "assistOnSuccess": true,
@@ -88363,7 +88370,7 @@
                   "labelZh": "挑射吊门",
                   "descriptionZh": "门将站位靠前时，一脚挑射能越过他的头顶。",
                   "successChance": 0.479,
-                  "successBasisZh": "技术 66.29 +19.9%、心理 54.4 +2.7%、对手门将 50.3 -7%、对手门将 速度 28.3 -1.7%",
+                  "successBasisZh": "技术 66.3 +19.9%、心理 54.4 +2.7%、对手门将 50.3 -7%、对手门将 速度 28.3 -1.7%",
                   "ratingOnSuccess": 1,
                   "ratingOnFail": -0.6,
                   "goalOnSuccess": true,
@@ -88376,7 +88383,7 @@
                   "labelZh": "做球给插上队友",
                   "descriptionZh": "用一次轻巧的做球把防线彻底扯开。",
                   "successChance": 0.607,
-                  "successBasisZh": "传球 55.341 +16.6%、对手后卫 防守 58.6 -5.9%",
+                  "successBasisZh": "传球 55.3 +16.6%、对手后卫 防守 58.6 -5.9%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.15,
                   "assistOnSuccess": true,
@@ -88410,7 +88417,7 @@
                   "labelZh": "瞄准死角",
                   "descriptionZh": "用最刁钻的角度考验门将。",
                   "successChance": 0.267,
-                  "successBasisZh": "射门 54.1 +16.2%、技术 66.29 +6.6%、对手门将 50.3 -8%、对手门将 心理 52.6 -2.1%",
+                  "successBasisZh": "射门 54.1 +16.2%、技术 66.3 +6.6%、对手门将 50.3 -8%、对手门将 心理 52.6 -2.1%",
                   "ratingOnSuccess": 1.1,
                   "ratingOnFail": -0.35,
                   "goalOnSuccess": true,
@@ -88436,7 +88443,7 @@
                   "labelZh": "电梯球",
                   "descriptionZh": "让球在门前突然下坠，门将很难判断。",
                   "successChance": 0.186,
-                  "successBasisZh": "技术 66.29 +19.9%、对手门将 50.3 -7%、对手门将 心理 52.6 -4.2%",
+                  "successBasisZh": "技术 66.3 +19.9%、对手门将 50.3 -7%、对手门将 心理 52.6 -4.2%",
                   "ratingOnSuccess": 1.2,
                   "ratingOnFail": -0.4,
                   "goalOnSuccess": true,
@@ -88570,7 +88577,7 @@
                   "labelZh": "弧线球",
                   "descriptionZh": "绕过人墙，把球兜进球门远角。",
                   "successChance": 0.454,
-                  "successBasisZh": "技术 66.29 +19.9%、射门 54.1 +10.8%、对手门将 50.3 -6%、对手后卫 身体 41.2 -3.3%",
+                  "successBasisZh": "技术 66.3 +19.9%、射门 54.1 +10.8%、对手门将 50.3 -6%、对手后卫 身体 41.2 -3.3%",
                   "ratingOnSuccess": 1.1,
                   "ratingOnFail": -0.4,
                   "goalOnSuccess": true,
@@ -88596,7 +88603,7 @@
                   "labelZh": "传中找高点",
                   "descriptionZh": "把球送到禁区，让高点队友完成争顶。",
                   "successChance": 0.607,
-                  "successBasisZh": "传球 55.341 +16.6%、对手后卫 防守 58.6 -5.9%",
+                  "successBasisZh": "传球 55.3 +16.6%、对手后卫 防守 58.6 -5.9%",
                   "ratingOnSuccess": 0.5,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -88607,7 +88614,7 @@
                   "labelZh": "短传配合",
                   "descriptionZh": "不直接攻门，用一次短传重新组织进攻。",
                   "successChance": 0.811,
-                  "successBasisZh": "传球 55.341 +11.1%",
+                  "successBasisZh": "传球 55.3 +11.1%",
                   "ratingOnSuccess": 0.2,
                   "ratingOnFail": -0.1,
                   "coachOnSuccess": 0.2
@@ -88617,7 +88624,7 @@
                   "labelZh": "做球给后插上",
                   "descriptionZh": "轻轻一拨，让跟进的队友直接起脚。",
                   "successChance": 0.673,
-                  "successBasisZh": "技术 66.29 +13.3%、对手后卫 速度 48.9 -3.9%",
+                  "successBasisZh": "技术 66.3 +13.3%、对手后卫 速度 48.9 -3.9%",
                   "ratingOnSuccess": 0.45,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -88676,7 +88683,7 @@
                   "labelZh": "勺子点球",
                   "descriptionZh": "如果能骗过门将，这会成为本轮话题。",
                   "successChance": 0.474,
-                  "successBasisZh": "技术 66.29 +19.9%、对手门将 心理 52.6 -8.4%、对手门将 50.3 -4%",
+                  "successBasisZh": "技术 66.3 +19.9%、对手门将 心理 52.6 -8.4%、对手门将 50.3 -4%",
                   "ratingOnSuccess": 1.35,
                   "ratingOnFail": -1.1,
                   "goalOnSuccess": true,
@@ -88737,7 +88744,7 @@
                   "labelZh": "带球狂奔",
                   "descriptionZh": "用速度直接冲击对手还没落位的防线。",
                   "successChance": 0.407,
-                  "successBasisZh": "速度 41.2 +16.5%、盘带 57.642 +5.8%、对手门将 50.3 -3%、对手后卫 速度 48.9 -5.9%、对手后卫 防守 58.6 -4.7%",
+                  "successBasisZh": "速度 41.2 +16.5%、盘带 57.6 +5.8%、对手门将 50.3 -3%、对手后卫 速度 48.9 -5.9%、对手后卫 防守 58.6 -4.7%",
                   "ratingOnSuccess": 0.8,
                   "ratingOnFail": -0.5,
                   "goalOnSuccess": true,
@@ -88750,7 +88757,7 @@
                   "labelZh": "直塞前插",
                   "descriptionZh": "一脚穿透防线，让队友直接面对球门。",
                   "successChance": 0.499,
-                  "successBasisZh": "传球 55.341 +22.1%、对手后卫 防守 58.6 -8.2%",
+                  "successBasisZh": "传球 55.3 +22.1%、对手后卫 防守 58.6 -8.2%",
                   "ratingOnSuccess": 0.7,
                   "ratingOnFail": -0.45,
                   "assistOnSuccess": true,
@@ -88762,7 +88769,7 @@
                   "labelZh": "分边快攻",
                   "descriptionZh": "把球转移到空当一侧，让反击继续滚动。",
                   "successChance": 0.692,
-                  "successBasisZh": "传球 55.341 +11.1%、对手后卫 速度 48.9 -3.9%",
+                  "successBasisZh": "传球 55.3 +11.1%、对手后卫 速度 48.9 -3.9%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.15,
                   "assistOnSuccess": true,
@@ -89237,7 +89244,7 @@
             {
               "minute": 8,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 莱斯特竞技 门将飞身扑出。"
             },
@@ -89347,7 +89354,7 @@
             {
               "minute": 49,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "埃梅卡·奥卡福 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -89382,7 +89389,7 @@
             {
               "minute": 55,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 莱斯特竞技 门将飞身扑出。"
             },
@@ -90069,7 +90076,7 @@
             {
               "minute": 67,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "卢卡斯·施奈德 的劲射被 谢菲尔德铁路 门将封出底线。"
             },
@@ -90083,7 +90090,7 @@
             {
               "minute": 68,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 谢菲尔德铁路 门将飞身扑出。"
             },
@@ -90153,7 +90160,7 @@
             {
               "minute": 81,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "塞缪尔·怀特 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -90568,7 +90575,7 @@
             {
               "minute": 3,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "马克斯·施密特 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -90631,7 +90638,7 @@
             {
               "minute": 28,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "扎克·特纳 的射门被 纽卡斯尔港口 门将飞身扑出。"
             },
@@ -90734,7 +90741,7 @@
             {
               "minute": 69,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "托马斯·卡特 的射门被 纽卡斯尔港口 门将飞身扑出。"
             },
@@ -91148,7 +91155,7 @@
             {
               "minute": 2,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "本·格林 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -91176,7 +91183,7 @@
             {
               "minute": 12,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "马尔科·弗洛雷斯 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -91300,7 +91307,7 @@
             {
               "minute": 73,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "马尔科·弗洛雷斯 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -91314,7 +91321,7 @@
             {
               "minute": 79,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的劲射被 德比竞技 门将封出底线。"
             },
@@ -91335,7 +91342,7 @@
             {
               "minute": 87,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "埃利亚斯·施密特 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -91349,7 +91356,7 @@
             {
               "minute": 88,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "马尔科·弗洛雷斯 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -91826,7 +91833,7 @@
             {
               "minute": 43,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "扎克·特纳 的劲射被 伍尔弗汉普顿联 门将封出底线。"
             },
@@ -91901,7 +91908,7 @@
             {
               "minute": 67,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的劲射被 伍尔弗汉普顿联 门将封出底线。"
             },
@@ -92356,7 +92363,7 @@
             {
               "minute": 4,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "米格尔·费尔南德斯 的射门被 南安普顿竞技 门将飞身扑出。"
             },
@@ -92508,7 +92515,7 @@
             {
               "minute": 80,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "托马斯·卡特 的射门被 南安普顿竞技 门将飞身扑出。"
             },
@@ -93029,7 +93036,7 @@
             {
               "minute": 26,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "莱奥·吉布森 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -93216,7 +93223,7 @@
             {
               "minute": 84,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "莱奥·吉布森 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -93657,7 +93664,7 @@
             {
               "minute": 1,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "尼科·贝克尔 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -94305,7 +94312,7 @@
             {
               "minute": 12,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "扎克·特纳 的射门被 伦敦竞技 门将飞身扑出。"
             },
@@ -94333,7 +94340,7 @@
             {
               "minute": 18,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的劲射被 伦敦竞技 门将封出底线。"
             },
@@ -94389,7 +94396,7 @@
             {
               "minute": 40,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "欧文·伍德 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -94429,7 +94436,7 @@
             {
               "minute": 51,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的射门被 伦敦竞技 门将飞身扑出。"
             },
@@ -94520,7 +94527,7 @@
             {
               "minute": 76,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "瑞安·休斯 的射门被 伦敦竞技 门将飞身扑出。"
             },
@@ -94555,7 +94562,7 @@
             {
               "minute": 84,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "卡约·费雷拉 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -94968,7 +94975,7 @@
             {
               "minute": 18,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的劲射被 诺丁汉郡 门将封出底线。"
             },
@@ -95038,7 +95045,7 @@
             {
               "minute": 39,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "扎克·特纳 的射门被 诺丁汉郡 门将飞身扑出。"
             },
@@ -95078,7 +95085,7 @@
             {
               "minute": 52,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "瑞安·休斯 的射门被 诺丁汉郡 门将飞身扑出。"
             },
@@ -95092,7 +95099,7 @@
             {
               "minute": 54,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的劲射被 诺丁汉郡 门将封出底线。"
             },
@@ -95148,7 +95155,7 @@
             {
               "minute": 70,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "托马斯·卡特 的劲射被 诺丁汉郡 门将封出底线。"
             },
@@ -95560,7 +95567,7 @@
             {
               "minute": 5,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "瑞安·休斯 的劲射被 赫尔港口 门将封出底线。"
             },
@@ -95616,7 +95623,7 @@
             {
               "minute": 31,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "巴勃罗·托雷斯 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -95679,7 +95686,7 @@
             {
               "minute": 44,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "托马斯·伍德 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -95705,7 +95712,7 @@
             {
               "minute": 47,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "哈里·克拉克 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -95719,7 +95726,7 @@
             {
               "minute": 48,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "米格尔·费尔南德斯 的射门被 赫尔港口 门将飞身扑出。"
             },
@@ -95761,7 +95768,7 @@
             {
               "minute": 60,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "米格尔·费尔南德斯 的劲射被 赫尔港口 门将封出底线。"
             },
@@ -95775,7 +95782,7 @@
             {
               "minute": 61,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "托马斯·卡特 的劲射被 赫尔港口 门将封出底线。"
             },
@@ -95824,7 +95831,7 @@
             {
               "minute": 82,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 赫尔港口 门将飞身扑出。"
             },
@@ -96255,7 +96262,7 @@
             {
               "minute": 21,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 考文垂竞技 门将飞身扑出。"
             },
@@ -96269,7 +96276,7 @@
             {
               "minute": 23,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "斯文·德波尔 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -96283,7 +96290,7 @@
             {
               "minute": 26,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "斯文·德波尔 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -96365,7 +96372,7 @@
             {
               "minute": 63,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "米格尔·费尔南德斯 的劲射被 考文垂竞技 门将封出底线。"
             },
@@ -96894,7 +96901,7 @@
             {
               "minute": 22,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "莱昂·迈尔 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -97011,7 +97018,7 @@
             {
               "minute": 68,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的射门被 斯托克竞技 门将飞身扑出。"
             },
@@ -97528,7 +97535,7 @@
             {
               "minute": 10,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "米格尔·费尔南德斯 的射门被 沃特福德竞技 门将飞身扑出。"
             },
@@ -97577,7 +97584,7 @@
             {
               "minute": 33,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "佩德罗·奥利维拉 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -97605,7 +97612,7 @@
             {
               "minute": 41,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "基兰·埃文斯 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -97729,7 +97736,7 @@
             {
               "minute": 75,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "基兰·埃文斯 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -98196,7 +98203,7 @@
             {
               "minute": 8,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 布里斯托竞技 门将飞身扑出。"
             },
@@ -98210,7 +98217,7 @@
             {
               "minute": 9,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "扎克·特纳 的射门被 布里斯托竞技 门将飞身扑出。"
             },
@@ -98252,7 +98259,7 @@
             {
               "minute": 23,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的劲射被 布里斯托竞技 门将封出底线。"
             },
@@ -98362,7 +98369,7 @@
             {
               "minute": 66,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "伊万·拉米雷斯 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -99011,7 +99018,7 @@
             {
               "minute": 69,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "瑞安·休斯 的射门被 利兹竞技 门将飞身扑出。"
             },
@@ -99074,7 +99081,7 @@
             {
               "minute": 83,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "泰勒·莫里斯 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -99095,7 +99102,7 @@
             {
               "minute": 89,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "瑞安·休斯 的劲射被 利兹竞技 门将封出底线。"
             },
@@ -99122,7 +99129,7 @@
                   "labelZh": "弧线球",
                   "descriptionZh": "绕过人墙，把球兜进球门远角。",
                   "successChance": 0.436,
-                  "successBasisZh": "技术 67.129 +20.1%、射门 54.1 +10.8%、对手门将 51.8 -6.2%、对手后卫 身体 64.7 -5.2%",
+                  "successBasisZh": "技术 67.1 +20.1%、射门 54.1 +10.8%、对手门将 51.8 -6.2%、对手后卫 身体 64.7 -5.2%",
                   "ratingOnSuccess": 1.1,
                   "ratingOnFail": -0.4,
                   "goalOnSuccess": true,
@@ -99148,7 +99155,7 @@
                   "labelZh": "传中找高点",
                   "descriptionZh": "把球送到禁区，让高点队友完成争顶。",
                   "successChance": 0.595,
-                  "successBasisZh": "传球 56.209 +16.9%、对手后卫 防守 74.1 -7.4%",
+                  "successBasisZh": "传球 56.2 +16.9%、对手后卫 防守 74.1 -7.4%",
                   "ratingOnSuccess": 0.5,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -99159,7 +99166,7 @@
                   "labelZh": "短传配合",
                   "descriptionZh": "不直接攻门，用一次短传重新组织进攻。",
                   "successChance": 0.812,
-                  "successBasisZh": "传球 56.209 +11.2%",
+                  "successBasisZh": "传球 56.2 +11.2%",
                   "ratingOnSuccess": 0.2,
                   "ratingOnFail": -0.1,
                   "coachOnSuccess": 0.2
@@ -99169,7 +99176,7 @@
                   "labelZh": "做球给后插上",
                   "descriptionZh": "轻轻一拨，让跟进的队友直接起脚。",
                   "successChance": 0.66,
-                  "successBasisZh": "技术 67.129 +13.4%、对手后卫 速度 68.1 -5.4%",
+                  "successBasisZh": "技术 67.1 +13.4%、对手后卫 速度 68.1 -5.4%",
                   "ratingOnSuccess": 0.45,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -99202,7 +99209,7 @@
                   "labelZh": "直塞身后",
                   "descriptionZh": "最危险也最致命的选择，需要精准的脚法。",
                   "successChance": 0.413,
-                  "successBasisZh": "传球 56.209 +22.5%、对手后卫 防守 74.1 -11.1%、对手后卫 速度 68.1 -4.1%",
+                  "successBasisZh": "传球 56.2 +22.5%、对手后卫 防守 74.1 -11.1%、对手后卫 速度 68.1 -4.1%",
                   "ratingOnSuccess": 0.65,
                   "ratingOnFail": -0.4,
                   "assistOnSuccess": true,
@@ -99214,7 +99221,7 @@
                   "labelZh": "分边转移",
                   "descriptionZh": "把球送到安全区域，保持球队的节奏。",
                   "successChance": 0.844,
-                  "successBasisZh": "传球 56.209 +8.4%、稳妥回敲 Ⅱ +2%",
+                  "successBasisZh": "传球 56.2 +8.4%、稳妥回敲 Ⅱ +2%",
                   "ratingOnSuccess": 0.15,
                   "ratingOnFail": -0.1,
                   "coachOnSuccess": 0.2
@@ -99224,7 +99231,7 @@
                   "labelZh": "自己带球推进",
                   "descriptionZh": "用盘带撕开空间，失败会把球权送回去。",
                   "successChance": 0.547,
-                  "successBasisZh": "盘带 58.53 +17.6%、对手后卫 防守 74.1 -8.9%",
+                  "successBasisZh": "盘带 58.5 +17.6%、对手后卫 防守 74.1 -8.9%",
                   "ratingOnSuccess": 0.35,
                   "ratingOnFail": -0.25,
                   "moraleOnSuccess": 1,
@@ -99235,7 +99242,7 @@
                   "labelZh": "过顶长传",
                   "descriptionZh": "越过整条防线，风险与回报都很高。",
                   "successChance": 0.533,
-                  "successBasisZh": "传球 56.209 +22.5%、技术 67.129 +6.7%、对手门将 速度 25.7 -2.1%、对手后卫 身体 64.7 -3.9%",
+                  "successBasisZh": "传球 56.2 +22.5%、技术 67.1 +6.7%、对手门将 速度 25.7 -2.1%、对手后卫 身体 64.7 -3.9%",
                   "ratingOnSuccess": 0.7,
                   "ratingOnFail": -0.45,
                   "assistOnSuccess": true,
@@ -99280,7 +99287,7 @@
                   "labelZh": "提前传中",
                   "descriptionZh": "在防守球员落位前把球送进禁区。",
                   "successChance": 0.456,
-                  "successBasisZh": "传球 56.209 +16.9%、对手后卫 速度 68.1 -6.8%、对手后卫 防守 74.1 -4.4%",
+                  "successBasisZh": "传球 56.2 +16.9%、对手后卫 速度 68.1 -6.8%、对手后卫 防守 74.1 -4.4%",
                   "ratingOnSuccess": 0.5,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -99291,7 +99298,7 @@
                   "labelZh": "倒三角回传",
                   "descriptionZh": "下底后回敲点球点，制造最舒服的射门角度。",
                   "successChance": 0.432,
-                  "successBasisZh": "传球 56.209 +16.9%、技术 67.129 +6.7%、对手后卫 防守 74.1 -8.9%、对手后卫 速度 68.1 -5.4%",
+                  "successBasisZh": "传球 56.2 +16.9%、技术 67.1 +6.7%、对手后卫 防守 74.1 -8.9%、对手后卫 速度 68.1 -5.4%",
                   "ratingOnSuccess": 0.6,
                   "ratingOnFail": -0.25,
                   "assistOnSuccess": true,
@@ -99304,7 +99311,7 @@
                   "labelZh": "弧线传中",
                   "descriptionZh": "用旋转把球送到门将和后卫之间。",
                   "successChance": 0.478,
-                  "successBasisZh": "技术 67.129 +26.9%、对手门将 51.8 -5.2%、对手后卫 身体 64.7 -3.9%",
+                  "successBasisZh": "技术 67.1 +26.9%、对手门将 51.8 -5.2%、对手后卫 身体 64.7 -3.9%",
                   "ratingOnSuccess": 0.55,
                   "ratingOnFail": -0.25,
                   "assistOnSuccess": true,
@@ -99315,7 +99322,7 @@
                   "labelZh": "前点低平球",
                   "descriptionZh": "把球扫向前点，让队友抢射。",
                   "successChance": 0.483,
-                  "successBasisZh": "传球 56.209 +11.2%、对手后卫 防守 74.1 -8.9%",
+                  "successBasisZh": "传球 56.2 +11.2%、对手后卫 防守 74.1 -8.9%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -99358,7 +99365,7 @@
                   "labelZh": "带球狂奔",
                   "descriptionZh": "用速度直接冲击对手还没落位的防线。",
                   "successChance": 0.371,
-                  "successBasisZh": "速度 41.2 +16.5%、盘带 58.53 +5.9%、对手门将 51.8 -3.1%、对手后卫 速度 68.1 -8.2%、对手后卫 防守 74.1 -5.9%",
+                  "successBasisZh": "速度 41.2 +16.5%、盘带 58.5 +5.9%、对手门将 51.8 -3.1%、对手后卫 速度 68.1 -8.2%、对手后卫 防守 74.1 -5.9%",
                   "ratingOnSuccess": 0.8,
                   "ratingOnFail": -0.5,
                   "goalOnSuccess": true,
@@ -99371,7 +99378,7 @@
                   "labelZh": "直塞前插",
                   "descriptionZh": "一脚穿透防线，让队友直接面对球门。",
                   "successChance": 0.481,
-                  "successBasisZh": "传球 56.209 +22.5%、对手后卫 防守 74.1 -10.4%",
+                  "successBasisZh": "传球 56.2 +22.5%、对手后卫 防守 74.1 -10.4%",
                   "ratingOnSuccess": 0.7,
                   "ratingOnFail": -0.45,
                   "assistOnSuccess": true,
@@ -99383,7 +99390,7 @@
                   "labelZh": "分边快攻",
                   "descriptionZh": "把球转移到空当一侧，让反击继续滚动。",
                   "successChance": 0.678,
-                  "successBasisZh": "传球 56.209 +11.2%、对手后卫 速度 68.1 -5.4%",
+                  "successBasisZh": "传球 56.2 +11.2%、对手后卫 速度 68.1 -5.4%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.15,
                   "assistOnSuccess": true,
@@ -99439,7 +99446,7 @@
                   "labelZh": "瞄准死角",
                   "descriptionZh": "用最刁钻的角度考验门将。",
                   "successChance": 0.265,
-                  "successBasisZh": "射门 54.1 +16.2%、技术 67.129 +6.7%、对手门将 51.8 -8.3%、对手门将 心理 54.6 -2.2%",
+                  "successBasisZh": "射门 54.1 +16.2%、技术 67.1 +6.7%、对手门将 51.8 -8.3%、对手门将 心理 54.6 -2.2%",
                   "ratingOnSuccess": 1.1,
                   "ratingOnFail": -0.35,
                   "goalOnSuccess": true,
@@ -99465,7 +99472,7 @@
                   "labelZh": "电梯球",
                   "descriptionZh": "让球在门前突然下坠，门将很难判断。",
                   "successChance": 0.185,
-                  "successBasisZh": "技术 67.129 +20.1%、对手门将 51.8 -7.3%、对手门将 心理 54.6 -4.4%",
+                  "successBasisZh": "技术 67.1 +20.1%、对手门将 51.8 -7.3%、对手门将 心理 54.6 -4.4%",
                   "ratingOnSuccess": 1.2,
                   "ratingOnFail": -0.4,
                   "goalOnSuccess": true,
@@ -99962,7 +99969,7 @@
             {
               "minute": 20,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的射门被 诺里奇竞技 门将飞身扑出。"
             },
@@ -99983,7 +99990,7 @@
             {
               "minute": 34,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "扎克·特纳 的劲射被 诺里奇竞技 门将封出底线。"
             },
@@ -100051,7 +100058,7 @@
             {
               "minute": 57,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 诺里奇竞技 门将飞身扑出。"
             },
@@ -100100,7 +100107,7 @@
             {
               "minute": 86,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "诺亚·里德 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -100548,7 +100555,7 @@
             {
               "minute": 3,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "梅森·伍德 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -100639,7 +100646,7 @@
             {
               "minute": 43,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "瑞安·休斯 的劲射被 曼彻斯特城际 门将封出底线。"
             },
@@ -100665,7 +100672,7 @@
             {
               "minute": 51,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "梅森·伍德 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -100714,7 +100721,7 @@
             {
               "minute": 72,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "扎克·特纳 的射门被 曼彻斯特城际 门将飞身扑出。"
             },
@@ -101164,7 +101171,7 @@
             {
               "minute": 5,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的射门被 布莱顿海滨 门将飞身扑出。"
             },
@@ -101192,7 +101199,7 @@
             {
               "minute": 11,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "铃木拓海 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -101789,7 +101796,7 @@
             {
               "minute": 4,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "扎克·特纳 的射门被 莱斯特竞技 门将飞身扑出。"
             },
@@ -101906,7 +101913,7 @@
             {
               "minute": 53,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "瑞安·休斯 的射门被 莱斯特竞技 门将飞身扑出。"
             },
@@ -101927,7 +101934,7 @@
             {
               "minute": 59,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "加藤凑 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -101983,7 +101990,7 @@
             {
               "minute": 79,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "卢卡斯·施奈德 的射门被 莱斯特竞技 门将飞身扑出。"
             },
@@ -102449,7 +102456,7 @@
             {
               "minute": 13,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "哈里·戴维斯 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -102470,7 +102477,7 @@
             {
               "minute": 21,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "芬利·汤普森 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -102505,7 +102512,7 @@
             {
               "minute": 32,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的射门被 谢菲尔德铁路 门将飞身扑出。"
             },
@@ -102526,7 +102533,7 @@
             {
               "minute": 42,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "瑞安·休斯 的劲射被 谢菲尔德铁路 门将封出底线。"
             },
@@ -102540,7 +102547,7 @@
             {
               "minute": 43,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的劲射被 谢菲尔德铁路 门将封出底线。"
             },
@@ -102615,7 +102622,7 @@
             {
               "minute": 63,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "亚伦·赖特 的劲射被 谢菲尔德铁路 门将封出底线。"
             },
@@ -103081,7 +103088,7 @@
             {
               "minute": 12,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "卢卡斯·施奈德 的劲射被 纽卡斯尔港口 门将封出底线。"
             },
@@ -103170,7 +103177,7 @@
             {
               "minute": 56,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "刘易斯·福斯特 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -103779,7 +103786,7 @@
             {
               "minute": 44,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "瑞安·休斯 的射门被 德比竞技 门将飞身扑出。"
             },
@@ -103840,7 +103847,7 @@
             {
               "minute": 73,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "米格尔·费尔南德斯 的射门被 德比竞技 门将飞身扑出。"
             },
@@ -103868,7 +103875,7 @@
             {
               "minute": 79,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "田中阳翔 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -104284,7 +104291,7 @@
             {
               "minute": 3,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "弗雷迪·罗宾逊 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -104326,7 +104333,7 @@
             {
               "minute": 20,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "米格尔·费尔南德斯 的射门被 伍尔弗汉普顿联 门将飞身扑出。"
             },
@@ -104436,7 +104443,7 @@
             {
               "minute": 54,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的劲射被 伍尔弗汉普顿联 门将封出底线。"
             },
@@ -104464,7 +104471,7 @@
             {
               "minute": 65,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 伍尔弗汉普顿联 门将飞身扑出。"
             },
@@ -104868,10 +104875,10 @@
             {
               "minute": 12,
               "side": "home",
-              "scorerId": "player:club:ENG:2:04:12",
-              "scorerName": "瑞安·休斯",
-              "assistId": "player:club:ENG:2:04:20",
-              "assistName": "亚伦·赖特",
+              "scorerId": "player:club:ENG:2:04:21",
+              "scorerName": "卢卡斯·施奈德",
+              "assistId": "player:club:ENG:2:04:19",
+              "assistName": "斯科特·格林",
               "isUser": false,
               "isUserAssist": false
             },
@@ -104936,20 +104943,20 @@
               "type": "attack",
               "side": "home",
               "isUser": false,
-              "text": "扎克·特纳 带球推进，伯明翰联 把阵型压过中场。"
+              "text": "米格尔·费尔南德斯 带球推进，伯明翰联 把阵型压过中场。"
             },
             {
               "minute": 12,
               "type": "shot",
               "side": "home",
               "isUser": false,
-              "text": "瑞安·休斯 在禁区内起脚，皮球飞入网窝！"
+              "text": "卢卡斯·施奈德 在禁区内起脚，皮球飞入网窝！"
             },
             {
               "minute": 12,
               "type": "goal",
               "side": "home",
-              "text": "第 12 分钟，瑞安·休斯 为 伯明翰联 破门！ 助攻：亚伦·赖特。",
+              "text": "第 12 分钟，卢卡斯·施奈德 为 伯明翰联 破门！ 助攻：斯科特·格林。",
               "isUser": false
             },
             {
@@ -104992,7 +104999,7 @@
               "type": "attack",
               "side": "home",
               "isUser": false,
-              "text": "扎克·特纳 回撤接应，伯明翰联 重新组织进攻。"
+              "text": "米格尔·费尔南德斯 回撤接应，伯明翰联 重新组织进攻。"
             },
             {
               "minute": 29,
@@ -105048,7 +105055,7 @@
               "type": "shot",
               "side": "home",
               "isUser": false,
-              "text": "扎克·特纳 起脚打门，皮球偏出立柱。"
+              "text": "米格尔·费尔南德斯 起脚打门，皮球偏出立柱。"
             },
             {
               "minute": 45,
@@ -105074,7 +105081,7 @@
               "type": "offside",
               "side": "home",
               "isUser": false,
-              "text": "扎克·特纳 前插过早，边裁举旗示意越位。"
+              "text": "米格尔·费尔南德斯 前插过早，边裁举旗示意越位。"
             },
             {
               "minute": 51,
@@ -105110,6 +105117,13 @@
               "side": "home",
               "isUser": false,
               "text": "马蒂斯·洛朗 在拼抢中犯规，南安普顿竞技 获得任意球。"
+            },
+            {
+              "minute": 62,
+              "type": "sub",
+              "side": "home",
+              "text": "第 62 分钟，绿茵夹具 替补登场。",
+              "isUser": true
             },
             {
               "minute": 65,
@@ -105149,7 +105163,7 @@
             {
               "minute": 74,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "丹尼尔·穆尔 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -105177,7 +105191,7 @@
             {
               "minute": 83,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "卢卡斯·施奈德 的劲射被 南安普顿竞技 门将封出底线。"
             },
@@ -105201,7 +105215,7 @@
               "text": "全场结束，伯明翰联 3-1 南安普顿竞技。"
             }
           ],
-          "motmName": "瑞安·休斯",
+          "motmName": "卢卡斯·施奈德",
           "motmRating": 8.2,
           "attendance": 24881,
           "keyMoments": [
@@ -105244,7 +105258,7 @@
                   "labelZh": "勺子点球",
                   "descriptionZh": "如果能骗过门将，这会成为本轮话题。",
                   "successChance": 0.498,
-                  "successBasisZh": "技术 67.554 +20.3%、对手门将 心理 42.7 -6.8%、对手门将 45 -3.6%",
+                  "successBasisZh": "技术 67.6 +20.3%、对手门将 心理 42.7 -6.8%、对手门将 45 -3.6%",
                   "ratingOnSuccess": 1.35,
                   "ratingOnFail": -1.1,
                   "goalOnSuccess": true,
@@ -105318,7 +105332,7 @@
                   "labelZh": "横传队友",
                   "descriptionZh": "把球送到更好的位置，可能收获一次助攻。",
                   "successChance": 0.608,
-                  "successBasisZh": "传球 56.636 +17%、对手后卫 速度 51.9 -4.2%",
+                  "successBasisZh": "传球 56.6 +17%、对手后卫 速度 51.9 -4.2%",
                   "ratingOnSuccess": 0.45,
                   "ratingOnFail": -0.1,
                   "assistOnSuccess": true,
@@ -105340,7 +105354,7 @@
                   "labelZh": "挑射吊门",
                   "descriptionZh": "门将站位靠前时，一脚挑射能越过他的头顶。",
                   "successChance": 0.495,
-                  "successBasisZh": "技术 67.554 +20.3%、心理 54.4 +2.7%、对手门将 45 -6.3%、对手门将 速度 20 -1.2%",
+                  "successBasisZh": "技术 67.6 +20.3%、心理 54.4 +2.7%、对手门将 45 -6.3%、对手门将 速度 20 -1.2%",
                   "ratingOnSuccess": 1,
                   "ratingOnFail": -0.6,
                   "goalOnSuccess": true,
@@ -105353,7 +105367,7 @@
                   "labelZh": "做球给插上队友",
                   "descriptionZh": "用一次轻巧的做球把防线彻底扯开。",
                   "successChance": 0.61,
-                  "successBasisZh": "传球 56.636 +17%、对手后卫 防守 60.2 -6%",
+                  "successBasisZh": "传球 56.6 +17%、对手后卫 防守 60.2 -6%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.15,
                   "assistOnSuccess": true,
@@ -105387,7 +105401,7 @@
                   "labelZh": "提前传中",
                   "descriptionZh": "在防守球员落位前把球送进禁区。",
                   "successChance": 0.482,
-                  "successBasisZh": "传球 56.636 +17%、对手后卫 速度 51.9 -5.2%、对手后卫 防守 60.2 -3.6%",
+                  "successBasisZh": "传球 56.6 +17%、对手后卫 速度 51.9 -5.2%、对手后卫 防守 60.2 -3.6%",
                   "ratingOnSuccess": 0.5,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -105398,7 +105412,7 @@
                   "labelZh": "倒三角回传",
                   "descriptionZh": "下底后回敲点球点，制造最舒服的射门角度。",
                   "successChance": 0.464,
-                  "successBasisZh": "传球 56.636 +17%、技术 67.554 +6.8%、对手后卫 防守 60.2 -7.2%、对手后卫 速度 51.9 -4.2%",
+                  "successBasisZh": "传球 56.6 +17%、技术 67.6 +6.8%、对手后卫 防守 60.2 -7.2%、对手后卫 速度 51.9 -4.2%",
                   "ratingOnSuccess": 0.6,
                   "ratingOnFail": -0.25,
                   "assistOnSuccess": true,
@@ -105411,7 +105425,7 @@
                   "labelZh": "弧线传中",
                   "descriptionZh": "用旋转把球送到门将和后卫之间。",
                   "successChance": 0.489,
-                  "successBasisZh": "技术 67.554 +27%、对手门将 45 -4.5%、对手后卫 身体 60.7 -3.6%",
+                  "successBasisZh": "技术 67.6 +27%、对手门将 45 -4.5%、对手后卫 身体 60.7 -3.6%",
                   "ratingOnSuccess": 0.55,
                   "ratingOnFail": -0.25,
                   "assistOnSuccess": true,
@@ -105422,7 +105436,7 @@
                   "labelZh": "前点低平球",
                   "descriptionZh": "把球扫向前点，让队友抢射。",
                   "successChance": 0.501,
-                  "successBasisZh": "传球 56.636 +11.3%、对手后卫 防守 60.2 -7.2%",
+                  "successBasisZh": "传球 56.6 +11.3%、对手后卫 防守 60.2 -7.2%",
                   "ratingOnSuccess": 0.4,
                   "ratingOnFail": -0.2,
                   "assistOnSuccess": true,
@@ -105825,7 +105839,7 @@
             {
               "minute": 5,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "詹姆斯·史密斯 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -105923,7 +105937,7 @@
             {
               "minute": 44,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "詹姆斯·克拉克 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -105963,7 +105977,7 @@
             {
               "minute": 53,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "卢卡斯·施奈德 的射门被 利物浦工人 门将飞身扑出。"
             },
@@ -105991,7 +106005,7 @@
             {
               "minute": 61,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "扎克·特纳 的射门被 利物浦工人 门将飞身扑出。"
             },
@@ -106047,7 +106061,7 @@
             {
               "minute": 71,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "扎克·特纳 的劲射被 利物浦工人 门将封出底线。"
             },
@@ -106515,7 +106529,7 @@
             {
               "minute": 3,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "维托尔·索萨 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -106716,7 +106730,7 @@
             {
               "minute": 72,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "扎克·特纳 的射门被 普雷斯顿工厂 门将飞身扑出。"
             },
@@ -106737,7 +106751,7 @@
             {
               "minute": 74,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "扎克·特纳 的射门被 普雷斯顿工厂 门将飞身扑出。"
             },
@@ -107288,7 +107302,7 @@
             {
               "minute": 46,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "马特奥·马丁内斯 的劲射被 伯明翰联 门将封出底线。"
             },
@@ -107316,7 +107330,7 @@
             {
               "minute": 56,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "欧文·伍德 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -107344,7 +107358,7 @@
             {
               "minute": 64,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 伦敦竞技 门将飞身扑出。"
             },
@@ -107372,7 +107386,7 @@
             {
               "minute": 67,
               "type": "save",
-              "side": "away",
+              "side": "home",
               "isUser": false,
               "text": "欧文·伍德 的射门被 伯明翰联 门将飞身扑出。"
             },
@@ -107428,7 +107442,7 @@
             {
               "minute": 86,
               "type": "save",
-              "side": "home",
+              "side": "away",
               "isUser": false,
               "text": "亚伦·赖特 的射门被 伦敦竞技 门将飞身扑出。"
             },

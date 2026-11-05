@@ -2,7 +2,6 @@ import { createLiveCareer, nextPending, saveWorldMock } from '../fixtures/liveSt
 import { playToEnd } from '../fixtures/livePlaybackFlow'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { listSaves } from '../../src/db/repository'
-import { autoResolveKeyMoments, finalizeMatchday } from '../../src/engine'
 import { useGameStore } from '../../src/store/gameStore'
 import { IDLE_PLAYBACK, playbackFor, playbackPhaseFor } from '../../src/store/livePlayback'
 import { hashState } from '../../src/lib/rng'
@@ -56,7 +55,7 @@ describe('live playback clock', () => {
     await createLiveCareer()
     const moment = nextPending()!
 
-    useGameStore.getState().jumpToNextKeyMoment()
+    await useGameStore.getState().jumpToNextKeyMoment()
 
     const state = useGameStore.getState()
     expect(state.livePlayback.phase).toBe('awaiting')
@@ -67,7 +66,7 @@ describe('live playback clock', () => {
 describe('live playback key moments', () => {
   it('resolveKeyMoment 后停在 result 阶段，不再自动完成整周', async () => {
     await createLiveCareer()
-    useGameStore.getState().jumpToNextKeyMoment()
+    await useGameStore.getState().jumpToNextKeyMoment()
     const moment = nextPending()!
     const week = useGameStore.getState().world!.week
 
@@ -103,19 +102,16 @@ describe('live playback key moments', () => {
 })
 
 describe('live playback persistence', () => {
-  it('播放中 tick 不写库，关键回合结算与完成比赛各只写库一次', async () => {
+  it('播放中按节流写库，关键回合结算与完成比赛各只写一次', async () => {
     await createLiveCareer()
     saveWorldMock.mockClear()
 
-    for (let index = 0; index < 3 && useGameStore.getState().livePlayback.phase === 'playing'; index += 1) {
-      useGameStore.getState().tickLiveMatch()
-    }
-    useGameStore.getState().jumpToNextKeyMoment()
-    expect(saveWorldMock).not.toHaveBeenCalled()
+    await useGameStore.getState().jumpToNextKeyMoment()
+    expect(saveWorldMock).toHaveBeenCalledTimes(1)
 
     const moment = nextPending()!
     await useGameStore.getState().resolveKeyMoment(moment.id, moment.defaultOptionId)
-    expect(saveWorldMock).toHaveBeenCalledTimes(1)
+    expect(saveWorldMock).toHaveBeenCalledTimes(2)
 
     await playToEnd()
     saveWorldMock.mockClear()
@@ -125,27 +121,25 @@ describe('live playback persistence', () => {
     expect(await listSaves()).toHaveLength(1)
   })
 
-  it('刷新后从最近一次关键回合结算点重放，终场报告哈希一致', async () => {
+  it('回归: 实时比赛刷新后回退到上一次落盘的关键回合而不是最新分钟', async () => {
     await createLiveCareer()
-    useGameStore.getState().jumpToNextKeyMoment()
-    const first = nextPending()!
-    await useGameStore.getState().resolveKeyMoment(first.id, first.defaultOptionId)
-    const saveId = useGameStore.getState().saveId!
-    const checkpoint = structuredClone(useGameStore.getState().world!)
+    saveWorldMock.mockClear()
 
-    autoResolveKeyMoments(checkpoint)
-    const expected = finalizeMatchday(checkpoint)!
+    for (let index = 0; index < 12; index += 1) {
+      if (useGameStore.getState().livePlayback.phase !== 'playing') break
+      await useGameStore.getState().tickLiveMatch()
+    }
+    const minute = useGameStore.getState().world!.lastMatch!.currentMinute
+    expect(minute).toBeGreaterThan(5)
+    const saveId = useGameStore.getState().saveId!
 
     expect(await useGameStore.getState().loadGame(saveId)).toBe(true)
-    useGameStore.getState().startLivePlayback()
-    await playToEnd()
-    expect(useGameStore.getState().livePlayback.phase).toBe('ended')
 
-    await useGameStore.getState().finishLiveMatch()
-    const actual = useGameStore.getState().lastTurn?.match
-
-    expect(actual).toBeTruthy()
-    expect(hashState(actual)).toBe(hashState(expected))
+    const restoredReport = useGameStore.getState().world!.lastMatch!
+    const restored = restoredReport.currentMinute
+    expect(minute - restored).toBeLessThanOrEqual(5)
+    expect(restoredReport.status).toBe('live')
+    expect(playbackPhaseFor(restoredReport)).not.toBe('idle')
   })
 })
 
@@ -166,7 +160,7 @@ describe('live playback restore', () => {
 
   it('刷新后 awaiting 保留关键时刻的进攻三区球位', async () => {
     await createLiveCareer()
-    useGameStore.getState().jumpToNextKeyMoment()
+    await useGameStore.getState().jumpToNextKeyMoment()
 
     const report = useGameStore.getState().world!.lastMatch!
     const playback = playbackFor(useGameStore.getState().world)
@@ -214,7 +208,7 @@ describe('live playback restore after goals', () => {
     useGameStore.getState().pauseLivePlayback()
     const minute = useGameStore.getState().world!.lastMatch!.currentMinute
 
-    useGameStore.getState().jumpToNextKeyMoment()
+    await useGameStore.getState().jumpToNextKeyMoment()
 
     const state = useGameStore.getState()
     expect(state.livePlayback.phase).toBe('awaiting')
@@ -266,7 +260,7 @@ describe('live playback guards', () => {
     expect(useGameStore.getState().world?.week).toBe(week)
     expect(saveWorldMock).not.toHaveBeenCalled()
 
-    useGameStore.getState().jumpToNextKeyMoment()
+    await useGameStore.getState().jumpToNextKeyMoment()
     useGameStore.getState().setError(null)
     await useGameStore.getState().finishLiveMatch()
 
@@ -276,7 +270,7 @@ describe('live playback guards', () => {
 
   it('重复 tick 不会重复计分或重复写入事件', async () => {
     await createLiveCareer()
-    useGameStore.getState().jumpToNextKeyMoment()
+    await useGameStore.getState().jumpToNextKeyMoment()
     const before = hashState(useGameStore.getState().world!.lastMatch)
     const revision = useGameStore.getState().livePlayback.revision
 

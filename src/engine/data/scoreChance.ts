@@ -71,7 +71,7 @@ function actorTerms(player: Player, weights: AttrWeights): Term[] {
     const attrKey = key as AttrKey
     const value = player.attributes[attrKey]
     const delta = (coefficient ?? 0) * value
-    terms.push({ text: `${ATTR_LABELS[attrKey]} ${value} ${percent(delta)}`, delta })
+    terms.push({ text: `${ATTR_LABELS[attrKey]} ${round1(value)} ${percent(delta)}`, delta })
   }
   return terms
 }
@@ -88,7 +88,7 @@ function opponentTerms(opponents: OpponentPair, weights: OpponentWeights): Term[
       const value = foe.attributes[attrKey]
       const delta = -(coefficient ?? 0) * value
       const attrLabel = ATTR_LABELS[attrKey] === roleLabel ? '' : ` ${ATTR_LABELS[attrKey]}`
-      terms.push({ text: `对手${roleLabel}${attrLabel} ${value} ${percent(delta)}`, delta })
+      terms.push({ text: `对手${roleLabel}${attrLabel} ${round1(value)} ${percent(delta)}`, delta })
     }
   }
   return terms

@@ -1,4 +1,4 @@
-import { clamp, positionGroup } from '../domain'
+import { clamp, onPitchAt, positionGroup } from '../domain'
 import type {
   Club,
   Id,
@@ -20,6 +20,8 @@ export interface SpellInput {
   previous?: MatchLiveState | null
   momentum?: Partial<Record<MatchSide, number>>
   lineups?: MatchLineups
+  /** 主角登场分钟；默认 0 表示首发或非用户比赛。 */
+  userEntryMinute?: number
 }
 
 export interface SpellShot {
@@ -71,12 +73,9 @@ function stayProbability(share: number, possession: MatchSide): number {
   return clamp(0.77 + edge * 0.5, 0.64, 0.83)
 }
 
-function pickCarrier(
-  lineups: MatchLineups | undefined,
-  side: MatchSide,
-  rng: Rng,
-): Id | undefined {
-  const players = lineups?.[side] ?? []
+function pickCarrier(input: SpellInput, side: MatchSide, rng: Rng): Id | undefined {
+  const entry = input.userEntryMinute ?? 0
+  const players = (input.lineups?.[side] ?? []).filter((player) => onPitchAt(player, entry, input.minute))
   const attackers = players.filter((player) => {
     const group = positionGroup(player.position)
     return group === 'FWD' || group === 'MID'
@@ -87,7 +86,7 @@ function pickCarrier(
 
 interface MovementInput {
   rng: Rng
-  lineups?: MatchLineups
+  spell: SpellInput
   side: MatchSide
   startX: number
   turnover: boolean
@@ -109,7 +108,7 @@ function buildMovement(input: MovementInput): MovementResult {
       kind: 'turnover',
       side,
       ballX,
-      carrierId: pickCarrier(input.lineups, side, rng),
+      carrierId: pickCarrier(input.spell, side, rng),
     })
   }
   const moves = Math.min(rng.int(1, 3), 3 - steps.length)
@@ -121,7 +120,7 @@ function buildMovement(input: MovementInput): MovementResult {
       kind: rng.chance(0.3) ? 'carry' : 'pass',
       side,
       ballX,
-      carrierId: pickCarrier(input.lineups, side, rng),
+      carrierId: pickCarrier(input.spell, side, rng),
     })
   }
   return { ballX, carrierId: steps.at(-1)?.carrierId, steps }
@@ -207,7 +206,7 @@ export function buildSpell(input: SpellInput): SpellResult {
   )
   const movement = buildMovement({
     rng: createRng(input.seed, 'move', input.fixtureId, input.minute),
-    lineups: input.lineups,
+    spell: input,
     side: plan.possession,
     startX: plan.startX,
     turnover: plan.turnover,

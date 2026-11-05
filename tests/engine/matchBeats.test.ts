@@ -92,7 +92,19 @@ describe('buildBeats shot and goal coherence', () => {
     expect(saved!.stats[saved!.shot!.side].shotsOnTarget).toBe(1)
   })
 
+  it('回归: 扑救事件的阵营与文案主体同侧，不是门将那一方', () => {
+    const saved = runMinutes().find(
+      (result) => result.shot && result.shot.onTarget && !result.shot.goal,
+    )
+    expect(saved).toBeDefined()
+    const shot = saved!.events.find((event) => event.type === 'shot')!
+    const save = saved!.events.find((event) => event.type === 'save')!
+    expect(shot.side).toBe(saved!.shot!.side)
+    expect(save.side).toBe(saved!.shot!.side)
+  })
+
   it('返回与球权一致的持久化 liveState', () => {
+
     const result = buildBeats({ ...input, previous: { possession: 'away', ballX: 0.3 }, homeXg: 1.2, awayXg: 1.2 })
     expect(result.liveState.possession).toBe(result.possession)
     expect(result.liveState.ballX).toBe(result.ballX)

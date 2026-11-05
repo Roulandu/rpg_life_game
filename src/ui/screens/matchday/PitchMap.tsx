@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import type { MatchReport, PitchPlayer, PitchPoint, WorldState } from '../../../domain'
-import { buildPitchFrame, displayName } from '../../../domain'
+import { buildPitchFrame, displayName, userEntryMinuteOf } from '../../../domain'
 import type { LivePlayback, LiveSpeed } from '../../../store'
 import { PitchSvg } from './PitchSvg'
 
@@ -142,6 +142,7 @@ export function PitchMap({ world, match, playback }: { world: WorldState; match:
     possession: playback.possession,
     ballX: playback.ballX,
     carrierId: playback.carrierId,
+    userEntryMinute: userEntryMinuteOf(match),
     goalSide,
     history: playback.history.map((point) => ({
       minute: point.minute,

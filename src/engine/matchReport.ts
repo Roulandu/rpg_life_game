@@ -1,4 +1,4 @@
-import { clamp, displayName, round1 } from '../domain'
+import { clamp, displayName, round1, userEntryMinuteOf } from '../domain'
 import type {
   Club,
   Fixture,
@@ -112,6 +112,20 @@ export function buildGoalText(report: MatchReport, goal: MatchGoal): string {
   const teamName = goal.side === 'home' ? report.homeName : report.awayName
   const assistText = goal.assistName ? ` 助攻：${goal.assistName}。` : ''
   return `第 ${goal.minute} 分钟，${goal.scorerName} 为 ${teamName} 破门！${assistText}`
+}
+
+/** 时钟走到登场分钟才补这条事件，因为一致性校验要求所有事件的分钟都不超过 currentMinute；已存在则不再重复（刷新重放会再走一遍同一分钟）。 */
+export function appendSubAppearance(report: MatchReport, player: Player | undefined, minute: number): void {
+  if (!player || !report.userPlayed || report.userStarted) return
+  const entry = userEntryMinuteOf(report)
+  if (minute < entry || report.events.some((event) => event.type === 'sub')) return
+  appendEvent(report, {
+    minute: entry,
+    type: 'sub',
+    side: report.homeId === player.clubId ? 'home' : 'away',
+    text: `第 ${entry} 分钟，${displayName(player)} 替补登场。`,
+    isUser: true,
+  })
 }
 
 export function enterHalfTime(report: MatchReport): void {

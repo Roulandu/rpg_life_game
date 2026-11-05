@@ -1,5 +1,6 @@
 import { createRng } from '../lib'
 import { clamp, positionGroup } from './attributes'
+import { onPitchAt } from './matchMinutes'
 import type { MatchLineups, MatchSide } from './matchTypes'
 import {
   attackDirection,
@@ -40,6 +41,8 @@ export interface PitchFrameInput {
   carrierId?: string | null
   goalSide?: MatchSide
   history?: PitchHistoryPoint[]
+  /** 主角登场分钟；默认 0 表示首发或非用户比赛。 */
+  userEntryMinute?: number
 }
 
 export interface PitchFrame {
@@ -94,16 +97,18 @@ function pickCarrier(
   side: MatchSide,
   players: PitchPlayer[],
 ): PitchPlayer | null {
-  if (players.length === 0) return null
+  const entry = input.userEntryMinute ?? 0
+  const onPitch = players.filter((player) => onPitchAt(player, entry, input.minute))
+  if (onPitch.length === 0) return null
   const requested = input.carrierId
-    ? players.find((player) => player.id === input.carrierId)
+    ? onPitch.find((player) => player.id === input.carrierId)
     : undefined
   if (requested) return requested
-  const attackers = players.filter((player) => {
+  const attackers = onPitch.filter((player) => {
     const group = positionGroup(player.position)
     return group === 'FWD' || group === 'MID'
   })
-  const pool = attackers.length > 0 ? attackers : players
+  const pool = attackers.length > 0 ? attackers : onPitch
   return createRng(input.seed, 'pitch-carrier', input.fixtureId, input.minute, side).pick(pool)
 }
 

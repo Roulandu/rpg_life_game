@@ -1,4 +1,4 @@
-import { displayName } from '../domain'
+import { displayName, userEntryMinuteOf } from '../domain'
 import type { Fixture, KeyMomentOutcome, MatchReport, MatchSide, WorldState } from '../domain'
 import { createRng } from '../lib'
 import { generateKeyMoments } from './keyMomentGen'
@@ -13,6 +13,7 @@ import { staffFactorsOf } from './staff'
 export function startUserMatch(world: WorldState, fixture: Fixture): MatchReport {
   if (fixture.report?.status === 'live') {
     world.lastMatch = fixture.report
+    fastForwardToAppearance(world, fixture.report)
     return fixture.report
   }
   const setup = prepareUserFixture(world, fixture)
@@ -29,7 +30,7 @@ export function startUserMatch(world: WorldState, fixture: Fixture): MatchReport
         rng,
         minutes: setup.userMinutes,
         isHome: setup.isHome,
-        startMinute: setup.userStarted ? 0 : 90 - setup.userMinutes,
+        startMinute: userEntryMinuteOf(setup),
         opponents,
         psychBonus: staffFactorsOf(world).psychBonus,
       })
@@ -42,7 +43,23 @@ export function startUserMatch(world: WorldState, fixture: Fixture): MatchReport
   fixture.awayGoals = 0
   fixture.report = report
   world.lastMatch = report
+  fastForwardToAppearance(world, report)
   return report
+}
+
+/**
+ * 替补场次不该从 0 分钟空转到登场分钟。快进必须走玩家手点用的同一个
+ * advanceLiveMinute，否则「逐分钟播到 70'」和「刷新后重放到 70'」会产出两场比赛。
+ */
+function fastForwardToAppearance(world: WorldState, report: MatchReport): void {
+  if (!report.userPlayed || report.userStarted) return
+  const entry = userEntryMinuteOf(report)
+  let guard = 0
+  while (report.currentMinute < entry && guard < 90) {
+    const result = advanceLiveMinute(world)
+    if (!result || result.paused || result.finished) break
+    guard += 1
+  }
 }
 
 export function advanceLiveMatch(world: WorldState): MatchReport | null {
