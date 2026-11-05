@@ -76,7 +76,7 @@ export interface GameStore {
   testAi: () => Promise<ConnectionTestResult>
   sendChat: (message: string) => Promise<void>
   importFromText: (text: string) => Promise<boolean>
-  exportCurrent: () => void
+  exportCurrent: () => Promise<void>
   dismissSeason: () => void
   clearLastTurn: () => void
   setNotice: (notice: string | null) => void

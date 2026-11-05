@@ -192,11 +192,20 @@ async function importFromText(set: StoreSet, get: StoreGet, text: string): Promi
   }
 }
 
-function exportCurrent(set: StoreSet, get: StoreGet): void {
+async function exportCurrent(set: StoreSet, get: StoreGet): Promise<void> {
   const world = get().world
   if (!world) return
-  downloadWorld(world)
-  set({ notice: '存档已导出为 JSON 文件。' })
+  const result = await downloadWorld(world)
+  if (result.ok) {
+    set({ notice: result.locationZh, error: null })
+    return
+  }
+  // 取消分享不是失败：文件已经写进缓存，只是用户没继续。
+  if (result.reason === 'canceled') {
+    set({ notice: result.messageZh, error: null })
+    return
+  }
+  set({ notice: null, error: result.messageZh })
 }
 
 export const createCareerSlice: StoreSlice<CareerSlice> = (set, get) => ({
