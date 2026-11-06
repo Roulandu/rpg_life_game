@@ -53,16 +53,6 @@ describe('档案页成长投资', () => {
     expect(rowButton('传球').textContent).toContain('要 6 经验')
   })
 
-  it('练到单项上限时把上限数字摆出来', () => {
-    const world = freshWorld()
-    const user = tune(world, { exp: 900, lifetimeExp: 0 })
-    user.attributes.passing = 40
-    renderGrowth(world)
-
-    expect(rowButton('传球').disabled).toBe(true)
-    expect(rowButton('传球').textContent).toContain('练到上限 40')
-  })
-
   it('潜力见底时不再劝玩家攒经验，而是说明已到潜力', () => {
     const world = freshWorld()
     const user = tune(world, { exp: 900 })
@@ -98,5 +88,38 @@ describe('档案页成长投资', () => {
     renderGrowth(keeperWorld)
 
     expect(rowButton('门将')).toBeTruthy()
+  })
+})
+
+describe('成长投资的两条上限提示', () => {
+  it('单项投满点数上限时把点数与档位都摆出来', () => {
+    const world = freshWorld()
+    const user = tune(world, { exp: 900, lifetimeExp: 0 })
+    user.attrInvestment.passing = 40
+    renderGrowth(world)
+
+    expect(rowButton('传球').disabled).toBe(true)
+    expect(rowButton('传球').textContent).toContain('已练满 40 点')
+  })
+
+  it('回归: 起始属性高于点数上限的行照样投得动，不再显示成练到上限', () => {
+    const world = freshWorld()
+    const user = tune(world, { exp: 900, lifetimeExp: 20 })
+    user.attributes.passing = 64.8
+    renderGrowth(world)
+
+    expect(rowButton('传球').disabled).toBe(false)
+    expect(rowButton('传球').textContent).toContain('6 经验')
+    expect(rowButton('传球').textContent).not.toContain('已练满')
+  })
+
+  it('属性值顶到绝对天花板时说明是天花板而不是点数上限', () => {
+    const world = freshWorld()
+    const user = tune(world, { exp: 900, lifetimeExp: 4000 })
+    user.attributes.passing = 96
+    renderGrowth(world)
+
+    expect(rowButton('传球').disabled).toBe(true)
+    expect(rowButton('传球').textContent).toContain('已到属性天花板 96')
   })
 })

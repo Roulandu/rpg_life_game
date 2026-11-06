@@ -23,13 +23,15 @@ function CareerAttrRow({ draft, attrKey }: { draft: CareerDraft; attrKey: AttrKe
   const base = draft.preview.baseAttributes[attrKey]
   const value = draft.preview.attributes[attrKey]
   const delta = draft.allocation[attrKey] ?? 0
+  // 整套加点作废时世界层会回落到基准，此时画「64.8 → 64.8」只会让人以为加号坏了。
+  const effective = delta > 0 && draft.preview.ok
   return (
     <li className="flex min-h-11 items-center gap-2 rounded-xl border border-line bg-card-2 px-3">
       <span className="flex-1 text-sm">{label}</span>
       <span className="font-mono text-xs text-muted">
-        {delta > 0 ? `${base.toFixed(1)} → ${value.toFixed(1)}` : base.toFixed(1)}
+        {effective ? `${base.toFixed(1)} → ${value.toFixed(1)}` : base.toFixed(1)}
       </span>
-      {delta > 0 && <span className="chip text-accent">+{delta}</span>}
+      {delta > 0 && <span className={effective ? 'chip text-accent' : 'chip'}>+{delta}</span>}
       <button
         type="button"
         aria-label={`给${label}减 1 点`}
@@ -72,9 +74,12 @@ export function CareerAttributeCard({ draft }: { draft: CareerDraft }) {
       </ul>
       {!preview.ok && (
         <p role="alert" className="mt-2 text-[11px] leading-relaxed text-danger">
-          {preview.issues
-            .map((issue) => issueText(issue, preview.used - preview.budget, preview.potential))
-            .join('；')}
+          <span>
+            {preview.issues
+              .map((issue) => issueText(issue, preview.used - preview.budget, preview.potential))
+              .join('；')}
+          </span>
+          <span className="block">当前加点不会生效，签下去的是未加点的基准属性。</span>
         </p>
       )}
     </Card>

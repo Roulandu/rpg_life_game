@@ -36,7 +36,7 @@ export function ProfileFinance({ world, user }: { world: WorldState; user: Playe
           <p className="text-[12px] leading-relaxed text-muted">{scouting}</p>
           <div className="mt-3">
             <StatBar label="当前能力" value={overall(user)} max={Math.max(user.potential, overall(user))} tone="accent" />
-            <p className="mt-1.5 text-[10px] text-dim">潜力上限不会被直接显示。表现越好，球探的判断越接近真实。</p>
+            <p className="mt-1.5 text-[10px] text-dim">球探给的评估会随表现收敛，实际能投多少点以成长投资为准。</p>
           </div>
         </Card>
       </section>

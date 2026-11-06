@@ -1,8 +1,12 @@
 import { saveWorldMock } from '../fixtures/liveStore'
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { Player, WorldState } from '../../src/domain/types'
+import { attributeCap } from '../../src/domain'
+import type { GameStore } from '../../src/store'
 import { useGameStore } from '../../src/store/gameStore'
+import { createGrowthSlice } from '../../src/store/growthSlice'
 import { testOptions } from '../fixtures/career'
+import { freshWorld } from '../fixtures/growth'
 import { resetStore } from '../fixtures/storeHarness'
 
 beforeEach(() => resetStore(saveWorldMock, true))
@@ -94,5 +98,40 @@ describe('经验投资 store 通道', () => {
     useGameStore.setState({ world: null })
 
     await expect(useGameStore.getState().investExp('passing', 1)).resolves.toBeNull()
+  })
+})
+
+describe('成长投资的点数档位与属性天花板', () => {
+  /** 直接驱动切片：引擎只回 `overCap`，把码翻成人话的是 growthSlice，这段就该在它自己身上验。 */
+  it('切片把 overCap 引擎码翻成点数档位那句人话', async () => {
+    const world = freshWorld()
+    const user = world.players[world.playerId]
+    user.exp = 80
+    user.lifetimeExp = 400
+    user.attrInvestment.passing = attributeCap(user)
+    const patches: Record<string, unknown>[] = []
+    const setStub = ((patch: Partial<GameStore>) => patches.push(patch)) as never
+    const getStub = (() => ({ ...useGameStore.getState(), world }) as GameStore) as never
+    const slice = createGrowthSlice(setStub, getStub, (() => {}) as never)
+
+    const outcome = await slice.investExp('passing', 1)
+
+    expect(outcome?.ok).toBe(false)
+    expect(outcome?.reason).toBe('overCap')
+    expect(patches.at(-1)).toMatchObject({ error: '这项属性已经投满当前档位，多攒经验解锁更高档位。' })
+  })
+
+  it('回归: 起始属性高于点数档位的球员在 store 通道也投得动', async () => {
+    await useGameStore.getState().createCareer(testOptions())
+    const world = setExp(80)
+    const user = world.players[world.playerId]
+    user.attributes.passing = attributeCap(user) + 1
+    const attrBefore = user.attributes.passing
+    useGameStore.setState({ world })
+
+    const outcome = await useGameStore.getState().investExp('passing', 1)
+
+    expect(outcome?.ok, outcome?.reason ?? undefined).toBe(true)
+    expect(currentUser()?.attributes.passing).toBe(attrBefore + 1)
   })
 })

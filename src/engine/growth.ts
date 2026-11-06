@@ -126,17 +126,19 @@ function rejected(world: WorldState, attrKey: AttrKey, reason: InvestReject): In
   }
 }
 
-/** 把经验投进一项属性：买不起、练不到上限、越过潜力三种情况一律整笔拒绝，不做部分成交。 */
+/** 把经验投进一项属性：买不起、练到档位上限、顶到属性天花板、越过潜力四种情况一律整笔拒绝，不做部分成交。 */
 export function investAttribute(world: WorldState, attrKey: AttrKey, points: number): InvestOutcome {
   const user = world.players[world.playerId]
   if (!user) return rejected(world, attrKey, 'noUser')
   if (!Number.isInteger(points) || points <= 0) return rejected(world, attrKey, 'invalidPoints')
   if (matchInProgress(world)) return rejected(world, attrKey, 'matchLive')
   if (!canInvestAttribute(attrKey, user.position)) return rejected(world, attrKey, 'notAllowed')
-  if (user.attributes[attrKey] + points > attributeCap(user)) return rejected(world, attrKey, 'overCap')
-  if (!fitsPotential(user, attrKey, points)) return rejected(world, attrKey, 'overPotential')
 
   const invested = user.attrInvestment[attrKey] ?? 0
+  if (invested + points > attributeCap(user)) return rejected(world, attrKey, 'overCap')
+  if (user.attributes[attrKey] + points > INVEST_HARD_CAP) return rejected(world, attrKey, 'overCap')
+  if (!fitsPotential(user, attrKey, points)) return rejected(world, attrKey, 'overPotential')
+
   const cost = staffInvestCost(world, investmentSeriesCost(invested, points))
   if (cost > user.exp) return rejected(world, attrKey, 'notEnoughExp')
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ATTR_KEYS, INVEST_FIRST_COST, attributeCap, computeOverall } from '../../src/domain'
+import { ATTR_KEYS, INVEST_FIRST_COST, INVEST_HARD_CAP, attributeCap, computeOverall } from '../../src/domain'
 import type { AttrKey } from '../../src/domain'
 import { investAttribute } from '../../src/engine/growth'
 import { freshWorld, keyAttrOf, tune, userOf } from '../fixtures/growth'
@@ -66,18 +66,6 @@ describe('经验投资的三道刹车', () => {
     expect(user.attrInvestment[attr]).toBe(0)
   })
 
-  it('单属性上限由累计经验解锁，未解锁到就不许投', () => {
-    const world = freshWorld()
-    const user = tune(world, { exp: 200, lifetimeExp: 0 })
-    const attr = keyAttrOf(user)
-    user.attributes[attr] = attributeCap(user)
-    expect(investAttribute(world, attr, 1).reason).toBe('overCap')
-
-    user.lifetimeExp = 400
-    user.attributes[attr] = attributeCap(user) - 1
-    expect(investAttribute(world, attr, 1).ok).toBe(true)
-  })
-
   it('门将属性只开门将，非门将投 goalkeeping 直接拒绝', () => {
     const world = freshWorld()
     const user = tune(world, { exp: 200 })
@@ -105,16 +93,52 @@ describe('经验投资的三道刹车', () => {
     expect(user.attributes[attr]).toBe(before)
   })
 
-  it('把能投的全投满也越不过潜力与上限', () => {
+  it('把能投的全投满也越不过潜力与两条上限', () => {
     const world = freshWorld()
     const user = tune(world, { exp: 4000, lifetimeExp: 4000, potential: 70 })
     for (const key of ATTR_KEYS) {
-      for (let step = 0; step < 30; step += 1) {
+      for (let step = 0; step < 120; step += 1) {
         if (!investAttribute(world, key, 1).ok) break
       }
     }
     expect(computeOverall(user.position, user.attributes)).toBeLessThanOrEqual(user.potential)
-    expect(ATTR_KEYS.every((key) => user.attributes[key] <= attributeCap(userOf(world)))).toBe(true)
+    expect(ATTR_KEYS.every((key) => user.attributes[key] <= INVEST_HARD_CAP)).toBe(true)
+    expect(ATTR_KEYS.every((key) => (user.attrInvestment[key] ?? 0) <= attributeCap(userOf(world)))).toBe(true)
     expect(user.exp).toBeGreaterThanOrEqual(0)
+  })
+})
+
+describe('属性投资的两条上限闸门', () => {
+  it('单属性可投点数上限由累计经验解锁，投满了才拒', () => {
+    const world = freshWorld()
+    const user = tune(world, { exp: 200, lifetimeExp: 0 })
+    const attr = keyAttrOf(user)
+    user.attrInvestment[attr] = attributeCap(user)
+    expect(investAttribute(world, attr, 1).reason).toBe('overCap')
+
+    user.lifetimeExp = 400
+    expect(investAttribute(world, attr, 1).ok).toBe(true)
+  })
+
+  it('回归: 起始属性高于可投点数上限不再是拒绝理由', () => {
+    const world = freshWorld()
+    const user = tune(world, { exp: 200, lifetimeExp: 20 })
+    const attr = keyAttrOf(user)
+    user.attributes[attr] = 64.8
+
+    const result = investAttribute(world, attr, 1)
+    expect(result.ok, result.reason ?? undefined).toBe(true)
+    expect(user.attributes[attr]).toBe(65.8)
+    expect(user.attrInvestment[attr]).toBe(1)
+  })
+
+  it('属性值的绝对天花板 96 仍然拦得住', () => {
+    const world = freshWorld()
+    const user = tune(world, { exp: 200, lifetimeExp: 4000 })
+    const attr = keyAttrOf(user)
+    user.attributes[attr] = INVEST_HARD_CAP
+
+    expect(investAttribute(world, attr, 1).reason).toBe('overCap')
+    expect(user.attrInvestment[attr]).toBe(0)
   })
 })

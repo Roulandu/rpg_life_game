@@ -13,7 +13,7 @@ const REJECT_TEXT: Record<Exclude<InvestReject, null>, string> = {
   invalidPoints: '投资点数必须是正整数。',
   matchLive: '比赛进行中不能改属性，先把今天踢完。',
   notAllowed: '这项属性不由你的位置决定。',
-  overCap: '这项属性练到了当前上限，多攒点经验再来。',
+  overCap: '这项属性已经投满当前档位，多攒经验解锁更高档位。',
   overPotential: '再投就越过你的潜力了，先踢比赛涨经验。',
   notEnoughExp: '经验不够，每一点都随已投点数涨价。',
 }

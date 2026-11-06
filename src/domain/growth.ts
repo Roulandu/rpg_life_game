@@ -8,7 +8,7 @@ export const INVEST_STEP_COST = 2
 /** 属性值的绝对天花板：任何投资都不许越过它。 */
 export const INVEST_HARD_CAP = 96
 
-/** 单属性可投上限从 40 起步，每 20 点累计经验再解锁 1 点。 */
+/** 单属性可投**点数**上限从 40 起步，每 20 点累计经验再解锁 1 点；它管的是投了多少点，不是属性现在多少。 */
 export const INVEST_CAP_BASE = 40
 export const INVEST_CAP_PER_EXP = 20
 
@@ -30,7 +30,7 @@ export function investmentSeriesCost(invested: number, points: number): number {
   return total
 }
 
-/** 这名球员当前允许把单项属性练到多高。 */
+/** 这名球员单项属性当前允许投进去多少**点**（不是允许练到多少值）。 */
 export function attributeCap(player: Player): number {
   const unlocked = INVEST_CAP_BASE + Math.floor(player.lifetimeExp / INVEST_CAP_PER_EXP)
   return Math.min(INVEST_HARD_CAP, unlocked)
@@ -51,16 +51,19 @@ export function fitsPotential(player: Player, attrKey: AttrKey, points: number):
 }
 
 /**
- * 现在最多能往这项属性投几点：同时受「买得起」「练得到上限」「不越过潜力」三条约束。
+ * 现在最多能往这项属性投几点：同时受「买得起」「本项还能投几点」「属性值还涨得动」「不越过潜力」四条约束。
+ * 点数档位与属性值天花板是两条独立刹车——起始属性高于档位数字的球员照样投得动。
  * UI 用它决定置灰与步长，引擎用它做校验，两边不会出现第二套口径。
  */
 export function maxInvestable(player: Player, attrKey: AttrKey): number {
   if (!canInvestAttribute(attrKey, player.position)) return 0
   const invested = player.attrInvestment[attrKey] ?? 0
-  const headroom = Math.min(attributeCap(player), INVEST_HARD_CAP) - player.attributes[attrKey]
+  const pointRoom = attributeCap(player) - invested
+  const valueRoom = INVEST_HARD_CAP - player.attributes[attrKey]
   let points = 0
   while (
-    points < headroom &&
+    points < pointRoom &&
+    points < valueRoom &&
     fitsPotential(player, attrKey, points + 1) &&
     investmentSeriesCost(invested, points + 1) <= player.exp
   ) {

@@ -85,6 +85,17 @@ describe('建号页属性点买的可见性与提交', () => {
     expect(screen.getByRole('button', { name: /签下第一份合同/ })).toBeDisabled()
   })
 
+  it('回归: 整套加点作废时不画「加了等于没加」的箭头，并说明不生效', () => {
+    renderWithRouter(<CreateCareerScreen />)
+    clickTimes(plus('射门'), 4)
+    clickTimes(plus('传球'), 4)
+    clickTimes(plus('体能'), 4)
+    expect(screen.getByText('超出可分配点数 2 点')).toBeInTheDocument()
+    expect(within(row('射门')).queryByText(/\d+\.\d → \d+\.\d/)).toBeNull()
+    expect(within(row('射门')).getByText('+4')).toBeInTheDocument()
+    expect(screen.getByText(/当前加点不会生效/)).toBeInTheDocument()
+  })
+
   it('门将被藏在位置之后，选了门将才出现', () => {
     renderWithRouter(<CreateCareerScreen />)
     expect(screen.queryByRole('button', { name: '给门将加 1 点' })).toBeNull()

@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   ATTR_KEYS,
-  attributeCap,
   canInvestAttribute,
   computeOverall,
   investmentCost,
   investmentSeriesCost,
-  maxInvestable,
 } from '../../src/domain'
+// 上限口径直接引 growth 模块本体：改这条闸门时，测试必须指名钉住实现文件，而不是走桶文件碰运气。
+import { attributeCap, maxInvestable } from '../../src/domain/growth'
 import type { AttrKey, Player, Position } from '../../src/domain'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
@@ -64,10 +64,18 @@ describe('经验投资曲线与上限', () => {
     expect(attributeCap(playerOf({ lifetimeExp: 5000 }))).toBe(96)
   })
 
-  it('已经练过上限的属性不再给点数', () => {
-    const player = playerOf({ value: 70, exp: 60 })
+  it('投满可投点数上限的属性不再给点数', () => {
+    const player = playerOf({ exp: 60, invested: 60 })
 
     expect(maxInvestable(player, ownKey(player))).toBe(0)
+  })
+
+  it('累计经验解锁更高档位后，同一属性重新投得动', () => {
+    const locked = playerOf({ exp: 600, invested: 60, lifetimeExp: 400 })
+    const unlocked = playerOf({ exp: 600, invested: 60, lifetimeExp: 500 })
+
+    expect(maxInvestable(locked, ownKey(locked))).toBe(0)
+    expect(maxInvestable(unlocked, ownKey(unlocked))).toBeGreaterThan(0)
   })
 
   it('经验只够买得起的点数，多一点都不给', () => {
@@ -82,6 +90,27 @@ describe('经验投资曲线与上限', () => {
 
     expect(maxInvestable(fresh, ownKey(fresh))).toBe(2)
     expect(maxInvestable(used, ownKey(used))).toBe(1)
+  })
+})
+
+describe('点数上限与属性值上限各管各的', () => {
+  /**
+   * 真机实测：21 岁低级别联赛前锋建号，起始属性 45–80，累计经验 20 时上限才 41。
+   * 旧实现把 41 当成属性值的天花板去减 64.8，headroom 恒为负，整个成长页死锁三季。
+   */
+  it('回归: 起始属性高于可投点数上限时仍然投得动', () => {
+    const player = playerOf({ value: 64.8, exp: 15, lifetimeExp: 20 })
+
+    expect(attributeCap(player)).toBe(41)
+    expect(maxInvestable(player, ownKey(player))).toBeGreaterThan(0)
+  })
+
+  it('回归: 属性值的天花板是 96，不是随经验解锁的那个数字', () => {
+    const nearTop = playerOf({ value: 95, exp: 60, lifetimeExp: 400 })
+    const atTop = playerOf({ value: 96, exp: 60, lifetimeExp: 400 })
+
+    expect(maxInvestable(nearTop, ownKey(nearTop))).toBe(1)
+    expect(maxInvestable(atTop, ownKey(atTop))).toBe(0)
   })
 })
 
