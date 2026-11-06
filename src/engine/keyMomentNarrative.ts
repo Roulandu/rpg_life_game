@@ -166,6 +166,9 @@ export function buildMediaReaction(
         ? '球队拿到了胜利。'
         : '球队的结果并不理想。'
 
+  if (!report.userPlayed) {
+    return `${playerName} 本场未出场，评论员只谈球队的结果。${resultNote}`
+  }
   if (rating >= 8.3) {
     return `《比赛日》把 ${playerName} 选入本轮焦点，认为他几乎凭一己之力改变了比赛。${momentNote}`
   }

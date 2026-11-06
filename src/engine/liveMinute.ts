@@ -20,10 +20,9 @@ import { kickoffState, momentState } from './liveSpell'
 import {
   addBeatStats,
   appendEvent,
-  appendGoal,
   appendSubAppearance,
-  buildGoalText,
   enterHalfTime,
+  recordGoal,
 } from './matchReport'
 
 export interface LiveMinuteResult {
@@ -135,14 +134,7 @@ function scoreGoal(
     isUser: scorer.id === world.playerId,
     isUserAssist: assist?.id === world.playerId,
   }
-  appendGoal(report, context.fixture, goal)
-  appendEvent(report, {
-    minute,
-    type: 'goal',
-    side,
-    text: buildGoalText(report, goal),
-    isUser: goal.isUser || goal.isUserAssist,
-  })
+  recordGoal(report, context.fixture, goal)
 }
 
 function simulateMinute(

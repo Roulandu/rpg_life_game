@@ -18,6 +18,36 @@ export function leagueTopScorer(world: WorldState, leagueId: Id): Player | null 
   return candidates[0]!
 }
 
+/** 同联赛同年龄段里数据最好的那一位：年轻球员奖也要有对手，不能只看主角自己的数字。 */
+export function bestUnder21(world: WorldState, leagueId: Id): Player | null {
+  const clubIds = new Set(world.leagues[leagueId]?.clubIds ?? [])
+  const candidates = Object.values(world.players).filter(
+    (player) =>
+      clubIds.has(player.clubId) && player.age <= 21 && player.seasonStats.appearances >= 15,
+  )
+  if (candidates.length === 0) return null
+  candidates.sort(
+    (a, b) =>
+      b.seasonStats.goals + b.seasonStats.assists - (a.seasonStats.goals + a.seasonStats.assists) ||
+      b.seasonStats.ratingSum - a.seasonStats.ratingSum ||
+      a.id.localeCompare(b.id),
+  )
+  return candidates[0]!
+}
+
+function isBestYoungPlayer(
+  world: WorldState,
+  league: League | undefined,
+  user: Player,
+  averageRating: number,
+): boolean {
+  if (user.age > 21) return false
+  if (user.seasonStats.appearances < 15) return false
+  if (averageRating < 7) return false
+  const best = league ? bestUnder21(world, league.id) : null
+  return !best || best.id === user.id
+}
+
 export function collectAwards(
   world: WorldState,
   user: Player,
@@ -27,13 +57,8 @@ export function collectAwards(
 ): string[] {
   const awards: string[] = []
   if (position === 1) awards.push(`${league?.nameZh ?? '联赛'}冠军`)
-  if (league) {
-    const topScorer = leagueTopScorer(world, league.id)
-    if (topScorer?.isUser && topScorer.seasonStats.goals > 0) awards.push('联赛金靴')
-  }
-  if (user.age <= 21 && user.seasonStats.appearances >= 15 && averageRating >= 7) {
-    awards.push('赛季最佳年轻球员')
-  }
+  if (league && leagueTopScorer(world, league.id)?.isUser) awards.push('联赛金靴')
+  if (isBestYoungPlayer(world, league, user, averageRating)) awards.push('赛季最佳年轻球员')
   return awards
 }
 

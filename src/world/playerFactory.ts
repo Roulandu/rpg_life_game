@@ -43,6 +43,26 @@ export function makeName(rng: Rng, nationality: string): string {
   return NO_SPACE_NATIONALITIES.has(nationality) ? `${last}${first}` : `${first} ${last}`
 }
 
+/**
+ * 同一支球队的名单里不能有两个同名球员：名单、直播和最佳球员归属都会混淆。
+ * 改名要落在生成阶段，赛后战绩与转会才有稳定的主语。
+ */
+export function reserveClubName(
+  player: Player,
+  clubId: Id,
+  index: number,
+  seed: number,
+  taken: Set<string>,
+): void {
+  let name = player.name
+  for (let attempt = 0; attempt < 14 && taken.has(nameZhFor(name, player.nationality)); attempt += 1) {
+    name = makeName(createRng(seed, 'player-name', clubId, index, attempt), player.nationality)
+  }
+  player.name = name
+  player.nameZh = nameZhFor(name, player.nationality)
+  taken.add(player.nameZh)
+}
+
 function randomAge(rng: Rng): number {
   const roll = rng.next()
   if (roll < 0.28) return rng.int(18, 21)

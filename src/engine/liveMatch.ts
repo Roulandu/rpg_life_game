@@ -6,7 +6,7 @@ import { advanceLiveMinute } from './liveMinute'
 import { goalState } from './liveSpell'
 import { pickScorer } from './matchGoals'
 import { resolveOpponents } from './matchOpponent'
-import { appendGoal, computeAttendance, createLiveReport } from './matchReport'
+import { computeAttendance, createLiveReport, recordGoal } from './matchReport'
 import { prepareUserFixture } from './liveSetup'
 import { staffFactorsOf } from './staff'
 
@@ -88,7 +88,7 @@ export function applyLiveKeyMomentOutcome(
   const side: MatchSide = report.homeId === world.clubId ? 'home' : 'away'
 
   if (outcome.goal) {
-    appendGoal(report, fixture, {
+    recordGoal(report, fixture, {
       minute: momentMinute,
       side,
       scorerId: user.id,
@@ -113,7 +113,7 @@ export function applyLiveKeyMomentOutcome(
     userEntryMinute: 0,
     userPlayed: false,
   })
-  appendGoal(report, fixture, {
+  recordGoal(report, fixture, {
     minute: momentMinute,
     side,
     scorerId: scorer.id,

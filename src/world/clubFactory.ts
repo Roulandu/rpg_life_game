@@ -3,7 +3,7 @@ import type { Club, Coach, Id, Player } from '../domain'
 import { createRng } from '../lib'
 import type { ClubSeed } from './data/england'
 import { SQUAD_POSITIONS } from './constants'
-import { makeAiPlayer, makeName } from './playerFactory'
+import { makeAiPlayer, makeName, reserveClubName } from './playerFactory'
 
 function clubStylePlaceholder(): Club['style'] {
   return 'possession'
@@ -46,8 +46,10 @@ export function createClub(seedClub: ClubSeed, seed: number, players: Record<Id,
     strength: { attack: 50, midfield: 50, defense: 50, overall: 50 },
   }
   club.coach = makeCoach(club, seed)
+  const takenNames = new Set<string>()
   for (let i = 0; i < SQUAD_POSITIONS.length; i += 1) {
     const player = makeAiPlayer(club, SQUAD_POSITIONS[i], i, seed)
+    reserveClubName(player, club.id, i, seed, takenNames)
     players[player.id] = player
     club.squadIds.push(player.id)
   }

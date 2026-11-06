@@ -4,6 +4,7 @@ import { createRng } from '../lib'
 import { autoResolveKeyMoments, finalizeMatchday } from './keyMoments'
 import { startUserMatch } from './liveMatch'
 import { expectedGoals } from './matchGoals'
+import { applyBackgroundMatchStats } from './backgroundStats'
 
 export function simulateUserFixture(world: WorldState, fixture: Fixture): MatchReport {
   if (fixture.report?.status === 'final') return fixture.report
@@ -25,6 +26,7 @@ export function simulateBackgroundFixture(world: WorldState, fixture: Fixture): 
   fixture.homeGoals = rng.poisson(homeXg)
   fixture.awayGoals = rng.poisson(awayXg)
   fixture.status = 'played'
+  applyBackgroundMatchStats(world, fixture, homeClub, awayClub)
 }
 
 export function simulateDayFixtures(world: WorldState): MatchReport | null {

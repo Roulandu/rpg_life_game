@@ -80,27 +80,26 @@ describe('buildBeats shot and goal coherence', () => {
     expect(goalMinute!.stats[goalMinute!.goalSide!].shotsOnTarget ?? 0).toBe(0)
   })
 
-  it('非进球射正产生扑救事件并计入射门与射正', () => {
+  it('非进球射正只留一行扑救文案，并计入射门与射正', () => {
     const saved = runMinutes().find(
       (result) => result.shot && result.shot.onTarget && !result.shot.goal,
     )
 
     expect(saved).toBeDefined()
-    expect(saved!.events.some((event) => event.type === 'shot')).toBe(true)
-    expect(saved!.events.some((event) => event.type === 'save')).toBe(true)
+    expect(saved!.events).toHaveLength(1)
+    expect(saved!.events[0]!.type).toBe('save')
     expect(saved!.stats[saved!.shot!.side].shots).toBe(1)
     expect(saved!.stats[saved!.shot!.side].shotsOnTarget).toBe(1)
   })
 
-  it('回归: 扑救事件的阵营与文案主体同侧，不是门将那一方', () => {
+  it('回归: 唯一一行的阵营与文案主体同侧，不是门将那一方', () => {
     const saved = runMinutes().find(
       (result) => result.shot && result.shot.onTarget && !result.shot.goal,
     )
     expect(saved).toBeDefined()
-    const shot = saved!.events.find((event) => event.type === 'shot')!
-    const save = saved!.events.find((event) => event.type === 'save')!
-    expect(shot.side).toBe(saved!.shot!.side)
-    expect(save.side).toBe(saved!.shot!.side)
+    const line = saved!.events.find((event) => event.type === 'save')!
+    expect(saved!.events).toHaveLength(1)
+    expect(line.side).toBe(saved!.shot!.side)
   })
 
   it('返回与球权一致的持久化 liveState', () => {

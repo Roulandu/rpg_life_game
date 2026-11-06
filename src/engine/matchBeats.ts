@@ -191,14 +191,17 @@ export function buildBeats(input: BeatInput): BeatResult {
 
   if (spell.shot) {
     const side = spell.shot.side
-    events.push(...shotLines(input, spell.shot, variant))
+    // 射正被扑只留扑救那一行：两行说的是同一次射门，读起来像播报坏了。
+    const saved = !spell.shot.goal && spell.shot.onTarget
+    events.push(
+      ...(saved ? [saveLine(input, side, spell.carrierId, variant)] : shotLines(input, spell.shot, variant)),
+    )
     if (!spell.shot.goal) {
       stats[side] = {
         ...stats[side],
         shots: 1,
         shotsOnTarget: spell.shot.onTarget ? 1 : 0,
       }
-      if (spell.shot.onTarget) events.push(saveLine(input, side, spell.carrierId, variant))
     }
   } else {
     const kind = rareKind(rng.next())

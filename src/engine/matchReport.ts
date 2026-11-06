@@ -114,6 +114,18 @@ export function buildGoalText(report: MatchReport, goal: MatchGoal): string {
   return `第 ${goal.minute} 分钟，${goal.scorerName} 为 ${teamName} 破门！${assistText}`
 }
 
+/** 进球既要进列表也要有播报行；两条口径统一，主角关键回合的进球才不会比背景进球少一行。 */
+export function recordGoal(report: MatchReport, fixture: Fixture, goal: MatchGoal): void {
+  appendGoal(report, fixture, goal)
+  appendEvent(report, {
+    minute: goal.minute,
+    type: 'goal',
+    side: goal.side,
+    text: buildGoalText(report, goal),
+    isUser: Boolean(goal.isUser || goal.isUserAssist),
+  })
+}
+
 /** 时钟走到登场分钟才补这条事件，因为一致性校验要求所有事件的分钟都不超过 currentMinute；已存在则不再重复（刷新重放会再走一遍同一分钟）。 */
 export function appendSubAppearance(report: MatchReport, player: Player | undefined, minute: number): void {
   if (!player || !report.userPlayed || report.userStarted) return

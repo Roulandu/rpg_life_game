@@ -3,6 +3,7 @@ import type { Fixture, MatchReport, Player, WorldState } from '../domain'
 import type { Rng } from '../lib'
 import { createRng } from '../lib'
 import { buildMediaReaction } from './keyMomentNarrative'
+import { creditMatchStarters } from './backgroundStats'
 import { appendEvent, appendFulltime, pickManOfTheMatch } from './matchReport'
 import { grantMoveDrops } from './moveDrops'
 import { computeUserRating, rollUserMatchEvents, updateUserAfterMatch } from './matchUser'
@@ -113,6 +114,7 @@ function settleUser(ctx: FinalizeContext): boolean {
   grantMoveDrops(world, report)
   recordUserMinutes(user, report)
   tallyGoalStats(world, report)
+  creditMatchStarters(world, report)
   for (const event of extras.events) appendEvent(report, event)
   return extras.injured
 }
