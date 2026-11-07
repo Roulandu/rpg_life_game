@@ -16,6 +16,27 @@ function rollSeed(): number {
   return Math.floor(Math.random() * 900000) + 100000
 }
 
+/** 种子框的取值域与 `rollSeed()` 同一条区间：1–999999 的整数。 */
+export const SEED_MIN = 1
+export const SEED_MAX = 999999
+
+/**
+ * 只认纯数字写法。`1e21`、`12.5`、空串一律返回 null：
+ * 数字输入框会把超范围的手写值静默折成浮点近似（1e21 与 1000000000000000000000 折叠后同一个世界），
+ * 静默改写比报错更难发现。
+ */
+export function parseSeed(text: string): number | null {
+  if (!/^\d+$/.test(text.trim())) return null
+  const value = Number(text.trim())
+  return value >= SEED_MIN && value <= SEED_MAX ? value : null
+}
+
+export function seedIssueOf(text: string): string | null {
+  return parseSeed(text) === null
+    ? `种子只能是 ${SEED_MIN}–${SEED_MAX} 之间的整数，现在这个值不会被采用。`
+    : null
+}
+
 /** 点买步进：减到 0 就删键，加到 4 就封顶，非法值不可能出现在草稿里。 */
 function nextAllocation(current: AttrAllocation, attrKey: AttrKey, delta: number): AttrAllocation {
   const next = { ...current }
@@ -39,6 +60,7 @@ export function useCareerDraft() {
   const [background, setBackground] = useState<CareerBackground>('academy')
   const [clubId, setClubId] = useState(CAREER_CLUB_OPTIONS[1].id)
   const [seed, setSeed] = useState(rollSeed)
+  const [seedText, setSeedText] = useState(() => String(seed))
   const [allocation, setAllocation] = useState<AttrAllocation>({})
 
   function draftOptions(): CareerCreateOptions {
@@ -71,9 +93,19 @@ export function useCareerDraft() {
     clubId,
     setClubId,
     seed,
-    setSeed,
+    seedText,
+    seedIssue: seedIssueOf(seedText),
+    editSeed: (text: string) => {
+      setSeedText(text)
+      const value = parseSeed(text)
+      if (value !== null) setSeed(value)
+    },
     allocation,
-    rollSeed: () => setSeed(rollSeed()),
+    rollSeed: () => {
+      const value = rollSeed()
+      setSeed(value)
+      setSeedText(String(value))
+    },
     bump: (attrKey: AttrKey, delta: number) => setAllocation((current) => nextAllocation(current, attrKey, delta)),
     resetAllocation: () => setAllocation({}),
     // 预览每次渲染重算：只跑一次属性生成，不生成世界。

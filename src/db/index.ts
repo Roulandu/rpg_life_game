@@ -7,6 +7,8 @@ export {
   deleteSave,
   exportWorld,
   getLastSaveId,
+  hasSave,
+  importSave,
   importWorld,
   listSaves,
   loadWorld,

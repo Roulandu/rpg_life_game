@@ -47,7 +47,7 @@ export function CreateCareerScreen() {
         <button
           type="button"
           className="btn-primary w-full"
-          disabled={busy || !draft.preview.ok}
+          disabled={busy || !draft.preview.ok || draft.seedIssue !== null}
           onClick={() => void handleSubmit()}
         >
           <Sparkles size={16} />

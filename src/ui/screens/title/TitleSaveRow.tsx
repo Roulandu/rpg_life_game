@@ -28,7 +28,9 @@ export function TitleSaveRow({ save, active, onLoad, onAskDelete }: TitleSaveRow
             {save.clubName} · {formatSeasonLabel(save.season)} {formatDayLabel(save.season, save.week, save.day)} · 能力{' '}
             {save.overall}
           </p>
-          <p className="mt-0.5 truncate text-[10px] text-dim">保存于 {formatSavedAt(save.updatedAt)}</p>
+          <p className="mt-0.5 truncate text-[10px] text-dim">
+            种子 {save.seed} · 建于 {formatSavedAt(save.createdAt)} · 保存于 {formatSavedAt(save.updatedAt)}
+          </p>
         </div>
         <ChevronRight size={16} className="shrink-0 text-dim" />
       </button>

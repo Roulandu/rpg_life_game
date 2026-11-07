@@ -11,6 +11,7 @@ import {
   minWidthPx,
   rangeInputs,
   squashedTargets,
+  touchTargets,
 } from './layoutHarness'
 import { renderWithRouter } from './renderScreen'
 import { resetUiStore } from './resetStore'
@@ -31,6 +32,8 @@ const saveRow: SaveSummary = {
   day: 3,
   age: 19,
   overall: 62,
+  seed: 2026,
+  createdAt: '2026-08-01T00:00:00.000Z',
   updatedAt: '2026-11-01T00:00:00.000Z',
 }
 
@@ -76,5 +79,47 @@ describe('滑块的触控契约', () => {
 
     const short = sliders.filter((el) => minHeightPx(el.className) < 44).map((el) => el.className)
     expect(short).toEqual([])
+  })
+})
+
+describe('建号页与设置页的触控契约', () => {
+  /**
+   * 这两页此前只被滑块契约覆盖：`chip` 与 `py-3` 这类没有 min-h 的按钮
+   * 在真机上是 24–40px，手指按不准，而类名里读不出「44px」。
+   */
+  function shortTargets(container: HTMLElement): string[] {
+    return touchTargets(container)
+      .filter((el) => minHeightPx(el.className) < 44)
+      .map((el) => `${el.getAttribute('aria-label') ?? el.textContent?.trim()} @ ${el.className}`)
+  }
+
+  function narrowIcons(container: HTMLElement): string[] {
+    return iconOnlyTargets(container)
+      .filter((el) => minWidthPx(el.className) < 44)
+      .map((el) => `${el.getAttribute('aria-label') ?? ''} @ ${el.className}`)
+  }
+
+  it('建号页每个可点行都声明 44px 最小高度，「随机」也不例外', () => {
+    const { container } = renderWithRouter(<CreateCareerScreen />, { initialEntries: ['/create'] })
+
+    expect(shortTargets(container)).toEqual([])
+  })
+
+  it('设置页的三条数据按钮与「显示 Key」都够 44px 高', () => {
+    loadWorld()
+    const { container } = renderWithRouter(<SettingsScreen />, { initialEntries: ['/settings'] })
+
+    expect(touchTargets(container).length).toBeGreaterThan(4)
+    expect(shortTargets(container)).toEqual([])
+  })
+
+  it('纯图标按钮同时要有 44px 的最小宽度', () => {
+    const containers = [
+      renderWithRouter(<CreateCareerScreen />, { initialEntries: ['/create'] }).container,
+      renderWithRouter(<SettingsScreen />, { initialEntries: ['/settings'] }).container,
+    ]
+
+    expect(narrowIcons(containers[0]!)).toEqual([])
+    expect(narrowIcons(containers[1]!)).toEqual([])
   })
 })

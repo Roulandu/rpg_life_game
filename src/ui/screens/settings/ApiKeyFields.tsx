@@ -25,7 +25,7 @@ export function ApiKeyFields({ form }: { form: ApiKeyForm }) {
         />
         <button
           type="button"
-          className="btn-ghost shrink-0 px-2"
+          className="btn-ghost min-w-11 shrink-0 px-2"
           aria-label={form.show ? '隐藏 Key' : '显示 Key'}
           onClick={form.toggleShow}
         >

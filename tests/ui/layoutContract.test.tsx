@@ -244,3 +244,13 @@ describe('绝技页手机契约', () => {
     }
   })
 })
+
+describe('页面壳的横向溢出契约', () => {
+  it('回归: 真机在 360px 下能把标题页横向拖出 42px — app-shell 必须自己截断', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/styles.css'), 'utf8')
+    const shell = /\.app-shell\s*\{\s*@apply([^}]*)\}/.exec(css)?.[1] ?? ''
+
+    expect(shell).not.toBe('')
+    expect(shell).toContain('overflow-x-hidden')
+  })
+})

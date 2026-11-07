@@ -13,6 +13,10 @@ export interface SaveSummary {
   day: number
   age: number
   overall: number
+  /** 世界种子：同一份档的两行只靠周期分不开，种子才是「这是不是同一段人生」的判据。 */
+  seed: number
+  /** 建档时间（`world.createdAt`），与 `updatedAt` 一起用来分辨同名同周期的存档。 */
+  createdAt: string
   updatedAt: string
 }
 

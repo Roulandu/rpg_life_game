@@ -10,7 +10,7 @@ export function AiModeToggle({ enabled }: Props) {
     <div className="grid grid-cols-2 gap-1.5">
       <button
         type="button"
-        className={`rounded-xl border px-3 py-2.5 text-left transition ${
+        className={`min-h-[44px] rounded-xl border px-3 py-2.5 text-left transition ${
           !enabled ? 'border-accent bg-accent/10' : 'border-line bg-card-2'
         }`}
         onClick={() => updateSettings({ aiMode: 'template' })}
@@ -22,7 +22,7 @@ export function AiModeToggle({ enabled }: Props) {
       </button>
       <button
         type="button"
-        className={`rounded-xl border px-3 py-2.5 text-left transition ${
+        className={`min-h-[44px] rounded-xl border px-3 py-2.5 text-left transition ${
           enabled ? 'border-teal bg-teal/10' : 'border-line bg-card-2'
         }`}
         onClick={() => updateSettings({ aiMode: 'llm' })}

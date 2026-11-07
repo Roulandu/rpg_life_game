@@ -2,7 +2,8 @@ import {
   createSaveId,
   deleteSave,
   getLastSaveId,
-  importWorld,
+  hasSave,
+  importSave,
   listSaves,
   loadWorld,
   saveWorld,
@@ -171,9 +172,10 @@ function updateSettings(
 async function importFromText(set: StoreSet, get: StoreGet, text: string): Promise<boolean> {
   set({ busy: true, error: null, notice: null })
   try {
-    const world = importWorld(text)
+    const { world, saveId: sourceId } = importSave(text)
     world.updatedAt = new Date().toISOString()
-    const saveId = createSaveId(world)
+    // 只有文件自己写明来源 id、而且本机确实有这一条，才原位覆盖；否则新建，绝不抹掉别人的生涯。
+    const saveId = sourceId && (await hasSave(sourceId)) ? sourceId : createSaveId(world)
     await saveWorld(world, saveId)
     set({
       world,
@@ -182,7 +184,10 @@ async function importFromText(set: StoreSet, get: StoreGet, text: string): Promi
       seasonTransition: null,
       livePlayback: IDLE_PLAYBACK,
       busy: false,
-      notice: `已导入 ${displayName(world.players[world.playerId]) || '球员'} 的生涯。`,
+      notice:
+        saveId === sourceId
+          ? `已覆盖原存档：${displayName(world.players[world.playerId]) || '球员'} 的生涯。`
+          : `已导入 ${displayName(world.players[world.playerId]) || '球员'} 的生涯。`,
     })
     await get().refreshSaves()
     return true
@@ -195,7 +200,7 @@ async function importFromText(set: StoreSet, get: StoreGet, text: string): Promi
 async function exportCurrent(set: StoreSet, get: StoreGet): Promise<void> {
   const world = get().world
   if (!world) return
-  const result = await downloadWorld(world)
+  const result = await downloadWorld(world, get().saveId)
   if (result.ok) {
     set({ notice: result.locationZh, error: null })
     return

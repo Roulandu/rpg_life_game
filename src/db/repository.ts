@@ -35,6 +35,8 @@ export function summarizeWorld(world: WorldState, id: string): SaveSummary {
     day: world.day ?? 1,
     age: user?.age ?? 0,
     overall: user ? overall(user) : 0,
+    seed: world.seed,
+    createdAt: world.createdAt,
     updatedAt: world.updatedAt,
   }
 }
@@ -98,7 +100,7 @@ export async function clearLastSaveId(): Promise<void> {
   await db.meta.delete(LAST_SAVE_KEY)
 }
 
-export function buildEnvelope(world: WorldState): SaveEnvelope {
+export function buildEnvelope(world: WorldState, saveId?: string): SaveEnvelope {
   const payload = canonicalStringify(world)
   return {
     format: SAVE_FORMAT,
@@ -106,15 +108,20 @@ export function buildEnvelope(world: WorldState): SaveEnvelope {
     engineVersion: world.engineVersion,
     exportedAt: new Date().toISOString(),
     checksum: hashString(payload),
+    ...(saveId ? { saveId } : {}),
     world,
   }
 }
 
-export function exportWorld(world: WorldState): string {
-  return JSON.stringify(buildEnvelope(world), null, 2)
+export function exportWorld(world: WorldState, saveId?: string): string {
+  return JSON.stringify(buildEnvelope(world, saveId), null, 2)
 }
 
-export function importWorld(text: string): WorldState {
+/**
+ * 导入的完整结论：迁移好的世界 + 文件里写明的来源存档 id。
+ * 来源 id 只可能来自本机导出的文件，所以命中已有存档时才允许原位覆盖；没写就只能新建。
+ */
+export function importSave(text: string): { world: WorldState; saveId: string | null } {
   let parsed: unknown
   try {
     parsed = JSON.parse(text)
@@ -140,5 +147,13 @@ export function importWorld(text: string): WorldState {
     throw new Error('存档校验失败，文件可能已损坏。')
   }
 
-  return migrateWorld(world)
+  return { world: migrateWorld(world), saveId: envelope.saveId ?? null }
+}
+
+export function importWorld(text: string): WorldState {
+  return importSave(text).world
+}
+
+export async function hasSave(id: string): Promise<boolean> {
+  return (await db.saves.get(id)) !== undefined
 }

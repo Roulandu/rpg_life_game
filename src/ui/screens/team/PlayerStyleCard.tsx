@@ -22,7 +22,7 @@ export function PlayerStyleCard({ player, club, relationship }: PlayerStyleCardP
         {styleAdvice(club.style, fit)}（{STYLE_LABELS[club.style]}）
       </p>
       <div className="mt-3">
-        <StatBar label="契合度" value={Math.round(fit * 100)} hint={`${Math.round(fit * 100)}%`} />
+        <StatBar label="契合度" value={Math.round(fit * 100)} hint="%" />
       </div>
       <p className="mt-2 text-[11px] text-dim">主教练：{club.coach.nameZh}</p>
 

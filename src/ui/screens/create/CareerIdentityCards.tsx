@@ -165,7 +165,7 @@ export function CareerBackgroundCard({ draft }: { draft: CareerDraft }) {
             type="button"
             onClick={() => draft.setBackground(item)}
             className={clsx(
-              'flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left transition',
+              'flex w-full min-h-[44px] items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left transition',
               draft.background === item ? 'border-accent bg-accent/10' : 'border-line bg-card-2 hover:text-text',
             )}
           >

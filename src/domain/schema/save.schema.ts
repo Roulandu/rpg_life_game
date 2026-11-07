@@ -180,6 +180,7 @@ export const saveEnvelopeSchema = z.object({
   engineVersion: z.string(),
   exportedAt: z.string(),
   checksum: z.string(),
+  saveId: z.string().min(1).optional(),
   world: worldSchema,
 })
 
@@ -189,6 +190,8 @@ export interface SaveEnvelope {
   engineVersion: string
   exportedAt: string
   checksum: string
+  /** 导出时这份生涯在本机的存档 id；旧文件没有它，导入时只能新建。 */
+  saveId?: string
   world: WorldState
 }
 

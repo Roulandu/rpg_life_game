@@ -16,6 +16,8 @@ function summary(overrides: Partial<SaveSummary> = {}): SaveSummary {
     day: 3,
     age: 19,
     overall: 62,
+    seed: 2026,
+    createdAt: '2026-08-01T00:00:00.000Z',
     updatedAt: '2026-11-01T00:00:00.000Z',
     ...overrides,
   }

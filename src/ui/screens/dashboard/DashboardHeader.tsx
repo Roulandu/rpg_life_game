@@ -52,7 +52,7 @@ export function DashboardHeader({
             <p className="mt-1 font-mono text-[10px] text-muted">{formatMoneyShort(world.finance.balance)}</p>
           </div>
           <ThemeToggle />
-          <button type="button" className="btn-ghost -mr-2 px-2" aria-label="设置" onClick={() => navigate('/settings')}>
+          <button type="button" className="btn-ghost -mr-2 min-w-11 px-2" aria-label="设置" onClick={() => navigate('/settings')}>
             <Settings size={17} />
           </button>
         </div>

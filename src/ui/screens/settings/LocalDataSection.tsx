@@ -20,7 +20,7 @@ export function LocalDataSection({ season, week, fileRef, onSave, onExport, onIm
       <Card className="p-0">
         <button
           type="button"
-          className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-card-2/60"
+          className="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left hover:bg-card-2/60"
           onClick={onSave}
         >
           <Save size={15} className="text-muted" />
@@ -31,7 +31,7 @@ export function LocalDataSection({ season, week, fileRef, onSave, onExport, onIm
         </button>
         <button
           type="button"
-          className="flex w-full items-center gap-3 border-t border-line-soft px-4 py-3 text-left hover:bg-card-2/60"
+          className="flex min-h-[44px] w-full items-center gap-3 border-t border-line-soft px-4 py-3 text-left hover:bg-card-2/60"
           onClick={onExport}
         >
           <Download size={15} className="text-muted" />
@@ -40,12 +40,12 @@ export function LocalDataSection({ season, week, fileRef, onSave, onExport, onIm
         </button>
         <button
           type="button"
-          className="flex w-full items-center gap-3 border-t border-line-soft px-4 py-3 text-left hover:bg-card-2/60"
+          className="flex min-h-[44px] w-full items-center gap-3 border-t border-line-soft px-4 py-3 text-left hover:bg-card-2/60"
           onClick={() => fileRef.current?.click()}
         >
           <Upload size={15} className="text-muted" />
           <span className="flex-1 text-xs text-text">导入存档</span>
-          <span className="text-[10px] text-dim">覆盖为新存档</span>
+          <span className="text-[10px] text-dim">同名覆盖，否则新建</span>
         </button>
         <input
           ref={fileRef}
