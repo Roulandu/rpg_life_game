@@ -26,7 +26,8 @@ export function resolveSpecifier(fromFile: string, specifier: string): string | 
   if (!specifier.startsWith('.')) return null
   const base = resolve(dirname(fromFile), specifier)
   const candidates = [base]
-  if (!extname(base)) {
+  // `save.schema.ts` 这类文件名里最后一段点号不是扩展名，只判断 extname 会把整条路径判死。
+  if (!/\.(ts|tsx)$/.test(extname(base))) {
     candidates.push(`${base}.ts`, `${base}.tsx`, join(base, 'index.ts'), join(base, 'index.tsx'))
   }
   for (const candidate of candidates) {

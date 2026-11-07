@@ -216,6 +216,8 @@ export type {
   WeeklyPlan,
   WorldState,
 } from './types'
+export { SAVE_FORMAT, assertWorld, saveEnvelopeSchema } from './schema/save.schema'
+export type { SaveEnvelope } from './schema/save.schema'
 export type { SaveRecord, SaveSummary } from './saveTypes'
 export { displayName, hasCjk, nameZhFor } from './names'
 export {

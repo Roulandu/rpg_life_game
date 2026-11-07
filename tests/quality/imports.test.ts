@@ -18,4 +18,10 @@ describe('quality import resolution', () => {
     expect(imports).toContain('vitest')
     expect(resolveSpecifier(TEST_FILE, 'vitest')).toBeNull()
   })
+
+  it('解析带点的模块名：src/domain/schema/save.schema 这种文件名不是扩展名', () => {
+    expect(resolveSpecifier(TEST_FILE, '../../src/domain/schema/save.schema')).toBe(
+      resolve(repoRoot, 'src/domain/schema/save.schema.ts'),
+    )
+  })
 })

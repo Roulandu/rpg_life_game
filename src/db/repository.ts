@@ -5,7 +5,7 @@ import {
   type SaveEnvelope,
   assertWorld,
   saveEnvelopeSchema,
-} from '../domain/schema/save.schema'
+} from '../domain'
 import type { SaveRecord, SaveSummary, WorldState } from '../domain'
 import { hashString } from '../lib'
 import { canonicalStringify } from '../lib'

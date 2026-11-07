@@ -49,4 +49,16 @@ describe('标题页存档行', () => {
     expect(screen.getByText('当前')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '删除林远的存档' })).toBeInTheDocument()
   })
+
+  it('同赛季同周的两份存档靠种子与建档时间分得开', () => {
+    useGameStore.setState({
+      saves: [summary({ id: 'save:one' }), summary({ id: 'save:two', seed: 7, createdAt: '2026-07-01T00:00:00.000Z' })],
+      hydrated: true,
+    })
+    renderWithRouter(<TitleSaveList />)
+
+    expect(screen.getByText(/种子 2026 · 建于/)).toBeInTheDocument()
+    expect(screen.getByText(/种子 7 · 建于/)).toBeInTheDocument()
+    expect(screen.getAllByText(/保存于/)).toHaveLength(2)
+  })
 })

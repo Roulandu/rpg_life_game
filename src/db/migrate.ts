@@ -1,6 +1,6 @@
 import { buildMatchLineups } from '../domain'
 import type { MatchReport, MatchStatLine, MatchStats, WorldState } from '../domain'
-import { CURRENT_SAVE_VERSION, assertWorld } from '../domain/schema/save.schema'
+import { CURRENT_SAVE_VERSION, assertWorld } from '../domain'
 import { MIGRATION_STEPS } from './migrateSteps'
 
 type LegacyReport = MatchReport & {

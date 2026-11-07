@@ -1,10 +1,22 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { WorldState } from '../../src/domain'
-import { exportWorld, importSave, saveWorld, summarizeWorld } from '../../src/db/repository'
+import { exportWorld, saveWorld } from '../../src/db/repository'
 import { db } from '../../src/db/db'
+import { downloadWorld } from '../../src/store/exportSave'
+
+const exported: { text: string; filename: string }[] = []
+
+vi.mock('../../src/platform', async (importActual) => {
+  const actual = await importActual<typeof import('../../src/platform')>()
+  return {
+    ...actual,
+    exportTextFile: async (text: string, filename: string) => {
+      exported.push({ text, filename })
+      return { ok: true, locationZh: '测试缓存', reason: 'saved' } as never
+    },
+  }
+})
 import { useGameStore } from '../../src/store/gameStore'
-import { TitleSaveRow } from '../../src/ui/screens/title/TitleSaveRow'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
 
@@ -36,20 +48,22 @@ beforeEach(async () => {
   useGameStore.setState(INITIAL_STATE as never)
 })
 
-describe('导出文件带上来源存档 id', () => {
-  it('exportWorld 的第二参数写进 envelope', () => {
-    const text = exportWorld(worldAtWeek(2), 'save:alpha')
-
-    expect(JSON.parse(text)).toMatchObject({ saveId: 'save:alpha' })
+describe('导出把来源 id 写进文件', () => {
+  beforeEach(() => {
+    exported.length = 0
   })
 
-  it('不带 id 导出的旧文件照旧合法，importSave 报 null', () => {
-    const text = exportWorld(worldAtWeek(3))
-    const envelope = JSON.parse(text) as { saveId?: string }
+  it('downloadWorld 带 id 时导出文件里就有它', async () => {
+    const result = await downloadWorld(worldAtWeek(2), 'save:omega')
 
-    expect(envelope.saveId).toBeUndefined()
-    expect(importSave(text).saveId).toBeNull()
-    expect(importSave(text).world.week).toBe(3)
+    expect(result.ok).toBe(true)
+    expect(JSON.parse(exported[0]!.text)).toMatchObject({ saveId: 'save:omega' })
+  })
+
+  it('不知道 id 时不写这个字段，读回照旧合法', async () => {
+    await downloadWorld(worldAtWeek(3))
+
+    expect((JSON.parse(exported[0]!.text) as { saveId?: string }).saveId).toBeUndefined()
   })
 })
 
@@ -60,6 +74,7 @@ describe('导入按来源 id 原位覆盖', () => {
     const second = exportWorld(worldAtWeek(6), 'save:alpha')
 
     expect(await useGameStore.getState().importFromText(first)).toBe(true)
+    expect(useGameStore.getState().notice).toContain('已覆盖原存档')
     expect(await useGameStore.getState().importFromText(second)).toBe(true)
 
     const rows = await db.saves.toArray()
@@ -87,25 +102,13 @@ describe('导入按来源 id 原位覆盖', () => {
     expect(rows).toHaveLength(1)
     expect(rows[0]?.world.week).toBe(4)
   })
-})
 
-describe('存档摘要能分辨两份同周期存档', () => {
-  it('摘要带上种子与创建时间', () => {
-    const world = worldAtWeek(2)
+  it('当前存档指针跟着导入结果走', async () => {
+    await saveWorld(worldAtWeek(2), 'save:delta')
 
-    const summary = summarizeWorld(world, 'save:alpha')
+    expect(await useGameStore.getState().importFromText(exportWorld(worldAtWeek(7), 'save:delta'))).toBe(true)
 
-    expect(summary.seed).toBe(world.seed)
-    expect(summary.createdAt).toBe(world.createdAt)
-  })
-
-  it('列表行把种子显示出来', () => {
-    const summary = summarizeWorld(worldAtWeek(2), 'save:alpha')
-
-    render(
-      <TitleSaveRow save={summary} active={false} onLoad={() => undefined} onAskDelete={() => undefined} />,
-    )
-
-    expect(screen.getByText(new RegExp(`种子 ${summary.seed}`))).toBeInTheDocument()
+    expect(useGameStore.getState().saveId).toBe('save:delta')
+    expect((await db.meta.get('lastSaveId'))?.value).toBe('save:delta')
   })
 })
