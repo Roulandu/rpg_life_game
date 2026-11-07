@@ -48,12 +48,12 @@ describe('个人团队页', () => {
     }
   })
 
-  it('在职区把中文名、拉丁原名、水平与周薪摆出来，并给一个解雇按钮', () => {
+  it('在职区把中文名、标了「原名」的拉丁名、水平与周薪摆出来，并给一个解雇按钮', () => {
     const doctor = member('doctor', 90)
     renderScreen(teamWorld(RICH, [doctor]))
 
     expect(screen.getByText('测试成员')).toBeTruthy()
-    expect(screen.getByText('Probe Person')).toBeTruthy()
+    expect(screen.getByText('原名 Probe Person')).toBeTruthy()
     expect(screen.getByText('£98')).toBeTruthy()
     expect(screen.getByRole('button', { name: '解雇 测试成员' })).toBeTruthy()
   })

@@ -11,10 +11,18 @@ import { InvestSheet } from './finance/InvestSheet'
 
 const LEDGER_KEEP = 12
 
-function ledgerRow(entry: { season: number; week: number; type: string; amount: number; label: string }) {
+interface LedgerEntry {
+  season: number
+  week: number
+  type: string
+  amount: number
+  label: string
+}
+
+function ledgerRow(entry: LedgerEntry, index: number) {
   return (
-    <li key={`${entry.season}:${entry.week}:${entry.label}`} className="flex items-center justify-between gap-3 py-1.5">
-      <span className="min-w-0 truncate text-[12px] text-muted">{entry.label}</span>
+    <li key={`${entry.season}:${entry.week}:${index}`} className="flex items-center justify-between gap-3 py-1.5">
+      <span className="min-w-0 truncate text-[12px] text-muted">第 {entry.week} 周 · {entry.label}</span>
       <span className={`shrink-0 font-mono text-[12px] ${entry.amount < 0 ? 'text-warn' : 'text-accent'}`}>
         {formatMoney(entry.amount)}
       </span>

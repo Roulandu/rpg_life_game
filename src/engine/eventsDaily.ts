@@ -3,6 +3,7 @@ import type { EventTemplateContent, GameEvent, MatchReport, WorldState } from '.
 import { dayRng } from './dayContext'
 import { buildDraftContext, renderEventDraft } from './data/eventTemplates'
 import { buildEventScope, scopeMatches } from './eventCondition'
+import { eventNewsKindOf } from './eventNewsKind'
 
 /**
  * 无保证候选时的日掷骰概率。周粒度时代是 0.72，摊到七天约 0.103；
@@ -65,7 +66,7 @@ function createEvent(
     day: world.day,
     title: `新消息：${event.title}`,
     body: event.body,
-    kind: 'media',
+    kind: eventNewsKindOf(event.sender),
   })
   world.news = world.news.slice(0, 80)
   return event

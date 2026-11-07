@@ -105,15 +105,29 @@ describe('主页今天区', () => {
     expect(titles[1]).toContain('昨天的消息')
   })
 
-  it('今天没有事件时给出平静日文案', () => {
+  it('今天没有事件时标题右侧写「无待处理」，不再自称平静日', () => {
     const world = generateWorld(testOptions(), TEST_NOW)
     world.day = 1
     setState(world)
     renderDashboard()
 
     expect(screen.getByText('今天没有需要你处理的事。')).toBeInTheDocument()
+    expect(screen.getByText('无待处理')).toBeInTheDocument()
+    expect(screen.queryByText('平静日')).not.toBeInTheDocument()
   })
 
+  it('比赛日不给「无待处理」判词，那天只说对手是谁', () => {
+    const world = generateWorld(testOptions(), TEST_NOW)
+    world.day = fixtureDayOf(userFixtureThisWeek(world))
+    setState(world)
+    renderDashboard()
+
+    expect(screen.queryByText('无待处理')).not.toBeInTheDocument()
+    expect(screen.queryByText('平静日')).not.toBeInTheDocument()
+  })
+})
+
+describe('主页今天区的比赛日', () => {
   it('比赛日的今天区显示对手与主客场', () => {
     const world = generateWorld(testOptions(), TEST_NOW)
     const fixture = userFixtureThisWeek(world)

@@ -1,6 +1,7 @@
 import type { GameEvent, WorldState } from '../domain'
 import { buildDraftContext, interpolate, resultTextFor } from './data/eventTemplates'
 import { applyEffects } from './effects'
+import { eventNewsKindOf } from './eventNewsKind'
 
 /** 选项结算：效果落地 + 生活方式购置的资产登记。 */
 export function resolveEvent(
@@ -33,7 +34,7 @@ export function resolveEvent(
     day: world.day,
     title: `已处理：${event.title}`,
     body: resultText,
-    kind: 'media',
+    kind: eventNewsKindOf(event.sender),
   })
   world.news = world.news.slice(0, 80)
   return event

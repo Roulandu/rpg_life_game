@@ -53,7 +53,7 @@ export function RosterRow({
     <li className="flex items-center justify-between gap-3 border-t border-line-soft px-4 py-2.5 first:border-t-0">
       <div className="min-w-0">
         <p className="truncate text-[13px] text-text">{member.nameZh}</p>
-        <p className="truncate font-mono text-[10px] text-dim">{member.name}</p>
+        <p className="truncate font-mono text-[10px] text-dim">原名 {member.name}</p>
         <p className="mt-0.5 truncate text-[10px] text-muted">
           {STAFF_ROLE_SPECS[member.role].label} · 水平 {member.quality}
         </p>

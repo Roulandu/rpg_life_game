@@ -50,8 +50,8 @@ export function TodaySection({ world, events }: { world: WorldState; events: Gam
         right={
           events.length > 0 ? (
             <span className="chip border-accent/30 text-accent">{events.length} 个待处理</span>
-          ) : (
-            <span className="chip">平静日</span>
+          ) : fixtureOnDay(world) ? null : (
+            <span className="chip">无待处理</span>
           )
         }
       >

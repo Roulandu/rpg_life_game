@@ -2,15 +2,7 @@ import { Newspaper } from 'lucide-react'
 import type { NewsItem } from '../../../domain'
 import { formatSeasonLabel } from '../../../lib'
 import { Card, EmptyState } from '../../components/Card'
-
-const NEWS_KIND_LABEL: Record<string, string> = {
-  match: '比赛',
-  transfer: '转会',
-  media: '媒体',
-  club: '俱乐部',
-  award: '荣誉',
-  system: '系统',
-}
+import { NEWS_KIND_LABEL } from '../../labels'
 
 export function NewsTab({ news }: { news: NewsItem[] }) {
   if (news.length === 0) {

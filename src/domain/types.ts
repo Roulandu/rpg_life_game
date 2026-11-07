@@ -188,7 +188,7 @@ export interface NewsItem {
   day?: number
   title: string
   body: string
-  kind: 'match' | 'transfer' | 'media' | 'club' | 'award' | 'system'
+  kind: 'match' | 'transfer' | 'media' | 'club' | 'award' | 'system' | 'teammate' | 'family' | 'finance'
 }
 
 export interface WorldState {

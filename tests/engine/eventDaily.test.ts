@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import type { MatchReport, WorldState } from '../../src/domain'
 import { absoluteDay } from '../../src/domain'
-import { eventTemplateById } from '../../src/domain/eventContent'
+import { EVENT_TEMPLATES, eventTemplateById } from '../../src/domain/eventContent'
 import { expireEvents, generateDailyEvents } from '../../src/engine/eventsDaily'
+import { eventNewsKindOf } from '../../src/engine/eventNewsKind'
 import { generateWorld } from '../../src/world/generator'
 import { TEST_NOW, testOptions } from '../fixtures/career'
 
@@ -72,5 +73,47 @@ describe('每日事件生成', () => {
     world.week += 1
     expireEvents(world)
     expect(world.events[event.id].status).toBe('expired')
+  })
+})
+
+describe('事件新闻的标签', () => {
+  it('kind 由 sender 决定，不再一律写媒体', () => {
+    expect(eventNewsKindOf('教练')).toBe('club')
+    expect(eventNewsKindOf('队友')).toBe('teammate')
+    expect(eventNewsKindOf('家人')).toBe('family')
+    expect(eventNewsKindOf('经纪人')).toBe('finance')
+    expect(eventNewsKindOf('队报记者')).toBe('media')
+  })
+
+  it('一条事件产生的新闻标签与它的 sender 对齐', () => {
+    const world = freshWorld(6)
+    const created = generateDailyEvents(world, report({ userRating: 8.1, userPlayed: true }))
+    const news = world.news.find((item) => item.id === `news:event:${created[0]!.id}`)
+    expect(news?.kind).toBe(eventNewsKindOf(created[0]!.sender))
+  })
+
+  it('四周下来收件箱里的标签不止一种，每条都跟着自己的 sender', () => {
+    const world = freshWorld(1)
+    for (let week = 1; week <= 4; week += 1) {
+      for (let day = 1; day <= 7; day += 1) {
+        world.week = week
+        world.day = day
+        generateDailyEvents(world, report({ userRating: 7.2, userPlayed: true, week }))
+      }
+    }
+    const events = Object.values(world.events)
+    expect(events.length).toBeGreaterThan(2)
+    const kinds = new Set(events.map((event) => eventNewsKindOf(event.sender)))
+    expect(kinds.size).toBeGreaterThan(1)
+
+    for (const event of events) {
+      const news = world.news.find((item) => item.id === `news:event:${event.id}`)
+      if (news) expect(news.kind, `${event.templateId} / ${event.sender}`).toBe(eventNewsKindOf(event.sender))
+    }
+  })
+
+  it('映射表把 96 条模板的 sender 分到至少五个档位', () => {
+    const kinds = new Set(EVENT_TEMPLATES.map((template) => eventNewsKindOf(template.sender)))
+    expect(kinds.size).toBeGreaterThanOrEqual(5)
   })
 })

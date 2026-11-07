@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, screen, within } from '@testing-library/react'
 import type { Investment, WorldState } from '../../src/domain'
 import { useGameStore } from '../../src/store/gameStore'
@@ -61,17 +61,33 @@ describe('财务页的余额与本周累计', () => {
     expect(within(region).getByText('£1,180')).toBeInTheDocument()
   })
 
-  it('账本区按时间倒序列出流水标签与金额', () => {
-    loadWorld([])
+  it('账本区每行都带上周次，看得出流水发生在什么时候', () => {
+    const world = loadWorld([])
     renderFinance()
 
     const region = screen.getByRole('region', { name: '最近账目' })
     const rows = within(region).getAllByRole('listitem')
     expect(rows).toHaveLength(2)
-    expect(rows[0]).toHaveTextContent('周薪与开销')
+    expect(rows[0]).toHaveTextContent(`第 ${world.week} 周 · 周薪与开销`)
     expect(rows[0]).toHaveTextContent('£1,320')
-    expect(rows[1]).toHaveTextContent('开仓 城市公寓')
+    expect(rows[1]).toHaveTextContent(`第 ${world.week} 周 · 开仓 城市公寓`)
     expect(rows[1]).toHaveTextContent('-£10,000')
+  })
+
+  it('同一周出现两笔同类目流水时不撞 React key，两条都在', () => {
+    const world = loadWorld([])
+    world.finance.ledger = [
+      { season: world.season, week: 3, type: 'wage', amount: 132000, label: '周薪与开销' },
+      { season: world.season, week: 3, type: 'wage', amount: -8000, label: '周薪与开销' },
+    ]
+    const errors: unknown[] = []
+    const spy = vi.spyOn(console, 'error').mockImplementation((...args) => errors.push(args))
+    renderFinance()
+
+    const rows = within(screen.getByRole('region', { name: '最近账目' })).getAllByRole('listitem')
+    expect(rows).toHaveLength(2)
+    expect(errors.filter((line) => String(line).includes('Encountered two children with the same key'))).toHaveLength(0)
+    spy.mockRestore()
   })
 })
 

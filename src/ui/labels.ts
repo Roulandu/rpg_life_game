@@ -10,6 +10,19 @@ import type {
 } from '../domain'
 import { formatMoneyShort } from '../lib'
 
+/** 新闻 chip 的口径：说清这条消息是谁发来的，事件新闻按 sender 归类。 */
+export const NEWS_KIND_LABEL: Record<string, string> = {
+  match: '比赛',
+  transfer: '转会',
+  media: '媒体',
+  club: '俱乐部',
+  award: '荣誉',
+  system: '系统',
+  teammate: '队友',
+  family: '家人',
+  finance: '财务',
+}
+
 export const SQUAD_ROLE_LABELS: Record<Player['squadRole'], string> = {
   youth: '青训',
   rotation: '轮换',

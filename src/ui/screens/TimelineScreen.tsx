@@ -124,7 +124,7 @@ export function TimelineScreen() {
 
       {user.history.length > 0 ? (
         <p className="mt-4 px-1 text-[10px] leading-relaxed text-dim">
-          上赛季平均评分：{formatRating(user.history[user.history.length - 1]?.averageRating ?? null)}。转会与更多奖项会在后续版本加入时间线。
+          上赛季平均评分：{formatRating(user.history[user.history.length - 1]?.averageRating ?? null)}。
         </p>
       ) : null}
     </div>

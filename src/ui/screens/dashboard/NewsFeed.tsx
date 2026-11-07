@@ -2,15 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { Newspaper } from 'lucide-react'
 import type { NewsItem } from '../../../domain'
 import { Card, SectionTitle } from '../../components/Card'
-
-const NEWS_KIND_LABEL: Record<string, string> = {
-  match: '比赛',
-  transfer: '转会',
-  media: '媒体',
-  club: '俱乐部',
-  award: '荣誉',
-  system: '系统',
-}
+import { NEWS_KIND_LABEL } from '../../labels'
 
 export function NewsFeed({ news }: { news: NewsItem[] }) {
   const navigate = useNavigate()

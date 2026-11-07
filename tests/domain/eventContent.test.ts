@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import legacyJson from '../../data/events/legacy.json'
 import {
-  EVENT_BODY_TOKENS,
+  EVENT_TEXT_TOKENS,
   EVENT_PACK_NAMES,
+  parseEventPack,
   EVENT_SCOPE_FIELDS,
   EVENT_TEMPLATES,
   eventTemplateById,
@@ -48,7 +49,7 @@ describe('事件数据包的白名单与注册表', () => {
         expect(EVENT_SCOPE_FIELDS, `${template.id}.${condition.field}`).toContain(condition.field)
       }
       for (const token of template.body.match(/\{[a-zA-Z]+\}/g) ?? []) {
-        expect(EVENT_BODY_TOKENS, `${template.id} ${token}`).toContain(token)
+        expect(EVENT_TEXT_TOKENS, `${template.id} ${token}`).toContain(token)
       }
     }
   })
@@ -82,5 +83,66 @@ describe('事件数据包的白名单与注册表', () => {
     expect(EVENT_TEMPLATES.length).toBeGreaterThan((legacyJson as { id: string }[]).length)
     const ids = EVENT_TEMPLATES.map((template) => template.id)
     expect(new Set(ids).size).toBe(ids.length)
+  })
+})
+
+function packTemplateWith(overrides: Record<string, unknown>): unknown[] {
+  return [
+    {
+      id: 't_gate',
+      title: '门禁样本',
+      body: '正文只有一句。',
+      sender: '队友',
+      weight: 1,
+      expiresDays: 1,
+      cooldownDays: 0,
+      blocking: false,
+      guaranteed: false,
+      when: [],
+      choices: [
+        { id: 'a', label: '甲', effects: [{ op: 'morale', delta: 1 }] },
+        { id: 'b', label: '乙', effects: [{ op: 'morale', delta: -1 }] },
+      ],
+      ...overrides,
+    },
+  ]
+}
+
+describe('事件内容的占位符门禁', () => {
+  it('标题、选项与结果文案里的未知占位符都在加载期拒绝', () => {
+    expect(() => parseEventPack(packTemplateWith({ title: '{userNme} 的邀请' }))).toThrow(/未知插值占位符/)
+    expect(() =>
+      parseEventPack(
+        packTemplateWith({
+          choices: [
+            { id: 'a', label: '甲', description: '交给{teamate}。', effects: [{ op: 'morale', delta: 1 }] },
+            { id: 'b', label: '乙', effects: [{ op: 'morale', delta: -1 }] },
+          ],
+        }),
+      ),
+    ).toThrow(/未知插值占位符/)
+    expect(() => parseEventPack(packTemplateWith({ resultTexts: { a: '{conch} 点头。' } }))).toThrow(
+      /未知插值占位符/,
+    )
+  })
+
+  it('带下划线与数字的占位符也会被抓出来', () => {
+    expect(() => parseEventPack(packTemplateWith({ body: '你好 {first_name}。' }))).toThrow(/first_name/)
+  })
+
+  it('登记过的占位符出现在任何文案面都合法', () => {
+    expect(() =>
+      parseEventPack(
+        packTemplateWith({
+          title: '{userName} 的邀请',
+          body: '{restSuffix}',
+          choices: [
+            { id: 'a', label: '{coach} 找你', description: '{teammate} 等你。', effects: [{ op: 'morale', delta: 1 }] },
+            { id: 'b', label: '乙', effects: [{ op: 'morale', delta: -1 }] },
+          ],
+          resultTexts: { a: '{ratingSuffix}' },
+        }),
+      ),
+    ).not.toThrow()
   })
 })

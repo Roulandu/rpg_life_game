@@ -135,14 +135,25 @@ export type { EventCondition, EventTemplateContent } from './eventSchema'
 
 const SCOPE_SET = new Set<string>(EVENT_SCOPE_FIELDS)
 
-/** 正文里允许出现的插值占位符，与渲染器一一对应。 */
-export const EVENT_BODY_TOKENS = [
+/** 玩家会读到的每一段文案里允许出现的插值占位符，与渲染器一一对应。 */
+export const EVENT_TEXT_TOKENS = [
   '{coach}',
   '{teammate}',
   '{userName}',
   '{ratingSuffix}',
   '{restSuffix}',
 ]
+
+const TOKEN_PATTERN = /\{[a-zA-Z_0-9]+\}/g
+
+function templateTextFields(template: EventTemplateContent): string[] {
+  return [
+    template.title,
+    template.body,
+    ...template.choices.flatMap((choice) => [choice.label, choice.description ?? '']),
+    ...Object.values(template.resultTexts ?? {}),
+  ]
+}
 
 function assertWhitelist(templates: EventTemplateContent[]): EventTemplateContent[] {
   for (const template of templates) {
@@ -151,9 +162,9 @@ function assertWhitelist(templates: EventTemplateContent[]): EventTemplateConten
         throw new Error(`事件 ${template.id} 的条件字段不在白名单：${condition.field}`)
       }
     }
-    const tokens = new Set(template.body.match(/\{[a-zA-Z]+\}/g) ?? [])
+    const tokens = new Set(templateTextFields(template).flatMap((text) => text.match(TOKEN_PATTERN) ?? []))
     for (const token of tokens) {
-      if (!EVENT_BODY_TOKENS.includes(token)) {
+      if (!EVENT_TEXT_TOKENS.includes(token)) {
         throw new Error(`事件 ${template.id} 使用了未知插值占位符：${token}`)
       }
     }
@@ -193,7 +204,7 @@ const PACK_INDEX = new Map<string, EventTemplateContent[]>()
 
 /** 内容门禁的可复用入口：原始 JSON 数组 → 事件模板，坏数据直接抛中文原因。 */
 export function parseEventPack(templates: unknown): EventTemplateContent[] {
-  return templateSchema.array().parse(templates) as EventTemplateContent[]
+  return assertWhitelist(templateSchema.array().parse(templates) as EventTemplateContent[])
 }
 
 function parsePacks(): EventTemplateContent[] {
@@ -211,7 +222,7 @@ function parsePacks(): EventTemplateContent[] {
   return list
 }
 
-export const EVENT_TEMPLATES: EventTemplateContent[] = assertWhitelist(parsePacks())
+export const EVENT_TEMPLATES: EventTemplateContent[] = parsePacks()
 
 /** 按类别取包内模板：内容门禁与分类测试都用它，避免靠 id 前缀猜归属。 */
 export function eventTemplatesOfPack(name: string): EventTemplateContent[] {

@@ -63,22 +63,23 @@ export function interpolate(text: string, ctx: EventDraftContext): string {
   return text.replace(/\{[a-zA-Z]+\}/g, (token) => values[token] ?? token)
 }
 
+function interpolateChoice(choice: EventChoice, ctx: EventDraftContext): EventChoice {
+  return {
+    ...choice,
+    label: interpolate(choice.label, ctx),
+    description: choice.description === undefined ? undefined : interpolate(choice.description, ctx),
+  }
+}
+
 /** 数据包是模板的唯一来源，渲染器只做插值，不再持有任何文案。 */
 export function renderEventDraft(templateId: string, ctx: EventDraftContext): EventDraft {
   const template = eventTemplateById(templateId)
-  if (!template) {
-    return {
-      templateId: FALLBACK_TEMPLATE_ID,
-      title: FALLBACK.title,
-      body: interpolate(FALLBACK.body, ctx),
-      choices: FALLBACK.choices,
-    }
-  }
+  const source = template ?? { id: FALLBACK_TEMPLATE_ID, ...FALLBACK }
   return {
-    templateId: template.id,
-    title: template.title,
-    body: interpolate(template.body, ctx),
-    choices: template.choices,
+    templateId: source.id,
+    title: interpolate(source.title, ctx),
+    body: interpolate(source.body, ctx),
+    choices: source.choices.map((choice) => interpolateChoice(choice, ctx)),
   }
 }
 

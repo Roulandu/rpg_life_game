@@ -1,13 +1,13 @@
 {
   "format": "pitch-life-save",
   "saveVersion": 12,
-  "engineVersion": "0.16.0",
-  "exportedAt": "2026-11-06T14:58:33.745Z",
-  "checksum": "9f68862e",
+  "engineVersion": "0.17.0",
+  "exportedAt": "2026-11-07T13:59:08.609Z",
+  "checksum": "b702ef3b",
   "world": {
     "version": 12,
     "seed": 2026,
-    "engineVersion": "0.16.0",
+    "engineVersion": "0.17.0",
     "createdAt": "2026-08-01T00:00:00.000Z",
     "updatedAt": "2026-08-01T00:00:00.000Z",
     "playerId": "player:user:2026",
@@ -119189,7 +119189,7 @@
         "day": 1,
         "title": "已处理：背身做轴的旧中场",
         "body": "那天你护住了十七次球，被断了一次。他说第一次能到这个数就算入门。",
-        "kind": "media"
+        "kind": "teammate"
       },
       {
         "id": "news:move:mentor:2027:1:1:mv_hold_up_wall",
@@ -119241,7 +119241,7 @@
         "day": 6,
         "title": "新消息：经纪人的电话",
         "body": "经纪人打电话来，说有几家俱乐部在关注你，但前提是你得先踢上球。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:38:3",
@@ -119258,7 +119258,7 @@
         "day": 4,
         "title": "新消息：体能报告上的冲刺距离",
         "body": "上周的高强度冲刺距离掉到全队倒数第二。体能教练把报表摊在桌上，问你最近睡几个小时——他没说是因为伤病还是因为别的。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:event:event:2026:37:7:mw_coach_role_call",
@@ -119267,7 +119267,7 @@
         "day": 7,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:37:4",
@@ -119284,7 +119284,7 @@
         "day": 6,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:36:5",
@@ -119301,7 +119301,7 @@
         "day": 3,
         "title": "新消息：经纪人的电话",
         "body": "经纪人打电话来，说有几家俱乐部在关注你，但前提是你得先踢上球。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:35:6",
@@ -119318,7 +119318,7 @@
         "day": 7,
         "title": "新消息：涨租通知",
         "body": "房东把续租合同塞进门缝，涨幅是你没预料到的那种。同一条街上，俱乐部另一名球员的租约也一并涨了。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:event:event:2026:34:6:mw_coach_role_call",
@@ -119327,7 +119327,7 @@
         "day": 6,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:34:7",
@@ -119344,7 +119344,7 @@
         "day": 7,
         "title": "新消息：看台上的九十分钟",
         "body": "你又一次没能进入首发。比赛结束后，经纪人发来消息，问你是否考虑换个环境。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:33:8",
@@ -119361,7 +119361,7 @@
         "day": 3,
         "title": "新消息：更衣室的邀请",
         "body": "托马斯·卡特 邀请你参加今晚的队内聚餐。",
-        "kind": "media"
+        "kind": "teammate"
       },
       {
         "id": "news:event:event:2026:33:2:md_press_duty",
@@ -119370,7 +119370,7 @@
         "day": 2,
         "title": "新消息：强制媒体日",
         "body": "俱乐部排定的媒体日在你最累的这天：六家媒体、每家五分钟、一个问题都不能躲。宣传部门说这是合同里的义务。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:event:event:2026:32:6:mw_coach_role_call",
@@ -119379,7 +119379,7 @@
         "day": 6,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:32:9",
@@ -119396,7 +119396,7 @@
         "day": 3,
         "title": "新消息：两套训练表打架",
         "body": "私教要你周四加一组爆发，而这一天的基地课是教练排的战术演练。两个人都在等你给一个答案，谁也不肯先退。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:event:event:2026:31:7:mw_coach_role_call",
@@ -119405,7 +119405,7 @@
         "day": 7,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:31:9",
@@ -119422,7 +119422,7 @@
         "day": 2,
         "title": "新消息：健身房的申请",
         "body": "体能教练说可以帮你申请一台你自己在用的那台髋部稳定器，但要走两周的采购流程，还要你写一份「为什么别人也需要它」。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:event:event:2026:30:3:bench_frustration",
@@ -119431,7 +119431,7 @@
         "day": 3,
         "title": "新消息：看台上的九十分钟",
         "body": "你又一次没能进入首发。比赛结束后，经纪人发来消息，问你是否考虑换个环境。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:30:8",
@@ -119448,7 +119448,7 @@
         "day": 1,
         "title": "新消息：经纪人的新合同",
         "body": "经纪人把续约条款推到你面前：佣金从 5% 涨到 8%，但对方承诺下周带来一份地区代言。他补了一句，不签也没关系。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:event:event:2026:29:7:mw_coach_role_call",
@@ -119457,7 +119457,7 @@
         "day": 7,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:29:7",
@@ -119474,7 +119474,7 @@
         "day": 3,
         "title": "新消息：体能报告上的冲刺距离",
         "body": "上周的高强度冲刺距离掉到全队倒数第二。体能教练把报表摊在桌上，问你最近睡几个小时——他没说是因为伤病还是因为别的。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:event:event:2026:28:6:mw_coach_role_call",
@@ -119483,7 +119483,7 @@
         "day": 6,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:28:6",
@@ -119500,7 +119500,7 @@
         "day": 7,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:27:5",
@@ -119517,7 +119517,7 @@
         "day": 5,
         "title": "新消息：涨租通知",
         "body": "房东把续租合同塞进门缝，涨幅是你没预料到的那种。同一条街上，俱乐部另一名球员的租约也一并涨了。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:event:event:2026:26:6:agent_call",
@@ -119526,7 +119526,7 @@
         "day": 6,
         "title": "新消息：经纪人的电话",
         "body": "经纪人打电话来，说有几家俱乐部在关注你，但前提是你得先踢上球。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:26:4",
@@ -119543,7 +119543,7 @@
         "day": 5,
         "title": "新消息：预备队的召回",
         "body": "青年队缺人，教练组问你能不能下去踢四十五分钟，帮一个十七岁的孩子稳住后场。你的膝盖最近不太安静。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:event:event:2026:25:4:mt_dirty_clean",
@@ -119552,7 +119552,7 @@
         "day": 4,
         "title": "新消息：什么叫聪明的犯规",
         "body": "那位老后腰坐在替补席的长椅上看你训练。他说你黄牌多不是因为脏，是因为晚。他示范了怎么在半转身时把对方的推进拦下来而不让裁判看见后背。",
-        "kind": "media"
+        "kind": "teammate"
       },
       {
         "id": "news:event:event:2026:25:3:bench_frustration",
@@ -119561,7 +119561,7 @@
         "day": 3,
         "title": "新消息：看台上的九十分钟",
         "body": "你又一次没能进入首发。比赛结束后，经纪人发来消息，问你是否考虑换个环境。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:25:3",
@@ -119578,7 +119578,7 @@
         "day": 6,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:24:2",
@@ -119595,7 +119595,7 @@
         "day": 7,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:23:1",
@@ -119612,7 +119612,7 @@
         "day": 6,
         "title": "新消息：第一份对账单",
         "body": "银行寄来的月度对账单上，税那一栏第一次超过了你的周薪。客服说这是正常代扣，建议你「找专业人士看一次」。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:event:event:2026:22:6:mw_coach_role_call",
@@ -119621,7 +119621,7 @@
         "day": 6,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:22:0",
@@ -119638,7 +119638,7 @@
         "day": 7,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:21:1",
@@ -119655,7 +119655,7 @@
         "day": 6,
         "title": "新消息：邻居的投诉",
         "body": "有人在门缝里塞了一张纸条，说你凌晨的录像声音太大了。纸条没有署名，但你认得那台一直亮着灯的窗户。",
-        "kind": "media"
+        "kind": "family"
       },
       {
         "id": "news:event:event:2026:20:3:bench_frustration",
@@ -119664,7 +119664,7 @@
         "day": 3,
         "title": "新消息：看台上的九十分钟",
         "body": "你又一次没能进入首发。比赛结束后，经纪人发来消息，问你是否考虑换个环境。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:20:2",
@@ -119681,7 +119681,7 @@
         "day": 1,
         "title": "新消息：家里的第一个明确的请求",
         "body": "父亲第一次在电话里说清楚要多少：翻修屋顶，折下来大约是你两个月的工资。他说完就后悔了，开始说「其实也没那么急」。",
-        "kind": "media"
+        "kind": "family"
       },
       {
         "id": "news:event:event:2026:19:7:mw_coach_role_call",
@@ -119690,7 +119690,7 @@
         "day": 7,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:thriller:fixture:league:ENG:2:2026:19:3",
@@ -119715,7 +119715,7 @@
         "day": 5,
         "title": "新消息：停车场的那次剐蹭",
         "body": "你的车把另一辆车的保险杠蹭了一道。对方不在，摄像头在，保险公司要报案号，而俱乐部门口已经有人在拍照。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:event:event:2026:18:7:st_private_offer",
@@ -119724,7 +119724,7 @@
         "day": 7,
         "title": "新消息：私教的六周套餐",
         "body": "私教把一份排期表推过来：六周，每周两次，只练第一脚触球和逆足。他说俱乐部的课练的是十一个人，他练的是你。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:event:event:2026:18:6:mw_coach_role_call",
@@ -119733,7 +119733,7 @@
         "day": 6,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:18:4",
@@ -119750,7 +119750,7 @@
         "day": 7,
         "title": "新消息：经纪人的电话",
         "body": "经纪人打电话来，说有几家俱乐部在关注你，但前提是你得先踢上球。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:thriller:fixture:league:ENG:2:2026:17:5",
@@ -119775,7 +119775,7 @@
         "day": 4,
         "title": "新消息：体能报告上的冲刺距离",
         "body": "上周的高强度冲刺距离掉到全队倒数第二。体能教练把报表摊在桌上，问你最近睡几个小时——他没说是因为伤病还是因为别的。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:event:event:2026:16:7:ms_scout_visit",
@@ -119784,7 +119784,7 @@
         "day": 7,
         "title": "新消息：青训旧友来看你训练",
         "body": "青训时和你睡同一间宿舍的人来看了一堂课。他现在在低两级联赛当助教。他说你看起来比当年累，然后问了句：后悔留在职业里吗。",
-        "kind": "media"
+        "kind": "teammate"
       },
       {
         "id": "news:event:event:2026:16:6:mw_coach_role_call",
@@ -119793,7 +119793,7 @@
         "day": 6,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:16:6",
@@ -119810,7 +119810,7 @@
         "day": 3,
         "title": "新消息：看台上的九十分钟",
         "body": "你又一次没能进入首发。比赛结束后，经纪人发来消息，问你是否考虑换个环境。",
-        "kind": "media"
+        "kind": "finance"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:15:7",
@@ -119827,7 +119827,7 @@
         "day": 6,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:14:8",
@@ -119844,7 +119844,7 @@
         "day": 4,
         "title": "新消息：基地门口的罚单",
         "body": "车把上夹了一张纸条，写着你占了大巴的转弯位。保安亭的人说，这条规定昨天才贴出来，纸在你背后那根柱子上。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:event:event:2026:13:7:mw_coach_role_call",
@@ -119853,7 +119853,7 @@
         "day": 7,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       },
       {
         "id": "news:match:fixture:league:ENG:2:2026:13:9",
@@ -119870,7 +119870,7 @@
         "day": 6,
         "title": "新消息：赛前的定位讲话",
         "body": "卢克·怀特在战术板前留下最后一句话：这场你需要做的不是出彩，而是把该赢的对抗赢下来。",
-        "kind": "media"
+        "kind": "club"
       }
     ],
     "season": 2027,
