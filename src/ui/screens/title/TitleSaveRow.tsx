@@ -16,7 +16,7 @@ export function TitleSaveRow({ save, active, onLoad, onAskDelete }: TitleSaveRow
     <div data-save-row className="flex items-stretch gap-2">
       <button
         type="button"
-        className="card flex flex-1 items-center justify-between gap-3 p-3 text-left transition hover:border-accent/40"
+        className="card flex min-w-0 flex-1 items-center justify-between gap-3 p-3 text-left transition hover:border-accent/40"
         onClick={() => onLoad(save.id)}
       >
         <div className="min-w-0">

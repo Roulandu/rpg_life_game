@@ -61,4 +61,15 @@ describe('标题页存档行', () => {
     expect(screen.getByText(/种子 7 · 建于/)).toBeInTheDocument()
     expect(screen.getAllByText(/保存于/)).toHaveLength(2)
   })
+
+  it('载入键必须允许被压缩，否则长文案会把 44px 删除键顶出视口', () => {
+    const { container } = renderRow(summary())
+    const load = container.querySelector('[data-save-row] button')!
+    const cls = load.className
+
+    // jsdom 没有布局引擎，量不出 360px 下删除键的右边界；这里守的是导致溢出的那条 CSS 事实：
+    // 文案行是 whitespace-nowrap，flex 项默认 min-width:auto 等于内容宽，不写 min-w-0 就压不下去。
+    expect(cls).toContain('flex-1')
+    expect(cls).toContain('min-w-0')
+  })
 })
