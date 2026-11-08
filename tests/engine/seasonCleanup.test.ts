@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { advanceWeek } from '../../src/engine/turn'
-import { endSeason, resolveEvent } from '../../src/engine'
+import { endSeason } from '../../src/engine/season'
+import { resolveEvent } from '../../src/engine/events'
+import { generateDailyEvents } from '../../src/engine/eventsDaily'
 import { EVENT_TEMPLATES } from '../../src/domain'
 import type { GameEvent, WorldState } from '../../src/domain/types'
 import { generateWorld } from '../../src/world/generator'
@@ -117,6 +119,19 @@ describe('跨季清理：事件', () => {
     endSeason(world)
 
     expect(world.events[open!.id]).toMatchObject({ status: 'resolved', season: before.season })
+  }, REPLAY_TIMEOUT)
+
+  it('转季后再生成事件时，once 闸门查的是记忆而不是残存事件', () => {
+    const world = structuredClone(seasonSwitch().after)
+    const memory = new Set(world.eventOnceUsed)
+    const before = new Set(Object.keys(world.events))
+
+    generateDailyEvents(world, null)
+
+    for (const event of Object.values(world.events)) {
+      if (before.has(event.id) || !ONCE_IDS.has(event.templateId)) continue
+      expect(memory.has(event.templateId), `模板 ${event.templateId} 已经用过，仍能再生成`).toBe(false)
+    }
   }, REPLAY_TIMEOUT)
 
   it('once 模板的事件被清掉后，记忆还在', () => {
