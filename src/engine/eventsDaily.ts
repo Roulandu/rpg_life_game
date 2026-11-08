@@ -16,7 +16,8 @@ function isReady(world: WorldState, template: EventTemplateContent, today: numbe
   const last = world.eventMemory[template.id]
   if (last != null && today - last < template.cooldownDays) return false
   if (template.weekdays && !template.weekdays.includes(world.day)) return false
-  if (template.once && Object.values(world.events).some((event) => event.templateId === template.id)) return false
+  // once 记的是「一辈子一次」，而往季事件会在跨季时被清掉，所以只能查这份独立记忆。
+  if (template.once && world.eventOnceUsed.includes(template.id)) return false
   if (template.maxPerSeason == null) return true
   const used = Object.values(world.events).filter(
     (event) => event.templateId === template.id && event.season === world.season,
@@ -58,6 +59,9 @@ function createEvent(
     source: 'template',
   }
   world.events[id] = event
+  if (template.once && !world.eventOnceUsed.includes(template.id)) {
+    world.eventOnceUsed = [...world.eventOnceUsed, template.id].sort()
+  }
   world.eventMemory[template.id] = createdAtDay
   world.news.unshift({
     id: `news:event:${id}`,

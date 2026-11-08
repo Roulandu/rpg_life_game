@@ -11,12 +11,12 @@ import {
 import type { PlayerMove, WorldState } from '../../src/domain'
 import { exportWorld, importWorld } from '../../src/db/repository'
 import { hashString, canonicalStringify } from '../../src/lib'
-import { ENGINE_VERSION } from '../../src/world'
 
 /**
  * 职责：守住 `tests/fixtures/career-with-moves.v12.json` 这份「有真进度」的存档夹具。
  * 边界：夹具由 `npm run fixture:moves-career` 用默认属性跑真实整季产出，本文件只验它自不自洽、能不能导入。
- * 依赖：src/db 的导出/导入口、src/lib 的规范化哈希、src/world 的引擎版本常量。
+ * 档位：文件刻意停在 v12 / 0.17.0，所以它同时是「旧版本档」的迁移样本；升版本时不要把它改成当前档。
+ * 依赖：src/db 的导出/导入口、src/lib 的规范化哈希。
  */
 const FIXTURE = 'tests/fixtures/career-with-moves.v12.json'
 
@@ -45,24 +45,25 @@ function viaOf(moveId: string): string[] {
 }
 
 describe('带绝技进度的 v12 夹具存档', () => {
-  it('夹具是 v12 当前引擎版本，且校验和与规范化后的世界一致', () => {
+  it('夹具是 v12 时代（0.17.0）的存档，校验和与规范化后的世界一致', () => {
     const envelope = readEnvelope()
 
     expect(envelope.format).toBe('pitch-life-save')
-    expect(envelope.saveVersion).toBe(CURRENT_SAVE_VERSION)
-    expect(envelope.engineVersion).toBe(ENGINE_VERSION)
+    expect(envelope.saveVersion).toBe(12)
+    expect(envelope.engineVersion).toBe('0.17.0')
     expect(envelope.checksum).toBe(hashString(canonicalStringify(envelope.world)))
   })
 
-  it('导进来再导出去，世界负载一个字节都不差', () => {
+  it('v12 旧档导入时升到当前版本，再来一次往返不再改变世界', () => {
     const envelope = readEnvelope()
 
     const imported = importWorld(JSON.stringify(envelope))
-    const reExported = JSON.parse(exportWorld(imported)) as SaveEnvelope
+    const once = canonicalStringify(imported)
+    const twice = canonicalStringify(importWorld(exportWorld(imported)))
 
-    expect(reExported.saveVersion).toBe(envelope.saveVersion)
-    expect(reExported.engineVersion).toBe(envelope.engineVersion)
-    expect(canonicalStringify(reExported.world)).toBe(canonicalStringify(envelope.world))
+    expect(imported.version).toBe(CURRENT_SAVE_VERSION)
+    expect(twice).toBe(once)
+    expect(recordsOf(imported)).toEqual(recordsOf(envelope.world))
   })
 
   it('四条获取路径在这份存档里都留了痕', () => {

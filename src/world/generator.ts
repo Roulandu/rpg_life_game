@@ -73,6 +73,7 @@ export function generateWorld(options: CareerCreateOptions, now: string): WorldS
     relationships,
     events: {},
     eventMemory: {},
+    eventOnceUsed: [],
     finance,
     staff: [],
     news: initialNews(user, chosenClub),

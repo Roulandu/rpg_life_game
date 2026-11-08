@@ -14,9 +14,10 @@ function replaySeason(seed: number): { events: number; quietDays: number; matchD
     const hadMatch = world.day >= 6 && Object.values(world.fixtures).some(
       (fixture) => fixture.week === world.week && (fixture.homeId === world.clubId || fixture.awayId === world.clubId),
     )
-    const before = Object.keys(world.events).length
+    const before = new Set(Object.keys(world.events))
     world = playDay(world, { autoResolve: true }).world
-    const created = Object.keys(world.events).length - before
+    // 跨季清理会删掉往季事件，所以「新增几条」只能按 id 比，不能拿键数量差值。
+    const created = Object.keys(world.events).filter((id) => !before.has(id)).length
     events += created
     if (created === 0) quietDays += 1
     if (hadMatch && created > 0) matchDayEvents += 1

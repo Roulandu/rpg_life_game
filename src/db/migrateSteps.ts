@@ -8,6 +8,7 @@ import {
   fixtureDayOf,
   makeLegendRelationship,
   nameZhFor,
+  pruneFinishedSeason,
 } from '../domain'
 import type { GameEvent, KeyMoment, MatchReport, Player, Relationship, WorldState } from '../domain'
 
@@ -248,6 +249,20 @@ function clearPendingPlan(world: WorldState): void {
   world.pendingDayPlan = null
 }
 
+/**
+ * v12 及更早的存档会把往季赛程与过期事件一直背着走，v13 起引擎在跨季时清理。
+ * 顺序不能颠倒：`once` 模板的记忆要在事件被删掉之前从现存事件里抄出来，
+ * 否则「一辈子只来一次」的人生里程碑会在下一个赛季重新触发一遍。
+ */
+function migrateCrossSeasonCleanup(world: WorldState): void {
+  const onceUsed = new Set(world.eventOnceUsed ?? [])
+  for (const event of Object.values(world.events)) {
+    if (eventTemplateById(event.templateId)?.once) onceUsed.add(event.templateId)
+  }
+  world.eventOnceUsed = [...onceUsed].sort()
+  pruneFinishedSeason(world)
+}
+
 /** 数组顺序就是执行顺序，所以 `from` 不要求单调递增。 */
 export const MIGRATION_STEPS: MigrationStep[] = [
   { from: 5, run: migrateTimeModel },
@@ -258,5 +273,6 @@ export const MIGRATION_STEPS: MigrationStep[] = [
   { from: 10, run: migrateLegend },
   { from: 11, run: migrateFinance },
   { from: 12, run: migrateStaff },
+  { from: 13, run: migrateCrossSeasonCleanup },
   { from: 2, run: clearPendingPlan },
 ]

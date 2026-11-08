@@ -219,6 +219,7 @@ export type {
 export { SAVE_FORMAT, assertWorld, saveEnvelopeSchema } from './schema/save.schema'
 export type { SaveEnvelope } from './schema/save.schema'
 export type { SaveRecord, SaveSummary } from './saveTypes'
+export { pruneFinishedSeason } from './seasonCleanup'
 export { displayName, hasCjk, nameZhFor } from './names'
 export {
   LEGEND_NAME,

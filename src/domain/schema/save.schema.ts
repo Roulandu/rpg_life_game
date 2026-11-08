@@ -112,6 +112,8 @@ export const worldSchema = z
     events: z.record(z.string(), z.object({ id: z.string(), status: z.string() }).passthrough()),
     // v7 之前没有事件冷却记忆：旧档缺字段时放行，由迁移补成空表。
     eventMemory: z.record(z.string(), z.number()).optional(),
+    // v13 之前没有 once 模板的独立记忆：旧档缺字段时放行，由迁移从现存事件回填。
+    eventOnceUsed: z.array(z.string()).optional(),
     finance: z
       .object({
         balance: z.number(),

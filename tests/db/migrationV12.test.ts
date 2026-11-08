@@ -98,7 +98,7 @@ describe('存档迁移 v11 -> v12 个人团队名册', () => {
 
 describe('v12 迁移步骤在表里的登记', () => {
   it('迁移表里挂着 v11→v12 这一步：从表尾删掉它，老档就没有名册', () => {
-    const step = MIGRATION_STEPS.find((item) => item.from === CURRENT_SAVE_VERSION)
+    const step = MIGRATION_STEPS.find((item) => item.from === 12)
     expect(step).toBeDefined()
 
     const legacy = v11World() as StaffView

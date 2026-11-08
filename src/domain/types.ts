@@ -207,6 +207,8 @@ export interface WorldState {
   events: Record<Id, GameEvent>
   /** 模板 id → 上次生成它的绝对日序；每日事件靠它做冷却，避免同一周内刷屏。 */
   eventMemory: Record<string, number>
+  /** 已经触发过的 `once` 模板 id。v13 起跨季会删掉往季事件，这条记忆是「一辈子只来一次」的唯一凭据。 */
+  eventOnceUsed: string[]
   finance: Finance
   /** 玩家自己雇的个人团队（队医 / 心理咨询师 / 私人教练），在职即按周扣钱并每天生效。 */
   staff: StaffMember[]

@@ -1,5 +1,6 @@
 import { clamp, overall, round1 } from '../domain'
 import { generateFixtures } from '../domain'
+import { pruneFinishedSeason } from '../domain'
 import { computeLeagueTable } from '../domain'
 import { computeClubStrength } from '../domain'
 import type {
@@ -229,6 +230,8 @@ function prepareNextSeason(world: WorldState, nextSeason: number): void {
   for (const event of Object.values(world.events)) {
     if (event.status === 'open') event.status = 'expired'
   }
+  // 往季赛程与没处理完的往季事件此后再不会被读到，留着只会让存档每天越写越慢。
+  pruneFinishedSeason(world)
 }
 
 export function applySeasonTransition(

@@ -52,7 +52,8 @@ describe('season simulation', () => {
     const nextFixtures = Object.values(world.fixtures).filter((fixture) => fixture.season === 2027)
     expect(nextFixtures).toHaveLength(760)
     expect(nextFixtures.every((fixture) => fixture.status === 'scheduled')).toBe(true)
-    expect(Object.keys(world.fixtures)).toHaveLength(1520)
+    // v13 起跨季会清掉上一季的赛程，存档里只留当季这一批。
+    expect(Object.keys(world.fixtures)).toHaveLength(760)
     expect(world.news.length).toBeLessThanOrEqual(120)
     expect(Number.isFinite(world.finance.balance)).toBe(true)
 
